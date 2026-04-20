@@ -1,0 +1,11 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "back": "Back"
+  },
+  "home": {
+    "title": "Welcome to Cradlen",
+    "description": "Get started by editing the page."
+  }
+}

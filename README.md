@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cradlen Web
+
+A modern web application built with Next.js 16 App Router, React 19, and full Arabic/English localization support.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + TypeScript |
+| Styling | Tailwind CSS v4 |
+| Components | shadcn/ui (`radix-nova` style) |
+| State | Zustand v5 |
+| Server State | TanStack Query v5 |
+| Forms | React Hook Form + Zod v4 |
+| Icons | Lucide React |
+| i18n | next-intl v4 (English + Arabic / RTL) |
+
+## Prerequisites
+
+- Node.js 20+
+- npm
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev      # Start dev server (Turbopack)
+npm run build    # Production build
+npm run lint     # Run ESLint
+```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/
+│   ├── layout.tsx              # Root shell — sets lang/dir on <html>
+│   └── [locale]/
+│       ├── layout.tsx          # Mounts NextIntlClientProvider
+│       └── page.tsx            # Locale-aware pages
+├── components/
+│   └── ui/                     # shadcn/ui primitive components
+├── i18n/
+│   ├── routing.ts              # Locale list: en, ar
+│   ├── request.ts              # getRequestConfig — loads messages
+│   └── navigation.ts           # Locale-aware Link, redirect, useRouter
+├── lib/
+│   ├── utils.ts                # cn() for class merging
+│   ├── api.ts                  # Fetch helpers
+│   └── queryClient.ts          # TanStack Query shared client
+├── messages/
+│   ├── en.json                 # English translations
+│   └── ar.json                 # Arabic translations
+├── styles/
+│   └── globals.css             # Tailwind v4 theme tokens (CSS vars)
+├── types/
+│   ├── api.types.ts
+│   └── common.types.ts
+└── proxy.ts                    # next-intl middleware (Next.js 16 uses proxy.ts)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Conventions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Class names** — use `cn()` from `@/lib/utils` for conditional Tailwind classes.
 
-## Deploy on Vercel
+**Path alias** — `@/` maps to `src/`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**shadcn components** — use `radix-ui` (not scoped `@radix-ui/*` packages). Import `Slot` from `radix-ui`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Tailwind v4** — no `tailwind.config.js`. Extend the theme in `src/styles/globals.css` using `@theme`.
+
+**Next.js 16** — middleware file is `src/proxy.ts`, not `middleware.ts`.
+
+## Localization
+
+The app supports English (`en`) and Arabic (`ar`) with automatic RTL layout for Arabic.
+
+- All pages live under `src/app/[locale]/`
+- Call `setRequestLocale(locale)` at the top of every page/layout that receives `params`
+- Server components: `const t = await getTranslations("namespace")` from `next-intl/server`
+- Client components: `const t = useTranslations("namespace")` from `next-intl`
+- Always use `Link`, `redirect`, `useRouter` from `@/i18n/navigation` — never from `next/navigation` or `next/link`
+- Use Tailwind's `rtl:`/`ltr:` variants and logical properties (`ms-`, `me-`, `ps-`, `pe-`) in components
+
+To add a new locale: update `src/i18n/routing.ts` and create `src/messages/{locale}.json`.
+
+## Adding UI Components
+
+Components are managed via shadcn/ui:
+
+```bash
+npx shadcn add <component-name>
+```
+
+Generated components land in `src/components/ui/`. Extend them, but avoid modifying generated files directly.
