@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm list *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(k\\) for k in d.get\\('exports',{}\\).keys\\(\\)]\")",
+      "Bash(npm run *)",
+      "Bash(git remote *)",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)",
+      "Bash(echo \"EXIT: $?\")",
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s \"http://localhost:3000/en/sign-up\")",
+      "Bash(curl -s --max-time 10 \"http://localhost:3000/en/sign-up\")",
+      "WebFetch(domain:api.cradlen.com)",
+      "Bash(git checkout *)",
+      "Bash(git add *)"
+    ]
+  }
+}
