@@ -1,3 +1,5 @@
+import { useAuthStore } from "@/features/auth/store/authStore";
+
 const BASE_URL = "https://api.cradlen.com/v1";
 
 export class ApiError extends Error {
@@ -19,4 +21,15 @@ export async function apiFetch<T>(
     throw new ApiError(res.status, body?.message ?? res.statusText);
   }
   return res.json() as Promise<T>;
+}
+
+export function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = useAuthStore.getState().tokens?.access_token;
+  return apiFetch<T>(path, {
+    ...options,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
 }

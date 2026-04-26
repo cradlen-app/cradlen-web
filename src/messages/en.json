@@ -5,8 +5,69 @@
     "back": "Back"
   },
   "home": {
-    "title": "Welcome to Cradlen",
-    "description": "Get started by editing the page."
+    "eyebrowStart": "From the first moment",
+    "eyebrowEnd": "To the last",
+    "title": "A clear timeline for every patient, from the first visit to the last.",
+    "description": "Cradlen helps clinics organize appointments, staff, patient records, and daily follow-up in one calm workflow.",
+    "signIn": "Sign in",
+    "logIn": "Log in",
+    "joinFree": "Join Free Now",
+    "sameStory": "Everyone works on the same story.",
+    "workflow": "One system. Multiple roles. One clear workflow.",
+    "timeline": "Patient timeline",
+    "roles": "Team roles",
+    "records": "Clinical records"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "patients": "Patients",
+    "staff": "Staff",
+    "medicine": "Medicine",
+    "medicalRep": "Medical Rep",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "logout": "Logout",
+    "searchPlaceholder": "Search patient....",
+    "upload": "upload"
+  },
+  "staff": {
+    "title": "Staff",
+    "newStaff": "New Staff",
+    "allStaff": "All Staff",
+    "doctor": "Doctor",
+    "reception": "Reception",
+    "filtersLabel": "Staff filters",
+    "searchPlaceholder": "Search....",
+    "noResults": "No staff members match your filters.",
+    "loadError": "Failed to load staff. Please try again.",
+    "roles": {
+      "owner": "Owner",
+      "doctor": "Doctor",
+      "reception": "Reception"
+    },
+    "columns": {
+      "name": "Name",
+      "role": "Role",
+      "specialty": "Specialty",
+      "phone": "Phone",
+      "status": "Status"
+    },
+    "status": {
+      "available": "Available",
+      "notAvailable": "Not Available"
+    },
+    "showResults": "show {count} of {total} results",
+    "overview": {
+      "title": "Overview",
+      "status": "Status",
+      "role": "Role",
+      "jobTitle": "Job Title",
+      "specialty": "Specialty",
+      "phoneNumber": "Phone Number",
+      "address": "Address",
+      "workSchedule": "Work Schedule"
+    }
   },
   "auth": {
     "signUp": {
