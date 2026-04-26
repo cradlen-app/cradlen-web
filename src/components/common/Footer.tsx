@@ -1,14 +1,9 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import LanguageSelect from "./LanguageSelect";
 
-type Props = {
-  params: Promise<{ locale: string }>;
-};
-
-export default async function Footer({ params }: Props) {
-  const { locale } = await params;
-  setRequestLocale(locale);
+export default async function Footer() {
+  const locale = await getLocale();
   const t = await getTranslations("auth.signUp");
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -18,8 +19,10 @@ export function SignInForm() {
   const t = useTranslations("auth.signIn");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { mutateAsync, isError, error } = useSignIn();
   const setTokens = useAuthStore((s) => s.setTokens);
+  const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
 
   const {
     register,
@@ -39,7 +42,7 @@ export function SignInForm() {
         router.replace(`/sign-up?token=${loginData.registration_token}&step=${step}`);
       } else {
         setTokens(loginData as AuthTokens);
-        router.replace("/");
+        router.replace(redirectTo);
       }
     } catch {
       // error state handled via mutation.isError
@@ -135,4 +138,12 @@ export function SignInForm() {
       </Link>
     </form>
   );
+}
+
+function getSafeRedirectPath(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/";
+  }
+
+  return value;
 }
