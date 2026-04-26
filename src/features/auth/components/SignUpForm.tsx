@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
@@ -19,6 +21,7 @@ import {
   useResumeRegistration,
 } from "../hooks/useSignUp";
 import type { Step1Data, Step2Data, Step3Data } from "../types/sign-up.types";
+import type { AuthTokens } from "../types/sign-in.types";
 
 const SPECIALTIES = [
   "General Practice",
@@ -37,9 +40,20 @@ export function SignUpForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
   const setTokens = useAuthStore((s) => s.setTokens);
+  const searchParams = useSearchParams();
 
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
-  const [registrationToken, setRegistrationToken] = useState<string | null>(null);
+  const resumeToken = searchParams.get("token");
+  const resumeStep = searchParams.get("step");
+
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(() => {
+    if (resumeToken && (resumeStep === "2" || resumeStep === "3")) {
+      return Number(resumeStep) as 2 | 3;
+    }
+    return 1;
+  });
+  const [registrationToken, setRegistrationToken] = useState<string | null>(
+    resumeToken ?? null,
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [stepError, setStepError] = useState<string | null>(null);
@@ -100,12 +114,15 @@ export function SignUpForm() {
             email: data.email,
             password: data.password,
           });
-          if ("pending_step" in loginRes) {
-            setRegistrationToken(loginRes.registration_token);
-            setCurrentStep(loginRes.pending_step === "verify_email" ? 2 : 3);
+          const loginData = loginRes.data;
+          if ("pending_step" in loginData) {
+            toast.info(t("toasts.resumingRegistration"));
+            setRegistrationToken(loginData.registration_token);
+            setCurrentStep(loginData.pending_step === "verify_email" ? 2 : 3);
           } else {
             // Registration was already completed — log them in directly
-            setTokens(loginRes);
+            toast.info(t("toasts.alreadyRegistered"));
+            setTokens(loginData as AuthTokens);
             router.push("/");
           }
         } catch {
@@ -145,7 +162,7 @@ export function SignUpForm() {
         organization_specialities: specialtiesArray,
         branch_address: data.address,
         branch_city: data.city,
-        branch_governate: data.governorate,
+        branch_governorate: data.governorate,
       });
       setTokens(res.data);
       router.push("/");

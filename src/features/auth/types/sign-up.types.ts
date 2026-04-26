@@ -51,7 +51,7 @@ export type RegisterOrganizationRequest = {
   organization_specialities?: string[];
   branch_address: string;
   branch_city: string;
-  branch_governate: string;
+  branch_governorate: string;
 };
 
 export type ResendOtpRequest = {
@@ -85,4 +85,4 @@ export type AuthTokens = {
   expires_in: number;
 };
 
-export type LoginResponse = AuthTokens | PendingLoginResponse;
+export type LoginResponse = ApiResponse<AuthTokens | PendingLoginResponse>;
