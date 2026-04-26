@@ -3,7 +3,6 @@ import { setRequestLocale } from "next-intl/server";
 import { ForgotPasswordForm } from "@/features/auth/components/ForgotPasswordForm";
 import LogoIcon from "@/public/Logo-icon.png";
 import Logo from "@/public/Logo.png";
-import Footer from "@/components/common/Footer";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -40,9 +39,6 @@ export default async function ForgotPasswordPage({ params }: Props) {
           <ForgotPasswordForm />
         </div>
       </main>
-
-      {/* Footer */}
-      <Footer params={params} />
     </div>
   );
 }

@@ -4,7 +4,6 @@ import { Link } from "@/i18n/navigation";
 import { SignUpForm } from "@/features/auth/components/SignUpForm";
 import LogoIcon from "@/public/Logo-icon.png";
 import Logo from "@/public/Logo.png";
-import Footer from "@/components/common/Footer";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -52,9 +51,6 @@ export default async function SignUpPage({ params }: Props) {
           <SignUpForm />
         </div>
       </main>
-
-      {/* Footer */}
-      <Footer params={params} />
     </div>
   );
 }
