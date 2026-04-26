@@ -64,6 +64,10 @@
         "emailAlreadyRegistered": "This email is already registered. Please sign in instead.",
         "invalidCode": "Invalid or expired verification code.",
         "resendSuccess": "A new code has been sent to your email."
+      },
+      "toasts": {
+        "resumingRegistration": "Email already registered — resuming your incomplete registration.",
+        "alreadyRegistered": "You already have an account. Signing you in..."
       }
     },
     "forgotPassword": {
@@ -116,6 +120,9 @@
         "passwordMinLength": "Password must be at least 8 characters",
         "invalidCredentials": "Invalid email or password",
         "serverError": "Something went wrong. Please try again."
+      },
+      "toasts": {
+        "resumingRegistration": "Your registration is incomplete — redirecting to continue sign-up."
       }
     }
   }

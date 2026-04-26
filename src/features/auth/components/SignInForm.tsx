@@ -8,9 +8,11 @@ import { Eye, EyeOff } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { ApiError } from "@/lib/api";
+import { toast } from "sonner";
 import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas";
 import { useSignIn } from "../hooks/useSignIn";
 import { useAuthStore } from "../store/authStore";
+import type { AuthTokens } from "../types/sign-in.types";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
@@ -29,9 +31,16 @@ export function SignInForm() {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      const tokens = await mutateAsync(data);
-      setTokens(tokens);
-      router.replace("/");
+      const res = await mutateAsync(data);
+      const loginData = res.data;
+      if ("pending_step" in loginData) {
+        toast.info(t("toasts.resumingRegistration"));
+        const step = loginData.pending_step === "verify_email" ? 2 : 3;
+        router.replace(`/sign-up?token=${loginData.registration_token}&step=${step}`);
+      } else {
+        setTokens(loginData as AuthTokens);
+        router.replace("/");
+      }
     } catch {
       // error state handled via mutation.isError
     }

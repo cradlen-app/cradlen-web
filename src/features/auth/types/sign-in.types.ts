@@ -6,3 +6,5 @@ export type AuthTokens = {
   token_type: string;
   expires_in: number;
 };
+
+export type AuthTokensResponse = { data: AuthTokens; meta: Record<string, unknown> };
