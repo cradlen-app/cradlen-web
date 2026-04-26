@@ -4,7 +4,6 @@ import { Link } from "@/i18n/navigation";
 import { SignInForm } from "@/features/auth/components/SignInForm";
 import LogoIcon from "@/public/Logo-icon.png";
 import Logo from "@/public/Logo.png";
-import Footer from "@/components/common/Footer";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -55,9 +54,6 @@ export default async function SignInPage({ params }: Props) {
           <SignInForm />
         </div>
       </main>
-
-      {/* Footer */}
-      <Footer params={params} />
     </div>
   );
 }
