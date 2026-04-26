@@ -5,8 +5,69 @@
     "back": "رجوع"
   },
   "home": {
-    "title": "مرحباً بك في Cradlen",
-    "description": "ابدأ بتحرير الصفحة."
+    "eyebrowStart": "من أول لحظة",
+    "eyebrowEnd": "حتى النهاية",
+    "title": "خط زمني واضح لكل مريض، من أول زيارة حتى آخر متابعة.",
+    "description": "يساعد Cradlen العيادات على تنظيم المواعيد والموظفين وسجلات المرضى والمتابعة اليومية في سير عمل هادئ واحد.",
+    "signIn": "تسجيل الدخول",
+    "logIn": "دخول",
+    "joinFree": "انضم مجاناً الآن",
+    "sameStory": "الجميع يعمل على نفس القصة.",
+    "workflow": "نظام واحد. أدوار متعددة. سير عمل واضح.",
+    "timeline": "خط زمني للمريض",
+    "roles": "أدوار الفريق",
+    "records": "السجلات الطبية"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "calendar": "التقويم",
+    "patients": "المرضى",
+    "staff": "الموظفون",
+    "medicine": "الأدوية",
+    "medicalRep": "المندوب الطبي",
+    "analytics": "التحليلات",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "searchPlaceholder": "البحث عن مريض....",
+    "upload": "رفع"
+  },
+  "staff": {
+    "title": "الموظفون",
+    "newStaff": "موظف جديد",
+    "allStaff": "جميع الموظفين",
+    "doctor": "طبيب",
+    "reception": "استقبال",
+    "filtersLabel": "تصفية الموظفين",
+    "searchPlaceholder": "بحث....",
+    "noResults": "لا يوجد موظفون مطابقون لعوامل التصفية.",
+    "loadError": "فشل تحميل الموظفين. يرجى المحاولة مرة أخرى.",
+    "roles": {
+      "owner": "مالك",
+      "doctor": "طبيب",
+      "reception": "استقبال"
+    },
+    "columns": {
+      "name": "الاسم",
+      "role": "الدور",
+      "specialty": "التخصص",
+      "phone": "الهاتف",
+      "status": "الحالة"
+    },
+    "status": {
+      "available": "متاح",
+      "notAvailable": "غير متاح"
+    },
+    "showResults": "عرض {count} من {total} نتيجة",
+    "overview": {
+      "title": "نظرة عامة",
+      "status": "الحالة",
+      "role": "الدور",
+      "jobTitle": "المسمى الوظيفي",
+      "specialty": "التخصص",
+      "phoneNumber": "رقم الهاتف",
+      "address": "العنوان",
+      "workSchedule": "جدول العمل"
+    }
   },
   "auth": {
     "signUp": {

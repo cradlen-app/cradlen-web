@@ -19,13 +19,15 @@ export default async function SignUpPage({ params }: Props) {
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-5">
-        <Image
-          src={Logo}
-          alt="CRADLEN"
-          loading="eager"
-          height={36}
-          className="w-auto"
-        />
+        <Link href="/" aria-label="Cradlen home" className="inline-flex">
+          <Image
+            src={Logo}
+            alt="CRADLEN"
+            loading="eager"
+            height={36}
+            className="w-auto"
+          />
+        </Link>
         <Link
           href="/sign-in"
           className="text-base text-brand-secondary hover:opacity-80 transition-opacity"
