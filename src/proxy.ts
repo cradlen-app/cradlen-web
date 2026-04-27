@@ -16,6 +16,8 @@ const PROTECTED_ROUTES = [
   "/staff",
 ];
 
+const PUBLIC_ROUTES = ["/staff/invite"];
+
 function getPathWithoutLocale(pathname: string) {
   const segments = pathname.split("/");
   const maybeLocale = segments[1];
@@ -30,6 +32,10 @@ function getPathWithoutLocale(pathname: string) {
 
 function isProtectedPath(pathname: string) {
   const pathWithoutLocale = getPathWithoutLocale(pathname);
+
+  if (PUBLIC_ROUTES.some((route) => pathWithoutLocale === route)) {
+    return false;
+  }
 
   return PROTECTED_ROUTES.some(
     (route) => pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`),
