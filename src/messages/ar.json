@@ -59,6 +59,66 @@
       "notAvailable": "غير متاح"
     },
     "showResults": "عرض {count} من {total} نتيجة",
+    "create": {
+      "title": "الموظفون / موظف جديد",
+      "description": "دعوة موظف جديد وتحديد حسابه ودوره وجدول عمله.",
+      "close": "إغلاق نموذج الموظف الجديد",
+      "organizationAndBranch": "المنظمة والفرع",
+      "organization": "المنظمة",
+      "branch": "الفرع",
+      "personalInformation": "المعلومات الشخصية",
+      "workingInformation": "معلومات العمل",
+      "account": "الحساب",
+      "name": "الاسم",
+      "role": "الدور",
+      "selectRole": "اختر الدور",
+      "jobTitle": "المسمى الوظيفي",
+      "phone": "الهاتف",
+      "isClinical": "دور طبي",
+      "specialty": "التخصص",
+      "email": "البريد الإلكتروني",
+      "startTime": "بداية عمل {day}",
+      "endTime": "نهاية عمل {day}",
+      "invite": "دعوة",
+      "inviting": "جاري الدعوة...",
+      "success": "تم إرسال دعوة الموظف.",
+      "error": "فشل إرسال دعوة الموظف. يرجى المحاولة مرة أخرى.",
+      "missingOrganization": "لا توجد منظمة أو فرع مرتبط بهذا الحساب.",
+      "errors": {
+        "pendingInvitation": "توجد دعوة معلقة بالفعل لهذا البريد الإلكتروني.",
+        "reviewFields": "يرجى مراجعة الحقول المحددة."
+      },
+      "roles": {
+        "owner": "مالك",
+        "doctor": "طبيب",
+        "reception": "استقبال"
+      }
+    },
+    "invite": {
+      "title": "قبول دعوة الموظف",
+      "subtitle": "راجع تفاصيل الدعوة وأكد كلمة المرور للانضمام إلى مساحة عمل العيادة.",
+      "organization": "المنظمة",
+      "role": "الدور",
+      "branches": "الفروع",
+      "schedule": "جدول العمل",
+      "existingPassword": "كلمة مرور الحساب",
+      "existingPasswordHint": "هذا البريد لديه حساب بالفعل. أدخل كلمة المرور الحالية لقبول الدعوة.",
+      "createPassword": "إنشاء كلمة مرور",
+      "createPasswordHint": "أنشئ كلمة مرور لحسابك الجديد في Cradlen.",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
+      "passwordMin": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      "accept": "قبول الدعوة",
+      "accepting": "جاري القبول...",
+      "success": "تم قبول الدعوة. مرحباً بك في Cradlen.",
+      "errors": {
+        "missing": "رابط الدعوة ينقصه بعض البيانات المطلوبة.",
+        "invalid": "رابط الدعوة غير صالح.",
+        "accepted": "تم قبول هذه الدعوة بالفعل.",
+        "expired": "انتهت صلاحية هذه الدعوة.",
+        "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    },
     "overview": {
       "title": "نظرة عامة",
       "status": "الحالة",

@@ -59,6 +59,66 @@
       "notAvailable": "Not Available"
     },
     "showResults": "show {count} of {total} results",
+    "create": {
+      "title": "Staff / New Staff",
+      "description": "Invite a new staff member and assign their account, role, and working schedule.",
+      "close": "Close new staff form",
+      "organizationAndBranch": "Organization & Branch",
+      "organization": "Organization",
+      "branch": "Branch",
+      "personalInformation": "Personal Information",
+      "workingInformation": "Working Information",
+      "account": "Account",
+      "name": "Name",
+      "role": "Role",
+      "selectRole": "Select role",
+      "jobTitle": "Job title",
+      "phone": "Phone",
+      "isClinical": "Is clinical",
+      "specialty": "Specialty",
+      "email": "Email",
+      "startTime": "{day} start time",
+      "endTime": "{day} end time",
+      "invite": "Invite",
+      "inviting": "Inviting...",
+      "success": "Staff invitation sent.",
+      "error": "Failed to invite staff. Please try again.",
+      "missingOrganization": "No organization or branch is linked to this account.",
+      "errors": {
+        "pendingInvitation": "A pending invitation already exists for this email.",
+        "reviewFields": "Please review the highlighted fields."
+      },
+      "roles": {
+        "owner": "Owner",
+        "doctor": "Doctor",
+        "reception": "Reception"
+      }
+    },
+    "invite": {
+      "title": "Accept staff invitation",
+      "subtitle": "Review your invitation and confirm your password to join the clinic workspace.",
+      "organization": "Organization",
+      "role": "Role",
+      "branches": "Branches",
+      "schedule": "Schedule",
+      "existingPassword": "Account password",
+      "existingPasswordHint": "This email already has an account. Enter your current password to accept the invite.",
+      "createPassword": "Create password",
+      "createPasswordHint": "Create a password for your new Cradlen account.",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "passwordMin": "Password must be at least 8 characters.",
+      "accept": "Accept invitation",
+      "accepting": "Accepting...",
+      "success": "Invitation accepted. Welcome to Cradlen.",
+      "errors": {
+        "missing": "This invitation link is missing required information.",
+        "invalid": "This invitation link is invalid.",
+        "accepted": "This invitation has already been accepted.",
+        "expired": "This invitation has expired.",
+        "serverError": "Something went wrong. Please try again."
+      }
+    },
     "overview": {
       "title": "Overview",
       "status": "Status",
