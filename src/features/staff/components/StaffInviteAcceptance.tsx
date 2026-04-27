@@ -46,9 +46,28 @@ function getFullName(invite: StaffInvitePreview) {
 function getBranchLabel(branch: NonNullable<StaffInvitePreview["branches"]>[number]) {
   const details = branch.branch;
 
-  if (!details) return branch.branch_id ?? "";
+  if (branch.branch_name) return branch.branch_name;
+  if (!details) return "";
+  if (details.name) return details.name;
 
   return [details.address, details.city, details.governorate].filter(Boolean).join(", ");
+}
+
+function getOrganizationLabel(invite: StaffInvitePreview) {
+  return invite.organization?.name ?? invite.organization_name ?? "-";
+}
+
+function getRoleLabel(invite: StaffInvitePreview) {
+  return invite.role?.name ?? invite.role_name ?? "-";
+}
+
+function getInviterLabel(invite: StaffInvitePreview) {
+  const inviter = invite.invited_by ?? invite.inviter ?? invite.created_by;
+
+  if (!inviter) return "-";
+
+  const name = [inviter.first_name, inviter.last_name].filter(Boolean).join(" ");
+  return name || inviter.email || "-";
 }
 
 function getScheduleLabel(invite: StaffInvitePreview) {
@@ -153,13 +172,19 @@ export function StaffInviteAcceptance() {
               <div>
                 <p className="text-xs text-gray-400">{t("organization")}</p>
                 <p className="mt-1 text-sm font-medium text-brand-black">
-                  {invite.organization?.name ?? "-"}
+                  {getOrganizationLabel(invite)}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-400">{t("role")}</p>
                 <p className="mt-1 text-sm font-medium text-brand-black">
-                  {invite.role?.name ?? invite.role_id ?? "-"}
+                  {getRoleLabel(invite)}
+                </p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-gray-400">{t("invitedBy")}</p>
+                <p className="mt-1 text-sm font-medium text-brand-black">
+                  {getInviterLabel(invite)}
                 </p>
               </div>
               {branchLabels.length > 0 && (
