@@ -8,6 +8,9 @@ import type {
   ApiStaffListResponse,
   ApiStaffMember,
   ApiStaffRole,
+  StaffInvitationActionResponse,
+  StaffInvitationResponse,
+  StaffInvitationsResponse,
   StaffInvitePreviewResponse,
 } from "../types/staff.api.types";
 
@@ -15,6 +18,14 @@ type FetchStaffOptions = {
   limit?: number;
   page?: number;
   roleId?: string;
+};
+
+export type FetchStaffInvitationsOptions = {
+  branchId: string;
+  limit?: number;
+  organizationId: string;
+  page?: number;
+  status?: string;
 };
 
 export async function fetchRoles() {
@@ -57,6 +68,44 @@ export function inviteStaff(data: InviteStaffRequest) {
     method: "POST",
     body: JSON.stringify(data),
   });
+}
+
+export function fetchStaffInvitations({
+  branchId,
+  limit = 100,
+  organizationId,
+  page = 1,
+  status,
+}: FetchStaffInvitationsOptions) {
+  const params = new URLSearchParams({
+    organization_id: organizationId,
+    branch_id: branchId,
+    page: String(page),
+    limit: String(limit),
+  });
+
+  if (status && status !== "all") {
+    params.set("status", status);
+  }
+
+  return apiAuthFetch<StaffInvitationsResponse>(`/staff/invitations?${params}`);
+}
+
+export function fetchStaffInvitation(invitationId: string) {
+  return apiAuthFetch<StaffInvitationResponse>(`/staff/invitations/${invitationId}`);
+}
+
+export function deleteStaffInvitation(invitationId: string) {
+  return apiAuthFetch<StaffInvitationActionResponse>(`/staff/invitations/${invitationId}`, {
+    method: "DELETE",
+  });
+}
+
+export function resendStaffInvitation(invitationId: string) {
+  return apiAuthFetch<StaffInvitationActionResponse>(
+    `/staff/invitations/${invitationId}/resend`,
+    { method: "POST" },
+  );
 }
 
 export function previewStaffInvite(token: string, invitationId: string) {

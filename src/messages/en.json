@@ -120,6 +120,71 @@
         "serverError": "Something went wrong. Please try again."
       }
     },
+    "invitations": {
+      "title": "Invitations",
+      "subtitle": "Review pending invites and manage invitation emails for this branch.",
+      "breadcrumbLabel": "Staff invitations breadcrumb",
+      "link": "Invitations",
+      "filtersLabel": "Invitation filters",
+      "searchPlaceholder": "Search invitations....",
+      "manageLatest": "Manage latest",
+      "noResults": "No invitations match your filters.",
+      "noBranch": "No organization or branch is linked to this account.",
+      "loadError": "Failed to load invitations. Please try again.",
+      "showResults": "show {count} of {total} results",
+      "unnamedInvitee": "Unnamed invitee",
+      "view": "View invitation",
+      "resend": "Resend",
+      "resending": "Resending...",
+      "resendSuccess": "Invitation resent.",
+      "resendError": "Failed to resend invitation. Please try again.",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "deleteSuccess": "Invitation deleted.",
+      "deleteError": "Failed to delete invitation. Please try again.",
+      "detailsTitle": "Invitation details",
+      "detailsDescription": "Review this invitation before resending or deleting it.",
+      "closeDetails": "Close invitation details",
+      "selectInvitation": "Select an invitation to view details.",
+      "deleteTitle": "Delete invitation?",
+      "deleteDescription": "This will remove the invitation for {email}.",
+      "thisInvitation": "this invitation",
+      "cancel": "Cancel",
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "expired": "Expired",
+        "cancelled": "Cancelled"
+      },
+      "columns": {
+        "invitee": "Invitee",
+        "role": "Role",
+        "status": "Status",
+        "invited": "Invited",
+        "expires": "Expires",
+        "actions": "Actions"
+      },
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "expired": "Expired",
+        "cancelled": "Cancelled",
+        "unknown": "Unknown"
+      },
+      "fields": {
+        "role": "Role",
+        "jobTitle": "Job title",
+        "phone": "Phone",
+        "specialty": "Specialty",
+        "invitedAt": "Invited at",
+        "expiresAt": "Expires at",
+        "acceptedAt": "Accepted at",
+        "invitedBy": "Invited by",
+        "branches": "Branches",
+        "schedule": "Schedule"
+      }
+    },
     "overview": {
       "title": "Overview",
       "status": "Status",
