@@ -5,8 +5,6 @@ export type Step1Data = {
   email: string;
   password: string;
   confirmPassword: string;
-  isClinical: boolean;
-  specialty?: string;
 };
 
 export type Step2Data = {
@@ -20,6 +18,9 @@ export type Step3Data = {
   address: string;
   governorate: string;
   country: string;
+  isClinical: boolean;
+  specialty?: string;
+  jobTitle?: string;
 };
 
 export type SignUpFormData = Omit<Step3Data, "specialties"> &
@@ -36,8 +37,6 @@ export type RegisterPersonalRequest = {
   email: string;
   password: string;
   confirm_password: string;
-  is_clinical: boolean;
-  speciality?: string;
 };
 
 export type VerifyEmailRequest = {
@@ -52,6 +51,10 @@ export type RegisterOrganizationRequest = {
   branch_address: string;
   branch_city: string;
   branch_governorate: string;
+  branch_country: string;
+  is_clinical: boolean;
+  speciality?: string;
+  job_title?: string;
 };
 
 export type ResendOtpRequest = {

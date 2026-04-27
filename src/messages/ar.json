@@ -40,6 +40,7 @@
     "filtersLabel": "تصفية الموظفين",
     "searchPlaceholder": "بحث....",
     "noResults": "لا يوجد موظفون مطابقون لعوامل التصفية.",
+    "noOrganization": "لا توجد منظمة مرتبطة بهذا الحساب.",
     "loadError": "فشل تحميل الموظفين. يرجى المحاولة مرة أخرى.",
     "roles": {
       "owner": "مالك",
@@ -119,6 +120,9 @@
       "governoratePlaceholder": "الجيزة",
       "countryLabel": "الدولة",
       "countryPlaceholder": "مصر",
+      "clinicianHeading": "دورك المهني",
+      "jobTitleLabel": "المسمى الوظيفي (اختياري)",
+      "jobTitlePlaceholder": "مثال: طبيب أول",
       "errors": {
         "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
         "emailTaken": "يوجد حساب بهذا البريد الإلكتروني بالفعل.",
