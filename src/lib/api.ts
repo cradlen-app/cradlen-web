@@ -6,8 +6,17 @@ import { queryClient } from "@/lib/queryClient";
 const BASE_URL = "https://api.cradlen.com/v1";
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
+  messages: string[];
+
+  constructor(
+    public status: number,
+    message: string | string[],
+    public body?: unknown,
+  ) {
+    const messages = Array.isArray(message) ? message : [message];
+
+    super(messages.join("\n"));
+    this.messages = messages;
   }
 }
 
@@ -15,13 +24,19 @@ export async function apiFetch<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
+  const { headers, ...restOptions } = options ?? {};
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    ...options,
+    ...restOptions,
+    headers: { "Content-Type": "application/json", ...headers },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new ApiError(res.status, body?.message ?? res.statusText);
+    const message =
+      body && typeof body === "object" && "message" in body
+        ? (body.message as string | string[])
+        : res.statusText;
+
+    throw new ApiError(res.status, message, body);
   }
   return res.json() as Promise<T>;
 }

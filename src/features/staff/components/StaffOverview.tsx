@@ -53,7 +53,7 @@ export function StaffOverview({ member }: Props) {
         {t("title")}
       </p>
 
-      <div className="relative bg-brand-primary px-4 py-6 flex flex-col items-center gap-3 overflow-hidden">
+      <div className="relative bg-brand-primary px-4 py-6 flex flex-col items-center gap-3 overflow-hidden rounded-b-2xl">
         <span className="pointer-events-none absolute -top-6 -right-6 size-28 rounded-full bg-white/5" />
         <span className="pointer-events-none absolute -bottom-10 -left-8 size-36 rounded-full bg-white/5" />
 
@@ -72,23 +72,11 @@ export function StaffOverview({ member }: Props) {
           label={t("role")}
           value={staffT(getRoleTranslationKey(member.role))}
         />
-        <DetailRow
-          label={t("jobTitle")}
-          value={member.jobTitle}
-        />
-        <DetailRow
-          label={t("specialty")}
-          value={member.specialty || "-"}
-        />
-        <DetailRow
-          label={t("phoneNumber")}
-          value={member.phone}
-        />
+        <DetailRow label={t("jobTitle")} value={member.jobTitle} />
+        <DetailRow label={t("specialty")} value={member.specialty || "-"} />
+        <DetailRow label={t("phoneNumber")} value={member.phone} />
         {member.address && (
-          <DetailRow
-            label={t("address")}
-            value={member.address}
-          />
+          <DetailRow label={t("address")} value={member.address} />
         )}
         {member.workSchedule && (
           <DetailRow
