@@ -4,7 +4,9 @@ import { apiAuthFetch } from "@/lib/api";
 import type { CurrentUser } from "@/types/user.types";
 
 export function useCurrentUser() {
-  const hasToken = useAuthStore((s) => !!s.tokens?.access_token);
+  const hasToken = useAuthStore(
+    (s) => !!s.tokens?.access_token || !!s.tokens?.refresh_token,
+  );
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: () =>
