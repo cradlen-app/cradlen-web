@@ -32,10 +32,17 @@ function StaffTableSkeleton() {
 
 export function StaffPage() {
   const t = useTranslations("staff");
-  const { data: currentUser } = useCurrentUser();
+  const {
+    data: currentUser,
+    isLoading: isCurrentUserLoading,
+    isError: isCurrentUserError,
+  } = useCurrentUser();
   const organizationId = currentUser?.profiles[0]?.organization.id;
 
-  const { data: staff = [], isLoading, isError } = useStaff(organizationId);
+  const { data: staff = [], isLoading: isStaffLoading, isError: isStaffError } = useStaff(organizationId);
+  const isLoading = isCurrentUserLoading || isStaffLoading;
+  const isError = isCurrentUserError || isStaffError;
+  const hasNoOrganization = !isCurrentUserLoading && !isCurrentUserError && currentUser && !organizationId;
 
   const {
     filter,
@@ -68,6 +75,10 @@ export function StaffPage() {
             ) : isError ? (
               <div className="flex min-h-60 items-center justify-center text-sm text-red-400">
                 {t("loadError")}
+              </div>
+            ) : hasNoOrganization ? (
+              <div className="flex min-h-60 items-center justify-center text-sm text-gray-400">
+                {t("noOrganization")}
               </div>
             ) : (
               <StaffTable
