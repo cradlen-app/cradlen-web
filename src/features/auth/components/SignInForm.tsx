@@ -13,7 +13,10 @@ import { toast } from "sonner";
 import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas";
 import { useSignIn } from "../hooks/useSignIn";
 import { useAuthStore } from "../store/authStore";
+import { setRegistrationToken } from "../lib/registration-session";
 import type { AuthTokens } from "../types/sign-in.types";
+
+const DEFAULT_AUTH_REDIRECT = "/dashboard";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
@@ -39,7 +42,8 @@ export function SignInForm() {
       if ("pending_step" in loginData) {
         toast.info(t("toasts.resumingRegistration"));
         const step = loginData.pending_step === "verify_email" ? 2 : 3;
-        router.replace(`/sign-up?token=${loginData.registration_token}&step=${step}`);
+        setRegistrationToken(loginData.registration_token);
+        router.replace(`/sign-up?step=${step}`);
       } else {
         setTokens(loginData as AuthTokens);
         router.replace(redirectTo);
@@ -142,7 +146,7 @@ export function SignInForm() {
 
 function getSafeRedirectPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/";
+    return DEFAULT_AUTH_REDIRECT;
   }
 
   return value;
