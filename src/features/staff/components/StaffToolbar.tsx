@@ -1,11 +1,12 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { staffFilters } from "../lib/staff.utils";
-import type { StaffFilter } from "../types/staff.types";
+import { getRoleTranslationKey } from "../lib/staff.utils";
+import type { StaffFilter, StaffRoleFilter } from "../types/staff.types";
 
 type StaffToolbarProps = {
   activeFilter: StaffFilter;
+  roleFilters: StaffRoleFilter[];
   search: string;
   onFilterChange: (filter: StaffFilter) => void;
   onSearchChange: (search: string) => void;
@@ -13,30 +14,37 @@ type StaffToolbarProps = {
 
 export function StaffToolbar({
   activeFilter,
+  roleFilters,
   search,
   onFilterChange,
   onSearchChange,
 }: StaffToolbarProps) {
   const t = useTranslations("staff");
+  const filters = [{ id: "all", label: t("allStaff") }].concat(
+    roleFilters.map((filter) => ({
+      id: filter.id,
+      label: t(getRoleTranslationKey(filter.role)),
+    })),
+  );
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="flex rounded-full bg-gray-50 p-1" role="tablist" aria-label={t("filtersLabel")}>
-        {staffFilters.map((filter) => (
+        {filters.map((filter) => (
           <button
-            key={filter}
+            key={filter.id}
             type="button"
             role="tab"
-            aria-selected={activeFilter === filter}
-            onClick={() => onFilterChange(filter)}
+            aria-selected={activeFilter === filter.id}
+            onClick={() => onFilterChange(filter.id)}
             className={cn(
               "rounded-full px-4 py-1 text-sm transition-colors",
-              activeFilter === filter
+              activeFilter === filter.id
                 ? "bg-brand-primary text-white shadow-sm"
                 : "text-gray-500 hover:bg-white hover:text-brand-black",
             )}
           >
-            {filter === "all" ? t("allStaff") : t(`roles.${filter}`)}
+            {filter.label}
           </button>
         ))}
       </div>
