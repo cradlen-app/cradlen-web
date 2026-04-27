@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { acceptStaffInvite, previewStaffInvite } from "../lib/staff.api";
 import { STAFF_INVITE_DAY_LABELS } from "../lib/staff-invite.schemas";
+import { getRoleTranslationKey, normalizeApiRoleName } from "../lib/staff.utils";
 import type {
   AcceptStaffInviteResponse,
   StaffInvitePreview,
@@ -40,7 +41,7 @@ function getInviteErrorKey(error: unknown) {
 }
 
 function getFullName(invite: StaffInvitePreview) {
-  return `${invite.first_name} ${invite.last_name}`.trim();
+  return [invite.first_name, invite.last_name].filter(Boolean).join(" ");
 }
 
 function getBranchLabel(branch: NonNullable<StaffInvitePreview["branches"]>[number]) {
@@ -50,7 +51,9 @@ function getBranchLabel(branch: NonNullable<StaffInvitePreview["branches"]>[numb
   if (!details) return "";
   if (details.name) return details.name;
 
-  return [details.address, details.city, details.governorate].filter(Boolean).join(", ");
+  return [details.address, details.city, details.governorate, details.country]
+    .filter(Boolean)
+    .join(", ");
 }
 
 function getOrganizationLabel(invite: StaffInvitePreview) {
@@ -136,6 +139,10 @@ export function StaffInviteAcceptance() {
     [invite],
   );
   const scheduleLabel = useMemo(() => (invite ? getScheduleLabel(invite) : ""), [invite]);
+  const inviteeName = invite ? getFullName(invite) : "";
+  const rawRoleLabel = invite ? getRoleLabel(invite) : "-";
+  const roleLabel =
+    rawRoleLabel === "-" ? "-" : t(getRoleTranslationKey(normalizeApiRoleName(rawRoleLabel)));
 
   const canSubmit = password.length >= 8 && hasParams && !!invite && !acceptMutation.isPending;
 
@@ -166,21 +173,27 @@ export function StaffInviteAcceptance() {
           }}
         >
           <section className="rounded-xl border border-gray-100 bg-gray-50/70 p-4">
-            <p className="text-sm font-semibold text-brand-black">{getFullName(invite)}</p>
-            <p className="mt-1 text-sm text-gray-500">{invite.email}</p>
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {(inviteeName || invite.email) && (
+              <div className="mb-4">
+                {inviteeName && (
+                  <p className="text-sm font-semibold text-brand-black">{inviteeName}</p>
+                )}
+                {invite.email && <p className="mt-1 text-sm text-gray-500">{invite.email}</p>}
+              </div>
+            )}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-gray-400">{t("organization")}</p>
                 <p className="mt-1 text-sm font-medium text-brand-black">
                   {getOrganizationLabel(invite)}
                 </p>
               </div>
-              <div>
-                <p className="text-xs text-gray-400">{t("role")}</p>
-                <p className="mt-1 text-sm font-medium text-brand-black">
-                  {getRoleLabel(invite)}
-                </p>
-              </div>
+              {roleLabel !== "-" && (
+                <div>
+                  <p className="text-xs text-gray-400">{t("role")}</p>
+                  <p className="mt-1 text-sm font-medium text-brand-black">{roleLabel}</p>
+                </div>
+              )}
               <div className="sm:col-span-2">
                 <p className="text-xs text-gray-400">{t("invitedBy")}</p>
                 <p className="mt-1 text-sm font-medium text-brand-black">
