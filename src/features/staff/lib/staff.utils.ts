@@ -9,9 +9,41 @@ import type {
   StaffMember,
   StaffRole,
   StaffRoleFilter,
+  StaffStatus,
 } from "../types/staff.types";
 
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
+
+const DAY_MAP: Record<number, ApiStaffDay["day_of_week"]> = {
+  0: "SUN",
+  1: "MON",
+  2: "TUE",
+  3: "WED",
+  4: "THU",
+  5: "FRI",
+  6: "SAT",
+};
+
+export function computeStaffStatus(
+  schedule: ApiStaffSchedule | undefined,
+  now = new Date(),
+): StaffStatus {
+  if (!schedule?.days?.length) return "notAvailable";
+
+  const todayKey = DAY_MAP[now.getDay()];
+  const todaySchedule = schedule.days.find((d) => d.day_of_week === todayKey);
+  if (!todaySchedule?.shifts?.length) return "notAvailable";
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const inShift = todaySchedule.shifts.some((shift) => {
+    const [sh, sm] = shift.start_time.split(":").map(Number);
+    const [eh, em] = shift.end_time.split(":").map(Number);
+    return currentMinutes >= sh * 60 + sm && currentMinutes < eh * 60 + em;
+  });
+
+  return inShift ? "available" : "notAvailable";
+}
 const DAY_NAMES: Record<string, string> = {
   MON: "Mon",
   TUE: "Tue",
@@ -70,7 +102,7 @@ export function mapApiStaffToMember(api: ApiStaffMember): StaffMember {
     jobTitle: api.job_title ?? "",
     specialty: api.specialty ?? "",
     phone: api.user?.phone_number ?? api.user?.phone ?? "-",
-    status: "available",
+    status: computeStaffStatus(api.schedule),
     workSchedule: formatSchedule(api.schedule),
   };
 }
