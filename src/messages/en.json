@@ -40,6 +40,7 @@
     "filtersLabel": "Staff filters",
     "searchPlaceholder": "Search....",
     "noResults": "No staff members match your filters.",
+    "noOrganization": "No organization is linked to this account.",
     "loadError": "Failed to load staff. Please try again.",
     "roles": {
       "owner": "Owner",
@@ -119,6 +120,9 @@
       "governoratePlaceholder": "Giza",
       "countryLabel": "Country",
       "countryPlaceholder": "Egypt",
+      "clinicianHeading": "Your role",
+      "jobTitleLabel": "Job title (optional)",
+      "jobTitlePlaceholder": "e.g. Senior Physician",
       "errors": {
         "serverError": "Something went wrong. Please try again.",
         "emailTaken": "An account with this email already exists.",

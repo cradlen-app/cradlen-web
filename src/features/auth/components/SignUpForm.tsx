@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
@@ -13,6 +13,11 @@ import { ApiError } from "@/lib/api";
 import { useAuthStore } from "../store/authStore";
 import { StepIndicator } from "./StepIndicator";
 import { step1Schema, step2Schema, step3Schema } from "../lib/sign-up.schemas";
+import {
+  clearRegistrationToken,
+  getRegistrationToken,
+  setRegistrationToken as persistRegistrationToken,
+} from "../lib/registration-session";
 import {
   useRegisterPersonal,
   useVerifyEmail,
@@ -36,6 +41,8 @@ const SPECIALTIES = [
   "Gynecology",
 ];
 
+const AUTH_SUCCESS_REDIRECT = "/dashboard";
+
 export function SignUpForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
@@ -44,15 +51,16 @@ export function SignUpForm() {
 
   const resumeToken = searchParams.get("token");
   const resumeStep = searchParams.get("step");
+  const initialRegistrationToken = resumeToken ?? getRegistrationToken();
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(() => {
-    if (resumeToken && (resumeStep === "2" || resumeStep === "3")) {
+    if (initialRegistrationToken && (resumeStep === "2" || resumeStep === "3")) {
       return Number(resumeStep) as 2 | 3;
     }
     return 1;
   });
   const [registrationToken, setRegistrationToken] = useState<string | null>(
-    resumeToken ?? null,
+    initialRegistrationToken,
   );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -60,9 +68,24 @@ export function SignUpForm() {
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
+  const updateRegistrationToken = (token: string) => {
+    persistRegistrationToken(token);
+    setRegistrationToken(token);
+  };
+
+  const goToStep = (step: 1 | 2 | 3) => {
+    setCurrentStep(step);
+    if (step === 2) setResendCooldown(60);
+  };
+
   useEffect(() => {
-    if (currentStep === 2) setResendCooldown(60);
-  }, [currentStep]);
+    if (!resumeToken) return;
+
+    persistRegistrationToken(resumeToken);
+
+    const stepQuery = resumeStep === "2" || resumeStep === "3" ? `?step=${resumeStep}` : "";
+    router.replace(`/sign-up${stepQuery}`);
+  }, [resumeStep, resumeToken, router]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -78,12 +101,17 @@ export function SignUpForm() {
 
   const step1Form = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
-    defaultValues: { isClinical: false },
   });
   const step2Form = useForm<Step2Data>({ resolver: zodResolver(step2Schema) });
-  const step3Form = useForm<Step3Data>({ resolver: zodResolver(step3Schema) });
+  const step3Form = useForm<Step3Data>({
+    resolver: zodResolver(step3Schema),
+    defaultValues: { isClinical: false },
+  });
 
-  const isClinical = step1Form.watch("isClinical");
+  const isClinical = useWatch({
+    control: step3Form.control,
+    name: "isClinical",
+  });
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -101,11 +129,9 @@ export function SignUpForm() {
         email: data.email,
         password: data.password,
         confirm_password: data.confirmPassword,
-        is_clinical: data.isClinical,
-        ...(data.isClinical && data.specialty ? { speciality: data.specialty } : {}),
       });
-      setRegistrationToken(res.data.registration_token);
-      setCurrentStep(2);
+      updateRegistrationToken(res.data.registration_token);
+      goToStep(2);
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         // Email already exists — attempt login to detect and resume incomplete registration
@@ -117,13 +143,14 @@ export function SignUpForm() {
           const loginData = loginRes.data;
           if ("pending_step" in loginData) {
             toast.info(t("toasts.resumingRegistration"));
-            setRegistrationToken(loginData.registration_token);
-            setCurrentStep(loginData.pending_step === "verify_email" ? 2 : 3);
+            updateRegistrationToken(loginData.registration_token);
+            goToStep(loginData.pending_step === "verify_email" ? 2 : 3);
           } else {
             // Registration was already completed — log them in directly
             toast.info(t("toasts.alreadyRegistered"));
             setTokens(loginData as AuthTokens);
-            router.push("/");
+            clearRegistrationToken();
+            router.push(AUTH_SUCCESS_REDIRECT);
           }
         } catch {
           setStepError(t("errors.emailAlreadyRegistered"));
@@ -142,8 +169,8 @@ export function SignUpForm() {
         registration_token: registrationToken!,
         code: data.verificationCode,
       });
-      setRegistrationToken(res.data.registration_token);
-      setCurrentStep(3);
+      updateRegistrationToken(res.data.registration_token);
+      goToStep(3);
     } catch {
       setStepError(t("errors.invalidCode"));
     }
@@ -163,9 +190,14 @@ export function SignUpForm() {
         branch_address: data.address,
         branch_city: data.city,
         branch_governorate: data.governorate,
+        branch_country: data.country,
+        is_clinical: data.isClinical,
+        ...(data.isClinical && data.specialty ? { speciality: data.specialty } : {}),
+        ...(data.jobTitle ? { job_title: data.jobTitle } : {}),
       });
       setTokens(res.data);
-      router.push("/");
+      clearRegistrationToken();
+      router.push(AUTH_SUCCESS_REDIRECT);
     } catch {
       setStepError(t("errors.serverError"));
     }
@@ -174,7 +206,8 @@ export function SignUpForm() {
   const handleBack = () => {
     setStepError(null);
     setResendMessage(null);
-    setCurrentStep((s) => (s > 1 ? ((s - 1) as 1 | 2 | 3) : s));
+    const previousStep = currentStep > 1 ? ((currentStep - 1) as 1 | 2) : currentStep;
+    goToStep(previousStep);
   };
 
   const handleResend = () => {
@@ -185,7 +218,7 @@ export function SignUpForm() {
       { registration_token: registrationToken },
       {
         onSuccess: (res) => {
-          setRegistrationToken(res.data.registration_token);
+          updateRegistrationToken(res.data.registration_token);
           setResendMessage(t("errors.resendSuccess"));
           setResendCooldown(60);
         },
@@ -351,51 +384,6 @@ export function SignUpForm() {
               {fieldError(step1Form.formState.errors.confirmPassword?.message)}
             </div>
           </div>
-
-          {/* Is clinical checkbox */}
-          <div className="flex items-center gap-2.5">
-            <input
-              id="isClinical"
-              type="checkbox"
-              {...step1Form.register("isClinical")}
-              className="size-4 rounded border-gray-300 accent-brand-primary cursor-pointer"
-            />
-            <label
-              htmlFor="isClinical"
-              className="text-sm text-brand-black cursor-pointer select-none"
-            >
-              {t("isClinicalLabel")}
-            </label>
-          </div>
-
-          {/* Specialty (conditional) */}
-          {isClinical && (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="specialty" className="text-sm text-brand-black">
-                {t("specialtyLabel")}
-              </label>
-              <div className="relative">
-                <select
-                  id="specialty"
-                  {...step1Form.register("specialty")}
-                  className={cn(
-                    inputClass,
-                    "appearance-none cursor-pointer",
-                    errorInputClass(!!step1Form.formState.errors.specialty),
-                  )}
-                >
-                  <option value="">{t("specialtyPlaceholder")}</option>
-                  {SPECIALTIES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute inset-y-0 inset-e-3 my-auto size-4 text-gray-400" />
-              </div>
-              {fieldError(step1Form.formState.errors.specialty?.message)}
-            </div>
-          )}
 
           {stepError && (
             <p className="text-sm text-red-500 text-center">{stepError}</p>
@@ -611,6 +599,73 @@ export function SignUpForm() {
                 )}
               />
               {fieldError(step3Form.formState.errors.address?.message)}
+            </div>
+          </div>
+
+          {/* Clinician info section */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-sm font-medium text-brand-black border-b border-gray-100 pb-2">
+              {t("clinicianHeading")}
+            </h3>
+
+            <div className="flex items-center gap-2.5">
+              <input
+                id="isClinical"
+                type="checkbox"
+                {...step3Form.register("isClinical")}
+                className="size-4 rounded border-gray-300 accent-brand-primary cursor-pointer"
+              />
+              <label
+                htmlFor="isClinical"
+                className="text-sm text-brand-black cursor-pointer select-none"
+              >
+                {t("isClinicalLabel")}
+              </label>
+            </div>
+
+            {isClinical && (
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="specialty" className="text-sm text-brand-black">
+                  {t("specialtyLabel")}
+                </label>
+                <div className="relative">
+                  <select
+                    id="specialty"
+                    {...step3Form.register("specialty")}
+                    className={cn(
+                      inputClass,
+                      "appearance-none cursor-pointer",
+                      errorInputClass(!!step3Form.formState.errors.specialty),
+                    )}
+                  >
+                    <option value="">{t("specialtyPlaceholder")}</option>
+                    {SPECIALTIES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute inset-y-0 inset-e-3 my-auto size-4 text-gray-400" />
+                </div>
+                {fieldError(step3Form.formState.errors.specialty?.message)}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="jobTitle" className="text-sm text-brand-black">
+                {t("jobTitleLabel")}
+              </label>
+              <input
+                id="jobTitle"
+                type="text"
+                placeholder={t("jobTitlePlaceholder")}
+                {...step3Form.register("jobTitle")}
+                className={cn(
+                  inputClass,
+                  errorInputClass(!!step3Form.formState.errors.jobTitle),
+                )}
+              />
+              {fieldError(step3Form.formState.errors.jobTitle?.message)}
             </div>
           </div>
 

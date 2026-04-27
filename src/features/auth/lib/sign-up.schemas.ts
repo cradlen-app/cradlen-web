@@ -11,12 +11,14 @@ export const step1Schema = z
       .email({ message: "Enter a valid email address" }),
     password: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters" }),
+      .min(8, { message: "Password must be at least 8 characters" })
+      .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+      .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+      .regex(/[0-9]/, { message: "Password must contain at least one number" })
+      .regex(/[^a-zA-Z0-9]/, { message: "Password must contain at least one symbol" }),
     confirmPassword: z
       .string()
       .min(1, { message: "Please confirm your password" }),
-    isClinical: z.boolean(),
-    specialty: z.string().optional(),
   })
   .superRefine((val, ctx) => {
     if (val.password !== val.confirmPassword) {
@@ -24,13 +26,6 @@ export const step1Schema = z
         code: "custom",
         path: ["confirmPassword"],
         message: "Passwords do not match",
-      });
-    }
-    if (val.isClinical && !val.specialty) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["specialty"],
-        message: "Please select your specialty",
       });
     }
   });
@@ -42,13 +37,26 @@ export const step2Schema = z.object({
     .regex(/^\d{6}$/, { message: "Code must contain only digits" }),
 });
 
-export const step3Schema = z.object({
-  organizationName: z
-    .string()
-    .min(1, { message: "Organization name is required" }),
-  specialties: z.string().min(1, { message: "Please enter at least one specialty" }),
-  city: z.string().min(1, { message: "City is required" }),
-  address: z.string().min(1, { message: "Address is required" }),
-  governorate: z.string().min(1, { message: "Governorate is required" }),
-  country: z.string().min(1, { message: "Country is required" }),
-});
+export const step3Schema = z
+  .object({
+    organizationName: z
+      .string()
+      .min(1, { message: "Organization name is required" }),
+    specialties: z.string().min(1, { message: "Please enter at least one specialty" }),
+    city: z.string().min(1, { message: "City is required" }),
+    address: z.string().min(1, { message: "Address is required" }),
+    governorate: z.string().min(1, { message: "Governorate is required" }),
+    country: z.string().min(1, { message: "Country is required" }),
+    isClinical: z.boolean(),
+    specialty: z.string().optional(),
+    jobTitle: z.string().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.isClinical && !val.specialty) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["specialty"],
+        message: "Please select your specialty",
+      });
+    }
+  });

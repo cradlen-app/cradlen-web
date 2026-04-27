@@ -44,9 +44,25 @@ function getLocale(pathname: string) {
     : routing.defaultLocale;
 }
 
+function isExpiredJwt(token: string) {
+  const [, payload] = token.split(".");
+  if (!payload) return false;
+
+  try {
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    const decoded = JSON.parse(atob(padded)) as { exp?: number };
+
+    return typeof decoded.exp === "number" && decoded.exp * 1000 <= Date.now();
+  } catch {
+    return false;
+  }
+}
+
 export default function proxy(request: NextRequest) {
   if (isProtectedPath(request.nextUrl.pathname)) {
-    const hasAuthToken = Boolean(request.cookies.get(AUTH_TOKEN_COOKIE)?.value);
+    const authToken = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
+    const hasAuthToken = Boolean(authToken && !isExpiredJwt(authToken));
 
     if (!hasAuthToken) {
       const locale = getLocale(request.nextUrl.pathname);
