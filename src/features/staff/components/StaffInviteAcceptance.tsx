@@ -88,6 +88,7 @@ function getScheduleLabel(invite: StaffInvitePreview) {
 
 export function StaffInviteAcceptance() {
   const t = useTranslations("staff.invite");
+  const staffT = useTranslations("staff");
   const router = useRouter();
   const searchParams = useSearchParams();
   const setTokens = useAuthStore((state) => state.setTokens);
@@ -142,7 +143,9 @@ export function StaffInviteAcceptance() {
   const inviteeName = invite ? getFullName(invite) : "";
   const rawRoleLabel = invite ? getRoleLabel(invite) : "-";
   const roleLabel =
-    rawRoleLabel === "-" ? "-" : t(getRoleTranslationKey(normalizeApiRoleName(rawRoleLabel)));
+    rawRoleLabel === "-"
+      ? "-"
+      : staffT(getRoleTranslationKey(normalizeApiRoleName(rawRoleLabel)));
 
   const canSubmit = password.length >= 8 && hasParams && !!invite && !acceptMutation.isPending;
 
