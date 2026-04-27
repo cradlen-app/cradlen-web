@@ -12,7 +12,10 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { acceptStaffInvite, previewStaffInvite } from "../lib/staff.api";
 import { STAFF_INVITE_DAY_LABELS } from "../lib/staff-invite.schemas";
-import { getRoleTranslationKey, normalizeApiRoleName } from "../lib/staff.utils";
+import {
+  getRoleTranslationKey,
+  normalizeApiRoleName,
+} from "../lib/staff.utils";
 import type {
   AcceptStaffInviteResponse,
   StaffInvitePreview,
@@ -22,7 +25,9 @@ import type {
 const DEFAULT_AUTH_EXPIRES_IN = 60 * 60;
 const DEFAULT_AUTH_REDIRECT = "/dashboard";
 
-function unwrapPreview(response: StaffInvitePreviewResponse): StaffInvitePreview {
+function unwrapPreview(
+  response: StaffInvitePreviewResponse,
+): StaffInvitePreview {
   return "data" in response ? response.data : response;
 }
 
@@ -44,7 +49,9 @@ function getFullName(invite: StaffInvitePreview) {
   return [invite.first_name, invite.last_name].filter(Boolean).join(" ");
 }
 
-function getBranchLabel(branch: NonNullable<StaffInvitePreview["branches"]>[number]) {
+function getBranchLabel(
+  branch: NonNullable<StaffInvitePreview["branches"]>[number],
+) {
   const details = branch.branch;
 
   if (branch.branch_name) return branch.branch_name;
@@ -69,7 +76,9 @@ function getInviterLabel(invite: StaffInvitePreview) {
 
   if (!inviter) return "-";
 
-  const name = [inviter.first_name, inviter.last_name].filter(Boolean).join(" ");
+  const name = [inviter.first_name, inviter.last_name]
+    .filter(Boolean)
+    .join(" ");
   return name || inviter.email || "-";
 }
 
@@ -100,7 +109,8 @@ export function StaffInviteAcceptance() {
 
   const previewQuery = useQuery({
     queryKey: ["staff-invite-preview", invitationId, token],
-    queryFn: async () => unwrapPreview(await previewStaffInvite(token, invitationId)),
+    queryFn: async () =>
+      unwrapPreview(await previewStaffInvite(token, invitationId)),
     enabled: hasParams,
     retry: false,
   });
@@ -139,7 +149,10 @@ export function StaffInviteAcceptance() {
     () => invite?.branches?.map(getBranchLabel).filter(Boolean) ?? [],
     [invite],
   );
-  const scheduleLabel = useMemo(() => (invite ? getScheduleLabel(invite) : ""), [invite]);
+  const scheduleLabel = useMemo(
+    () => (invite ? getScheduleLabel(invite) : ""),
+    [invite],
+  );
   const inviteeName = invite ? getFullName(invite) : "";
   const rawRoleLabel = invite ? getRoleLabel(invite) : "-";
   const roleLabel =
@@ -147,7 +160,8 @@ export function StaffInviteAcceptance() {
       ? "-"
       : staffT(getRoleTranslationKey(normalizeApiRoleName(rawRoleLabel)));
 
-  const canSubmit = password.length >= 8 && hasParams && !!invite && !acceptMutation.isPending;
+  const canSubmit =
+    password.length >= 8 && hasParams && !!invite && !acceptMutation.isPending;
 
   return (
     <div className="w-full max-w-xl rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
@@ -179,9 +193,13 @@ export function StaffInviteAcceptance() {
             {(inviteeName || invite.email) && (
               <div className="mb-4">
                 {inviteeName && (
-                  <p className="text-sm font-semibold text-brand-black">{inviteeName}</p>
+                  <p className="text-sm font-semibold text-brand-black">
+                    {inviteeName}
+                  </p>
                 )}
-                {invite.email && <p className="mt-1 text-sm text-gray-500">{invite.email}</p>}
+                {invite.email && (
+                  <p className="mt-1 text-sm text-gray-500">{invite.email}</p>
+                )}
               </div>
             )}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -194,7 +212,9 @@ export function StaffInviteAcceptance() {
               {roleLabel !== "-" && (
                 <div>
                   <p className="text-xs text-gray-400">{t("role")}</p>
-                  <p className="mt-1 text-sm font-medium text-brand-black">{roleLabel}</p>
+                  <p className="mt-1 text-sm font-medium text-brand-black">
+                    {roleLabel}
+                  </p>
                 </div>
               )}
               <div className="sm:col-span-2">
@@ -224,18 +244,27 @@ export function StaffInviteAcceptance() {
 
           <section className="space-y-2">
             <div>
-              <label htmlFor="invitePassword" className="text-sm font-medium text-brand-black">
-                {invite.user_exists ? t("existingPassword") : t("createPassword")}
+              <label
+                htmlFor="invitePassword"
+                className="text-sm font-medium text-brand-black"
+              >
+                {invite.user_exists
+                  ? t("existingPassword")
+                  : t("createPassword")}
               </label>
               <p className="mt-1 text-xs text-gray-400">
-                {invite.user_exists ? t("existingPasswordHint") : t("createPasswordHint")}
+                {invite.user_exists
+                  ? t("existingPasswordHint")
+                  : t("createPasswordHint")}
               </p>
             </div>
             <div className="relative">
               <input
                 id="invitePassword"
                 type={showPassword ? "text" : "password"}
-                autoComplete={invite.user_exists ? "current-password" : "new-password"}
+                autoComplete={
+                  invite.user_exists ? "current-password" : "new-password"
+                }
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className={cn(
@@ -246,10 +275,16 @@ export function StaffInviteAcceptance() {
               <button
                 type="button"
                 onClick={() => setShowPassword((value) => !value)}
-                className="absolute end-3 top-1/2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-50 hover:text-brand-black"
-                aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+                className="absolute inset-e-3 top-1/2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-50 hover:text-brand-black"
+                aria-label={
+                  showPassword ? t("hidePassword") : t("showPassword")
+                }
               >
-                {showPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+                {showPassword ? (
+                  <Eye className="size-4" />
+                ) : (
+                  <EyeOff className="size-4" />
+                )}
               </button>
             </div>
             {password.length > 0 && password.length < 8 && (

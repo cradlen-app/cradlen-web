@@ -120,6 +120,71 @@
         "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
       }
     },
+    "invitations": {
+      "title": "الدعوات",
+      "subtitle": "راجع الدعوات المعلقة وأدر رسائل الدعوة لهذا الفرع.",
+      "breadcrumbLabel": "مسار دعوات الموظفين",
+      "link": "الدعوات",
+      "filtersLabel": "تصفية الدعوات",
+      "searchPlaceholder": "بحث في الدعوات....",
+      "manageLatest": "إدارة أحدث دعوة",
+      "noResults": "لا توجد دعوات مطابقة لعوامل التصفية.",
+      "noBranch": "لا توجد منظمة أو فرع مرتبط بهذا الحساب.",
+      "loadError": "فشل تحميل الدعوات. يرجى المحاولة مرة أخرى.",
+      "showResults": "عرض {count} من {total} نتيجة",
+      "unnamedInvitee": "مدعو بدون اسم",
+      "view": "عرض الدعوة",
+      "resend": "إعادة إرسال",
+      "resending": "جاري الإرسال...",
+      "resendSuccess": "تمت إعادة إرسال الدعوة.",
+      "resendError": "فشل إعادة إرسال الدعوة. يرجى المحاولة مرة أخرى.",
+      "delete": "حذف",
+      "deleting": "جاري الحذف...",
+      "deleteSuccess": "تم حذف الدعوة.",
+      "deleteError": "فشل حذف الدعوة. يرجى المحاولة مرة أخرى.",
+      "detailsTitle": "تفاصيل الدعوة",
+      "detailsDescription": "راجع هذه الدعوة قبل إعادة إرسالها أو حذفها.",
+      "closeDetails": "إغلاق تفاصيل الدعوة",
+      "selectInvitation": "اختر دعوة لعرض التفاصيل.",
+      "deleteTitle": "حذف الدعوة؟",
+      "deleteDescription": "سيؤدي ذلك إلى حذف الدعوة الخاصة بـ {email}.",
+      "thisInvitation": "هذه الدعوة",
+      "cancel": "إلغاء",
+      "filters": {
+        "all": "الكل",
+        "pending": "معلقة",
+        "accepted": "مقبولة",
+        "expired": "منتهية",
+        "cancelled": "ملغاة"
+      },
+      "columns": {
+        "invitee": "المدعو",
+        "role": "الدور",
+        "status": "الحالة",
+        "invited": "تاريخ الدعوة",
+        "expires": "تنتهي في",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "pending": "معلقة",
+        "accepted": "مقبولة",
+        "expired": "منتهية",
+        "cancelled": "ملغاة",
+        "unknown": "غير معروفة"
+      },
+      "fields": {
+        "role": "الدور",
+        "jobTitle": "المسمى الوظيفي",
+        "phone": "الهاتف",
+        "specialty": "التخصص",
+        "invitedAt": "تاريخ الدعوة",
+        "expiresAt": "تنتهي في",
+        "acceptedAt": "تاريخ القبول",
+        "invitedBy": "تمت الدعوة بواسطة",
+        "branches": "الفروع",
+        "schedule": "جدول العمل"
+      }
+    },
     "overview": {
       "title": "نظرة عامة",
       "status": "الحالة",
