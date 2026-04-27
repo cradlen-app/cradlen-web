@@ -4,6 +4,7 @@ export type StaffStatus = "available" | "notAvailable";
 
 export type StaffMember = {
   id: string;
+  roleId?: string;
   firstName: string;
   lastName: string;
   handle: string;
@@ -16,4 +17,10 @@ export type StaffMember = {
   workSchedule?: string;
 };
 
-export type StaffFilter = "all" | "doctor" | "reception";
+export type StaffFilter = "all" | string;
+
+export type StaffRoleFilter = {
+  id: string;
+  name: string;
+  role: StaffRole;
+};

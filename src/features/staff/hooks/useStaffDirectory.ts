@@ -5,11 +5,11 @@ import { matchesStaffFilter, matchesStaffSearch } from "../lib/staff.utils";
 import type { StaffFilter, StaffMember } from "../types/staff.types";
 
 type UseStaffDirectoryOptions = {
+  filter: StaffFilter;
   staff: StaffMember[];
 };
 
-export function useStaffDirectory({ staff }: UseStaffDirectoryOptions) {
-  const [filter, setFilter] = useState<StaffFilter>("all");
+export function useStaffDirectory({ filter, staff }: UseStaffDirectoryOptions) {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(staff[0]?.id ?? null);
 
@@ -32,12 +32,10 @@ export function useStaffDirectory({ staff }: UseStaffDirectoryOptions) {
   );
 
   return {
-    filter,
     filteredStaff,
     search,
     selectedId: visibleSelectedId,
     selectedMember,
-    setFilter,
     setSearch,
     setSelectedId,
     totalStaff: staff.length,
