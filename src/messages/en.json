@@ -99,6 +99,7 @@
       "subtitle": "Review your invitation and confirm your password to join the clinic workspace.",
       "organization": "Organization",
       "role": "Role",
+      "invitedBy": "Invited by",
       "branches": "Branches",
       "schedule": "Schedule",
       "existingPassword": "Account password",

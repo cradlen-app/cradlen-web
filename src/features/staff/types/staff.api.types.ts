@@ -66,18 +66,40 @@ export type InviteStaffResponse = {
 export type StaffInvitePreview = {
   id: string;
   organization_id?: string;
+  organization_name?: string;
   email: string;
   first_name: string;
   last_name: string;
   phone?: string;
   role?: ApiStaffRole;
   role_id?: string;
+  role_name?: string;
   job_title?: string;
   specialty?: string;
+  invited_by?: {
+    id?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  };
+  inviter?: {
+    id?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  };
+  created_by?: {
+    id?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  };
   branches?: Array<{
     branch_id?: string;
+    branch_name?: string;
     branch?: {
       id?: string;
+      name?: string;
       address?: string;
       city?: string;
       governorate?: string;
