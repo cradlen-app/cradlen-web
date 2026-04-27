@@ -1,7 +1,10 @@
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
-import { AUTH_TOKEN_COOKIE } from "./features/auth/lib/auth.constants";
+import {
+  AUTH_REFRESH_TOKEN_COOKIE,
+  AUTH_TOKEN_COOKIE,
+} from "./features/auth/lib/auth.constants";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -68,9 +71,11 @@ function isExpiredJwt(token: string) {
 export default function proxy(request: NextRequest) {
   if (isProtectedPath(request.nextUrl.pathname)) {
     const authToken = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
+    const refreshToken = request.cookies.get(AUTH_REFRESH_TOKEN_COOKIE)?.value;
     const hasAuthToken = Boolean(authToken && !isExpiredJwt(authToken));
+    const hasRefreshToken = Boolean(refreshToken);
 
-    if (!hasAuthToken) {
+    if (!hasAuthToken && !hasRefreshToken) {
       const locale = getLocale(request.nextUrl.pathname);
       const signInUrl = new URL(`/${locale}/sign-in`, request.url);
       signInUrl.searchParams.set(
