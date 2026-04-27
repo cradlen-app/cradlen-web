@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AUTH_TOKEN_COOKIE } from "../lib/auth.constants";
+import {
+  AUTH_REFRESH_TOKEN_COOKIE,
+  AUTH_REFRESH_TOKEN_MAX_AGE,
+  AUTH_TOKEN_COOKIE,
+} from "../lib/auth.constants";
 import type { AuthTokens } from "../types/sign-in.types";
 
 type AuthState = {
@@ -16,12 +20,16 @@ function setAuthCookie(tokens: AuthTokens) {
   document.cookie = `${AUTH_TOKEN_COOKIE}=${encodeURIComponent(
     tokens.access_token,
   )}; path=/; max-age=${maxAge}; samesite=lax`;
+  document.cookie = `${AUTH_REFRESH_TOKEN_COOKIE}=${encodeURIComponent(
+    tokens.refresh_token,
+  )}; path=/; max-age=${AUTH_REFRESH_TOKEN_MAX_AGE}; samesite=lax`;
 }
 
 function clearAuthCookie() {
   if (typeof document === "undefined") return;
 
   document.cookie = `${AUTH_TOKEN_COOKIE}=; path=/; max-age=0; samesite=lax`;
+  document.cookie = `${AUTH_REFRESH_TOKEN_COOKIE}=; path=/; max-age=0; samesite=lax`;
 }
 
 export const useAuthStore = create<AuthState>()(
