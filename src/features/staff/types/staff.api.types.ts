@@ -67,9 +67,9 @@ export type StaffInvitePreview = {
   id: string;
   organization_id?: string;
   organization_name?: string;
-  email: string;
-  first_name: string;
-  last_name: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
   phone?: string;
   role?: ApiStaffRole;
   role_id?: string;
@@ -95,6 +95,7 @@ export type StaffInvitePreview = {
     email?: string;
   };
   branches?: Array<{
+    id?: string;
     branch_id?: string;
     branch_name?: string;
     branch?: {
@@ -103,9 +104,11 @@ export type StaffInvitePreview = {
       address?: string;
       city?: string;
       governorate?: string;
+      country?: string;
       is_main?: boolean;
     };
     schedule?: {
+      id?: string;
       days: InviteStaffDay[];
     };
   }>;
