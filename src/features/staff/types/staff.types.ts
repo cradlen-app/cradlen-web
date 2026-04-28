@@ -17,7 +17,7 @@ export type StaffMember = {
   workSchedule?: string;
 };
 
-export type StaffFilter = "all" | string;
+export type StaffFilter = "all" | StaffRole;
 
 export type StaffRoleFilter = {
   id: string;

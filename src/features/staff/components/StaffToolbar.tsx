@@ -1,12 +1,12 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { getRoleTranslationKey } from "../lib/staff.utils";
-import type { StaffFilter, StaffRoleFilter } from "../types/staff.types";
+import type { StaffFilter } from "../types/staff.types";
+
+const STAFF_FILTERS: StaffFilter[] = ["all", "doctor", "reception", "owner"];
 
 type StaffToolbarProps = {
   activeFilter: StaffFilter;
-  roleFilters: StaffRoleFilter[];
   search: string;
   onFilterChange: (filter: StaffFilter) => void;
   onSearchChange: (search: string) => void;
@@ -14,32 +14,29 @@ type StaffToolbarProps = {
 
 export function StaffToolbar({
   activeFilter,
-  roleFilters,
   search,
   onFilterChange,
   onSearchChange,
 }: StaffToolbarProps) {
   const t = useTranslations("staff");
-  const filters = [{ id: "all", label: t("allStaff") }].concat(
-    roleFilters.map((filter) => ({
-      id: filter.id,
-      label: t(getRoleTranslationKey(filter.role)),
-    })),
-  );
+  const filters = STAFF_FILTERS.map((value) => ({
+    value,
+    label: value === "all" ? t("allStaff") : t(`roles.${value}`),
+  }));
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="flex rounded-full bg-gray-50 p-1" role="tablist" aria-label={t("filtersLabel")}>
         {filters.map((filter) => (
           <button
-            key={filter.id}
+            key={filter.value}
             type="button"
             role="tab"
-            aria-selected={activeFilter === filter.id}
-            onClick={() => onFilterChange(filter.id)}
+            aria-selected={activeFilter === filter.value}
+            onClick={() => onFilterChange(filter.value)}
             className={cn(
               "rounded-full px-4 py-1 text-sm transition-colors",
-              activeFilter === filter.id
+              activeFilter === filter.value
                 ? "bg-brand-primary text-white shadow-sm"
                 : "text-gray-500 hover:bg-white hover:text-brand-black",
             )}

@@ -28,8 +28,9 @@ export type FetchStaffInvitationsOptions = {
   status?: string;
 };
 
-export async function fetchRoles() {
-  const response = await apiAuthFetch<ApiRolesResponse>("/roles");
+export async function fetchRoles(organizationId: string) {
+  const params = new URLSearchParams({ organization_id: organizationId });
+  const response = await apiAuthFetch<ApiRolesResponse>(`/roles?${params}`);
   return (Array.isArray(response) ? response : response.data) as ApiStaffRole[];
 }
 
