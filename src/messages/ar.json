@@ -86,6 +86,15 @@
       "success": "تم إرسال دعوة الموظف.",
       "error": "فشل إرسال دعوة الموظف. يرجى المحاولة مرة أخرى.",
       "missingOrganization": "لا توجد منظمة أو فرع مرتبط بهذا الحساب.",
+      "edit": {
+        "title": "الموظفون / تعديل موظف",
+        "description": "تحديث ملف الموظف ودوره وجدول عمله.",
+        "close": "إغلاق نموذج تعديل الموظف",
+        "save": "حفظ",
+        "saving": "جاري الحفظ...",
+        "success": "تم تحديث بيانات الموظف.",
+        "missingStaff": "اختر موظفاً لتعديله."
+      },
       "errors": {
         "pendingInvitation": "توجد دعوة معلقة بالفعل لهذا البريد الإلكتروني.",
         "reviewFields": "يرجى مراجعة الحقول المحددة."
@@ -196,7 +205,19 @@
       "specialty": "التخصص",
       "phoneNumber": "رقم الهاتف",
       "address": "العنوان",
-      "workSchedule": "جدول العمل"
+      "workSchedule": "جدول العمل",
+      "actions": {
+        "edit": "تعديل الموظف",
+        "deactivate": "إلغاء تفعيل الموظف"
+      },
+      "deactivate": "إلغاء التفعيل",
+      "deactivating": "جاري إلغاء التفعيل...",
+      "deactivateTitle": "إلغاء تفعيل الموظف؟",
+      "deactivateDescription": "سيتم إلغاء تفعيل {name}.",
+      "deactivateSuccess": "تم إلغاء تفعيل الموظف.",
+      "deactivateError": "فشل إلغاء تفعيل الموظف. يرجى المحاولة مرة أخرى.",
+      "thisStaffMember": "هذا الموظف",
+      "cancel": "إلغاء"
     }
   },
   "auth": {
