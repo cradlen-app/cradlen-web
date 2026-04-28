@@ -17,21 +17,15 @@ import {
   normalizeApiRoleName,
 } from "../lib/staff.utils";
 import type {
-  AcceptStaffInviteResponse,
   StaffInvitePreview,
   StaffInvitePreviewResponse,
 } from "../types/staff.api.types";
 
-const DEFAULT_AUTH_EXPIRES_IN = 60 * 60;
 const DEFAULT_AUTH_REDIRECT = "/dashboard";
 
 function unwrapPreview(
   response: StaffInvitePreviewResponse,
 ): StaffInvitePreview {
-  return "data" in response ? response.data : response;
-}
-
-function unwrapTokens(response: AcceptStaffInviteResponse) {
   return "data" in response ? response.data : response;
 }
 
@@ -100,7 +94,7 @@ export function StaffInviteAcceptance() {
   const staffT = useTranslations("staff");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const setTokens = useAuthStore((state) => state.setTokens);
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const token = searchParams.get("token") ?? "";
@@ -121,16 +115,11 @@ export function StaffInviteAcceptance() {
         invitation_id: invitationId,
         token,
         password,
-      }),
+    }),
     onSuccess: (response) => {
-      const tokens = unwrapTokens(response);
-
-      setTokens({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        token_type: tokens.token_type ?? "Bearer",
-        expires_in: tokens.expires_in ?? DEFAULT_AUTH_EXPIRES_IN,
-      });
+      if (response.data.authenticated) {
+        setAuthenticated();
+      }
       toast.success(t("success"));
       router.replace(DEFAULT_AUTH_REDIRECT);
     },

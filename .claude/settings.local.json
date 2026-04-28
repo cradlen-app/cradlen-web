@@ -18,7 +18,9 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(grep -E \"\\\\.tsx?$\")",
-      "Bash(xargs wc *)"
+      "Bash(xargs wc *)",
+      "Skill(code-review:code-review)",
+      "Skill(code-review:code-review:*)"
     ]
   }
 }

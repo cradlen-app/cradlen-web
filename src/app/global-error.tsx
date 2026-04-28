@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import logoIcon from "@/public/Logo-icon.png";
 import "@/styles/globals.css";
 
@@ -21,9 +22,11 @@ export default function GlobalError({
         <main className="grid min-h-svh place-items-center px-6">
           <section className="flex w-full max-w-sm flex-col items-center text-center">
             <div className="mb-6 grid size-24 place-items-center rounded-full bg-brand-secondary/10">
-              <img
-                src={logoIcon.src}
+              <Image
+                src={logoIcon}
                 alt=""
+                width={64}
+                height={64}
                 className="size-16 object-contain"
               />
             </div>

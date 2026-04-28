@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import Footer from "@/components/common/Footer";
 import { Link } from "@/i18n/navigation";
 import { SignInForm } from "@/features/auth/components/SignInForm";
 import LogoIcon from "@/public/Logo-icon.png";
@@ -54,6 +55,7 @@ export default async function SignInPage({ params }: Props) {
           <SignInForm />
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

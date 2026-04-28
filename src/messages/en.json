@@ -45,7 +45,8 @@
     "roles": {
       "owner": "Owner",
       "doctor": "Doctor",
-      "reception": "Reception"
+      "reception": "Reception",
+      "unknown": "Unknown"
     },
     "columns": {
       "name": "Name",
@@ -91,7 +92,8 @@
       "roles": {
         "owner": "Owner",
         "doctor": "Doctor",
-        "reception": "Reception"
+        "reception": "Reception",
+        "unknown": "Unknown"
       }
     },
     "invite": {

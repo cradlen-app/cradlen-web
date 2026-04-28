@@ -8,3 +8,8 @@ export type AuthTokens = {
 };
 
 export type AuthTokensResponse = { data: AuthTokens; meta: Record<string, unknown> };
+
+export type AuthenticatedSessionResponse = {
+  data: { authenticated: true };
+  meta: Record<string, unknown>;
+};

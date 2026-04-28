@@ -68,12 +68,9 @@ export type RegistrationTokenData = {
 
 export type RegistrationTokenResponse = ApiResponse<RegistrationTokenData>;
 
-export type RegisterOrganizationResponse = ApiResponse<{
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
-}>;
+export type AuthenticatedSession = { authenticated: true };
+
+export type RegisterOrganizationResponse = ApiResponse<AuthenticatedSession>;
 
 export type PendingLoginResponse = {
   registration_token: string;
@@ -88,4 +85,6 @@ export type AuthTokens = {
   expires_in: number;
 };
 
-export type LoginResponse = ApiResponse<AuthTokens | PendingLoginResponse>;
+export type LoginResponse = ApiResponse<
+  AuthenticatedSession | AuthTokens | PendingLoginResponse
+>;
