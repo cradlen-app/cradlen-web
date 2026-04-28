@@ -8,10 +8,14 @@ import type {
   ApiStaffListResponse,
   ApiStaffMember,
   ApiStaffRole,
+  DeactivateStaffResponse,
   StaffInvitationActionResponse,
   StaffInvitationResponse,
   StaffInvitationsResponse,
   StaffInvitePreviewResponse,
+  StaffMemberResponse,
+  UpdateStaffRequest,
+  UpdateStaffResponse,
 } from "../types/staff.api.types";
 
 type FetchStaffOptions = {
@@ -28,6 +32,11 @@ export type FetchStaffInvitationsOptions = {
   organizationId: string;
   page?: number;
   status?: string;
+};
+
+type BranchScopedOptions = {
+  branchId: string;
+  organizationId: string;
 };
 
 export async function fetchRoles(organizationId: string) {
@@ -76,10 +85,43 @@ export async function fetchAllStaff(
   return staff;
 }
 
+function getBranchScopedParams({ branchId, organizationId }: BranchScopedOptions) {
+  return new URLSearchParams({
+    organization_id: organizationId,
+    branch_id: branchId,
+  });
+}
+
+export function fetchStaffMember(
+  staffId: string,
+  options: BranchScopedOptions,
+) {
+  return apiAuthFetch<StaffMemberResponse>(
+    `/staff/${staffId}?${getBranchScopedParams(options)}`,
+  );
+}
+
 export function inviteStaff(data: InviteStaffRequest) {
   return apiAuthFetch<InviteStaffResponse>("/staff/invite", {
     method: "POST",
     body: JSON.stringify(data),
+  });
+}
+
+export function updateStaff(
+  staffId: string,
+  data: UpdateStaffRequest,
+  options: BranchScopedOptions,
+) {
+  return apiAuthFetch<UpdateStaffResponse>(`/staff/${staffId}?${getBranchScopedParams(options)}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deactivateStaff(staffId: string, options: BranchScopedOptions) {
+  return apiAuthFetch<DeactivateStaffResponse>(`/staff/${staffId}?${getBranchScopedParams(options)}`, {
+    method: "DELETE",
   });
 }
 
@@ -104,19 +146,33 @@ export function fetchStaffInvitations({
   return apiAuthFetch<StaffInvitationsResponse>(`/staff/invitations?${params}`);
 }
 
-export function fetchStaffInvitation(invitationId: string) {
-  return apiAuthFetch<StaffInvitationResponse>(`/staff/invitations/${invitationId}`);
+export function fetchStaffInvitation(
+  invitationId: string,
+  options: BranchScopedOptions,
+) {
+  return apiAuthFetch<StaffInvitationResponse>(
+    `/staff/invitations/${invitationId}?${getBranchScopedParams(options)}`,
+  );
 }
 
-export function deleteStaffInvitation(invitationId: string) {
-  return apiAuthFetch<StaffInvitationActionResponse>(`/staff/invitations/${invitationId}`, {
-    method: "DELETE",
-  });
-}
-
-export function resendStaffInvitation(invitationId: string) {
+export function deleteStaffInvitation(
+  invitationId: string,
+  options: BranchScopedOptions,
+) {
   return apiAuthFetch<StaffInvitationActionResponse>(
-    `/staff/invitations/${invitationId}/resend`,
+    `/staff/invitations/${invitationId}?${getBranchScopedParams(options)}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export function resendStaffInvitation(
+  invitationId: string,
+  options: BranchScopedOptions,
+) {
+  return apiAuthFetch<StaffInvitationActionResponse>(
+    `/staff/invitations/${invitationId}/resend?${getBranchScopedParams(options)}`,
     { method: "POST" },
   );
 }

@@ -58,10 +58,38 @@ export type InviteStaffRequest = {
   specialty?: string;
 };
 
+export type UpdateStaffRequest = {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  phone_number?: string;
+  role_id?: string;
+  job_title?: string;
+  specialty?: string;
+  branches?: InviteStaffBranch[];
+};
+
 export type InviteStaffResponse = {
   data: ApiStaffMember;
   meta?: Record<string, unknown>;
 };
+
+export type StaffMemberResponse =
+  | ApiStaffMember
+  | {
+      data: ApiStaffMember;
+      meta?: Record<string, unknown>;
+    };
+
+export type UpdateStaffResponse = StaffMemberResponse;
+
+export type DeactivateStaffResponse =
+  | ApiStaffMember
+  | {
+      data?: ApiStaffMember;
+      message?: string;
+      meta?: Record<string, unknown>;
+    };
 
 export type StaffInvitationStatus =
   | "pending"
