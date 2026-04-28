@@ -141,9 +141,12 @@ export async function proxySessionEndpoint(
     meta: {},
   }),
 ) {
+  const requestBody = ["GET", "HEAD"].includes(request.method)
+    ? undefined
+    : await request.arrayBuffer();
   const response = await backendFetch(path, {
     method: request.method,
-    body: request.body,
+    body: requestBody,
   });
   const body = await readBackendJson(response);
 
