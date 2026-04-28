@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useStaff } from "../hooks/useStaff";
 import { useStaffDirectory } from "../hooks/useStaffDirectory";
-import { useStaffRoles } from "../hooks/useStaffRoles";
 import type { StaffFilter } from "../types/staff.types";
 import { StaffCreateDrawer } from "./StaffCreateDrawer";
 import { StaffHeader } from "./StaffHeader";
@@ -56,13 +55,7 @@ export function StaffPage() {
         .filter(Boolean)
         .join(", ")
     : undefined;
-  const selectedRoleId = filter === "all" ? undefined : filter;
-
-  const { data: roleFilters = [] } = useStaffRoles(!!organizationId);
-  const { data: staff = [], isLoading: isStaffLoading, isError: isStaffError } = useStaff(
-    organizationId,
-    selectedRoleId,
-  );
+  const { data: staff = [], isLoading: isStaffLoading, isError: isStaffError } = useStaff(organizationId);
   const isLoading = isCurrentUserLoading || isStaffLoading;
   const isError = isCurrentUserError || isStaffError;
   const hasNoOrganization = !isCurrentUserLoading && !isCurrentUserError && currentUser && !organizationId;
@@ -86,7 +79,6 @@ export function StaffPage() {
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
             <StaffToolbar
               activeFilter={filter}
-              roleFilters={roleFilters}
               search={search}
               onFilterChange={setFilter}
               onSearchChange={setSearch}
@@ -131,7 +123,6 @@ export function StaffPage() {
         open={isCreateDrawerOpen}
         organizationId={organizationId}
         organizationName={organizationName}
-        roleFilters={roleFilters}
       />
     </>
   );
