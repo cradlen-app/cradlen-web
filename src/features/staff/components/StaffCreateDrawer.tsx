@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useInviteStaff } from "../hooks/useInviteStaff";
+import { useStaffRoles } from "../hooks/useStaffRoles";
 import {
   getDefaultStaffInviteValues,
   STAFF_INVITE_DAY_LABELS,
@@ -17,7 +18,6 @@ import {
   splitStaffName,
   type StaffInviteFormValues,
 } from "../lib/staff-invite.schemas";
-import type { StaffRoleFilter } from "../types/staff.types";
 
 type StaffCreateDrawerProps = {
   branchId?: string;
@@ -26,7 +26,6 @@ type StaffCreateDrawerProps = {
   open: boolean;
   organizationId?: string;
   organizationName?: string;
-  roleFilters: StaffRoleFilter[];
 };
 
 function SectionTitle({ title }: { title: string }) {
@@ -106,10 +105,10 @@ export function StaffCreateDrawer({
   open,
   organizationId,
   organizationName,
-  roleFilters,
 }: StaffCreateDrawerProps) {
   const t = useTranslations("staff.create");
   const inviteStaff = useInviteStaff();
+  const { data: roleFilters = [] } = useStaffRoles(organizationId);
   const [formError, setFormError] = useState<string | null>(null);
   const {
     formState: { errors },
