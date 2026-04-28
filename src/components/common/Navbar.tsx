@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Search, Upload, Bell, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { cn } from "@/lib/utils";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
@@ -70,7 +71,7 @@ export function Navbar() {
   const t = useTranslations("nav");
   const { data: user } = useCurrentUser();
 
-  const profile = user?.profiles?.[0];
+  const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
   const subLabel = profile?.job_title || profile?.role.name || "";
 

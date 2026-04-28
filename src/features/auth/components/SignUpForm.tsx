@@ -18,6 +18,7 @@ import {
   getRegistrationToken,
   setRegistrationToken as persistRegistrationToken,
 } from "../lib/registration-session";
+import { buildRegisterOrganizationRequest } from "../lib/register-organization";
 import {
   useRegisterPersonal,
   useVerifyEmail,
@@ -177,23 +178,10 @@ export function SignUpForm() {
 
   const handleStep3Submit = step3Form.handleSubmit(async (data) => {
     setStepError(null);
-    const specialtiesArray = data.specialties
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
     try {
-      await registerOrganization.mutateAsync({
-        registration_token: registrationToken!,
-        organization_name: data.organizationName,
-        organization_specialities: specialtiesArray,
-        branch_address: data.address,
-        branch_city: data.city,
-        branch_governorate: data.governorate,
-        branch_country: data.country,
-        is_clinical: data.isClinical,
-        ...(data.isClinical && data.specialty ? { speciality: data.specialty } : {}),
-        ...(data.jobTitle ? { job_title: data.jobTitle } : {}),
-      });
+      await registerOrganization.mutateAsync(
+        buildRegisterOrganizationRequest(registrationToken!, data),
+      );
       setAuthenticated();
       clearRegistrationToken();
       router.push(AUTH_SUCCESS_REDIRECT);
