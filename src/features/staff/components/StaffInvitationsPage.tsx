@@ -17,6 +17,7 @@ import { AlertDialog, Dialog } from "radix-ui";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { Link } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -592,7 +593,7 @@ export function StaffInvitationsPage() {
     isLoading: isCurrentUserLoading,
     isError: isCurrentUserError,
   } = useCurrentUser();
-  const primaryProfile = currentUser?.profiles[0];
+  const primaryProfile = getActiveProfile(currentUser);
   const organizationId = primaryProfile?.organization.id;
   const branchId = primaryProfile?.branch.id;
 

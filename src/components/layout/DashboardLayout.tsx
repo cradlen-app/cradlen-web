@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveRole } from "@/features/auth/lib/current-user";
 import type { UserRole } from "@/types/user.types";
 import { Navbar } from "../common/Navbar";
 import { Sidebar } from "../common/Sidebar";
@@ -37,7 +38,7 @@ export function DashboardLayout({ children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: user, isLoading } = useCurrentUser();
-  const role = user?.profiles?.[0]?.role.name;
+  const role = getActiveRole(user);
 
   useEffect(() => {
     if (isLoading || !role) return;
