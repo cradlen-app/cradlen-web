@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { useStaff } from "../hooks/useStaff";
 import { useStaffDirectory } from "../hooks/useStaffDirectory";
 import type { StaffFilter } from "../types/staff.types";
@@ -42,7 +43,7 @@ export function StaffPage() {
     isLoading: isCurrentUserLoading,
     isError: isCurrentUserError,
   } = useCurrentUser();
-  const primaryProfile = currentUser?.profiles[0];
+  const primaryProfile = getActiveProfile(currentUser);
   const organizationId = primaryProfile?.organization.id;
   const organizationName = primaryProfile?.organization.name;
   const branchId = primaryProfile?.branch.id;
