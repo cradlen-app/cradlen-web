@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
+import Footer from "@/components/common/Footer";
 import { Link } from "@/i18n/navigation";
 import { StaffInviteAcceptance } from "@/features/staff/components/StaffInviteAcceptance";
 import Logo from "@/public/Logo.png";
@@ -29,6 +30,7 @@ export default async function StaffInvitePage({ params }: Props) {
       <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4 py-10">
         <StaffInviteAcceptance />
       </main>
+      <Footer />
     </div>
   );
 }

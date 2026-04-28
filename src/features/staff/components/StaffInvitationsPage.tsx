@@ -27,10 +27,18 @@ import {
   useStaffInvitations,
 } from "../hooks/useStaffInvitations";
 import { STAFF_INVITE_DAY_LABELS } from "../lib/staff-invite.schemas";
-import { getRoleTranslationKey, normalizeApiRoleName } from "../lib/staff.utils";
+import {
+  getRoleTranslationKey,
+  normalizeApiRoleName,
+} from "../lib/staff.utils";
 import type { ApiStaffInvitation } from "../types/staff.api.types";
 
-type InvitationStatusFilter = "all" | "pending" | "accepted" | "expired" | "cancelled";
+type InvitationStatusFilter =
+  | "all"
+  | "pending"
+  | "accepted"
+  | "expired"
+  | "cancelled";
 
 const STATUS_FILTERS: InvitationStatusFilter[] = [
   "all",
@@ -40,7 +48,14 @@ const STATUS_FILTERS: InvitationStatusFilter[] = [
   "cancelled",
 ];
 
-const columns = ["invitee", "role", "status", "invited", "expires", "actions"] as const;
+const columns = [
+  "invitee",
+  "role",
+  "status",
+  "invited",
+  "expires",
+  "actions",
+] as const;
 
 function unwrapApiError(error: unknown, fallback: string) {
   if (error instanceof ApiError) {
@@ -62,7 +77,9 @@ function formatDate(value?: string) {
 }
 
 function getFullName(invitation: ApiStaffInvitation) {
-  return [invitation.first_name, invitation.last_name].filter(Boolean).join(" ");
+  return [invitation.first_name, invitation.last_name]
+    .filter(Boolean)
+    .join(" ");
 }
 
 function getInvitedAt(invitation: ApiStaffInvitation) {
@@ -89,7 +106,12 @@ function getStatus(invitation: ApiStaffInvitation) {
 
 function getStatusTranslationKey(status: string) {
   if (status === "canceled" || status === "revoked") return "cancelled";
-  if (status === "pending" || status === "accepted" || status === "expired" || status === "cancelled") {
+  if (
+    status === "pending" ||
+    status === "accepted" ||
+    status === "expired" ||
+    status === "cancelled"
+  ) {
     return status;
   }
 
@@ -104,7 +126,9 @@ function humanizeStatus(status: string) {
     .join(" ");
 }
 
-function getBranchLabel(branch: NonNullable<ApiStaffInvitation["branches"]>[number]) {
+function getBranchLabel(
+  branch: NonNullable<ApiStaffInvitation["branches"]>[number],
+) {
   if (branch.branch_name) return branch.branch_name;
   if (branch.branch?.name) return branch.branch.name;
 
@@ -119,14 +143,20 @@ function getBranchLabel(branch: NonNullable<ApiStaffInvitation["branches"]>[numb
 }
 
 function getInviterLabel(invitation: ApiStaffInvitation) {
-  const inviter = invitation.invited_by ?? invitation.inviter ?? invitation.created_by;
+  const inviter =
+    invitation.invited_by ?? invitation.inviter ?? invitation.created_by;
   if (!inviter) return "-";
 
-  const name = [inviter.first_name, inviter.last_name].filter(Boolean).join(" ");
+  const name = [inviter.first_name, inviter.last_name]
+    .filter(Boolean)
+    .join(" ");
   return name || inviter.email || "-";
 }
 
-function getRoleLabel(invitation: ApiStaffInvitation, t: ReturnType<typeof useTranslations>) {
+function getRoleLabel(
+  invitation: ApiStaffInvitation,
+  t: ReturnType<typeof useTranslations>,
+) {
   const raw = invitation.role?.name ?? invitation.role_name;
   if (!raw) return "-";
 
@@ -167,7 +197,10 @@ function matchesSearch(invitation: ApiStaffInvitation, search: string) {
     .some((value) => value!.toLowerCase().includes(query));
 }
 
-function matchesStatus(invitation: ApiStaffInvitation, status: InvitationStatusFilter) {
+function matchesStatus(
+  invitation: ApiStaffInvitation,
+  status: InvitationStatusFilter,
+) {
   if (status === "all") return true;
 
   const invitationStatus = getStatusTranslationKey(getStatus(invitation));
@@ -200,7 +233,10 @@ function TableSkeleton() {
     <div className="overflow-x-auto bg-white px-4">
       <div className="h-10 border-b border-gray-100" />
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="flex items-center gap-3 border-b border-gray-50 py-3 last:border-0">
+        <div
+          key={index}
+          className="flex items-center gap-3 border-b border-gray-50 py-3 last:border-0"
+        >
           <div className="size-9 animate-pulse rounded-full bg-gray-100" />
           <div className="flex flex-1 flex-col gap-1.5">
             <div className="h-3 w-36 animate-pulse rounded bg-gray-100" />
@@ -281,7 +317,9 @@ function InvitationsTable({
                       <UserPlus className="size-4" aria-hidden="true" />
                     </span>
                     <div className="flex min-w-0 flex-col leading-tight">
-                      <span className="truncate text-brand-black">{fullName}</span>
+                      <span className="truncate text-brand-black">
+                        {fullName}
+                      </span>
                       <span className="truncate text-xs font-thin text-gray-400">
                         {invitation.email ?? "-"}
                       </span>
@@ -290,7 +328,9 @@ function InvitationsTable({
                 </td>
                 <td className="py-3 pe-4">
                   <div className="flex flex-col leading-tight">
-                    <span className="text-brand-black">{getRoleLabel(invitation, staffT)}</span>
+                    <span className="text-brand-black">
+                      {getRoleLabel(invitation, staffT)}
+                    </span>
                     <span className="text-xs font-thin italic text-gray-400">
                       {invitation.job_title || "-"}
                     </span>
@@ -391,7 +431,8 @@ function InvitationDrawer({
   const staffT = useTranslations("staff");
 
   const fullName = invitation ? getFullName(invitation) : "";
-  const branchLabels = invitation?.branches?.map(getBranchLabel).filter(Boolean) ?? [];
+  const branchLabels =
+    invitation?.branches?.map(getBranchLabel).filter(Boolean) ?? [];
   const schedule = invitation ? getScheduleLabel(invitation) : "";
 
   return (
@@ -401,7 +442,7 @@ function InvitationDrawer({
         <Dialog.Content
           className={cn(
             "fixed inset-0 z-50 flex h-dvh w-full flex-col bg-white px-5 py-5 shadow-2xl outline-none",
-            "sm:inset-y-0 sm:start-auto sm:end-0 sm:w-[430px] sm:max-w-[calc(100vw-2rem)]",
+            "sm:inset-y-0 sm:start-auto sm:inset-e-0 sm:w-107.5 sm:max-w-[calc(100vw-2rem)]",
             "sm:ltr:rounded-l-2xl sm:rtl:rounded-r-2xl",
           )}
         >
@@ -451,20 +492,48 @@ function InvitationDrawer({
                 </section>
 
                 <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <DetailRow label={t("fields.role")} value={getRoleLabel(invitation, staffT)} />
-                  <DetailRow label={t("fields.jobTitle")} value={invitation.job_title} />
-                  <DetailRow label={t("fields.phone")} value={invitation.phone} />
-                  <DetailRow label={t("fields.specialty")} value={invitation.specialty} />
-                  <DetailRow label={t("fields.invitedAt")} value={formatDate(getInvitedAt(invitation))} />
-                  <DetailRow label={t("fields.expiresAt")} value={formatDate(getExpiresAt(invitation))} />
-                  <DetailRow label={t("fields.acceptedAt")} value={formatDate(invitation.accepted_at)} />
-                  <DetailRow label={t("fields.invitedBy")} value={getInviterLabel(invitation)} />
+                  <DetailRow
+                    label={t("fields.role")}
+                    value={getRoleLabel(invitation, staffT)}
+                  />
+                  <DetailRow
+                    label={t("fields.jobTitle")}
+                    value={invitation.job_title}
+                  />
+                  <DetailRow
+                    label={t("fields.phone")}
+                    value={invitation.phone}
+                  />
+                  <DetailRow
+                    label={t("fields.specialty")}
+                    value={invitation.specialty}
+                  />
+                  <DetailRow
+                    label={t("fields.invitedAt")}
+                    value={formatDate(getInvitedAt(invitation))}
+                  />
+                  <DetailRow
+                    label={t("fields.expiresAt")}
+                    value={formatDate(getExpiresAt(invitation))}
+                  />
+                  <DetailRow
+                    label={t("fields.acceptedAt")}
+                    value={formatDate(invitation.accepted_at)}
+                  />
+                  <DetailRow
+                    label={t("fields.invitedBy")}
+                    value={getInviterLabel(invitation)}
+                  />
                 </section>
 
                 <section className="space-y-4 rounded-xl border border-gray-100 p-4">
                   <DetailRow
                     label={t("fields.branches")}
-                    value={branchLabels.length > 0 ? branchLabels.join(" | ") : undefined}
+                    value={
+                      branchLabels.length > 0
+                        ? branchLabels.join(" | ")
+                        : undefined
+                    }
                   />
                   <DetailRow label={t("fields.schedule")} value={schedule} />
                 </section>
@@ -513,7 +582,9 @@ export function StaffInvitationsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<InvitationStatusFilter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<ApiStaffInvitation | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ApiStaffInvitation | null>(
+    null,
+  );
   const [resendingId, setResendingId] = useState<string | null>(null);
 
   const {
@@ -534,7 +605,8 @@ export function StaffInvitationsPage() {
     () => invitationsResult?.data ?? [],
     [invitationsResult?.data],
   );
-  const selectedFallback = invitations.find((invitation) => invitation.id === selectedId) ?? null;
+  const selectedFallback =
+    invitations.find((invitation) => invitation.id === selectedId) ?? null;
   const detailQuery = useStaffInvitation(selectedId);
   const resendInvitation = useResendStaffInvitation();
   const deleteInvitation = useDeleteStaffInvitation();
@@ -543,7 +615,8 @@ export function StaffInvitationsPage() {
     () =>
       invitations.filter(
         (invitation) =>
-          matchesStatus(invitation, status) && matchesSearch(invitation, search),
+          matchesStatus(invitation, status) &&
+          matchesSearch(invitation, search),
       ),
     [invitations, search, status],
   );
@@ -591,15 +664,23 @@ export function StaffInvitationsPage() {
       <div className="flex h-full flex-col gap-4 p-4 lg:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <nav aria-label={t("breadcrumbLabel")} className="flex items-center gap-2">
+            <nav
+              aria-label={t("breadcrumbLabel")}
+              className="flex items-center gap-2"
+            >
               <Link
                 href="/dashboard/staff"
                 className="text-2xl font-medium text-gray-400 transition-colors hover:text-brand-primary"
               >
                 {staffT("title")}
               </Link>
-              <ChevronRight className="size-5 text-gray-300 rtl:rotate-180" aria-hidden="true" />
-              <h1 className="text-2xl font-medium text-brand-black">{t("title")}</h1>
+              <ChevronRight
+                className="size-5 text-gray-300 rtl:rotate-180"
+                aria-hidden="true"
+              />
+              <h1 className="text-2xl font-medium text-brand-black">
+                {t("title")}
+              </h1>
             </nav>
             <p className="mt-1 text-sm text-gray-400">{t("subtitle")}</p>
           </div>
@@ -609,7 +690,9 @@ export function StaffInvitationsPage() {
             onClick={() => {
               const firstPending =
                 filteredInvitations.find(
-                  (invitation) => getStatusTranslationKey(getStatus(invitation)) === "pending",
+                  (invitation) =>
+                    getStatusTranslationKey(getStatus(invitation)) ===
+                    "pending",
                 ) ?? filteredInvitations[0];
               if (firstPending) setSelectedId(firstPending.id);
             }}
@@ -717,8 +800,8 @@ export function StaffInvitationsPage() {
         }}
       >
         <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-black/35" />
-          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
+          <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
             <AlertDialog.Title className="text-lg font-medium text-brand-black">
               {t("deleteTitle")}
             </AlertDialog.Title>

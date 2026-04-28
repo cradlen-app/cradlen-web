@@ -222,21 +222,12 @@ export type AcceptStaffInviteRequest = {
 };
 
 export type AcceptStaffInviteResponse =
-  | {
-      access_token: string;
-      refresh_token: string;
-      token_type?: string;
-      expires_in?: number;
-    }
-  | {
-      data: {
-        access_token: string;
-        refresh_token: string;
-        token_type?: string;
-        expires_in?: number;
-      };
-      meta?: Record<string, unknown>;
+  {
+    data: {
+      authenticated: true;
     };
+    meta?: Record<string, unknown>;
+  };
 
 export type ApiStaffMember = {
   id: string;

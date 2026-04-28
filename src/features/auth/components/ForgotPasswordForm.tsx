@@ -23,7 +23,7 @@ type Step3Data = z.infer<typeof step3Schema>;
 export function ForgotPasswordForm() {
   const t = useTranslations("auth.forgotPassword");
   const router = useRouter();
-  const setTokens = useAuthStore((s) => s.setTokens);
+  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [resetToken, setResetToken] = useState<string | null>(null);
@@ -91,12 +91,12 @@ export function ForgotPasswordForm() {
   const handleStep3Submit = step3Form.handleSubmit(async (data) => {
     setStepError(null);
     try {
-      const tokens = await resetPassword.mutateAsync({
+      await resetPassword.mutateAsync({
         reset_token: resetToken!,
         password: data.password,
         confirm_password: data.confirmPassword,
       });
-      setTokens(tokens);
+      setAuthenticated();
       router.replace("/");
     } catch {
       setStepError(t("errors.serverError"));

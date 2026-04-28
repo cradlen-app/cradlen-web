@@ -1,4 +1,4 @@
-import type { AuthTokens } from "./sign-in.types";
+import type { AuthenticatedSessionResponse } from "./sign-in.types";
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -23,4 +23,4 @@ export interface ResetPasswordRequest {
   confirm_password: string;
 }
 
-export type ResetPasswordResponse = AuthTokens;
+export type ResetPasswordResponse = AuthenticatedSessionResponse;

@@ -45,7 +45,8 @@
     "roles": {
       "owner": "مالك",
       "doctor": "طبيب",
-      "reception": "استقبال"
+      "reception": "استقبال",
+      "unknown": "غير معروف"
     },
     "columns": {
       "name": "الاسم",
@@ -91,7 +92,8 @@
       "roles": {
         "owner": "مالك",
         "doctor": "طبيب",
-        "reception": "استقبال"
+        "reception": "استقبال",
+        "unknown": "غير معروف"
       }
     },
     "invite": {

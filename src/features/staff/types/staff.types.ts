@@ -1,4 +1,4 @@
-export type StaffRole = "owner" | "doctor" | "reception";
+export type StaffRole = "owner" | "doctor" | "reception" | "unknown";
 
 export type StaffStatus = "available" | "notAvailable";
 
