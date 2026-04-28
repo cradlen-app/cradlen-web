@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { useStaff } from "../hooks/useStaff";
 import { useStaffDirectory } from "../hooks/useStaffDirectory";
+import { useStaffRoles } from "../hooks/useStaffRoles";
 import type { StaffFilter } from "../types/staff.types";
 import { StaffCreateDrawer } from "./StaffCreateDrawer";
 import { StaffHeader } from "./StaffHeader";
@@ -37,6 +38,8 @@ function StaffTableSkeleton() {
 export function StaffPage() {
   const t = useTranslations("staff");
   const [filter, setFilter] = useState<StaffFilter>("all");
+  const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
   const {
     data: currentUser,
@@ -56,20 +59,37 @@ export function StaffPage() {
         .filter(Boolean)
         .join(", ")
     : undefined;
-  const { data: staff = [], isLoading: isStaffLoading, isError: isStaffError } = useStaff(organizationId);
+  const { data: roleFilters = [] } = useStaffRoles(organizationId);
+  const selectedRoleId = useMemo(
+    () =>
+      filter === "all"
+        ? undefined
+        : roleFilters.find((roleFilter) => roleFilter.role === filter)?.id,
+    [filter, roleFilters],
+  );
+  const {
+    data: staff = [],
+    isLoading: isStaffLoading,
+    isError: isStaffError,
+  } = useStaff(organizationId, branchId, {
+    q: deferredSearch,
+    roleId: selectedRoleId,
+  });
   const isLoading = isCurrentUserLoading || isStaffLoading;
   const isError = isCurrentUserError || isStaffError;
-  const hasNoOrganization = !isCurrentUserLoading && !isCurrentUserError && currentUser && !organizationId;
+  const hasNoBranch =
+    !isCurrentUserLoading &&
+    !isCurrentUserError &&
+    currentUser &&
+    (!organizationId || !branchId);
 
   const {
     filteredStaff,
-    search,
     selectedId,
     selectedMember,
-    setSearch,
     setSelectedId,
     totalStaff,
-  } = useStaffDirectory({ filter, staff });
+  } = useStaffDirectory({ filter, search: deferredSearch, staff });
 
   return (
     <>
@@ -92,9 +112,9 @@ export function StaffPage() {
                 <div className="flex min-h-60 items-center justify-center text-sm text-red-400">
                   {t("loadError")}
                 </div>
-              ) : hasNoOrganization ? (
+              ) : hasNoBranch ? (
                 <div className="flex min-h-60 items-center justify-center text-sm text-gray-400">
-                  {t("noOrganization")}
+                  {t("noBranch")}
                 </div>
               ) : (
                 <StaffTable

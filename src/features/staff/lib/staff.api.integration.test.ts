@@ -19,10 +19,16 @@ describe("staff api helpers", () => {
   });
 
   it("sends authenticated staff list requests through the same-origin proxy", async () => {
-    await fetchStaff("org-1", { page: 2, limit: 25, roleId: "role-1" });
+    await fetchStaff("org-1", {
+      branchId: "branch-1",
+      page: 2,
+      limit: 25,
+      q: "cardio",
+      roleId: "role-1",
+    });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/staff?organization_id=org-1&page=2&limit=25&role_id=role-1",
+      "/staff?organization_id=org-1&branch_id=branch-1&page=2&limit=25&q=cardio&role_id=role-1",
     );
   });
 
