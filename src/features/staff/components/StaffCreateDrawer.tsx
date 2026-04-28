@@ -52,7 +52,9 @@ type ShiftSectionError = {
 };
 
 function getShiftSectionError(errors: FieldErrors<StaffInviteFormValues>) {
-  const shiftErrors = errors.shifts as (typeof errors.shifts & ShiftSectionError) | undefined;
+  const shiftErrors = errors.shifts as
+    | (typeof errors.shifts & ShiftSectionError)
+    | undefined;
 
   return shiftErrors?.root?.message ?? shiftErrors?.message;
 }
@@ -64,6 +66,7 @@ const roleIcons = {
   doctor: Stethoscope,
   owner: UserRoundCog,
   reception: BriefcaseBusiness,
+  unknown: BriefcaseBusiness,
 };
 
 type InviteFieldName =
@@ -79,12 +82,17 @@ function getInviteErrorField(message: string): InviteFieldName | null {
   const normalized = message.toLowerCase();
 
   if (normalized.includes("email")) return "email";
-  if (normalized.includes("first_name") || normalized.includes("last_name")) return "name";
+  if (normalized.includes("first_name") || normalized.includes("last_name"))
+    return "name";
   if (normalized.includes("role_id")) return "roleId";
   if (normalized.includes("job_title")) return "jobTitle";
   if (normalized.includes("specialty")) return "specialty";
   if (normalized.includes("phone")) return "phone";
-  if (normalized.includes("branch") || normalized.includes("schedule") || normalized.includes("shift")) {
+  if (
+    normalized.includes("branch") ||
+    normalized.includes("schedule") ||
+    normalized.includes("shift")
+  ) {
     return "shifts";
   }
 
@@ -140,111 +148,123 @@ export function StaffCreateDrawer({
 
   const handleRoleChange = (roleId: string) => {
     const selected = roleFilters.find((role) => role.id === roleId);
+    const selectedRole =
+      !selected || selected.role === "unknown" ? "doctor" : selected.role;
 
     setValue("roleId", roleId, { shouldDirty: true, shouldValidate: true });
-    setValue("role", selected?.role ?? "doctor", {
+    setValue("role", selectedRole, {
       shouldDirty: true,
       shouldValidate: true,
     });
 
-    if (selected?.role !== "owner") {
-      setValue("isClinical", false, { shouldDirty: true, shouldValidate: true });
+    if (selectedRole !== "owner") {
+      setValue("isClinical", false, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     }
 
-    if (selected?.role === "reception") {
+    if (selectedRole === "reception") {
       setValue("specialty", "", { shouldDirty: true, shouldValidate: true });
     }
   };
 
-  const onSubmit = handleSubmit(async (values) => {
-    setFormError(null);
+  const onSubmit = handleSubmit(
+    async (values) => {
+      setFormError(null);
 
-    if (!organizationId || !branchId) {
-      toast.error(t("missingOrganization"));
-      return;
-    }
+      if (!organizationId || !branchId) {
+        toast.error(t("missingOrganization"));
+        return;
+      }
 
-    const { firstName, lastName } = splitStaffName(values.name);
+      const { firstName, lastName } = splitStaffName(values.name);
 
-    try {
-      await inviteStaff.mutateAsync({
-        organization_id: organizationId,
-        branches: [
-          {
-            branch_id: branchId,
-            schedule: {
-              days: values.shifts
-                .filter((shift) => shift.enabled)
-                .map((shift) => ({
-                  day_of_week: shift.day,
-                  shifts: [
-                    {
-                      start_time: shift.startTime,
-                      end_time: shift.endTime,
-                    },
-                  ],
-                })),
+      try {
+        await inviteStaff.mutateAsync({
+          organization_id: organizationId,
+          branches: [
+            {
+              branch_id: branchId,
+              schedule: {
+                days: values.shifts
+                  .filter((shift) => shift.enabled)
+                  .map((shift) => ({
+                    day_of_week: shift.day,
+                    shifts: [
+                      {
+                        start_time: shift.startTime,
+                        end_time: shift.endTime,
+                      },
+                    ],
+                  })),
+              },
             },
-          },
-        ],
-        role_id: values.roleId,
-        first_name: firstName,
-        last_name: lastName,
-        email: values.email,
-        ...(values.phone ? { phone: values.phone } : {}),
-        job_title: values.jobTitle,
-        ...(showSpecialty && values.specialty ? { specialty: values.specialty } : {}),
-      });
+          ],
+          role_id: values.roleId,
+          first_name: firstName,
+          last_name: lastName,
+          email: values.email,
+          ...(values.phone ? { phone: values.phone } : {}),
+          job_title: values.jobTitle,
+          ...(showSpecialty && values.specialty
+            ? { specialty: values.specialty }
+            : {}),
+        });
 
-      toast.success(t("success"));
-      onOpenChange(false);
-      reset(getDefaultStaffInviteValues());
-    } catch (error) {
-      if (error instanceof ApiError) {
-        if (
-          error.status === 409 ||
-          error.messages.some((message) =>
-            message.toLowerCase().includes("pending invitation already exists"),
-          )
-        ) {
-          const message = t("errors.pendingInvitation");
-          setError("email", { type: "server", message });
+        toast.success(t("success"));
+        onOpenChange(false);
+        reset(getDefaultStaffInviteValues());
+      } catch (error) {
+        if (error instanceof ApiError) {
+          if (
+            error.status === 409 ||
+            error.messages.some((message) =>
+              message
+                .toLowerCase()
+                .includes("pending invitation already exists"),
+            )
+          ) {
+            const message = t("errors.pendingInvitation");
+            setError("email", { type: "server", message });
+            toast.error(message);
+            return;
+          }
+
+          if (error.status === 400) {
+            let didSetFieldError = false;
+
+            error.messages.forEach((message) => {
+              const field = getInviteErrorField(message);
+
+              if (!field) return;
+
+              didSetFieldError = true;
+              setError(field, { type: "server", message });
+            });
+
+            if (didSetFieldError) {
+              setFormError(t("errors.reviewFields"));
+              toast.error(t("errors.reviewFields"));
+              return;
+            }
+          }
+
+          const message = error.messages[0] || t("error");
+          setFormError(message);
           toast.error(message);
           return;
         }
 
-        if (error.status === 400) {
-          let didSetFieldError = false;
-
-          error.messages.forEach((message) => {
-            const field = getInviteErrorField(message);
-
-            if (!field) return;
-
-            didSetFieldError = true;
-            setError(field, { type: "server", message });
-          });
-
-          if (didSetFieldError) {
-            setFormError(t("errors.reviewFields"));
-            toast.error(t("errors.reviewFields"));
-            return;
-          }
-        }
-
-        const message = error.messages[0] || t("error");
-        setFormError(message);
-        toast.error(message);
-        return;
+        setFormError(t("error"));
+        toast.error(t("error"));
       }
-
-      setFormError(t("error"));
-      toast.error(t("error"));
-    }
-  }, () => {
-    setFormError(t("errors.reviewFields"));
-    toast.error(t("errors.reviewFields"));
-  });
+    },
+    () => {
+      setFormError(t("errors.reviewFields"));
+      toast.error(t("errors.reviewFields"));
+    },
+  );
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -253,7 +273,7 @@ export function StaffCreateDrawer({
         <Dialog.Content
           className={cn(
             "fixed inset-0 z-50 flex h-dvh w-full flex-col bg-white px-5 py-5 shadow-2xl outline-none",
-            "sm:inset-y-0 sm:start-auto sm:end-0 sm:w-[430px] sm:max-w-[calc(100vw-2rem)]",
+            "sm:inset-y-0 sm:start-auto sm:inset-e-0 sm:w-107.5 sm:max-w-[calc(100vw-2rem)]",
             "sm:ltr:rounded-l-2xl sm:rtl:rounded-r-2xl",
           )}
         >
@@ -272,7 +292,10 @@ export function StaffCreateDrawer({
             </Dialog.Close>
           </div>
 
-          <form onSubmit={onSubmit} className="mt-6 flex min-h-0 flex-1 flex-col">
+          <form
+            onSubmit={onSubmit}
+            className="mt-6 flex min-h-0 flex-1 flex-col"
+          >
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pe-1">
               {formError && (
                 <div className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600">
@@ -295,7 +318,9 @@ export function StaffCreateDrawer({
                   </label>
 
                   <label className="block">
-                    <span className="text-xs font-medium text-brand-black">{t("branch")}</span>
+                    <span className="text-xs font-medium text-brand-black">
+                      {t("branch")}
+                    </span>
                     <input
                       className={cn(fieldClass, "text-gray-500")}
                       readOnly
@@ -309,8 +334,14 @@ export function StaffCreateDrawer({
                 <SectionTitle title={t("account")} />
                 <div className="grid grid-cols-1 gap-x-8 gap-y-2">
                   <label className="block">
-                    <span className="text-xs font-medium text-brand-black">{t("email")}</span>
-                    <input {...register("email")} className={fieldClass} type="email" />
+                    <span className="text-xs font-medium text-brand-black">
+                      {t("email")}
+                    </span>
+                    <input
+                      {...register("email")}
+                      className={fieldClass}
+                      type="email"
+                    />
                     <FieldError message={errors.email?.message} />
                   </label>
                 </div>
@@ -320,59 +351,75 @@ export function StaffCreateDrawer({
                 <SectionTitle title={t("personalInformation")} />
                 <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                   <label className="block">
-                    <span className="text-xs font-medium text-brand-black">{t("name")}</span>
+                    <span className="text-xs font-medium text-brand-black">
+                      {t("name")}
+                    </span>
                     <input {...register("name")} className={fieldClass} />
                     <FieldError message={errors.name?.message} />
                   </label>
 
                   <label className="block">
-                    <span className="text-xs font-medium text-brand-black">{t("jobTitle")}</span>
+                    <span className="text-xs font-medium text-brand-black">
+                      {t("jobTitle")}
+                    </span>
                     <input {...register("jobTitle")} className={fieldClass} />
                     <FieldError message={errors.jobTitle?.message} />
                   </label>
 
                   <label className="block">
-                    <span className="text-xs font-medium text-brand-black">{t("phone")}</span>
-                    <input {...register("phone")} className={fieldClass} type="tel" />
+                    <span className="text-xs font-medium text-brand-black">
+                      {t("phone")}
+                    </span>
+                    <input
+                      {...register("phone")}
+                      className={fieldClass}
+                      type="tel"
+                    />
                     <FieldError message={errors.phone?.message} />
                   </label>
 
                   <div className="sm:col-span-2">
-                    <span className="text-xs font-medium text-brand-black">{t("role")}</span>
+                    <span className="text-xs font-medium text-brand-black">
+                      {t("role")}
+                    </span>
                     <input {...register("roleId")} type="hidden" />
                     <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                      {roleFilters.map((role) => {
-                        const Icon = roleIcons[role.role];
-                        const isSelected = selectedRole === role.role;
+                      {roleFilters
+                        .filter((role) => role.role !== "unknown")
+                        .map((role) => {
+                          const Icon = roleIcons[role.role];
+                          const isSelected = selectedRole === role.role;
 
-                        return (
-                          <button
-                            key={role.id}
-                            type="button"
-                            onClick={() => handleRoleChange(role.id)}
-                            aria-pressed={isSelected}
-                            className={cn(
-                              "flex h-14 items-center gap-2 rounded-lg border px-3 text-start transition-all",
-                              "focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:outline-none",
-                              isSelected
-                                ? "border-brand-primary bg-brand-primary/8 text-brand-primary shadow-sm"
-                                : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",
-                            )}
-                          >
-                            <span
+                          return (
+                            <button
+                              key={role.id}
+                              type="button"
+                              onClick={() => handleRoleChange(role.id)}
+                              aria-pressed={isSelected}
                               className={cn(
-                                "inline-flex size-8 shrink-0 items-center justify-center rounded-full",
-                                isSelected ? "bg-brand-primary text-white" : "bg-white text-gray-400",
+                                "flex h-14 items-center gap-2 rounded-lg border px-3 text-start transition-all",
+                                "focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:outline-none",
+                                isSelected
+                                  ? "border-brand-primary bg-brand-primary/8 text-brand-primary shadow-sm"
+                                  : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",
                               )}
                             >
-                              <Icon className="size-4" aria-hidden="true" />
-                            </span>
-                            <span className="min-w-0 text-xs font-semibold">
-                              {t(`roles.${role.role}`)}
-                            </span>
-                          </button>
-                        );
-                      })}
+                              <span
+                                className={cn(
+                                  "inline-flex size-8 shrink-0 items-center justify-center rounded-full",
+                                  isSelected
+                                    ? "bg-brand-primary text-white"
+                                    : "bg-white text-gray-400",
+                                )}
+                              >
+                                <Icon className="size-4" aria-hidden="true" />
+                              </span>
+                              <span className="min-w-0 text-xs font-semibold">
+                                {t(`roles.${role.role}`)}
+                              </span>
+                            </button>
+                          );
+                        })}
                     </div>
                     <FieldError message={errors.roleId?.message} />
                   </div>
@@ -395,7 +442,10 @@ export function StaffCreateDrawer({
                       <span className="text-xs font-medium text-brand-black">
                         {t("specialty")}
                       </span>
-                      <input {...register("specialty")} className={fieldClass} />
+                      <input
+                        {...register("specialty")}
+                        className={fieldClass}
+                      />
                       <FieldError message={errors.specialty?.message} />
                     </label>
                   )}
@@ -422,7 +472,9 @@ export function StaffCreateDrawer({
                       </label>
                       <label>
                         <span className="sr-only">
-                          {t("startTime", { day: STAFF_INVITE_DAY_LABELS[shift.day] })}
+                          {t("startTime", {
+                            day: STAFF_INVITE_DAY_LABELS[shift.day],
+                          })}
                         </span>
                         <input
                           {...register(`shifts.${index}.startTime`)}
@@ -430,11 +482,15 @@ export function StaffCreateDrawer({
                           className={fieldClass}
                           disabled={!shift.enabled}
                         />
-                        <FieldError message={errors.shifts?.[index]?.startTime?.message} />
+                        <FieldError
+                          message={errors.shifts?.[index]?.startTime?.message}
+                        />
                       </label>
                       <label>
                         <span className="sr-only">
-                          {t("endTime", { day: STAFF_INVITE_DAY_LABELS[shift.day] })}
+                          {t("endTime", {
+                            day: STAFF_INVITE_DAY_LABELS[shift.day],
+                          })}
                         </span>
                         <input
                           {...register(`shifts.${index}.endTime`)}
@@ -442,13 +498,13 @@ export function StaffCreateDrawer({
                           className={fieldClass}
                           disabled={!shift.enabled}
                         />
-                        <FieldError message={errors.shifts?.[index]?.endTime?.message} />
+                        <FieldError
+                          message={errors.shifts?.[index]?.endTime?.message}
+                        />
                       </label>
                     </div>
                   ))}
-                  <FieldError
-                    message={shiftSectionError}
-                  />
+                  <FieldError message={shiftSectionError} />
                 </div>
               </section>
             </div>

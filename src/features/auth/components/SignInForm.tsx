@@ -14,9 +14,7 @@ import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas"
 import { useSignIn } from "../hooks/useSignIn";
 import { useAuthStore } from "../store/authStore";
 import { setRegistrationToken } from "../lib/registration-session";
-import type { AuthTokens } from "../types/sign-in.types";
-
-const DEFAULT_AUTH_REDIRECT = "/dashboard";
+import { getSafeRedirectPath } from "../lib/redirect";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
@@ -24,7 +22,7 @@ export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { mutateAsync, isError, error } = useSignIn();
-  const setTokens = useAuthStore((s) => s.setTokens);
+  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
   const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
 
   const {
@@ -45,7 +43,7 @@ export function SignInForm() {
         setRegistrationToken(loginData.registration_token);
         router.replace(`/sign-up?step=${step}`);
       } else {
-        setTokens(loginData as AuthTokens);
+        setAuthenticated();
         router.replace(redirectTo);
       }
     } catch {
@@ -142,12 +140,4 @@ export function SignInForm() {
       </Link>
     </form>
   );
-}
-
-function getSafeRedirectPath(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return DEFAULT_AUTH_REDIRECT;
-  }
-
-  return value;
 }

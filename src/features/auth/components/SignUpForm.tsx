@@ -26,7 +26,6 @@ import {
   useResumeRegistration,
 } from "../hooks/useSignUp";
 import type { Step1Data, Step2Data, Step3Data } from "../types/sign-up.types";
-import type { AuthTokens } from "../types/sign-in.types";
 
 const SPECIALTIES = [
   "General Practice",
@@ -46,7 +45,7 @@ const AUTH_SUCCESS_REDIRECT = "/dashboard";
 export function SignUpForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
-  const setTokens = useAuthStore((s) => s.setTokens);
+  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
   const searchParams = useSearchParams();
 
   const resumeToken = searchParams.get("token");
@@ -148,7 +147,7 @@ export function SignUpForm() {
           } else {
             // Registration was already completed — log them in directly
             toast.info(t("toasts.alreadyRegistered"));
-            setTokens(loginData as AuthTokens);
+            setAuthenticated();
             clearRegistrationToken();
             router.push(AUTH_SUCCESS_REDIRECT);
           }
@@ -183,7 +182,7 @@ export function SignUpForm() {
       .map((s) => s.trim())
       .filter(Boolean);
     try {
-      const res = await registerOrganization.mutateAsync({
+      await registerOrganization.mutateAsync({
         registration_token: registrationToken!,
         organization_name: data.organizationName,
         organization_specialities: specialtiesArray,
@@ -195,7 +194,7 @@ export function SignUpForm() {
         ...(data.isClinical && data.specialty ? { speciality: data.specialty } : {}),
         ...(data.jobTitle ? { job_title: data.jobTitle } : {}),
       });
-      setTokens(res.data);
+      setAuthenticated();
       clearRegistrationToken();
       router.push(AUTH_SUCCESS_REDIRECT);
     } catch {
