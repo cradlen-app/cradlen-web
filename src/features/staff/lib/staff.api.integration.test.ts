@@ -2,9 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiAuthFetch, apiFetch } from "@/lib/api";
 import {
   acceptStaffInvite,
+  deactivateStaff,
+  deleteStaffInvitation,
   fetchStaff,
+  fetchStaffInvitation,
+  fetchStaffMember,
   fetchStaffInvitations,
   previewStaffInvite,
+  resendStaffInvitation,
+  updateStaff,
 } from "./staff.api";
 
 vi.mock("@/lib/api", () => ({
@@ -14,6 +20,7 @@ vi.mock("@/lib/api", () => ({
 
 describe("staff api helpers", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.mocked(apiAuthFetch).mockResolvedValue({ data: [], meta: {} });
     vi.mocked(apiFetch).mockResolvedValue({ data: {} });
   });
@@ -41,6 +48,60 @@ describe("staff api helpers", () => {
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
       "/staff/invitations?organization_id=org-1&branch_id=branch-1&page=1&limit=100",
+    );
+  });
+
+  it("calls staff detail and management endpoints", async () => {
+    const scope = { organizationId: "org-1", branchId: "branch-1" };
+
+    await fetchStaffMember("staff-1", scope);
+    await updateStaff(
+      "staff-1",
+      {
+        first_name: "Mona",
+        last_name: "Amin",
+        phone: "+201000000000",
+      },
+      scope,
+    );
+    await deactivateStaff("staff-1", scope);
+
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      1,
+      "/staff/staff-1?organization_id=org-1&branch_id=branch-1",
+    );
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      2,
+      "/staff/staff-1?organization_id=org-1&branch_id=branch-1",
+      expect.objectContaining({ method: "PATCH" }),
+    );
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      3,
+      "/staff/staff-1?organization_id=org-1&branch_id=branch-1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("calls branch-scoped invitation action endpoints", async () => {
+    const scope = { organizationId: "org-1", branchId: "branch-1" };
+
+    await fetchStaffInvitation("invite-1", scope);
+    await deleteStaffInvitation("invite-1", scope);
+    await resendStaffInvitation("invite-1", scope);
+
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      1,
+      "/staff/invitations/invite-1?organization_id=org-1&branch_id=branch-1",
+    );
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      2,
+      "/staff/invitations/invite-1?organization_id=org-1&branch_id=branch-1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      3,
+      "/staff/invitations/invite-1/resend?organization_id=org-1&branch_id=branch-1",
+      expect.objectContaining({ method: "POST" }),
     );
   });
 

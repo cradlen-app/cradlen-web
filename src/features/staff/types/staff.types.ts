@@ -1,3 +1,5 @@
+import type { ApiStaffSchedule } from "./staff.api.types";
+
 export type StaffRole = "owner" | "doctor" | "reception" | "unknown";
 
 export type StaffStatus = "available" | "notAvailable";
@@ -7,6 +9,7 @@ export type StaffMember = {
   roleId?: string;
   firstName: string;
   lastName: string;
+  email?: string;
   handle: string;
   role: StaffRole;
   jobTitle: string;
@@ -14,6 +17,7 @@ export type StaffMember = {
   phone: string;
   status: StaffStatus;
   address?: string;
+  schedule?: ApiStaffSchedule;
   workSchedule?: string;
 };
 

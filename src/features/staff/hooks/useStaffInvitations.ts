@@ -63,25 +63,58 @@ export function useStaffInvitations(
   });
 }
 
-export function useStaffInvitation(invitationId: string | null) {
+export function useStaffInvitation(
+  organizationId: string | undefined,
+  branchId: string | undefined,
+  invitationId: string | null,
+) {
   return useQuery({
-    queryKey: [STAFF_INVITATIONS_QUERY_KEY, "detail", invitationId],
-    queryFn: async () => unwrapInvitation(await fetchStaffInvitation(invitationId!)),
-    enabled: !!invitationId,
+    queryKey: [
+      STAFF_INVITATIONS_QUERY_KEY,
+      "detail",
+      organizationId,
+      branchId,
+      invitationId,
+    ],
+    queryFn: async () =>
+      unwrapInvitation(
+        await fetchStaffInvitation(invitationId!, {
+          branchId: branchId!,
+          organizationId: organizationId!,
+        }),
+      ),
+    enabled: !!organizationId && !!branchId && !!invitationId,
     staleTime: 60 * 1000,
   });
 }
+
+type InvitationActionVariables = {
+  branchId: string;
+  invitationId: string;
+  organizationId: string;
+};
 
 export function useResendStaffInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (invitationId: string) => resendStaffInvitation(invitationId),
-    onSuccess: async (_data, invitationId) => {
+    mutationFn: ({
+      branchId,
+      invitationId,
+      organizationId,
+    }: InvitationActionVariables) =>
+      resendStaffInvitation(invitationId, { branchId, organizationId }),
+    onSuccess: async (_data, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [STAFF_INVITATIONS_QUERY_KEY] }),
         queryClient.invalidateQueries({
-          queryKey: [STAFF_INVITATIONS_QUERY_KEY, "detail", invitationId],
+          queryKey: [
+            STAFF_INVITATIONS_QUERY_KEY,
+            "detail",
+            variables.organizationId,
+            variables.branchId,
+            variables.invitationId,
+          ],
         }),
       ]);
     },
@@ -92,7 +125,12 @@ export function useDeleteStaffInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (invitationId: string) => deleteStaffInvitation(invitationId),
+    mutationFn: ({
+      branchId,
+      invitationId,
+      organizationId,
+    }: InvitationActionVariables) =>
+      deleteStaffInvitation(invitationId, { branchId, organizationId }),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [STAFF_INVITATIONS_QUERY_KEY] }),

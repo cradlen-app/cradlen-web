@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
+import { Pencil, ShieldCheck, UserX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { getRoleTranslationKey, getStaffFullName } from "../lib/staff.utils";
 import type { StaffMember } from "../types/staff.types";
@@ -25,9 +25,13 @@ function DetailRow({ label, value }: RowProps) {
   );
 }
 
-type Props = { member: StaffMember | null };
+type Props = {
+  member: StaffMember | null;
+  onDeactivate?: (member: StaffMember) => void;
+  onEdit?: (member: StaffMember) => void;
+};
 
-export function StaffOverview({ member }: Props) {
+export function StaffOverview({ member, onDeactivate, onEdit }: Props) {
   const t = useTranslations("staff.overview");
   const staffT = useTranslations("staff");
 
@@ -68,6 +72,24 @@ export function StaffOverview({ member }: Props) {
       </div>
 
       <div className="px-4 py-1 flex-1">
+        <div className="flex items-center justify-center gap-2 border-b border-gray-100 py-3">
+          <button
+            type="button"
+            onClick={() => onEdit?.(member)}
+            className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-brand-primary/8 hover:text-brand-primary"
+            aria-label={t("actions.edit")}
+          >
+            <Pencil className="size-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onDeactivate?.(member)}
+            className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+            aria-label={t("actions.deactivate")}
+          >
+            <UserX className="size-4" aria-hidden="true" />
+          </button>
+        </div>
         <DetailRow
           label={t("role")}
           value={staffT(getRoleTranslationKey(member.role))}

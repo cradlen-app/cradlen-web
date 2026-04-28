@@ -2,12 +2,18 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AlertDialog } from "radix-ui";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
-import { useStaff } from "../hooks/useStaff";
+import { ApiError } from "@/lib/api";
+import { useDeactivateStaff } from "../hooks/useManageStaff";
+import { useStaff, useStaffMember } from "../hooks/useStaff";
 import { useStaffDirectory } from "../hooks/useStaffDirectory";
 import { useStaffRoles } from "../hooks/useStaffRoles";
-import type { StaffFilter } from "../types/staff.types";
+import { getStaffFullName } from "../lib/staff.utils";
+import type { StaffFilter, StaffMember } from "../types/staff.types";
 import { StaffCreateDrawer } from "./StaffCreateDrawer";
 import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
@@ -35,12 +41,25 @@ function StaffTableSkeleton() {
   );
 }
 
+function unwrapApiError(error: unknown, fallback: string) {
+  if (error instanceof ApiError) {
+    return error.messages[0] || fallback;
+  }
+
+  return fallback;
+}
+
 export function StaffPage() {
   const t = useTranslations("staff");
+  const overviewT = useTranslations("staff.overview");
   const [filter, setFilter] = useState<StaffFilter>("all");
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<StaffMember | null>(null);
+  const [deactivatingMember, setDeactivatingMember] =
+    useState<StaffMember | null>(null);
+  const deactivateStaff = useDeactivateStaff();
   const {
     data: currentUser,
     isLoading: isCurrentUserLoading,
@@ -90,6 +109,35 @@ export function StaffPage() {
     setSelectedId,
     totalStaff,
   } = useStaffDirectory({ filter, search: deferredSearch, staff });
+  const { data: editingMemberDetail } = useStaffMember(
+    organizationId,
+    branchId,
+    editingMember?.id ?? null,
+  );
+
+  async function handleDeactivateStaff() {
+    if (!deactivatingMember) return;
+
+    try {
+      if (!organizationId || !branchId) {
+        toast.error(t("noBranch"));
+        return;
+      }
+
+      await deactivateStaff.mutateAsync({
+        branchId,
+        organizationId,
+        staffId: deactivatingMember.id,
+      });
+      toast.success(overviewT("deactivateSuccess"));
+      if (selectedId === deactivatingMember.id) {
+        setSelectedId(null);
+      }
+      setDeactivatingMember(null);
+    } catch (error) {
+      toast.error(unwrapApiError(error, overviewT("deactivateError")));
+    }
+  }
 
   return (
     <>
@@ -134,7 +182,11 @@ export function StaffPage() {
           </div>
         </section>
 
-        <StaffOverview member={selectedMember} />
+        <StaffOverview
+          member={selectedMember}
+          onDeactivate={setDeactivatingMember}
+          onEdit={setEditingMember}
+        />
       </div>
 
       <StaffCreateDrawer
@@ -145,6 +197,64 @@ export function StaffPage() {
         organizationId={organizationId}
         organizationName={organizationName}
       />
+
+      <StaffCreateDrawer
+        branchId={branchId}
+        branchName={branchName}
+        member={editingMemberDetail ?? editingMember}
+        mode="edit"
+        onOpenChange={(open) => {
+          if (!open) setEditingMember(null);
+        }}
+        open={!!editingMember}
+        organizationId={organizationId}
+        organizationName={organizationName}
+      />
+
+      <AlertDialog.Root
+        open={!!deactivatingMember}
+        onOpenChange={(open) => {
+          if (!open) setDeactivatingMember(null);
+        }}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
+            <AlertDialog.Title className="text-lg font-medium text-brand-black">
+              {overviewT("deactivateTitle")}
+            </AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-sm text-gray-500">
+              {overviewT("deactivateDescription", {
+                name: deactivatingMember
+                  ? getStaffFullName(deactivatingMember)
+                  : overviewT("thisStaffMember"),
+              })}
+            </AlertDialog.Description>
+            <div className="mt-5 flex justify-end gap-2">
+              <AlertDialog.Cancel asChild>
+                <Button type="button" variant="outline">
+                  {overviewT("cancel")}
+                </Button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void handleDeactivateStaff();
+                  }}
+                  disabled={deactivateStaff.isPending}
+                >
+                  {deactivateStaff.isPending
+                    ? overviewT("deactivating")
+                    : overviewT("deactivate")}
+                </Button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </>
   );
 }
