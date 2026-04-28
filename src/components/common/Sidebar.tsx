@@ -23,7 +23,6 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import { apiAuthFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/user.types";
 
@@ -91,7 +90,7 @@ export function Sidebar() {
   const router = useRouter();
   const { data: user } = useCurrentUser();
   const clearUser = useUserStore((s) => s.clearUser);
-  const clearTokens = useAuthStore((s) => s.clearTokens);
+  const clearSession = useAuthStore((s) => s.clearSession);
 
   const profile = user?.profiles?.[0];
   const role: UserRole = profile?.role.name ?? "owner";
@@ -104,11 +103,11 @@ export function Sidebar() {
 
   async function handleLogout() {
     try {
-      await apiAuthFetch("/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", { method: "POST" });
     } catch {
       // proceed with local logout even if the API call fails
     }
-    clearTokens();
+    clearSession();
     clearUser();
     router.replace("/sign-in");
   }

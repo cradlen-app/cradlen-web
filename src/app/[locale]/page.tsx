@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
+import Footer from "@/components/common/Footer";
 import { Link } from "@/i18n/navigation";
 import LogoIcon from "@/public/Logo-icon.png";
 import Logo from "@/public/Logo.png";
@@ -102,6 +103,7 @@ export default async function HomePage({ params }: Props) {
           <HeartPulse className="pointer-events-none absolute -bottom-8 -inset-e-6 size-36 text-white/15 sm:size-44" />
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

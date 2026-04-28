@@ -82,7 +82,7 @@ export function normalizeApiRoleName(name?: string): StaffRole {
   if (name === "owner") return "owner";
   if (name === "receptionist" || name === "reception") return "reception";
   if (name === "doctor") return "doctor";
-  return "doctor";
+  return "unknown";
 }
 
 function mapApiRole(apiMember: ApiStaffMember): StaffRole {
