@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { cn } from "@/lib/utils";
@@ -92,7 +93,7 @@ export function Sidebar() {
   const clearUser = useUserStore((s) => s.clearUser);
   const clearSession = useAuthStore((s) => s.clearSession);
 
-  const profile = user?.profiles?.[0];
+  const profile = getActiveProfile(user);
   const role: UserRole = profile?.role.name ?? "owner";
   const navItems = NAV_BY_ROLE[role];
 
