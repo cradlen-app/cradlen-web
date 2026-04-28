@@ -95,6 +95,7 @@ export function mapApiStaffToMember(api: ApiStaffMember): StaffMember {
     roleId: api.role_id,
     firstName: api.user?.first_name ?? "",
     lastName: api.user?.last_name ?? "",
+    email: api.user?.email,
     handle: api.user?.email
       ? `@${api.user.email.split("@")[0]}`
       : `@${api.user_id.slice(0, 8)}`,
@@ -103,6 +104,7 @@ export function mapApiStaffToMember(api: ApiStaffMember): StaffMember {
     specialty: api.specialty ?? "",
     phone: api.user?.phone_number ?? api.user?.phone ?? "-",
     status: computeStaffStatus(api.schedule),
+    schedule: api.schedule,
     workSchedule: formatSchedule(api.schedule),
   };
 }

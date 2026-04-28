@@ -10,18 +10,23 @@ import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useInviteStaff } from "../hooks/useInviteStaff";
+import { useUpdateStaff } from "../hooks/useManageStaff";
 import { useStaffRoles } from "../hooks/useStaffRoles";
 import {
   getDefaultStaffInviteValues,
   STAFF_INVITE_DAY_LABELS,
+  staffEditSchema,
   staffInviteSchema,
   splitStaffName,
   type StaffInviteFormValues,
 } from "../lib/staff-invite.schemas";
+import type { StaffMember } from "../types/staff.types";
 
 type StaffCreateDrawerProps = {
   branchId?: string;
   branchName?: string;
+  member?: StaffMember | null;
+  mode?: "create" | "edit";
   onOpenChange: (open: boolean) => void;
   open: boolean;
   organizationId?: string;
@@ -68,6 +73,37 @@ const roleIcons = {
   unknown: BriefcaseBusiness,
 };
 
+function getStaffFormValues(member: StaffMember | null | undefined): StaffInviteFormValues {
+  const defaults = getDefaultStaffInviteValues();
+
+  if (!member) return defaults;
+
+  return {
+    ...defaults,
+    email: member.email ?? "",
+    isClinical: member.role === "doctor",
+    jobTitle: member.jobTitle,
+    name: [member.firstName, member.lastName].filter(Boolean).join(" "),
+    phone: member.phone === "-" ? "" : member.phone,
+    role: member.role === "unknown" ? "doctor" : member.role,
+    roleId: member.roleId ?? "",
+    specialty: member.specialty,
+    shifts: defaults.shifts.map((shift) => {
+      const day = member.schedule?.days.find(
+        (scheduleDay) => scheduleDay.day_of_week === shift.day,
+      );
+      const firstShift = day?.shifts[0];
+
+      return {
+        ...shift,
+        enabled: !!firstShift,
+        startTime: firstShift?.start_time ?? shift.startTime,
+        endTime: firstShift?.end_time ?? shift.endTime,
+      };
+    }),
+  };
+}
+
 type InviteFieldName =
   | "email"
   | "jobTitle"
@@ -101,6 +137,8 @@ function getInviteErrorField(message: string): InviteFieldName | null {
 export function StaffCreateDrawer({
   branchId,
   branchName,
+  member,
+  mode = "create",
   onOpenChange,
   open,
   organizationId,
@@ -108,8 +146,10 @@ export function StaffCreateDrawer({
 }: StaffCreateDrawerProps) {
   const t = useTranslations("staff.create");
   const inviteStaff = useInviteStaff();
+  const updateStaff = useUpdateStaff();
   const { data: roleFilters = [] } = useStaffRoles(organizationId);
   const [formError, setFormError] = useState<string | null>(null);
+  const isEditMode = mode === "edit";
   const {
     formState: { errors },
     handleSubmit,
@@ -119,8 +159,8 @@ export function StaffCreateDrawer({
     setValue,
     control,
   } = useForm<StaffInviteFormValues>({
-    defaultValues: getDefaultStaffInviteValues(),
-    resolver: zodResolver(staffInviteSchema),
+    defaultValues: getStaffFormValues(isEditMode ? member : null),
+    resolver: zodResolver(isEditMode ? staffEditSchema : staffInviteSchema),
   });
 
   const selectedRole = useWatch({ control, name: "role" });
@@ -132,10 +172,8 @@ export function StaffCreateDrawer({
   const shiftSectionError = getShiftSectionError(errors);
 
   useEffect(() => {
-    if (!open) {
-      reset(getDefaultStaffInviteValues());
-    }
-  }, [open, reset]);
+    reset(getStaffFormValues(isEditMode ? member : null));
+  }, [isEditMode, member, open, reset]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -177,29 +215,78 @@ export function StaffCreateDrawer({
         return;
       }
 
-      const { firstName, lastName } = splitStaffName(values.name);
-
       try {
+        if (isEditMode) {
+          if (!member) {
+            toast.error(t("edit.missingStaff"));
+            return;
+          }
+
+          const { firstName, lastName } = splitStaffName(values.name);
+
+          await updateStaff.mutateAsync({
+            branchId,
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+              ...(values.phone ? { phone: values.phone } : {}),
+              role_id: values.roleId,
+              job_title: values.jobTitle,
+              ...(showSpecialty && values.specialty
+                ? { specialty: values.specialty }
+                : {}),
+              branches: [
+                {
+                  branch_id: branchId,
+                  schedule: {
+                    days: values.shifts
+                      .filter((shift) => shift.enabled)
+                      .map((shift) => ({
+                        day_of_week: shift.day,
+                        shifts: [
+                          {
+                            start_time: shift.startTime,
+                            end_time: shift.endTime,
+                          },
+                        ],
+                      })),
+                  },
+                },
+              ],
+            },
+            organizationId,
+            staffId: member.id,
+          });
+
+          toast.success(t("edit.success"));
+          onOpenChange(false);
+          reset(getDefaultStaffInviteValues());
+          return;
+        }
+
+        const { firstName, lastName } = splitStaffName(values.name);
+        const branches = [
+          {
+            branch_id: branchId,
+            schedule: {
+              days: values.shifts
+                .filter((shift) => shift.enabled)
+                .map((shift) => ({
+                  day_of_week: shift.day,
+                  shifts: [
+                    {
+                      start_time: shift.startTime,
+                      end_time: shift.endTime,
+                    },
+                  ],
+                })),
+            },
+          },
+        ];
+
         await inviteStaff.mutateAsync({
           organization_id: organizationId,
-          branches: [
-            {
-              branch_id: branchId,
-              schedule: {
-                days: values.shifts
-                  .filter((shift) => shift.enabled)
-                  .map((shift) => ({
-                    day_of_week: shift.day,
-                    shifts: [
-                      {
-                        start_time: shift.startTime,
-                        end_time: shift.endTime,
-                      },
-                    ],
-                  })),
-              },
-            },
-          ],
+          branches,
           role_id: values.roleId,
           first_name: firstName,
           last_name: lastName,
@@ -278,14 +365,14 @@ export function StaffCreateDrawer({
         >
           <div className="flex items-center justify-between gap-4">
             <Dialog.Title className="text-lg font-medium text-brand-black">
-              {t("title")}
+              {isEditMode ? t("edit.title") : t("title")}
             </Dialog.Title>
             <Dialog.Description className="sr-only">
-              {t("description")}
+              {isEditMode ? t("edit.description") : t("description")}
             </Dialog.Description>
             <Dialog.Close
               className="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-black"
-              aria-label={t("close")}
+              aria-label={isEditMode ? t("edit.close") : t("close")}
             >
               <X className="size-5" aria-hidden="true" />
             </Dialog.Close>
@@ -329,22 +416,34 @@ export function StaffCreateDrawer({
                 </div>
               </section>
 
-              <section className="space-y-3">
-                <SectionTitle title={t("account")} />
-                <div className="grid grid-cols-1 gap-x-8 gap-y-2">
-                  <label className="block">
-                    <span className="text-xs font-medium text-brand-black">
-                      {t("email")}
-                    </span>
-                    <input
-                      {...register("email")}
-                      className={fieldClass}
-                      type="email"
-                    />
-                    <FieldError message={errors.email?.message} />
-                  </label>
-                </div>
-              </section>
+              {(!isEditMode || member?.email) && (
+                <section className="space-y-3">
+                  <SectionTitle title={t("account")} />
+                  <div className="grid grid-cols-1 gap-x-8 gap-y-2">
+                    <label className="block">
+                      <span className="text-xs font-medium text-brand-black">
+                        {t("email")}
+                      </span>
+                      {isEditMode ? (
+                        <input
+                          className={cn(fieldClass, "text-gray-500")}
+                          readOnly
+                          value={member?.email ?? ""}
+                        />
+                      ) : (
+                        <>
+                          <input
+                            {...register("email")}
+                            className={fieldClass}
+                            type="email"
+                          />
+                          <FieldError message={errors.email?.message} />
+                        </>
+                      )}
+                    </label>
+                  </div>
+                </section>
+              )}
 
               <section className="space-y-3">
                 <SectionTitle title={t("personalInformation")} />
@@ -511,10 +610,16 @@ export function StaffCreateDrawer({
             <div className="flex justify-end border-t border-gray-100 pt-3">
               <button
                 type="submit"
-                disabled={inviteStaff.isPending}
+                disabled={inviteStaff.isPending || updateStaff.isPending}
                 className="inline-flex h-8 min-w-20 items-center justify-center rounded-full bg-brand-primary px-5 text-xs font-semibold text-white transition-colors hover:bg-brand-primary/90 disabled:opacity-50"
               >
-                {inviteStaff.isPending ? t("inviting") : t("invite")}
+                {isEditMode
+                  ? updateStaff.isPending
+                    ? t("edit.saving")
+                    : t("edit.save")
+                  : inviteStaff.isPending
+                    ? t("inviting")
+                    : t("invite")}
               </button>
             </div>
           </form>

@@ -273,8 +273,11 @@ async function forwardBackendResponse(
   backendResponse: Response,
   tokens: AuthTokens | null,
 ) {
-  const body = await readBackendJson(backendResponse);
-  const response = NextResponse.json(body, { status: backendResponse.status });
+  const status = backendResponse.status;
+  const response =
+    status === 204
+      ? new NextResponse(null, { status: 204 })
+      : NextResponse.json(await readBackendJson(backendResponse), { status });
 
   if (tokens) {
     setAuthCookies(response, tokens);

@@ -86,6 +86,15 @@
       "success": "Staff invitation sent.",
       "error": "Failed to invite staff. Please try again.",
       "missingOrganization": "No organization or branch is linked to this account.",
+      "edit": {
+        "title": "Staff / Edit Staff",
+        "description": "Update this staff member's profile, role, and working schedule.",
+        "close": "Close edit staff form",
+        "save": "Save",
+        "saving": "Saving...",
+        "success": "Staff member updated.",
+        "missingStaff": "Select a staff member to edit."
+      },
       "errors": {
         "pendingInvitation": "A pending invitation already exists for this email.",
         "reviewFields": "Please review the highlighted fields."
@@ -196,7 +205,19 @@
       "specialty": "Specialty",
       "phoneNumber": "Phone Number",
       "address": "Address",
-      "workSchedule": "Work Schedule"
+      "workSchedule": "Work Schedule",
+      "actions": {
+        "edit": "Edit staff",
+        "deactivate": "Deactivate staff"
+      },
+      "deactivate": "Deactivate",
+      "deactivating": "Deactivating...",
+      "deactivateTitle": "Deactivate staff?",
+      "deactivateDescription": "This will deactivate {name}.",
+      "deactivateSuccess": "Staff member deactivated.",
+      "deactivateError": "Failed to deactivate staff. Please try again.",
+      "thisStaffMember": "this staff member",
+      "cancel": "Cancel"
     }
   },
   "auth": {

@@ -29,24 +29,22 @@ const shiftSchema = z.object({
   endTime: z.string(),
 });
 
-export const staffInviteSchema = z
-  .object({
-    name: z.string().trim().min(1, "Name is required"),
-    roleId: z.string().min(1, "Role is required"),
-    role: z.enum(["owner", "doctor", "reception"]),
-    jobTitle: z.string().trim().min(1, "Job title is required"),
-    phone: z.string().trim().optional(),
-    isClinical: z.boolean(),
-    specialty: z.string().trim().optional(),
-    email: z
-      .string()
-      .trim()
-      .min(1, "Email is required")
-      .email("Enter a valid email address"),
-    shifts: z.array(shiftSchema),
-  })
-  .superRefine((value, ctx) => {
-    const nameParts = value.name.split(/\s+/).filter(Boolean);
+const staffBaseSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+  roleId: z.string().min(1, "Role is required"),
+  role: z.enum(["owner", "doctor", "reception"]),
+  jobTitle: z.string().trim().min(1, "Job title is required"),
+  phone: z.string().trim().optional(),
+  isClinical: z.boolean(),
+  specialty: z.string().trim().optional(),
+  shifts: z.array(shiftSchema),
+});
+
+function validateStaffForm(
+  value: z.infer<typeof staffBaseSchema>,
+  ctx: z.RefinementCtx,
+) {
+  const nameParts = value.name.split(/\s+/).filter(Boolean);
 
     if (nameParts.length < 2) {
       ctx.addIssue({
@@ -77,8 +75,8 @@ export const staffInviteSchema = z
       });
     }
 
-    value.shifts.forEach((shift, index) => {
-      if (!shift.enabled) return;
+  value.shifts.forEach((shift, index) => {
+    if (!shift.enabled) return;
 
       if (!shift.startTime) {
         ctx.addIssue({
@@ -103,10 +101,28 @@ export const staffInviteSchema = z
           message: "End time must be later",
         });
       }
-    });
   });
+}
+
+export const staffInviteSchema = staffBaseSchema
+  .extend({
+    email: z
+      .string()
+      .trim()
+      .min(1, "Email is required")
+      .email("Enter a valid email address"),
+  })
+  .superRefine(validateStaffForm);
+
+export const staffEditSchema = staffBaseSchema
+  .extend({
+    email: z.string(),
+  })
+  .superRefine(validateStaffForm);
 
 export type StaffInviteFormValues = z.infer<typeof staffInviteSchema>;
+export type StaffEditFormValues = z.infer<typeof staffEditSchema>;
+export type StaffFormValues = StaffInviteFormValues | StaffEditFormValues;
 
 export function getDefaultStaffInviteValues(): StaffInviteFormValues {
   return {
