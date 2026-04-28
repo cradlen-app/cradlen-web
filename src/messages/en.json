@@ -41,6 +41,7 @@
     "searchPlaceholder": "Search....",
     "noResults": "No staff members match your filters.",
     "noOrganization": "No organization is linked to this account.",
+    "noBranch": "No organization or branch is linked to this account.",
     "loadError": "Failed to load staff. Please try again.",
     "roles": {
       "owner": "Owner",

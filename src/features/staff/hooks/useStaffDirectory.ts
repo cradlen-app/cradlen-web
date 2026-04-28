@@ -6,11 +6,11 @@ import type { StaffFilter, StaffMember } from "../types/staff.types";
 
 type UseStaffDirectoryOptions = {
   filter: StaffFilter;
+  search: string;
   staff: StaffMember[];
 };
 
-export function useStaffDirectory({ filter, staff }: UseStaffDirectoryOptions) {
-  const [search, setSearch] = useState("");
+export function useStaffDirectory({ filter, search, staff }: UseStaffDirectoryOptions) {
   const [selectedId, setSelectedId] = useState<string | null>(staff[0]?.id ?? null);
 
   const filteredStaff = useMemo(
@@ -33,10 +33,8 @@ export function useStaffDirectory({ filter, staff }: UseStaffDirectoryOptions) {
 
   return {
     filteredStaff,
-    search,
     selectedId: visibleSelectedId,
     selectedMember,
-    setSearch,
     setSelectedId,
     totalStaff: staff.length,
   };
