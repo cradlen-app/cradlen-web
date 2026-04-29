@@ -22,7 +22,7 @@ describe("staff management hooks", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(updateStaff).mockResolvedValue({ data: {} as never });
-    vi.mocked(deactivateStaff).mockResolvedValue({ data: {} as never });
+    vi.mocked(deactivateStaff).mockResolvedValue(undefined);
   });
 
   it("updates staff and invalidates staff queries", async () => {

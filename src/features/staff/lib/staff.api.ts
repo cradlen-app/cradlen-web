@@ -8,7 +8,6 @@ import type {
   ApiStaffListResponse,
   ApiStaffMember,
   ApiStaffRole,
-  DeactivateStaffResponse,
   StaffInvitationActionResponse,
   StaffInvitationResponse,
   StaffInvitationsResponse,
@@ -120,7 +119,7 @@ export function updateStaff(
 }
 
 export function deactivateStaff(staffId: string, options: BranchScopedOptions) {
-  return apiAuthFetch<DeactivateStaffResponse>(`/staff/${staffId}?${getBranchScopedParams(options)}`, {
+  return apiAuthFetch<void>(`/staff/${staffId}?${getBranchScopedParams(options)}`, {
     method: "DELETE",
   });
 }

@@ -12,9 +12,11 @@ type Props = {
   children: React.ReactNode;
 };
 
-const ALLOWED_DASHBOARD_ROUTES: Record<UserRole, string[]> = {
+type StaffRole = Exclude<UserRole, "patient">;
+
+const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
   owner: ["/dashboard"],
-  receptionist: ["/dashboard", "/dashboard/calendar", "/dashboard/patients"],
+  receptionist: ["/dashboard", "/dashboard/calendar", "/dashboard/patients", "/dashboard/staff"],
   doctor: [
     "/dashboard",
     "/dashboard/calendar",
@@ -24,6 +26,7 @@ const ALLOWED_DASHBOARD_ROUTES: Record<UserRole, string[]> = {
 };
 
 function canAccessRoute(role: UserRole, pathname: string) {
+  if (role === "patient") return false;
   if (role === "owner") return true;
 
   return ALLOWED_DASHBOARD_ROUTES[role].some(
@@ -42,6 +45,11 @@ export function DashboardLayout({ children }: Props) {
 
   useEffect(() => {
     if (isLoading || !role) return;
+
+    if (role === "patient") {
+      router.replace("/patient/dashboard");
+      return;
+    }
 
     if (!canAccessRoute(role, pathname)) {
       router.replace("/dashboard");

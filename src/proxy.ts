@@ -14,6 +14,7 @@ const PROTECTED_ROUTES = [
   "/dashboard",
   "/medical-rep",
   "/medicine",
+  "/patient",
   "/patients",
   "/settings",
   "/staff",
