@@ -29,7 +29,8 @@
     "settings": "Settings",
     "logout": "Logout",
     "searchPlaceholder": "Search patient....",
-    "upload": "upload"
+    "upload": "upload",
+    "profileSwitcher": "Switch profile"
   },
   "staff": {
     "title": "Staff",
@@ -131,6 +132,19 @@
         "expired": "This invitation has expired.",
         "serverError": "Something went wrong. Please try again."
       }
+    },
+    "joinCode": {
+      "title": "Join with code",
+      "subtitle": "Enter the code shared by your clinic administrator.",
+      "code": "Join code",
+      "preview": "Check code",
+      "checking": "Checking...",
+      "accept": "Join clinic",
+      "accepting": "Joining...",
+      "unknownAccount": "Clinic account",
+      "previewUnavailable": "Preview is unavailable. You can still submit the code.",
+      "previewError": "Could not preview this code. Please check it and try again.",
+      "acceptError": "Could not accept this code. Please try again."
     },
     "invitations": {
       "title": "Invitations",
@@ -362,6 +376,7 @@
       "step1Label": "Personal information",
       "step2Label": "Verification",
       "step3Label": "Organization",
+      "loading": "Checking your registration...",
       "nextButton": "Next",
       "backButton": "Back",
       "submitButton": "Start free trial",
@@ -383,7 +398,7 @@
       "specialtyLabel": "Specialty",
       "specialtyPlaceholder": "Select your specialty",
       "verificationTitle": "Check your inbox",
-      "verificationDescription": "We sent a verification code to your email. Please enter it below.",
+      "verificationDescription": "We sent a verification code to {email}. Please enter it below.",
       "verificationCodeLabel": "Verification code",
       "verificationCodePlaceholder": "123456",
       "resendCode": "Resend code",
@@ -402,6 +417,8 @@
       "countryLabel": "Country",
       "countryPlaceholder": "Egypt",
       "clinicianHeading": "Your role",
+      "ownerRole": "Owner",
+      "ownerDoctorRole": "Owner + Doctor",
       "jobTitleLabel": "Job title (optional)",
       "jobTitlePlaceholder": "e.g. Senior Physician",
       "errors": {
@@ -409,6 +426,7 @@
         "emailTaken": "An account with this email already exists.",
         "emailAlreadyRegistered": "This email is already registered. Please sign in instead.",
         "invalidCode": "Invalid or expired verification code.",
+        "tryAgainLater": "Try again later.",
         "resendSuccess": "A new code has been sent to your email."
       },
       "toasts": {
@@ -419,14 +437,19 @@
     "forgotPassword": {
       "title": "Forgot Password",
       "description": "Enter your email and we'll send you a reset code.",
+      "loading": "Loading...",
       "emailLabel": "Email",
       "emailPlaceholder": "john@example.com",
+      "startSuccess": "If this email exists, a code was sent.",
       "verificationTitle": "Check your email",
       "verificationDescription": "Enter the 6-digit code sent to {email}",
       "verificationCodeLabel": "Reset Code",
       "verificationCodePlaceholder": "000000",
       "resendCode": "Resend code",
       "resendIn": "Resend in {seconds}s",
+      "resendSuccess": "Code sent.",
+      "resetTitle": "Reset password",
+      "resetDescription": "Choose a new password for your account.",
       "newPasswordLabel": "New Password",
       "newPasswordPlaceholder": "Min. 8 characters",
       "confirmPasswordLabel": "Confirm Password",
@@ -434,14 +457,29 @@
       "showPassword": "Show",
       "hidePassword": "Hide",
       "submitButton": "Send Code",
+      "sendingButton": "Sending...",
       "verifyButton": "Verify",
+      "verifyingButton": "Verifying...",
       "resetButton": "Reset Password",
+      "resettingButton": "Resetting...",
+      "resendingButton": "Sending...",
       "backButton": "Back",
       "backToSignIn": "Back to Sign In",
+      "sessionExpired": "Your reset session expired. Please request a new code to continue.",
+      "startOverButton": "Request a new code",
+      "resetSuccess": "Your password has been reset. Redirecting to sign in...",
       "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address",
         "emailNotFound": "No account found with this email.",
         "invalidCode": "Invalid or expired code.",
+        "codeLength": "Code must be exactly 6 digits.",
+        "codeDigits": "Code must contain only digits.",
+        "passwordMinLength": "Password must be at least 8 characters.",
+        "confirmPasswordRequired": "Please confirm your password.",
         "passwordMismatch": "Passwords do not match.",
+        "invalidToken": "This reset link has expired. Please request a new code.",
+        "tryAgainLater": "Try again later.",
         "serverError": "Something went wrong. Please try again.",
         "resendSuccess": "A new code has been sent to your email."
       }
@@ -470,6 +508,23 @@
       "toasts": {
         "resumingRegistration": "Your registration is incomplete — redirecting to continue sign-up."
       }
+    },
+    "selectProfile": {
+      "title": "Select profile",
+      "subtitle": "Choose the clinic context you want to use.",
+      "branch": "Branch",
+      "branchCount": "{count, plural, one {# branch} other {# branches}}",
+      "continue": "Continue",
+      "loading": "Continuing...",
+      "empty": "No profiles are available for this sign-in.",
+      "backToSignIn": "Back to sign in",
+      "unknownAccount": "Clinic account",
+      "unknownRole": "Unknown role",
+      "mainBranch": "Main Branch",
+      "noBranches": "This profile does not have any branches. Please contact your clinic administrator.",
+      "invalidSession": "Your profile selection session expired. Please sign in again.",
+      "missingContext": "This profile is missing account context.",
+      "error": "Could not select this profile. Please try again."
     }
   }
 }

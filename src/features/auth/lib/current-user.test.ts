@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
-import { getActiveProfile, getActiveRole } from "./current-user";
+import {
+  getActiveProfile,
+  getActiveRole,
+  getBranchId,
+  getDefaultBranch,
+  getProfileAccountName,
+  getProfileRoles,
+} from "./current-user";
 
 function createProfile(roleName: UserProfile["role"]["name"]): UserProfile {
   return {
@@ -37,13 +44,13 @@ function createUser(profiles: UserProfile[]): CurrentUser {
 }
 
 describe("current user helpers", () => {
-  it("selects the owner profile before a doctor profile", () => {
+  it("falls back to the first profile when no profile is selected", () => {
     const doctor = createProfile("doctor");
     const owner = createProfile("owner");
     const user = createUser([doctor, owner]);
 
-    expect(getActiveProfile(user)).toBe(owner);
-    expect(getActiveRole(user)).toBe("owner");
+    expect(getActiveProfile(user)).toBe(doctor);
+    expect(getActiveRole(user)).toBe("doctor");
   });
 
   it("falls back to the first profile when no owner profile exists", () => {
@@ -56,5 +63,32 @@ describe("current user helpers", () => {
   it("handles empty or missing profiles safely", () => {
     expect(getActiveProfile(createUser([]))).toBeUndefined();
     expect(getActiveRole(null)).toBeUndefined();
+  });
+
+  it("normalizes profile roles from the profiles selection response", () => {
+    const profile = {
+      profile_id: "profile-1",
+      account_id: "account-1",
+      account_name: "Selection Clinic",
+      roles: ["OWNER", "DOCTOR"],
+      branches: [],
+    } as unknown as UserProfile;
+
+    expect(getProfileAccountName(profile)).toBe("Selection Clinic");
+    expect(getProfileRoles(profile)).toEqual(["owner", "doctor"]);
+  });
+
+  it("supports branch_id when selecting and reading branches", () => {
+    const profile = {
+      profile_id: "profile-1",
+      account_id: "account-1",
+      roles: ["OWNER"],
+      branches: [
+        { branch_id: "branch-1", name: "Main", is_main: true },
+        { branch_id: "branch-2", name: "Second", is_main: false },
+      ],
+    } as unknown as UserProfile;
+
+    expect(getBranchId(getDefaultBranch(profile, "branch-2"))).toBe("branch-2");
   });
 });

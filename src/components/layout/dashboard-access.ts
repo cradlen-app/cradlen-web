@@ -1,9 +1,10 @@
 import type { UserRole } from "@/types/user.types";
 
-type StaffRole = Exclude<UserRole, "patient">;
+type StaffRole = "owner" | "doctor" | "reception" | "receptionist";
 
 const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
   owner: ["/dashboard"],
+  reception: ["/dashboard", "/dashboard/calendar", "/dashboard/patients", "/dashboard/staff"],
   receptionist: ["/dashboard", "/dashboard/calendar", "/dashboard/patients", "/dashboard/staff"],
   doctor: [
     "/dashboard",
@@ -15,7 +16,7 @@ const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
 };
 
 export function canAccessRoute(role: UserRole, pathname: string) {
-  if (role === "patient") return false;
+  if (role === "patient" || role === "unknown") return false;
   if (role === "owner") return true;
 
   return ALLOWED_DASHBOARD_ROUTES[role].some(

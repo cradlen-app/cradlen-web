@@ -4,7 +4,17 @@ import Image from "next/image";
 import { Search, Upload, Bell, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { useSelectProfile } from "@/features/auth/hooks/useSelectProfile";
+import {
+  getActiveProfile,
+  getDefaultBranch,
+  getProfileAccount,
+  getProfileAccountId,
+  getProfileId,
+  normalizeRoleName,
+} from "@/features/auth/lib/current-user";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { queryClient } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
@@ -70,10 +80,34 @@ function IconButton({
 export function Navbar() {
   const t = useTranslations("nav");
   const { data: user } = useCurrentUser();
+  const selectProfile = useSelectProfile();
+  const setContext = useAuthContextStore((state) => state.setContext);
+  const branchId = useAuthContextStore((state) => state.branchId);
 
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
-  const subLabel = profile?.job_title || profile?.role.name || "";
+  const activeBranch = getDefaultBranch(profile, branchId);
+  const subLabel = profile?.job_title || normalizeRoleName(profile?.role.name) || "";
+
+  async function handleProfileChange(profileId: string) {
+    const nextProfile = user?.profiles.find((item) => getProfileId(item) === profileId);
+    const accountId = getProfileAccountId(nextProfile);
+    const branch = getDefaultBranch(nextProfile);
+
+    if (!nextProfile || !accountId) return;
+
+    const response = await selectProfile.mutateAsync({
+      account_id: accountId,
+      branch_id: branch?.id ?? null,
+      profile_id: profileId,
+    });
+    setContext({
+      accountId: response.data.account_id || accountId,
+      branchId: response.data.branch_id ?? branch?.id ?? null,
+      profileId: response.data.profile_id || profileId,
+    });
+    queryClient.clear();
+  }
 
   return (
     <header className="h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0 ">
@@ -117,11 +151,7 @@ export function Navbar() {
 
         <div className="w-px h-5 bg-gray-200 mx-1.5" />
 
-        {/* User chip */}
-        <button
-          type="button"
-          className="flex items-center gap-2.5 h-10 ps-1 pe-3.5 rounded-full hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all duration-150 group"
-        >
+        <div className="flex items-center gap-2.5 h-10 ps-1 pe-3.5 rounded-full border border-transparent">
           <UserAvatar
             name={displayName}
             avatarUrl={undefined}
@@ -140,7 +170,28 @@ export function Navbar() {
               {subLabel}
             </span>
           </div>
-        </button>
+          {(user?.profiles.length ?? 0) > 1 && (
+            <select
+              aria-label={t("profileSwitcher")}
+              value={profile ? getProfileId(profile) : ""}
+              onChange={(event) => void handleProfileChange(event.target.value)}
+              className="max-w-36 rounded-full border border-gray-100 bg-white px-2 py-1 text-xs text-gray-500 outline-none focus:border-brand-primary/60"
+            >
+              {user?.profiles.map((item) => {
+                const account = getProfileAccount(item);
+                const branch = getDefaultBranch(item);
+                return (
+                  <option key={getProfileId(item)} value={getProfileId(item)}>
+                    {[account?.name, branch?.city].filter(Boolean).join(" / ")}
+                  </option>
+                );
+              })}
+            </select>
+          )}
+          {activeBranch && user?.profiles.length === 1 && (
+            <span className="text-xs text-gray-400">{activeBranch.city}</span>
+          )}
+        </div>
       </div>
     </header>
   );

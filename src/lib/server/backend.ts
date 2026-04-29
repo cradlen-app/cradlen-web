@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   AUTH_REFRESH_TOKEN_COOKIE,
   AUTH_REFRESH_TOKEN_MAX_AGE,
+  AUTH_SELECTION_TOKEN_COOKIE,
+  AUTH_SELECTION_TOKEN_MAX_AGE,
   AUTH_TOKEN_COOKIE,
   DEFAULT_AUTH_EXPIRES_IN,
 } from "@/features/auth/lib/auth.constants";
@@ -108,6 +110,20 @@ export function setAuthCookies(response: NextResponse, tokens: AuthTokens) {
   });
 }
 
+export function setSelectionTokenCookie(response: NextResponse, token: string) {
+  response.cookies.set(AUTH_SELECTION_TOKEN_COOKIE, token, {
+    ...AUTH_COOKIE_OPTIONS,
+    maxAge: AUTH_SELECTION_TOKEN_MAX_AGE,
+  });
+}
+
+export function clearSelectionTokenCookie(response: NextResponse) {
+  response.cookies.set(AUTH_SELECTION_TOKEN_COOKIE, "", {
+    ...AUTH_COOKIE_OPTIONS,
+    maxAge: 0,
+  });
+}
+
 export function clearAuthCookies(response: NextResponse) {
   response.cookies.set(AUTH_TOKEN_COOKIE, "", {
     ...AUTH_COOKIE_OPTIONS,
@@ -117,6 +133,7 @@ export function clearAuthCookies(response: NextResponse) {
     ...AUTH_COOKIE_OPTIONS,
     maxAge: 0,
   });
+  clearSelectionTokenCookie(response);
 }
 
 export function sessionResponse(
@@ -199,6 +216,14 @@ async function getValidAccessToken() {
 function copyRequestHeaders(request: NextRequest, accessToken: string) {
   const headers = new Headers(request.headers);
   headers.set("Authorization", `Bearer ${accessToken}`);
+  const accountId = request.headers.get("x-account-id");
+  const profileId = request.headers.get("x-profile-id");
+  const branchId = request.headers.get("x-branch-id");
+
+  if (accountId) headers.set("X-Account-Id", accountId);
+  if (profileId) headers.set("X-Profile-Id", profileId);
+  if (branchId) headers.set("X-Branch-Id", branchId);
+
   headers.delete("host");
   headers.delete("cookie");
   headers.delete("content-length");

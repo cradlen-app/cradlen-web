@@ -1,16 +1,20 @@
-const REGISTRATION_TOKEN_KEY = "cradlen-registration-token";
+const SIGNUP_EMAIL_KEY = "cradlen-signup-email";
 
-export function getRegistrationToken() {
+export function normalizeSignupEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+export function getPendingSignupEmail() {
   if (typeof window === "undefined") return null;
-  return window.sessionStorage.getItem(REGISTRATION_TOKEN_KEY);
+  return window.localStorage.getItem(SIGNUP_EMAIL_KEY);
 }
 
-export function setRegistrationToken(token: string) {
+export function setPendingSignupEmail(email: string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(REGISTRATION_TOKEN_KEY, token);
+  window.localStorage.setItem(SIGNUP_EMAIL_KEY, normalizeSignupEmail(email));
 }
 
-export function clearRegistrationToken() {
+export function clearPendingSignupEmail() {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(REGISTRATION_TOKEN_KEY);
+  window.localStorage.removeItem(SIGNUP_EMAIL_KEY);
 }
