@@ -229,6 +229,125 @@
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج"
   },
+  "settings": {
+    "eyebrow": "الإعدادات",
+    "title": "إعدادات الحساب",
+    "description": "إدارة حسابك وملف العيادة والفروع والإجراءات الحساسة للحساب.",
+    "loading": "جاري تحميل الإعدادات...",
+    "loadError": "فشل تحميل الإعدادات. يرجى المحاولة مرة أخرى.",
+    "navLabel": "أقسام الإعدادات",
+    "yes": "نعم",
+    "no": "لا",
+    "cancel": "إلغاء",
+    "softDeleteConfirm": "حذف مؤقت",
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "roles": {
+      "owner": "مالك",
+      "doctor": "طبيب",
+      "receptionist": "استقبال",
+      "patient": "مريض"
+    },
+    "tabs": {
+      "profile": "الملف الشخصي",
+      "organization": "المنظمة",
+      "branches": "الفروع",
+      "danger": "منطقة الخطر"
+    },
+    "fields": {
+      "role": "الدور",
+      "status": "الحالة",
+      "name": "الاسم",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "jobTitle": "المسمى الوظيفي",
+      "verifiedAt": "تم التحقق في",
+      "phone": "الهاتف",
+      "organization": "المنظمة",
+      "organizationName": "اسم المنظمة",
+      "specialties": "التخصصات",
+      "currentBranch": "الفرع الحالي",
+      "country": "الدولة",
+      "city": "المدينة",
+      "governorate": "المحافظة",
+      "address": "العنوان",
+      "isClinical": "منظمة طبية",
+      "specialty": "التخصص",
+      "mainBranch": "الفرع الرئيسي"
+    },
+    "profile": {
+      "title": "الملف الشخصي",
+      "description": "راجع بيانات حسابك الشخصية وجهز تعديلات الملف الشخصي.",
+      "edit": "تعديل الملف الشخصي",
+      "drawerDescription": "حدّث البيانات الشخصية المرتبطة بملفك الوظيفي الحالي.",
+      "save": "حفظ الملف الشخصي",
+      "updateSuccess": "تم تحديث الملف الشخصي.",
+      "updateError": "فشل تحديث الملف الشخصي. حاول مرة أخرى."
+    },
+    "organization": {
+      "title": "المنظمة",
+      "description": "راجع العيادة الحالية وجهز عيادة جديدة تملكها.",
+      "drawerDescription": "أنشئ منظمة جديدة مع فرعها الرئيسي.",
+      "editDrawerDescription": "حدّث بيانات المنظمة التي تعرّف هذه العيادة.",
+      "add": "إضافة منظمة",
+      "edit": "تعديل المنظمة",
+      "save": "حفظ المنظمة",
+      "Delete": "حذف المنظمة مؤقتاً",
+      "DeleteTitle": "حذف المنظمة مؤقتاً؟",
+      "DeleteDescription": "سيتم تعطيل المنظمة وفروعها والموظفين والاشتراكات والدعوات المعلقة.",
+      "createSuccess": "تم إنشاء المنظمة.",
+      "createError": "فشل إنشاء المنظمة. حاول مرة أخرى.",
+      "updateSuccess": "تم تحديث المنظمة.",
+      "updateError": "فشل تحديث المنظمة. حاول مرة أخرى.",
+      "deleteSuccess": "تم حذف المنظمة.",
+      "deleteError": "فشل حذف المنظمة. حاول مرة أخرى."
+    },
+    "branches": {
+      "title": "الفروع",
+      "description": "راجع الفرع النشط وجهز موقع عيادة آخر.",
+      "drawerDescription": "أضف موقع عيادة آخر تحت المنظمة الحالية.",
+      "editDrawerDescription": "حدّث العنوان وحالة الفرع الرئيسي لهذا الفرع.",
+      "add": "إضافة فرع",
+      "edit": "تعديل الفرع",
+      "save": "حفظ الفرع",
+      "Delete": "حذف الفرع مؤقتاً",
+      "DeleteTitle": "حذف الفرع مؤقتاً؟",
+      "DeleteDescription": "سيتم تعطيل الفرع. يمنع الخادم حذف الفرع النشط الوحيد.",
+      "createSuccess": "تم إنشاء الفرع.",
+      "createError": "فشل إنشاء الفرع. حاول مرة أخرى.",
+      "updateSuccess": "تم تحديث الفرع.",
+      "updateError": "فشل تحديث الفرع. حاول مرة أخرى.",
+      "deleteSuccess": "تم حذف الفرع.",
+      "deleteError": "فشل حذف الفرع. حاول مرة أخرى."
+    },
+    "danger": {
+      "title": "منطقة الخطر",
+      "description": "الإجراءات الحساسة للحساب تبقى خلف التأكيد.",
+      "deactivateTitle": "إلغاء تفعيل الحساب",
+      "deactivateDescription": "سيؤدي هذا إلى تعطيل وصولك وتسجيل خروجك.",
+      "deactivate": "إلغاء تفعيل الحساب",
+      "confirmTitle": "إلغاء تفعيل حسابك؟",
+      "confirmDescription": "سيتم تسجيل خروجك بعد إلغاء تفعيل الحساب.",
+      "confirm": "تأكيد إلغاء التفعيل",
+      "deactivateSuccess": "تم إلغاء تفعيل الحساب.",
+      "deactivateError": "فشل إلغاء تفعيل الحساب. حاول مرة أخرى."
+    },
+    "empty": {
+      "missing": "غير متاح",
+      "profileTitle": "لا يوجد ملف موظف",
+      "profileDescription": "هذا الحساب لا يحتوي بعد على ملف مالك أو طبيب مرتبط.",
+      "organizationTitle": "لا توجد منظمة مرتبطة",
+      "organizationDescription": "يمكن إنشاء منظمة عند ربط إعداد العيادة.",
+      "branchTitle": "لا يوجد فرع مرتبط",
+      "branchDescription": "يمكن إنشاء فرع عند ربط إعداد الفروع."
+    },
+    "validation": {
+      "required": "يرجى إكمال جميع الحقول المطلوبة."
+    }
+  },
   "patientDashboard": {
     "welcome": "مرحباً بعودتك"
   },
