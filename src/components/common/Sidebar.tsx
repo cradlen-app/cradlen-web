@@ -33,26 +33,26 @@ type NavItem = {
   icon: LucideIcon;
 };
 
-const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
-  owner: [
-    { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/calendar", key: "calendar", icon: Calendar },
-    { href: "/dashboard/patients", key: "patients", icon: Users },
-    { href: "/dashboard/staff", key: "staff", icon: UserCheck },
-    { href: "/dashboard/medicine", key: "medicine", icon: Pill },
-    { href: "/dashboard/medical-rep", key: "medicalRep", icon: Briefcase },
-    { href: "/dashboard/analytics", key: "analytics", icon: BarChart2 },
-  ],
+const ALL_STAFF_NAV: NavItem[] = [
+  { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/calendar", key: "calendar", icon: Calendar },
+  { href: "/dashboard/patients", key: "patients", icon: Users },
+  { href: "/dashboard/staff", key: "staff", icon: UserCheck },
+  { href: "/dashboard/medicine", key: "medicine", icon: Pill },
+  { href: "/dashboard/medical-rep", key: "medicalRep", icon: Briefcase },
+  { href: "/dashboard/analytics", key: "analytics", icon: BarChart2 },
+];
+
+type StaffRole = Exclude<UserRole, "patient">;
+
+const NAV_BY_ROLE: Record<StaffRole, NavItem[]> = {
+  owner: ALL_STAFF_NAV,
+  doctor: ALL_STAFF_NAV,
   receptionist: [
     { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
     { href: "/dashboard/calendar", key: "calendar", icon: Calendar },
+    { href: "/dashboard/staff", key: "staff", icon: UserCheck },
     { href: "/dashboard/patients", key: "patients", icon: Users },
-  ],
-  doctor: [
-    { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/calendar", key: "calendar", icon: Calendar },
-    { href: "/dashboard/patients", key: "patients", icon: Users },
-    { href: "/dashboard/medicine", key: "medicine", icon: Pill },
   ],
 };
 
@@ -94,7 +94,9 @@ export function Sidebar() {
   const clearSession = useAuthStore((s) => s.clearSession);
 
   const profile = getActiveProfile(user);
-  const role: UserRole = profile?.role.name ?? "owner";
+  const rawRole = profile?.role.name ?? "owner";
+  if (rawRole === "patient") return null;
+  const role = rawRole as StaffRole;
   const navItems = NAV_BY_ROLE[role];
 
   const clinicName = profile?.organization.name ?? "-";

@@ -216,9 +216,21 @@
       "deactivateDescription": "سيتم إلغاء تفعيل {name}.",
       "deactivateSuccess": "تم إلغاء تفعيل الموظف.",
       "deactivateError": "فشل إلغاء تفعيل الموظف. يرجى المحاولة مرة أخرى.",
+      "deactivateSelfError": "لا يمكنك إلغاء تفعيل حسابك الخاص.",
       "thisStaffMember": "هذا الموظف",
       "cancel": "إلغاء"
     }
+  },
+  "patientNav": {
+    "home": "الرئيسية",
+    "medicines": "الأدوية",
+    "tests": "الفحوصات",
+    "calendar": "التقويم",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج"
+  },
+  "patientDashboard": {
+    "welcome": "مرحباً بعودتك"
   },
   "auth": {
     "signUp": {

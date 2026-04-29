@@ -14,7 +14,9 @@ import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas"
 import { useSignIn } from "../hooks/useSignIn";
 import { useAuthStore } from "../store/authStore";
 import { setRegistrationToken } from "../lib/registration-session";
-import { getSafeRedirectPath } from "../lib/redirect";
+import { getSafeRedirectPath, getDefaultRouteForRole } from "../lib/redirect";
+import { getActiveRole } from "../lib/current-user";
+import type { CurrentUser } from "@/types/user.types";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
@@ -44,7 +46,21 @@ export function SignInForm() {
         router.replace(`/sign-up?step=${step}`);
       } else {
         setAuthenticated();
-        router.replace(redirectTo);
+        if (searchParams.get("redirectTo")) {
+          router.replace(redirectTo);
+        } else {
+          try {
+            const meRes = await fetch("/api/auth/me");
+            if (meRes.ok) {
+              const me = (await meRes.json()) as { data: CurrentUser };
+              router.replace(getDefaultRouteForRole(getActiveRole(me.data)));
+            } else {
+              router.replace("/dashboard");
+            }
+          } catch {
+            router.replace("/dashboard");
+          }
+        }
       }
     } catch {
       // error state handled via mutation.isError

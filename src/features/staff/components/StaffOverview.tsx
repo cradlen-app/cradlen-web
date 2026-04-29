@@ -26,12 +26,13 @@ function DetailRow({ label, value }: RowProps) {
 }
 
 type Props = {
+  currentUserStaffId?: string;
   member: StaffMember | null;
   onDeactivate?: (member: StaffMember) => void;
   onEdit?: (member: StaffMember) => void;
 };
 
-export function StaffOverview({ member, onDeactivate, onEdit }: Props) {
+export function StaffOverview({ currentUserStaffId, member, onDeactivate, onEdit }: Props) {
   const t = useTranslations("staff.overview");
   const staffT = useTranslations("staff");
 
@@ -50,6 +51,7 @@ export function StaffOverview({ member, onDeactivate, onEdit }: Props) {
   }
 
   const fullName = getStaffFullName(member);
+  const isSelf = !!currentUserStaffId && member.id === currentUserStaffId;
 
   return (
     <aside className="w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:w-72">
@@ -81,14 +83,16 @@ export function StaffOverview({ member, onDeactivate, onEdit }: Props) {
           >
             <Pencil className="size-4" aria-hidden="true" />
           </button>
-          <button
-            type="button"
-            onClick={() => onDeactivate?.(member)}
-            className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-            aria-label={t("actions.deactivate")}
-          >
-            <UserX className="size-4" aria-hidden="true" />
-          </button>
+          {!isSelf && (
+            <button
+              type="button"
+              onClick={() => onDeactivate?.(member)}
+              className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              aria-label={t("actions.deactivate")}
+            >
+              <UserX className="size-4" aria-hidden="true" />
+            </button>
+          )}
         </div>
         <DetailRow
           label={t("role")}
