@@ -6,7 +6,13 @@ import { AlertDialog } from "radix-ui";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { getActiveProfile } from "@/features/auth/lib/current-user";
+import {
+  getActiveProfile,
+  getDefaultBranch,
+  getProfileAccount,
+  getProfileAccountId,
+} from "@/features/auth/lib/current-user";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { ApiError } from "@/lib/api";
 import { useDeactivateStaff } from "../hooks/useManageStaff";
 import { useStaff, useStaffMember } from "../hooks/useStaff";
@@ -65,16 +71,19 @@ export function StaffPage() {
     isLoading: isCurrentUserLoading,
     isError: isCurrentUserError,
   } = useCurrentUser();
+  const selectedBranchId = useAuthContextStore((state) => state.branchId);
   const primaryProfile = getActiveProfile(currentUser);
   const currentUserStaffId = primaryProfile?.staff_id;
-  const organizationId = primaryProfile?.organization.id;
-  const organizationName = primaryProfile?.organization.name;
-  const branchId = primaryProfile?.branch.id;
-  const branchName = primaryProfile?.branch
+  const account = getProfileAccount(primaryProfile);
+  const activeBranch = getDefaultBranch(primaryProfile, selectedBranchId);
+  const organizationId = getProfileAccountId(primaryProfile);
+  const organizationName = account?.name;
+  const branchId = activeBranch?.id;
+  const branchName = activeBranch
     ? [
-        primaryProfile.branch.address,
-        primaryProfile.branch.city,
-        primaryProfile.branch.governorate,
+        activeBranch.address,
+        activeBranch.city,
+        activeBranch.governorate,
       ]
         .filter(Boolean)
         .join(", ")

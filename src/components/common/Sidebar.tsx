@@ -21,11 +21,16 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { getActiveProfile } from "@/features/auth/lib/current-user";
+import {
+  getActiveProfile,
+  getDefaultBranch,
+  getProfileAccount,
+  normalizeRoleName,
+} from "@/features/auth/lib/current-user";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { cn } from "@/lib/utils";
-import type { UserRole } from "@/types/user.types";
 import { canUseSettings } from "./sidebar-access";
 
 type NavItem = {
@@ -44,11 +49,17 @@ const ALL_STAFF_NAV: NavItem[] = [
   { href: "/dashboard/analytics", key: "analytics", icon: BarChart2 },
 ];
 
-type StaffRole = Exclude<UserRole, "patient">;
+type StaffRole = "owner" | "doctor" | "reception" | "receptionist";
 
 const NAV_BY_ROLE: Record<StaffRole, NavItem[]> = {
   owner: ALL_STAFF_NAV,
   doctor: ALL_STAFF_NAV,
+  reception: [
+    { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/calendar", key: "calendar", icon: Calendar },
+    { href: "/dashboard/staff", key: "staff", icon: UserCheck },
+    { href: "/dashboard/patients", key: "patients", icon: Users },
+  ],
   receptionist: [
     { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
     { href: "/dashboard/calendar", key: "calendar", icon: Calendar },
@@ -93,16 +104,20 @@ export function Sidebar() {
   const { data: user } = useCurrentUser();
   const clearUser = useUserStore((s) => s.clearUser);
   const clearSession = useAuthStore((s) => s.clearSession);
+  const clearContext = useAuthContextStore((s) => s.clearContext);
+  const branchId = useAuthContextStore((s) => s.branchId);
 
   const profile = getActiveProfile(user);
-  const rawRole = profile?.role.name ?? "owner";
-  if (rawRole === "patient") return null;
+  const rawRole = normalizeRoleName(profile?.role.name);
+  if (rawRole === "patient" || rawRole === "unknown") return null;
   const role = rawRole as StaffRole;
   const navItems = NAV_BY_ROLE[role];
 
-  const clinicName = profile?.organization.name ?? "-";
-  const clinicBranch = profile?.branch?.city
-    ? `${profile.branch.city} branch`
+  const account = getProfileAccount(profile);
+  const branch = getDefaultBranch(profile, branchId);
+  const clinicName = account?.name ?? "-";
+  const clinicBranch = branch?.city
+    ? `${branch.city} branch`
     : "-";
 
   async function handleLogout() {
@@ -112,6 +127,7 @@ export function Sidebar() {
       // proceed with local logout even if the API call fails
     }
     clearSession();
+    clearContext();
     clearUser();
     router.replace("/sign-in");
   }

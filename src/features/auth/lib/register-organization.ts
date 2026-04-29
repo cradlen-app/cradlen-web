@@ -4,24 +4,32 @@ import type {
 } from "../types/sign-up.types";
 
 export function buildRegisterOrganizationRequest(
-  registrationToken: string,
+  email: string,
   data: Step3Data,
 ): RegisterOrganizationRequest {
-  const organizationSpecialities = data.specialties
+  const accountSpecialities = data.specialties
     .split(",")
     .map((specialty) => specialty.trim())
     .filter(Boolean);
+  const isClinical = data.role === "owner_doctor";
+  const specialty = data.specialty?.trim();
+  const jobTitle = data.jobTitle?.trim();
 
-  return {
-    registration_token: registrationToken,
-    organization_name: data.organizationName,
-    organization_specialities: organizationSpecialities,
+  const payload: RegisterOrganizationRequest = {
+    email,
+    account_name: data.accountName,
+    account_specialities: accountSpecialities,
+    branch_name: data.accountName,
     branch_address: data.address,
     branch_city: data.city,
     branch_governorate: data.governorate,
     branch_country: data.country,
-    is_clinical: data.isClinical,
-    ...(data.isClinical && data.specialty ? { speciality: data.specialty } : {}),
-    ...(data.jobTitle ? { job_title: data.jobTitle } : {}),
+    roles: isClinical ? ["OWNER", "DOCTOR"] : ["OWNER"],
+    is_clinical: isClinical,
   };
+
+  if (isClinical && specialty) payload.specialty = specialty;
+  if (isClinical && jobTitle) payload.job_title = jobTitle;
+
+  return payload;
 }

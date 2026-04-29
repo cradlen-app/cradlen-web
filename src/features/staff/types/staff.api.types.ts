@@ -246,7 +246,8 @@ export type AcceptStaffInviteRequest = {
 export type AcceptStaffInviteResponse =
   {
     data: {
-      authenticated: true;
+      authenticated?: true;
+      profiles?: import("@/types/user.types").UserProfile[];
     };
     meta?: Record<string, unknown>;
   };

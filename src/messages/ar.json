@@ -29,7 +29,8 @@
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
     "searchPlaceholder": "البحث عن مريض....",
-    "upload": "رفع"
+    "upload": "رفع",
+    "profileSwitcher": "تبديل الملف"
   },
   "staff": {
     "title": "الموظفون",
@@ -131,6 +132,19 @@
         "expired": "انتهت صلاحية هذه الدعوة.",
         "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
       }
+    },
+    "joinCode": {
+      "title": "الانضمام برمز",
+      "subtitle": "أدخل الرمز الذي شاركه مسؤول العيادة.",
+      "code": "رمز الانضمام",
+      "preview": "تحقق من الرمز",
+      "checking": "جاري التحقق...",
+      "accept": "انضم إلى العيادة",
+      "accepting": "جاري الانضمام...",
+      "unknownAccount": "حساب العيادة",
+      "previewUnavailable": "المعاينة غير متاحة. يمكنك إرسال الرمز على أي حال.",
+      "previewError": "تعذر معاينة هذا الرمز. تحقق منه وحاول مرة أخرى.",
+      "acceptError": "تعذر قبول هذا الرمز. يرجى المحاولة مرة أخرى."
     },
     "invitations": {
       "title": "الدعوات",
@@ -362,6 +376,7 @@
       "step1Label": "المعلومات الشخصية",
       "step2Label": "التحقق",
       "step3Label": "المنظمة",
+      "loading": "جاري التحقق من تسجيلك...",
       "nextButton": "التالي",
       "backButton": "رجوع",
       "submitButton": "ابدأ التجربة المجانية",
@@ -383,7 +398,7 @@
       "specialtyLabel": "التخصص",
       "specialtyPlaceholder": "اختر تخصصك",
       "verificationTitle": "تحقق من بريدك الإلكتروني",
-      "verificationDescription": "لقد أرسلنا رمز التحقق إلى بريدك الإلكتروني. يرجى إدخاله أدناه.",
+      "verificationDescription": "لقد أرسلنا رمز التحقق إلى {email}. يرجى إدخاله أدناه.",
       "verificationCodeLabel": "رمز التحقق",
       "verificationCodePlaceholder": "123456",
       "resendCode": "إعادة إرسال الرمز",
@@ -402,6 +417,8 @@
       "countryLabel": "الدولة",
       "countryPlaceholder": "مصر",
       "clinicianHeading": "دورك المهني",
+      "ownerRole": "مالك",
+      "ownerDoctorRole": "مالك + طبيب",
       "jobTitleLabel": "المسمى الوظيفي (اختياري)",
       "jobTitlePlaceholder": "مثال: طبيب أول",
       "errors": {
@@ -409,6 +426,7 @@
         "emailTaken": "يوجد حساب بهذا البريد الإلكتروني بالفعل.",
         "emailAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول.",
         "invalidCode": "رمز التحقق غير صحيح أو منتهي الصلاحية.",
+        "tryAgainLater": "يرجى المحاولة لاحقًا.",
         "resendSuccess": "تم إرسال رمز جديد إلى بريدك الإلكتروني."
       },
       "toasts": {
@@ -419,14 +437,19 @@
     "forgotPassword": {
       "title": "نسيت كلمة المرور",
       "description": "أدخل بريدك الإلكتروني وسنرسل لك رمز إعادة التعيين.",
+      "loading": "جارٍ التحميل...",
       "emailLabel": "البريد الإلكتروني",
       "emailPlaceholder": "ahmed@example.com",
+      "startSuccess": "إذا كان هذا البريد موجودًا، فقد تم إرسال رمز.",
       "verificationTitle": "تحقق من بريدك الإلكتروني",
       "verificationDescription": "أدخل الرمز المكون من 6 أرقام المُرسَل إلى {email}",
       "verificationCodeLabel": "رمز إعادة التعيين",
       "verificationCodePlaceholder": "000000",
       "resendCode": "إعادة إرسال الرمز",
       "resendIn": "إعادة الإرسال خلال {seconds}ث",
+      "resendSuccess": "تم إرسال الرمز.",
+      "resetTitle": "إعادة تعيين كلمة المرور",
+      "resetDescription": "اختر كلمة مرور جديدة لحسابك.",
       "newPasswordLabel": "كلمة المرور الجديدة",
       "newPasswordPlaceholder": "8 أحرف على الأقل",
       "confirmPasswordLabel": "تأكيد كلمة المرور",
@@ -434,14 +457,29 @@
       "showPassword": "إظهار",
       "hidePassword": "إخفاء",
       "submitButton": "إرسال الرمز",
+      "sendingButton": "جارٍ الإرسال...",
       "verifyButton": "تحقق",
+      "verifyingButton": "جارٍ التحقق...",
       "resetButton": "إعادة تعيين كلمة المرور",
+      "resettingButton": "جارٍ إعادة التعيين...",
+      "resendingButton": "جارٍ الإرسال...",
       "backButton": "رجوع",
       "backToSignIn": "العودة إلى تسجيل الدخول",
+      "sessionExpired": "انتهت صلاحية جلسة إعادة التعيين. اطلب رمزًا جديدًا للمتابعة.",
+      "startOverButton": "طلب رمز جديد",
+      "resetSuccess": "تمت إعادة تعيين كلمة المرور. جارٍ التحويل إلى تسجيل الدخول...",
       "errors": {
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "emailInvalid": "أدخل عنوان بريد إلكتروني صحيح",
         "emailNotFound": "لا يوجد حساب مرتبط بهذا البريد الإلكتروني.",
         "invalidCode": "الرمز غير صحيح أو منتهي الصلاحية.",
+        "codeLength": "يجب أن يتكون الرمز من 6 أرقام بالضبط.",
+        "codeDigits": "يجب أن يحتوي الرمز على أرقام فقط.",
+        "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+        "confirmPasswordRequired": "يرجى تأكيد كلمة المرور.",
         "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+        "invalidToken": "انتهت صلاحية رابط إعادة التعيين. يرجى طلب رمز جديد.",
+        "tryAgainLater": "حاول مرة أخرى لاحقًا.",
         "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
         "resendSuccess": "تم إرسال رمز جديد إلى بريدك الإلكتروني."
       }
@@ -470,6 +508,23 @@
       "toasts": {
         "resumingRegistration": "تسجيلك غير مكتمل — جارٍ إعادة التوجيه لاستكمال إنشاء الحساب."
       }
+    },
+    "selectProfile": {
+      "title": "اختر الملف",
+      "subtitle": "اختر سياق العيادة الذي تريد استخدامه.",
+      "branch": "الفرع",
+      "branchCount": "{count, plural, one {فرع واحد} two {فرعان} few {# فروع} many {# فرعًا} other {# فرع}}",
+      "continue": "متابعة",
+      "loading": "جاري المتابعة...",
+      "empty": "لا توجد ملفات متاحة لهذا الدخول.",
+      "backToSignIn": "العودة إلى تسجيل الدخول",
+      "unknownAccount": "حساب العيادة",
+      "unknownRole": "دور غير معروف",
+      "mainBranch": "الفرع الرئيسي",
+      "noBranches": "هذا الملف لا يحتوي على أي فروع. يرجى التواصل مع مدير العيادة.",
+      "invalidSession": "انتهت صلاحية جلسة اختيار الملف. يرجى تسجيل الدخول مرة أخرى.",
+      "missingContext": "هذا الملف لا يحتوي على سياق الحساب.",
+      "error": "تعذر اختيار هذا الملف. حاول مرة أخرى."
     }
   }
 }

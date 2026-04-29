@@ -1,5 +1,5 @@
-import { proxySessionEndpoint } from "@/lib/server/backend";
+import { profileSelectionResponse } from "@/lib/server/multi-tenant-auth";
 
 export function POST(request: Request) {
-  return proxySessionEndpoint("/staff/invite/accept", request);
+  return profileSelectionResponse("/staff/invite/accept", request);
 }
