@@ -26,13 +26,25 @@ export function sanitizeProfileSelection(body: unknown) {
   const root = getObject(body);
   const data = getObject(root?.data);
   const source = data ?? root;
+  const meta = getObject(root?.meta) ?? {};
+
+  if (source?.type === "ONBOARDING_REQUIRED") {
+    return {
+      data: {
+        type: "ONBOARDING_REQUIRED",
+        step: source.step,
+      },
+      meta,
+    };
+  }
+
   const profiles = source?.profiles;
 
   return {
     data: {
       profiles: Array.isArray(profiles) ? profiles : [],
     },
-    meta: getObject(root?.meta) ?? {},
+    meta,
   };
 }
 

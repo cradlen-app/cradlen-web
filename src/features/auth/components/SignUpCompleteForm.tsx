@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import {
+  getProfilesFromAuthResponse,
+  isOnboardingRedirectPath,
+  resolveAuthRedirect,
+} from "@/lib/auth/redirect";
 import { DoctorFields } from "./DoctorFields";
 import { RoleSelector } from "./RoleSelector";
 import { StepIndicator } from "./StepIndicator";
@@ -13,22 +19,19 @@ import { step3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
 import {
   clearPendingSignupEmail,
-  getPendingSignupEmail,
+  setPendingSignupEmail,
 } from "../lib/registration-session";
 import { setPendingProfileSelection } from "../lib/profile-selection-session";
-import { getSignupResumePath } from "../lib/signup-routing";
-import {
-  useRegisterOrganization,
-  useRegistrationStatus,
-} from "../hooks/useSignUp";
+import { useRegisterOrganization } from "../hooks/useSignUp";
 import type { Step3Data } from "../types/sign-up.types";
 
 export function SignUpCompleteForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
-  const [email] = useState<string | null>(() => getPendingSignupEmail());
+  const { email, isChecking } = useAuthRedirect({
+    currentStep: "COMPLETE_ONBOARDING",
+  });
   const [stepError, setStepError] = useState<string | null>(null);
-  const registrationStatus = useRegistrationStatus(email);
   const registerOrganization = useRegisterOrganization();
 
   const form = useForm<Step3Data>({
@@ -51,25 +54,6 @@ export function SignUpCompleteForm() {
     name: "role",
   });
 
-  useEffect(() => {
-    if (!email) {
-      router.replace("/sign-up");
-      return;
-    }
-
-    if (
-      !registrationStatus.data ||
-      registrationStatus.data.step === "COMPLETE_ONBOARDING"
-    ) {
-      return;
-    }
-
-    if (registrationStatus.data.step === "NONE" || registrationStatus.data.step === "DONE") {
-      clearPendingSignupEmail();
-    }
-    router.replace(getSignupResumePath(registrationStatus.data.step));
-  }, [email, registrationStatus.data, router]);
-
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
     "placeholder:text-gray-400 outline-none transition-colors",
@@ -90,21 +74,31 @@ export function SignUpCompleteForm() {
       const res = await registerOrganization.mutateAsync(
         buildRegisterOrganizationRequest(email, data),
       );
-      clearPendingSignupEmail();
+      const nextPath = resolveAuthRedirect(res, email);
 
-      if (res.data.profiles.length > 0) {
-        setPendingProfileSelection({ profiles: res.data.profiles });
-        router.push("/select-profile");
+      if (nextPath === "/select-profile") {
+        clearPendingSignupEmail();
+        setPendingProfileSelection({
+          profiles: getProfilesFromAuthResponse(res),
+        });
+        router.replace("/select-profile");
         return;
       }
 
-      router.push("/sign-in");
+      if (isOnboardingRedirectPath(nextPath)) {
+        setPendingSignupEmail(email);
+        router.replace(nextPath);
+        return;
+      }
+
+      clearPendingSignupEmail();
+      router.replace("/sign-in");
     } catch {
       setStepError(t("errors.serverError"));
     }
   });
 
-  if (!email || registrationStatus.isLoading) {
+  if (!email || isChecking) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={3} />
