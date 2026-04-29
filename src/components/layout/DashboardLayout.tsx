@@ -4,38 +4,13 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveRole } from "@/features/auth/lib/current-user";
-import type { UserRole } from "@/types/user.types";
 import { Navbar } from "../common/Navbar";
 import { Sidebar } from "../common/Sidebar";
+import { canAccessRoute } from "./dashboard-access";
 
 type Props = {
   children: React.ReactNode;
 };
-
-type StaffRole = Exclude<UserRole, "patient">;
-
-const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
-  owner: ["/dashboard"],
-  receptionist: ["/dashboard", "/dashboard/calendar", "/dashboard/patients", "/dashboard/staff"],
-  doctor: [
-    "/dashboard",
-    "/dashboard/calendar",
-    "/dashboard/patients",
-    "/dashboard/medicine",
-  ],
-};
-
-function canAccessRoute(role: UserRole, pathname: string) {
-  if (role === "patient") return false;
-  if (role === "owner") return true;
-
-  return ALLOWED_DASHBOARD_ROUTES[role].some(
-    (route) =>
-      route === "/dashboard"
-        ? pathname === route
-        : pathname === route || pathname.startsWith(`${route}/`),
-  );
-}
 
 export function DashboardLayout({ children }: Props) {
   const router = useRouter();

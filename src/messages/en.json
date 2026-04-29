@@ -229,6 +229,125 @@
     "profile": "Profile",
     "logout": "Logout"
   },
+  "settings": {
+    "eyebrow": "Settings",
+    "title": "Account settings",
+    "description": "Manage your account, clinic profile, branches, and sensitive account actions.",
+    "loading": "Loading settings...",
+    "loadError": "Failed to load settings. Please try again.",
+    "navLabel": "Settings sections",
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "softDeleteConfirm": "Soft delete",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "roles": {
+      "owner": "Owner",
+      "doctor": "Doctor",
+      "receptionist": "Reception",
+      "patient": "Patient"
+    },
+    "tabs": {
+      "profile": "Profile",
+      "organization": "Organization",
+      "branches": "Branches",
+      "danger": "Danger Zone"
+    },
+    "fields": {
+      "role": "Role",
+      "status": "Status",
+      "name": "Name",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "jobTitle": "Job title",
+      "verifiedAt": "Verified at",
+      "phone": "Phone",
+      "organization": "Organization",
+      "organizationName": "Organization name",
+      "specialties": "Specialties",
+      "currentBranch": "Current branch",
+      "country": "Country",
+      "city": "City",
+      "governorate": "Governorate",
+      "address": "Address",
+      "isClinical": "Clinical organization",
+      "specialty": "Specialty",
+      "mainBranch": "Main branch"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Review your personal account details and prepare profile edits.",
+      "edit": "Edit profile",
+      "drawerDescription": "Update the personal details attached to your current staff profile.",
+      "save": "Save profile",
+      "updateSuccess": "Profile updated.",
+      "updateError": "Failed to update profile. Please try again."
+    },
+    "organization": {
+      "title": "Organization",
+      "description": "Review the current clinic and prepare a new owned clinic.",
+      "drawerDescription": "Create a new organization with its main branch.",
+      "editDrawerDescription": "Update the organization details that identify this clinic.",
+      "add": "Add organization",
+      "edit": "Edit organization",
+      "save": "Save organization",
+      "Delete": "Delete organization",
+      "DeleteTitle": "Delete organization?",
+      "DeleteDescription": "This will disable the organization, its branches, staff, subscriptions, and pending invitations.",
+      "createSuccess": "Organization created.",
+      "createError": "Failed to create organization. Please try again.",
+      "updateSuccess": "Organization updated.",
+      "updateError": "Failed to update organization. Please try again.",
+      "deleteSuccess": "Organization deleted.",
+      "deleteError": "Failed to delete organization. Please try again."
+    },
+    "branches": {
+      "title": "Branches",
+      "description": "Review the active branch and prepare another clinic location.",
+      "drawerDescription": "Add another clinic location under the current organization.",
+      "editDrawerDescription": "Update the address and main-branch status for this branch.",
+      "add": "Add branch",
+      "edit": "Edit branch",
+      "save": "Save branch",
+      "Delete": "Delete branch",
+      "DeleteTitle": "Delete branch?",
+      "DeleteDescription": "This will disable the branch. The backend prevents deleting the only active branch.",
+      "createSuccess": "Branch created.",
+      "createError": "Failed to create branch. Please try again.",
+      "updateSuccess": "Branch updated.",
+      "updateError": "Failed to update branch. Please try again.",
+      "deleteSuccess": "Branch deleted.",
+      "deleteError": "Failed to delete branch. Please try again."
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "description": "Sensitive account actions stay behind confirmation.",
+      "deactivateTitle": "Deactivate account",
+      "deactivateDescription": "This will disable your access and sign you out.",
+      "deactivate": "Deactivate account",
+      "confirmTitle": "Deactivate your account?",
+      "confirmDescription": "You will be signed out after the account is deactivated.",
+      "confirm": "Confirm deactivation",
+      "deactivateSuccess": "Account deactivated.",
+      "deactivateError": "Failed to deactivate account. Please try again."
+    },
+    "empty": {
+      "missing": "Not available",
+      "profileTitle": "No staff profile found",
+      "profileDescription": "This account does not have an owner or doctor profile attached yet.",
+      "organizationTitle": "No organization linked",
+      "organizationDescription": "Create an organization once clinic setup is connected.",
+      "branchTitle": "No branch linked",
+      "branchDescription": "Create a branch once branch setup is connected."
+    },
+    "validation": {
+      "required": "Please complete all required fields."
+    }
+  },
   "patientDashboard": {
     "welcome": "Welcome back"
   },
