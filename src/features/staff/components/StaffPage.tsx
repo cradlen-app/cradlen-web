@@ -66,6 +66,7 @@ export function StaffPage() {
     isError: isCurrentUserError,
   } = useCurrentUser();
   const primaryProfile = getActiveProfile(currentUser);
+  const currentUserStaffId = primaryProfile?.staff_id;
   const organizationId = primaryProfile?.organization.id;
   const organizationName = primaryProfile?.organization.name;
   const branchId = primaryProfile?.branch.id;
@@ -119,6 +120,11 @@ export function StaffPage() {
     if (!deactivatingMember) return;
 
     try {
+      if (deactivatingMember.id === currentUserStaffId) {
+        toast.error(overviewT("deactivateSelfError"));
+        return;
+      }
+
       if (!organizationId || !branchId) {
         toast.error(t("noBranch"));
         return;
@@ -183,6 +189,7 @@ export function StaffPage() {
         </section>
 
         <StaffOverview
+          currentUserStaffId={currentUserStaffId}
           member={selectedMember}
           onDeactivate={setDeactivatingMember}
           onEdit={setEditingMember}
