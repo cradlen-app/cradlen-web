@@ -1,10 +1,28 @@
 import { z } from "zod";
 
+const PHONE_NUMBER_REGEXES = [
+  /^(?:\+20|0020|0)?1[0125]\d{8}$/,
+  /^\+[1-9]\d{7,14}$/,
+];
+
+function isValidOptionalPhone(value: string | undefined) {
+  const normalized = value?.replace(/[\s().-]/g, "") ?? "";
+
+  if (!normalized) return true;
+
+  return PHONE_NUMBER_REGEXES.some((regex) => regex.test(normalized));
+}
+
 export const step1Schema = z
   .object({
     firstName: z.string().min(1, { message: "First name is required" }),
     lastName: z.string().min(1, { message: "Last name is required" }),
-    phone: z.string().min(1, { message: "Phone number is required" }),
+    phoneNumber: z
+      .string()
+      .optional()
+      .refine(isValidOptionalPhone, {
+        message: "Enter a valid phone number",
+      }),
     email: z
       .string()
       .min(1, { message: "Email is required" })
@@ -20,14 +38,9 @@ export const step1Schema = z
       .string()
       .min(1, { message: "Please confirm your password" }),
   })
-  .superRefine((val, ctx) => {
-    if (val.password !== val.confirmPassword) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["confirmPassword"],
-        message: "Passwords do not match",
-      });
-    }
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
 
 export const step2Schema = z.object({
@@ -41,22 +54,18 @@ export const step3Schema = z
   .object({
     organizationName: z
       .string()
-      .min(1, { message: "Organization name is required" }),
+      .optional(),
+    accountName: z
+      .string()
+      .min(1, { message: "Account name is required" }),
     specialties: z.string().min(1, { message: "Please enter at least one specialty" }),
     city: z.string().min(1, { message: "City is required" }),
     address: z.string().min(1, { message: "Address is required" }),
     governorate: z.string().min(1, { message: "Governorate is required" }),
     country: z.string().min(1, { message: "Country is required" }),
-    isClinical: z.boolean(),
+    role: z.enum(["owner", "owner_doctor"], {
+      message: "Please select a role",
+    }),
     specialty: z.string().optional(),
     jobTitle: z.string().optional(),
-  })
-  .superRefine((val, ctx) => {
-    if (val.isClinical && !val.specialty) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["specialty"],
-        message: "Please select your specialty",
-      });
-    }
   });

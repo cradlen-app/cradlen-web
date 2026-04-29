@@ -1,25 +1,49 @@
-export type UserRole = "owner" | "receptionist" | "doctor" | "patient";
+export type BackendUserRole = "OWNER" | "DOCTOR" | "RECEPTIONIST";
+
+export type UserRole =
+  | "owner"
+  | "reception"
+  | "receptionist"
+  | "doctor"
+  | "patient"
+  | "unknown";
+
+export type UserBranch = {
+  id: string;
+  branch_id?: string;
+  name?: string;
+  address: string;
+  city: string;
+  country?: string;
+  governorate: string;
+  is_main: boolean;
+};
 
 export type UserProfile = {
+  id?: string;
+  profile_id?: string;
+  account_id?: string;
+  account_name?: string;
   staff_id: string;
   job_title: string;
   specialty?: string;
   is_clinical?: boolean;
-  role: { id: string; name: UserRole };
+  roles?: string[];
+  role: { id?: string; name: UserRole | BackendUserRole | string };
+  account?: {
+    id: string;
+    name: string;
+    specialities?: string[];
+    status?: string;
+  };
   organization: {
     id: string;
     name: string;
     specialities: string[];
     status: string;
   };
-  branch: {
-    id: string;
-    address: string;
-    city: string;
-    country?: string;
-    governorate: string;
-    is_main: boolean;
-  };
+  branch: UserBranch;
+  branches?: UserBranch[];
 };
 
 export type CurrentUser = {

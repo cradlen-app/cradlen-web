@@ -26,6 +26,11 @@ export function DashboardLayout({ children }: Props) {
       return;
     }
 
+    if (role === "unknown") {
+      router.replace("/select-profile");
+      return;
+    }
+
     if (!canAccessRoute(role, pathname)) {
       router.replace("/dashboard");
     }

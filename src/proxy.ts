@@ -20,7 +20,7 @@ const PROTECTED_ROUTES = [
   "/staff",
 ];
 
-const PUBLIC_ROUTES = ["/staff/invite"];
+const PUBLIC_ROUTES = ["/staff/invite", "/staff/join-code"];
 
 function getPathWithoutLocale(pathname: string) {
   const segments = pathname.split("/");

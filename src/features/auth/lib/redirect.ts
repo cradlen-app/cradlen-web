@@ -14,6 +14,7 @@ export function getDefaultRouteForRole(role: UserRole | undefined): string {
   switch (role) {
     case "doctor":
       return "/dashboard/calendar";
+    case "reception":
     case "receptionist":
       return "/dashboard/patients";
     case "patient":

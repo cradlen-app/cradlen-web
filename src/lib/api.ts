@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { routing } from "@/i18n/routing";
 import { queryClient } from "@/lib/queryClient";
@@ -7,8 +8,20 @@ const DEFAULT_API_BASE_URL = "https://api.cradlen.com/v1";
 
 const SESSION_ENDPOINTS: Record<string, string> = {
   "/auth/login": "/api/auth/login",
+  "/auth/profiles/select": "/api/auth/profiles/select",
+  "/auth/signup/start": "/api/auth/signup/start",
+  "/auth/signup/verify": "/api/auth/signup/verify",
+  "/auth/signup/complete": "/api/auth/signup/complete",
+  "/auth/signup/resend": "/api/auth/signup/resend",
+  "/auth/forgot-password/start": "/api/auth/forgot-password/start",
+  "/auth/forgot-password/verify": "/api/auth/forgot-password/verify",
+  "/auth/forgot-password/resend": "/api/auth/forgot-password/resend",
+  "/auth/forgot-password/reset": "/api/auth/forgot-password/reset",
+  "/auth/registration/status": "/api/auth/registration/status",
   "/auth/register/organization": "/api/auth/register-organization",
   "/auth/reset-password": "/api/auth/reset-password",
+  "/join-codes/accept": "/api/join-codes/accept",
+  "/join-codes/preview": "/api/join-codes/preview",
   "/staff/invite/accept": "/api/staff/invite/accept",
 };
 
@@ -87,7 +100,15 @@ export async function apiFetch<T>(
 }
 
 export function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  return apiFetch<T>(`/api/backend${path}`, options).catch((error) => {
+  const { accountId, branchId, profileId } = useAuthContextStore.getState();
+  const headers = {
+    ...(accountId ? { "X-Account-Id": accountId } : {}),
+    ...(profileId ? { "X-Profile-Id": profileId } : {}),
+    ...(branchId ? { "X-Branch-Id": branchId } : {}),
+    ...options?.headers,
+  };
+
+  return apiFetch<T>(`/api/backend${path}`, { ...options, headers }).catch((error) => {
     if (error instanceof ApiError && error.status === 401) {
       clearSessionAndRedirect();
     }
@@ -117,6 +138,7 @@ function getPathWithoutLocale(pathname: string) {
 
 function clearSessionAndRedirect() {
   useAuthStore.getState().clearSession();
+  useAuthContextStore.getState().clearContext();
   useUserStore.getState().clearUser();
   queryClient.clear();
 

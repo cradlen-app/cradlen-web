@@ -1,34 +1,57 @@
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
-export const step1Schema = z.object({
-  email: z
-    .string()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Enter a valid email address" }),
-});
+type ForgotPasswordTranslations = ReturnType<
+  typeof useTranslations<"auth.forgotPassword">
+>;
 
-export const step2Schema = z.object({
-  verificationCode: z
-    .string()
-    .length(6, { message: "Code must be exactly 6 digits" })
-    .regex(/^\d{6}$/, { message: "Code must contain only digits" }),
-});
-
-export const step3Schema = z
-  .object({
-    password: z
+export function createForgotPasswordStartSchema(t: ForgotPasswordTranslations) {
+  return z.object({
+    email: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters" }),
-    confirmPassword: z
-      .string()
-      .min(1, { message: "Please confirm your password" }),
-  })
-  .superRefine((val, ctx) => {
-    if (val.password !== val.confirmPassword) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["confirmPassword"],
-        message: "Passwords do not match",
-      });
-    }
+      .min(1, { message: t("errors.emailRequired") })
+      .email({ message: t("errors.emailInvalid") }),
   });
+}
+
+export function createForgotPasswordOtpSchema(t: ForgotPasswordTranslations) {
+  return z.object({
+    verificationCode: z
+      .string()
+      .length(6, { message: t("errors.codeLength") })
+      .regex(/^\d{6}$/, { message: t("errors.codeDigits") }),
+  });
+}
+
+export function createForgotPasswordResetSchema(t: ForgotPasswordTranslations) {
+  return z
+    .object({
+      password: z
+        .string()
+        .min(8, { message: t("errors.passwordMinLength") }),
+      confirmPassword: z
+        .string()
+        .min(1, { message: t("errors.confirmPasswordRequired") }),
+    })
+    .superRefine((val, ctx) => {
+      if (val.password !== val.confirmPassword) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["confirmPassword"],
+          message: t("errors.passwordMismatch"),
+        });
+      }
+    });
+}
+
+export type ForgotPasswordStartData = z.infer<
+  ReturnType<typeof createForgotPasswordStartSchema>
+>;
+
+export type ForgotPasswordOtpData = z.infer<
+  ReturnType<typeof createForgotPasswordOtpSchema>
+>;
+
+export type ForgotPasswordResetData = z.infer<
+  ReturnType<typeof createForgotPasswordResetSchema>
+>;
