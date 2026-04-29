@@ -1,4 +1,5 @@
 import type { UserProfile } from "@/types/user.types";
+import type { OnboardingRequiredResponse } from "@/lib/auth/redirect";
 
 export type Step1Data = {
   firstName: string;
@@ -87,7 +88,9 @@ export type AuthenticatedSession = { authenticated: true };
 
 export type RegisterOrganizationResponse = ApiResponse<AuthenticatedSession>;
 
-export type SignupCompleteResponse = ApiResponse<{ profiles: UserProfile[] }>;
+export type SignupCompleteResponse = ApiResponse<
+  { profiles: UserProfile[] } | OnboardingRequiredResponse
+>;
 
 export type PendingLoginResponse = {
   registration_token: string;
