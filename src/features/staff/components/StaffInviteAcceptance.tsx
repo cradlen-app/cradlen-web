@@ -10,6 +10,7 @@ import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { setPendingProfileSelection } from "@/features/auth/lib/profile-selection-session";
 import { acceptStaffInvite, previewStaffInvite } from "../lib/staff.api";
 import { STAFF_INVITE_DAY_LABELS } from "../lib/staff-invite.schemas";
 import {
@@ -117,6 +118,12 @@ export function StaffInviteAcceptance() {
         password,
     }),
     onSuccess: (response) => {
+      if (response.data.profiles?.length) {
+        setPendingProfileSelection({ profiles: response.data.profiles });
+        toast.success(t("success"));
+        router.replace("/select-profile");
+        return;
+      }
       if (response.data.authenticated) {
         setAuthenticated();
       }

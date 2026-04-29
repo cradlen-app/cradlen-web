@@ -1,3 +1,5 @@
+import type { UserProfile } from "@/types/user.types";
+
 export type SignInRequest = { email: string; password: string };
 
 export type AuthTokens = {
@@ -11,5 +13,26 @@ export type AuthTokensResponse = { data: AuthTokens; meta: Record<string, unknow
 
 export type AuthenticatedSessionResponse = {
   data: { authenticated: true };
+  meta: Record<string, unknown>;
+};
+
+export type LoginProfilesResponse = {
+  data: { profiles: UserProfile[] };
+  meta: Record<string, unknown>;
+};
+
+export type SelectProfileRequest = {
+  account_id?: string;
+  branch_id?: string | null;
+  profile_id: string;
+};
+
+export type SelectProfileResponse = {
+  data: {
+    account_id: string;
+    authenticated: true;
+    branch_id?: string | null;
+    profile_id: string;
+  };
   meta: Record<string, unknown>;
 };

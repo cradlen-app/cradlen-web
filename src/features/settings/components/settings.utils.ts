@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import type { UserRole } from "@/types/user.types";
+import { normalizeRoleName } from "@/features/auth/lib/current-user";
 
 export type SettingsT = ReturnType<typeof useTranslations>;
 export type SettingsLocale = "en" | "ar";
@@ -31,9 +31,9 @@ export function hasRequiredValues(
   return requiredFields.every((field) => readFormValue(form, field));
 }
 
-export function formatRole(role: UserRole | undefined, t: SettingsT) {
+export function formatRole(role: string | undefined, t: SettingsT) {
   if (!role) return t("empty.missing");
-  return t(`roles.${role}`);
+  return t(`roles.${normalizeRoleName(role)}`);
 }
 
 export function formatSettingsDateTime(

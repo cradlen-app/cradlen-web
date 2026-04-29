@@ -1,7 +1,9 @@
+import type { UserProfile } from "@/types/user.types";
+
 export type Step1Data = {
   firstName: string;
   lastName: string;
-  phone: string;
+  phoneNumber?: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -12,13 +14,13 @@ export type Step2Data = {
 };
 
 export type Step3Data = {
-  organizationName: string;
+  accountName: string;
   specialties: string;
   city: string;
   address: string;
   governorate: string;
   country: string;
-  isClinical: boolean;
+  role: "owner" | "owner_doctor";
   specialty?: string;
   jobTitle?: string;
 };
@@ -33,36 +35,49 @@ type ApiResponse<T> = { data: T; meta: Record<string, unknown> };
 export type RegisterPersonalRequest = {
   first_name: string;
   last_name: string;
-  phone_number: string;
   email: string;
   password: string;
   confirm_password: string;
+  phone_number?: string;
 };
 
 export type VerifyEmailRequest = {
-  registration_token: string;
+  email: string;
   code: string;
 };
 
 export type RegisterOrganizationRequest = {
-  registration_token: string;
-  organization_name: string;
-  organization_specialities?: string[];
+  email: string;
+  account_name: string;
+  account_specialities?: string[];
+  branch_name: string;
   branch_address: string;
   branch_city: string;
   branch_governorate: string;
-  branch_country: string;
+  branch_country?: string;
+  roles: ("OWNER" | "DOCTOR")[];
   is_clinical: boolean;
-  speciality?: string;
+  specialty?: string;
   job_title?: string;
 };
 
 export type ResendOtpRequest = {
-  registration_token: string;
+  email: string;
+};
+
+export type RegistrationStep =
+  | "NONE"
+  | "VERIFY_OTP"
+  | "COMPLETE_ONBOARDING"
+  | "DONE";
+
+export type RegistrationStatusResponse = {
+  step: RegistrationStep;
 };
 
 export type RegistrationTokenData = {
-  registration_token: string;
+  signup_token?: string;
+  registration_token?: string;
   expires_in: number;
 };
 
@@ -71,6 +86,8 @@ export type RegistrationTokenResponse = ApiResponse<RegistrationTokenData>;
 export type AuthenticatedSession = { authenticated: true };
 
 export type RegisterOrganizationResponse = ApiResponse<AuthenticatedSession>;
+
+export type SignupCompleteResponse = ApiResponse<{ profiles: UserProfile[] }>;
 
 export type PendingLoginResponse = {
   registration_token: string;

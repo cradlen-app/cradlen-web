@@ -1,20 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import type {
   RegisterPersonalRequest,
+  RegistrationStatusResponse,
   VerifyEmailRequest,
   RegisterOrganizationRequest,
   ResendOtpRequest,
-  RegistrationTokenResponse,
-  RegisterOrganizationResponse,
-  LoginResponse,
+  SignupCompleteResponse,
 } from "../types/sign-up.types";
-import type { SignInRequest } from "../types/sign-in.types";
 
 export function useRegisterPersonal() {
   return useMutation({
     mutationFn: (data: RegisterPersonalRequest) =>
-      apiFetch<RegistrationTokenResponse>("/auth/register/personal", {
+      apiFetch<unknown>("/auth/signup/start", {
         method: "POST",
         body: JSON.stringify(data),
       }),
@@ -24,7 +22,7 @@ export function useRegisterPersonal() {
 export function useVerifyEmail() {
   return useMutation({
     mutationFn: (data: VerifyEmailRequest) =>
-      apiFetch<RegistrationTokenResponse>("/auth/register/verify-email", {
+      apiFetch<unknown>("/auth/signup/verify", {
         method: "POST",
         body: JSON.stringify(data),
       }),
@@ -34,7 +32,7 @@ export function useVerifyEmail() {
 export function useRegisterOrganization() {
   return useMutation({
     mutationFn: (data: RegisterOrganizationRequest) =>
-      apiFetch<RegisterOrganizationResponse>("/auth/register/organization", {
+      apiFetch<SignupCompleteResponse>("/auth/signup/complete", {
         method: "POST",
         body: JSON.stringify(data),
       }),
@@ -44,19 +42,21 @@ export function useRegisterOrganization() {
 export function useResendOtp() {
   return useMutation({
     mutationFn: (data: ResendOtpRequest) =>
-      apiFetch<RegistrationTokenResponse>("/auth/register/resend-otp", {
+      apiFetch<{ success: true }>("/auth/signup/resend", {
         method: "POST",
         body: JSON.stringify(data),
       }),
   });
 }
 
-export function useResumeRegistration() {
-  return useMutation({
-    mutationFn: (data: SignInRequest) =>
-      apiFetch<LoginResponse>("/auth/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
+export function useRegistrationStatus(email: string | null) {
+  return useQuery({
+    queryKey: ["registration-status", email],
+    enabled: !!email,
+    retry: false,
+    queryFn: () =>
+      apiFetch<RegistrationStatusResponse>(
+        `/auth/registration/status?email=${encodeURIComponent(email ?? "")}`,
+      ),
   });
 }

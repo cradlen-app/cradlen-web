@@ -1,26 +1,26 @@
-import type { AuthenticatedSessionResponse } from "./sign-in.types";
-
-export interface ForgotPasswordRequest {
+export interface ForgotPasswordStartRequest {
   email: string;
 }
 
-export interface ForgotPasswordResponse {
-  data: {
-    reset_token: string;
-    expires_in: number;
-  };
-  meta: Record<string, unknown>;
+export interface ForgotPasswordSuccessResponse {
+  success: true;
 }
 
-export interface VerifyResetCodeRequest {
-  reset_token: string;
+export interface ForgotPasswordVerifyRequest {
+  email: string;
   code: string;
 }
 
-export interface ResetPasswordRequest {
+export interface ForgotPasswordVerifyResponse {
+  reset_token: string;
+}
+
+export interface ForgotPasswordResetRequest {
   reset_token: string;
   password: string;
   confirm_password: string;
 }
 
-export type ResetPasswordResponse = AuthenticatedSessionResponse;
+export interface ForgotPasswordResendRequest {
+  email: string;
+}

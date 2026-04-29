@@ -79,9 +79,10 @@ function formatSchedule(schedule?: ApiStaffSchedule): string | undefined {
 }
 
 export function normalizeApiRoleName(name?: string): StaffRole {
-  if (name === "owner") return "owner";
-  if (name === "receptionist" || name === "reception") return "reception";
-  if (name === "doctor") return "doctor";
+  const normalized = name?.toLowerCase();
+  if (normalized === "owner") return "owner";
+  if (normalized === "receptionist" || normalized === "reception") return "reception";
+  if (normalized === "doctor") return "doctor";
   return "unknown";
 }
 
