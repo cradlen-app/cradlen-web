@@ -1,4 +1,5 @@
 import type { UserProfile } from "@/types/user.types";
+import type { OnboardingRequiredResponse } from "@/lib/auth/redirect";
 
 export type SignInRequest = { email: string; password: string };
 
@@ -17,7 +18,7 @@ export type AuthenticatedSessionResponse = {
 };
 
 export type LoginProfilesResponse = {
-  data: { profiles: UserProfile[] };
+  data: { profiles: UserProfile[] } | OnboardingRequiredResponse;
   meta: Record<string, unknown>;
 };
 

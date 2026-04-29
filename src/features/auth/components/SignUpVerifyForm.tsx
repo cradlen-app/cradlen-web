@@ -7,48 +7,25 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { StepIndicator } from "./StepIndicator";
 import { step2Schema } from "../lib/sign-up.schemas";
-import {
-  clearPendingSignupEmail,
-  getPendingSignupEmail,
-} from "../lib/registration-session";
-import { getSignupResumePath } from "../lib/signup-routing";
-import {
-  useRegistrationStatus,
-  useResendOtp,
-  useVerifyEmail,
-} from "../hooks/useSignUp";
+import { useResendOtp, useVerifyEmail } from "../hooks/useSignUp";
 import type { Step2Data } from "../types/sign-up.types";
 
 export function SignUpVerifyForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
-  const [email] = useState<string | null>(() => getPendingSignupEmail());
+  const { email, isChecking } = useAuthRedirect({
+    currentStep: "VERIFY_OTP",
+  });
   const [stepError, setStepError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const registrationStatus = useRegistrationStatus(email);
   const verifyEmail = useVerifyEmail();
   const resendOtp = useResendOtp();
 
   const form = useForm<Step2Data>({ resolver: zodResolver(step2Schema) });
-
-  useEffect(() => {
-    if (!email) {
-      router.replace("/sign-up");
-      return;
-    }
-
-    if (!registrationStatus.data || registrationStatus.data.step === "VERIFY_OTP") {
-      return;
-    }
-
-    if (registrationStatus.data.step === "NONE" || registrationStatus.data.step === "DONE") {
-      clearPendingSignupEmail();
-    }
-    router.replace(getSignupResumePath(registrationStatus.data.step));
-  }, [email, registrationStatus.data, router]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -78,7 +55,7 @@ export function SignUpVerifyForm() {
         email,
         code: data.verificationCode,
       });
-      router.push("/sign-up/complete");
+      router.replace("/sign-up/complete");
     } catch {
       setStepError(t("errors.invalidCode"));
     }
@@ -107,7 +84,7 @@ export function SignUpVerifyForm() {
     );
   };
 
-  if (!email || registrationStatus.isLoading) {
+  if (!email || isChecking) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={2} />

@@ -1,32 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { PasswordInput } from "./PasswordInput";
 import { PhoneInput } from "./PhoneInput";
 import { StepIndicator } from "./StepIndicator";
 import { step1Schema } from "../lib/sign-up.schemas";
-import {
-  clearPendingSignupEmail,
-  getPendingSignupEmail,
-  setPendingSignupEmail,
-} from "../lib/registration-session";
+import { setPendingSignupEmail } from "../lib/registration-session";
 import { buildSignupStartRequest } from "../lib/signup-start";
-import { getSignupResumePath } from "../lib/signup-routing";
-import { useRegisterPersonal, useRegistrationStatus } from "../hooks/useSignUp";
+import { useRegisterPersonal } from "../hooks/useSignUp";
 import type { Step1Data } from "../types/sign-up.types";
 
 export function SignUpForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
-  const [pendingEmail] = useState<string | null>(() => getPendingSignupEmail());
+  const { email: pendingEmail, isChecking } = useAuthRedirect({
+    currentStep: "NONE",
+  });
   const [stepError, setStepError] = useState<string | null>(null);
-  const registrationStatus = useRegistrationStatus(pendingEmail);
   const registerPersonal = useRegisterPersonal();
 
   const form = useForm<Step1Data>({
@@ -41,20 +38,6 @@ export function SignUpForm() {
       confirmPassword: "",
     },
   });
-
-  useEffect(() => {
-    if (!pendingEmail || !registrationStatus.data) return;
-
-    if (registrationStatus.data.step !== "NONE") {
-      const nextPath = getSignupResumePath(registrationStatus.data.step);
-      clearPendingSignupEmail();
-      if (registrationStatus.data.step !== "DONE") setPendingSignupEmail(pendingEmail);
-      router.replace(nextPath);
-      return;
-    }
-
-    clearPendingSignupEmail();
-  }, [pendingEmail, registrationStatus.data, router]);
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -75,7 +58,7 @@ export function SignUpForm() {
     try {
       await registerPersonal.mutateAsync(payload);
       setPendingSignupEmail(payload.email);
-      router.push("/sign-up/verify");
+      router.replace("/sign-up/verify");
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setStepError(t("errors.emailAlreadyRegistered"));
@@ -85,7 +68,7 @@ export function SignUpForm() {
     }
   });
 
-  if (pendingEmail && registrationStatus.isLoading) {
+  if (pendingEmail && isChecking) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={1} />
