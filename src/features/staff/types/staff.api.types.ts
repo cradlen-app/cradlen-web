@@ -83,13 +83,7 @@ export type StaffMemberResponse =
 
 export type UpdateStaffResponse = StaffMemberResponse;
 
-export type DeactivateStaffResponse =
-  | ApiStaffMember
-  | {
-      data?: ApiStaffMember;
-      message?: string;
-      meta?: Record<string, unknown>;
-    };
+export type DeactivateStaffResponse = void;
 
 export type StaffInvitationStatus =
   | "pending"

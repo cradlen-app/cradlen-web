@@ -216,9 +216,21 @@
       "deactivateDescription": "This will deactivate {name}.",
       "deactivateSuccess": "Staff member deactivated.",
       "deactivateError": "Failed to deactivate staff. Please try again.",
+      "deactivateSelfError": "You cannot deactivate your own account.",
       "thisStaffMember": "this staff member",
       "cancel": "Cancel"
     }
+  },
+  "patientNav": {
+    "home": "Home",
+    "medicines": "Medicines",
+    "tests": "Tests",
+    "calendar": "Calendar",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "patientDashboard": {
+    "welcome": "Welcome back"
   },
   "auth": {
     "signUp": {
