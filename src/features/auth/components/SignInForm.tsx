@@ -8,11 +8,17 @@ import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import { ApiError } from "@/lib/api";
+import {
+  getProfilesFromAuthResponse,
+  isOnboardingRedirectPath,
+  resolveAuthRedirect,
+} from "@/lib/auth/redirect";
 import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas";
 import { useSignIn } from "../hooks/useSignIn";
 import { getSafeRedirectPath } from "../lib/redirect";
 import { setPendingProfileSelection } from "../lib/profile-selection-session";
+import { setPendingSignupEmail } from "../lib/registration-session";
+import { isInvalidSignInError } from "../lib/sign-in-errors";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
@@ -33,17 +39,29 @@ export function SignInForm() {
   const onSubmit = async (data: SignInFormData) => {
     try {
       const res = await mutateAsync(data);
-      setPendingProfileSelection({ profiles: res.data.profiles });
-      router.replace(
-        `/select-profile?redirectTo=${encodeURIComponent(redirectTo)}`,
-      );
+      const nextPath = resolveAuthRedirect(res, data.email);
+
+      if (isOnboardingRedirectPath(nextPath)) {
+        setPendingSignupEmail(data.email);
+        router.replace(nextPath);
+        return;
+      }
+
+      if (nextPath === "/select-profile") {
+        setPendingProfileSelection({
+          profiles: getProfilesFromAuthResponse(res),
+        });
+        router.replace(
+          `/select-profile?redirectTo=${encodeURIComponent(redirectTo)}`,
+        );
+      }
     } catch {
       // error state handled via mutation.isError
     }
   };
 
   const apiErrorMessage =
-    isError && error instanceof ApiError && error.status === 401
+    isError && isInvalidSignInError(error)
       ? t("errors.invalidCredentials")
       : isError
         ? t("errors.serverError")
