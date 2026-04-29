@@ -26,6 +26,7 @@ import { useUserStore } from "@/features/auth/store/userStore";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/user.types";
+import { canUseSettings } from "./sidebar-access";
 
 type NavItem = {
   href: string;
@@ -185,20 +186,22 @@ export function Sidebar() {
 
       {/* Bottom nav */}
       <div className="px-2 py-3 space-y-0.5 border-t border-gray-100">
-        <Link
-          href="/dashboard/settings"
-          title={collapsed ? t("settings") : undefined}
-          className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
-            collapsed && "justify-center px-0",
-            pathname === "/dashboard/settings"
-              ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
-              : "text-gray-400 hover:bg-gray-50 hover:text-brand-black",
-          )}
-        >
-          <Settings className="size-4.5 shrink-0" />
-          {!collapsed && <span>{t("settings")}</span>}
-        </Link>
+        {canUseSettings(role) && (
+          <Link
+            href="/dashboard/settings"
+            title={collapsed ? t("settings") : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+              collapsed && "justify-center px-0",
+              pathname === "/dashboard/settings"
+                ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
+                : "text-gray-400 hover:bg-gray-50 hover:text-brand-black",
+            )}
+          >
+            <Settings className="size-4.5 shrink-0" />
+            {!collapsed && <span>{t("settings")}</span>}
+          </Link>
+        )}
 
         <button
           type="button"
