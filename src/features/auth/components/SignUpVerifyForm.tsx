@@ -11,6 +11,10 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { StepIndicator } from "./StepIndicator";
 import { step2Schema } from "../lib/sign-up.schemas";
 import { useResendOtp, useVerifyEmail } from "../hooks/useSignUp";
+import {
+  getPendingSignupToken,
+  getSignupTokenOrRedirect,
+} from "../lib/registration-session";
 import type { Step2Data } from "../types/sign-up.types";
 
 export function SignUpVerifyForm() {
@@ -19,6 +23,7 @@ export function SignUpVerifyForm() {
   const { email, isChecking } = useAuthRedirect({
     currentStep: "VERIFY_OTP",
   });
+  const [signupToken] = useState<string | null>(() => getPendingSignupToken());
   const [stepError, setStepError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -33,6 +38,12 @@ export function SignUpVerifyForm() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
+  useEffect(() => {
+    if (!signupToken) {
+      getSignupTokenOrRedirect(router);
+    }
+  }, [router, signupToken]);
+
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
     "placeholder:text-gray-400 outline-none transition-colors",
@@ -46,12 +57,16 @@ export function SignUpVerifyForm() {
     msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    if (!email) return;
+    if (!signupToken) {
+      getSignupTokenOrRedirect(router);
+      return;
+    }
 
     setStepError(null);
     setResendMessage(null);
     try {
       await verifyEmail.mutateAsync({
+        signup_token: signupToken,
         code: data.verificationCode,
       });
       router.replace("/sign-up/complete");
@@ -83,7 +98,7 @@ export function SignUpVerifyForm() {
     );
   };
 
-  if (!email || isChecking) {
+  if (!signupToken || isChecking) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={2} />
@@ -102,7 +117,7 @@ export function SignUpVerifyForm() {
             {t("verificationTitle")}
           </h2>
           <p className="text-sm text-gray-500">
-            {t("verificationDescription", { email })}
+            {t("verificationDescription", { email: email ?? "" })}
           </p>
         </div>
 

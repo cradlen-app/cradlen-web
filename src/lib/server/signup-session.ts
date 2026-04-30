@@ -18,7 +18,7 @@ export function extractSignupToken(body: unknown) {
   const source = data ?? root;
   const token = source?.signup_token ?? source?.registration_token;
 
-  return typeof token === "string" ? token : null;
+  return typeof token === "string" && token.trim() ? token : null;
 }
 
 export function extractSignupTokenMaxAge(body: unknown) {
@@ -56,7 +56,10 @@ export async function getSignupTokenFromRequest(body?: Record<string, unknown>) 
   const cookieToken = cookieStore.get(SIGNUP_TOKEN_COOKIE)?.value;
   const bodyToken = body?.signup_token ?? body?.registration_token;
 
-  return cookieToken ?? (typeof bodyToken === "string" ? bodyToken : null);
+  const requestToken =
+    typeof bodyToken === "string" && bodyToken.trim() ? bodyToken : null;
+
+  return requestToken ?? cookieToken ?? null;
 }
 
 export function persistSignupTokenFromBody(

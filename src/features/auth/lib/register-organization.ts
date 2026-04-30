@@ -5,6 +5,7 @@ import type {
 
 export function buildRegisterOrganizationRequest(
   data: Step3Data,
+  signupToken: string,
 ): RegisterOrganizationRequest {
   const accountSpecialities = data.specialties
     .split(",")
@@ -15,6 +16,7 @@ export function buildRegisterOrganizationRequest(
   const jobTitle = data.jobTitle?.trim();
 
   const payload: RegisterOrganizationRequest = {
+    signup_token: signupToken,
     account_name: data.accountName,
     specialties: accountSpecialities,
     branch_name: data.accountName,

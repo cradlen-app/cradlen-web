@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import {
-  clearPendingSignupEmail,
+  clearPendingSignupSession,
   getPendingSignupEmail,
+  getPendingSignupToken,
 } from "@/features/auth/lib/registration-session";
 import { useRegistrationStatus } from "@/features/auth/hooks/useSignUp";
 import type { RegistrationStep } from "@/features/auth/types/sign-up.types";
@@ -40,6 +41,7 @@ export function isExpiredRegistrationStatusError(error: unknown) {
 export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
   const router = useRouter();
   const [email] = useState<string | null>(() => getPendingSignupEmail());
+  const [signupToken] = useState<string | null>(() => getPendingSignupToken());
   const registrationStatus = useRegistrationStatus(email);
   const nextPath = registrationStatus.data
     ? getRegistrationStatusRedirectPath(registrationStatus.data.step, currentStep)
@@ -48,12 +50,12 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
 
   useEffect(() => {
     if (!email) {
-      if (currentStep !== "NONE") router.replace("/sign-up");
+      if (currentStep !== "NONE" && !signupToken) router.replace("/sign-up");
       return;
     }
 
     if (hasExpiredStatus) {
-      clearPendingSignupEmail();
+      clearPendingSignupSession();
       router.replace("/sign-in");
       return;
     }
@@ -62,7 +64,7 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
 
     if (!nextPath) return;
     if (registrationStatus.data.step === "NONE" || registrationStatus.data.step === "DONE") {
-      clearPendingSignupEmail();
+      clearPendingSignupSession();
     }
 
     router.replace(nextPath);
@@ -73,12 +75,13 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
     nextPath,
     registrationStatus.data,
     router,
+    signupToken,
   ]);
 
   return {
     email,
     isChecking:
-      (!email && currentStep !== "NONE") ||
+      (!email && !signupToken && currentStep !== "NONE") ||
       (!!email && (registrationStatus.isLoading || hasExpiredStatus || !!nextPath)),
   };
 }
