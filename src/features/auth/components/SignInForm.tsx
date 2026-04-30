@@ -28,6 +28,7 @@ export function SignInForm() {
   const searchParams = useSearchParams();
   const { mutateAsync, isError, error } = useSignIn();
   const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
+  const notice = searchParams.get("notice");
 
   const {
     register,
@@ -85,6 +86,11 @@ export function SignInForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="w-full flex flex-col gap-5"
     >
+      {notice === "account-exists" && (
+        <p className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 text-center">
+          {t("noticeAccountExists")}
+        </p>
+      )}
       {/* Email */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm text-brand-black">

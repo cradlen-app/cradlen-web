@@ -521,6 +521,7 @@
       "showPassword": "إظهار",
       "hidePassword": "إخفاء",
       "submitButton": "تسجيل الدخول",
+      "noticeAccountExists": "لديك حساب بالفعل. يرجى تسجيل الدخول أدناه.",
       "forgotPassword": "هل نسيت كلمة المرور ؟",
       "newToCommunity": "عضو جديد في مجتمعنا ؟",
       "copyright": "2026 CRADLEN. جميع الحقوق محفوظة.",

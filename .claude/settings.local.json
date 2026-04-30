@@ -32,7 +32,8 @@
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/ar.json','utf8'\\)\\); console.log\\('ar.json valid'\\)\")",
       "Bash(node -e ' *)",
       "Bash(xargs find *)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(xargs ls *)"
     ]
   }
 }
