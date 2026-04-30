@@ -12,7 +12,11 @@ import { PasswordInput } from "./PasswordInput";
 import { PhoneInput } from "./PhoneInput";
 import { StepIndicator } from "./StepIndicator";
 import { step1Schema } from "../lib/sign-up.schemas";
-import { setPendingSignupEmail } from "../lib/registration-session";
+import {
+  extractSignupToken,
+  setPendingSignupEmail,
+  setPendingSignupToken,
+} from "../lib/registration-session";
 import { buildSignupStartRequest } from "../lib/signup-start";
 import { useRegisterPersonal } from "../hooks/useSignUp";
 import type { Step1Data } from "../types/sign-up.types";
@@ -56,8 +60,16 @@ export function SignUpForm() {
     const payload = buildSignupStartRequest(data);
 
     try {
-      await registerPersonal.mutateAsync(payload);
+      const response = await registerPersonal.mutateAsync(payload);
+      const signupToken = extractSignupToken(response);
+
+      if (!signupToken) {
+        setStepError(t("errors.serverError"));
+        return;
+      }
+
       setPendingSignupEmail(payload.email);
+      setPendingSignupToken(signupToken);
       router.replace("/sign-up/verify");
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {

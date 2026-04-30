@@ -17,7 +17,11 @@ import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas"
 import { useSignIn } from "../hooks/useSignIn";
 import { getSafeRedirectPath } from "../lib/redirect";
 import { setPendingProfileSelection } from "../lib/profile-selection-session";
-import { setPendingSignupEmail } from "../lib/registration-session";
+import {
+  extractSignupToken,
+  setPendingSignupEmail,
+  setPendingSignupToken,
+} from "../lib/registration-session";
 import { isInvalidSignInError } from "../lib/sign-in-errors";
 
 export function SignInForm() {
@@ -42,7 +46,10 @@ export function SignInForm() {
       const nextPath = resolveAuthRedirect(res, data.email);
 
       if (isOnboardingRedirectPath(nextPath)) {
+        const signupToken = extractSignupToken(res);
+
         setPendingSignupEmail(data.email);
+        if (signupToken) setPendingSignupToken(signupToken);
         router.replace(nextPath);
         return;
       }
