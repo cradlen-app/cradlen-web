@@ -42,17 +42,24 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
   const router = useRouter();
   const [email] = useState<string | null>(() => getPendingSignupEmail());
   const [signupToken] = useState<string | null>(() => getPendingSignupToken());
-  const registrationStatus = useRegistrationStatus(email);
-  const nextPath = registrationStatus.data
+  const shouldCheckRegistrationStatus = !!email && !signupToken;
+  const registrationStatus = useRegistrationStatus(
+    shouldCheckRegistrationStatus ? email : null,
+  );
+  const nextPath = shouldCheckRegistrationStatus && registrationStatus.data
     ? getRegistrationStatusRedirectPath(registrationStatus.data.step, currentStep)
     : null;
-  const hasExpiredStatus = isExpiredRegistrationStatusError(registrationStatus.error);
+  const hasExpiredStatus =
+    shouldCheckRegistrationStatus &&
+    isExpiredRegistrationStatusError(registrationStatus.error);
 
   useEffect(() => {
     if (!email) {
       if (currentStep !== "NONE" && !signupToken) router.replace("/sign-up");
       return;
     }
+
+    if (!shouldCheckRegistrationStatus) return;
 
     if (hasExpiredStatus) {
       clearPendingSignupSession();
@@ -75,6 +82,7 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
     nextPath,
     registrationStatus.data,
     router,
+    shouldCheckRegistrationStatus,
     signupToken,
   ]);
 
@@ -82,6 +90,7 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
     email,
     isChecking:
       (!email && !signupToken && currentStep !== "NONE") ||
-      (!!email && (registrationStatus.isLoading || hasExpiredStatus || !!nextPath)),
+      (shouldCheckRegistrationStatus &&
+        (registrationStatus.isLoading || hasExpiredStatus || !!nextPath)),
   };
 }
