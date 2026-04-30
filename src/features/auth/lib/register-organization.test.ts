@@ -185,13 +185,17 @@ describe("buildSignupStartRequest", () => {
 describe("buildRegisterOrganizationRequest", () => {
   it("maps owner doctor to the signup complete payload", () => {
     expect(
-      buildRegisterOrganizationRequest({
-        ...baseStep3Data,
-        role: "owner_doctor",
-        specialty: "Pediatrics",
-        jobTitle: "Senior Physician",
-      }),
+      buildRegisterOrganizationRequest(
+        {
+          ...baseStep3Data,
+          role: "owner_doctor",
+          specialty: "Pediatrics",
+          jobTitle: "Senior Physician",
+        },
+        "signup-token",
+      ),
     ).toEqual({
+      signup_token: "signup-token",
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",
@@ -202,7 +206,10 @@ describe("buildRegisterOrganizationRequest", () => {
   });
 
   it("maps owner to a non-clinical signup complete payload", () => {
-    expect(buildRegisterOrganizationRequest(baseStep3Data)).toEqual({
+    expect(
+      buildRegisterOrganizationRequest(baseStep3Data, "signup-token"),
+    ).toEqual({
+      signup_token: "signup-token",
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",
@@ -212,13 +219,17 @@ describe("buildRegisterOrganizationRequest", () => {
 
   it("omits empty doctor optional fields", () => {
     expect(
-      buildRegisterOrganizationRequest({
-        ...baseStep3Data,
-        role: "owner_doctor",
-        specialty: " ",
-        jobTitle: "",
-      }),
+      buildRegisterOrganizationRequest(
+        {
+          ...baseStep3Data,
+          role: "owner_doctor",
+          specialty: " ",
+          jobTitle: "",
+        },
+        "signup-token",
+      ),
     ).toEqual({
+      signup_token: "signup-token",
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",

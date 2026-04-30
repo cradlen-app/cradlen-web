@@ -3,6 +3,7 @@ import { apiFetch } from "@/lib/api";
 import type {
   RegisterPersonalRequest,
   RegistrationStatusResponse,
+  RegistrationTokenResponse,
   VerifyEmailRequest,
   RegisterOrganizationRequest,
   ResendOtpRequest,
@@ -12,7 +13,7 @@ import type {
 export function useRegisterPersonal() {
   return useMutation({
     mutationFn: (data: RegisterPersonalRequest) =>
-      apiFetch<unknown>("/auth/signup/start", {
+      apiFetch<RegistrationTokenResponse>("/auth/signup/start", {
         method: "POST",
         body: JSON.stringify(data),
       }),
