@@ -185,63 +185,44 @@ describe("buildSignupStartRequest", () => {
 describe("buildRegisterOrganizationRequest", () => {
   it("maps owner doctor to the signup complete payload", () => {
     expect(
-      buildRegisterOrganizationRequest("test@example.com", {
+      buildRegisterOrganizationRequest({
         ...baseStep3Data,
         role: "owner_doctor",
         specialty: "Pediatrics",
         jobTitle: "Senior Physician",
       }),
     ).toEqual({
-      email: "test@example.com",
       account_name: "Test Clinic",
-      account_specialities: ["Cardiology", "Pediatrics"],
+      specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",
-      branch_address: "123 Main St",
-      branch_city: "Cairo",
-      branch_governorate: "Cairo",
-      branch_country: "Egypt",
       roles: ["OWNER", "DOCTOR"],
-      is_clinical: true,
       specialty: "Pediatrics",
       job_title: "Senior Physician",
     });
   });
 
   it("maps owner to a non-clinical signup complete payload", () => {
-    expect(buildRegisterOrganizationRequest("test@example.com", baseStep3Data))
-      .toEqual({
-        email: "test@example.com",
-        account_name: "Test Clinic",
-        account_specialities: ["Cardiology", "Pediatrics"],
-        branch_name: "Test Clinic",
-        branch_address: "123 Main St",
-        branch_city: "Cairo",
-        branch_governorate: "Cairo",
-        branch_country: "Egypt",
-        roles: ["OWNER"],
-        is_clinical: false,
-      });
+    expect(buildRegisterOrganizationRequest(baseStep3Data)).toEqual({
+      account_name: "Test Clinic",
+      specialties: ["Cardiology", "Pediatrics"],
+      branch_name: "Test Clinic",
+      roles: ["OWNER"],
+    });
   });
 
   it("omits empty doctor optional fields", () => {
     expect(
-      buildRegisterOrganizationRequest("test@example.com", {
+      buildRegisterOrganizationRequest({
         ...baseStep3Data,
         role: "owner_doctor",
         specialty: " ",
         jobTitle: "",
       }),
     ).toEqual({
-      email: "test@example.com",
       account_name: "Test Clinic",
-      account_specialities: ["Cardiology", "Pediatrics"],
+      specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",
-      branch_address: "123 Main St",
-      branch_city: "Cairo",
-      branch_governorate: "Cairo",
-      branch_country: "Egypt",
       roles: ["OWNER", "DOCTOR"],
-      is_clinical: true,
     });
   });
 });

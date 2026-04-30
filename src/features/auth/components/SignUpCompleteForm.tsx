@@ -72,7 +72,7 @@ export function SignUpCompleteForm() {
     setStepError(null);
     try {
       const res = await registerOrganization.mutateAsync(
-        buildRegisterOrganizationRequest(email, data),
+        buildRegisterOrganizationRequest(data),
       );
       const nextPath = resolveAuthRedirect(res, email);
 
