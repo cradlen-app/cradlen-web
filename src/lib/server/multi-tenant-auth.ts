@@ -10,7 +10,10 @@ import {
   sessionResponse,
   setSelectionTokenCookie,
 } from "./backend";
-import { getSignupTokenFromRequest } from "./signup-session";
+import {
+  getSignupTokenFromRequest,
+  persistSignupTokenFromBody,
+} from "./signup-session";
 
 function getObject(value: unknown) {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
@@ -75,6 +78,7 @@ export async function profileSelectionResponse(
   if (selectionToken) {
     setSelectionTokenCookie(frontendResponse, selectionToken);
   }
+  persistSignupTokenFromBody(frontendResponse, body);
 
   return frontendResponse;
 }
