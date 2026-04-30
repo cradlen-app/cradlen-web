@@ -16,8 +16,10 @@ import {
 } from "../hooks/useSignUp";
 import {
   clearPendingSignupSession,
+  extractSignupToken,
   getPendingSignupEmail,
   getPendingSignupToken,
+  setPendingSignupToken,
 } from "../lib/registration-session";
 import type { Step2Data } from "../types/sign-up.types";
 
@@ -149,8 +151,12 @@ function SignUpVerifyFormContent({
         code: data.verificationCode,
       });
       router.replace("/sign-up/complete");
-    } catch {
-      setStepError(t("errors.invalidCode"));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setStepError(t("errors.sessionExpired"));
+      } else {
+        setStepError(t("errors.invalidCode"));
+      }
     }
   });
 
@@ -162,7 +168,11 @@ function SignUpVerifyFormContent({
     resendOtp.mutate(
       { email },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          const newToken = extractSignupToken(data);
+          if (newToken) {
+            setPendingSignupToken(newToken);
+          }
           setResendMessage(t("errors.resendSuccess"));
           setResendCooldown(60);
         },
