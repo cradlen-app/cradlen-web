@@ -9,6 +9,14 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const body = (await request.json()) as Record<string, unknown>;
   const signupToken = await getSignupTokenFromRequest(body);
+
+  if (!signupToken) {
+    return NextResponse.json(
+      { message: "Session expired. Please request a new code." },
+      { status: 401 },
+    );
+  }
+
   const payload = {
     signup_token: signupToken,
     code: body.code,
