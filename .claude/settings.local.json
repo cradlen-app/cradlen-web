@@ -30,7 +30,9 @@
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('/f/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); console.log\\('en.json valid'\\)\")",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/en.json','utf8'\\)\\); console.log\\('en.json valid'\\)\")",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/ar.json','utf8'\\)\\); console.log\\('ar.json valid'\\)\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(xargs find *)",
+      "Bash(xargs grep *)"
     ]
   }
 }
