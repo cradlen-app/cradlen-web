@@ -52,7 +52,6 @@ export function SignUpVerifyForm() {
     setResendMessage(null);
     try {
       await verifyEmail.mutateAsync({
-        email,
         code: data.verificationCode,
       });
       router.replace("/sign-up/complete");

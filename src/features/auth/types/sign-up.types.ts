@@ -43,21 +43,14 @@ export type RegisterPersonalRequest = {
 };
 
 export type VerifyEmailRequest = {
-  email: string;
   code: string;
 };
 
 export type RegisterOrganizationRequest = {
-  email: string;
   account_name: string;
-  account_specialities?: string[];
+  specialties: string[];
   branch_name: string;
-  branch_address: string;
-  branch_city: string;
-  branch_governorate: string;
-  branch_country?: string;
   roles: ("OWNER" | "DOCTOR")[];
-  is_clinical: boolean;
   specialty?: string;
   job_title?: string;
 };
