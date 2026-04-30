@@ -11,10 +11,7 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { StepIndicator } from "./StepIndicator";
 import { step2Schema } from "../lib/sign-up.schemas";
 import { useResendOtp, useVerifyEmail } from "../hooks/useSignUp";
-import {
-  getPendingSignupToken,
-  getSignupTokenOrRedirect,
-} from "../lib/registration-session";
+import { getPendingSignupToken } from "../lib/registration-session";
 import type { Step2Data } from "../types/sign-up.types";
 
 export function SignUpVerifyForm() {
@@ -23,7 +20,7 @@ export function SignUpVerifyForm() {
   const { email, isChecking } = useAuthRedirect({
     currentStep: "VERIFY_OTP",
   });
-  const [signupToken] = useState<string | null>(() => getPendingSignupToken());
+  const [signupToken, setSignupToken] = useState<string | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -39,10 +36,24 @@ export function SignUpVerifyForm() {
   }, [resendCooldown]);
 
   useEffect(() => {
-    if (!signupToken) {
-      getSignupTokenOrRedirect(router);
+    let isActive = true;
+    const token = getPendingSignupToken();
+
+    if (!token) {
+      router.replace("/sign-up");
+      return () => {
+        isActive = false;
+      };
     }
-  }, [router, signupToken]);
+
+    queueMicrotask(() => {
+      if (isActive) setSignupToken(token);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [router]);
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -58,7 +69,6 @@ export function SignUpVerifyForm() {
 
   const handleSubmit = form.handleSubmit(async (data) => {
     if (!signupToken) {
-      getSignupTokenOrRedirect(router);
       return;
     }
 
