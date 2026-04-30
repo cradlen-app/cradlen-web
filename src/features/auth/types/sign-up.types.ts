@@ -43,7 +43,7 @@ export type RegisterPersonalRequest = {
 };
 
 export type VerifyEmailRequest = {
-  signup_token: string;
+  signup_token?: string;
   code: string;
 };
 
