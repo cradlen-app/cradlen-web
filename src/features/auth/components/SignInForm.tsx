@@ -17,16 +17,13 @@ import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas"
 import { useSignIn } from "../hooks/useSignIn";
 import { getSafeRedirectPath } from "../lib/redirect";
 import { setPendingProfileSelection } from "../lib/profile-selection-session";
-import {
-  extractSignupToken,
-  setPendingSignupEmail,
-  setPendingSignupToken,
-} from "../lib/registration-session";
+import { setPendingSignupEmail } from "../lib/registration-session";
 import { isInvalidSignInError } from "../lib/sign-in-errors";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
   const [showPassword, setShowPassword] = useState(false);
+  const [fallbackError, setFallbackError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { mutateAsync, isError, error } = useSignIn();
@@ -41,15 +38,14 @@ export function SignInForm() {
   });
 
   const onSubmit = async (data: SignInFormData) => {
+    setFallbackError(null);
+
     try {
       const res = await mutateAsync(data);
       const nextPath = resolveAuthRedirect(res, data.email);
 
       if (isOnboardingRedirectPath(nextPath)) {
-        const signupToken = extractSignupToken(res);
-
         setPendingSignupEmail(data.email);
-        if (signupToken) setPendingSignupToken(signupToken);
         router.replace(nextPath);
         return;
       }
@@ -61,18 +57,22 @@ export function SignInForm() {
         router.replace(
           `/select-profile?redirectTo=${encodeURIComponent(redirectTo)}`,
         );
+        return;
       }
+
+      setFallbackError(t("errors.noProfiles"));
     } catch {
       // error state handled via mutation.isError
     }
   };
 
   const apiErrorMessage =
-    isError && isInvalidSignInError(error)
+    fallbackError ??
+    (isError && isInvalidSignInError(error)
       ? t("errors.invalidCredentials")
       : isError
         ? t("errors.serverError")
-        : null;
+        : null);
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",

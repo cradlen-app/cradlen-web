@@ -74,6 +74,26 @@ async function parseResponseBody(res: Response) {
   }
 }
 
+function extractApiErrorMessage(body: unknown, fallback: string) {
+  if (!body || typeof body !== "object") return fallback;
+
+  const root = body as {
+    message?: unknown;
+    error?: { message?: unknown } | unknown;
+  };
+  const nestedError =
+    root.error && typeof root.error === "object"
+      ? (root.error as { message?: unknown })
+      : null;
+  const message = root.message ?? nestedError?.message;
+
+  if (Array.isArray(message) && message.every((item) => typeof item === "string")) {
+    return message;
+  }
+
+  return typeof message === "string" ? message : fallback;
+}
+
 export async function apiFetch<T>(
   path: string,
   options?: RequestInit,
@@ -88,12 +108,11 @@ export async function apiFetch<T>(
   const body = await parseResponseBody(res);
 
   if (!res.ok) {
-    const message =
-      body && typeof body === "object" && "message" in body
-        ? ((body as { message: string | string[] }).message)
-        : res.statusText;
-
-    throw new ApiError(res.status, message, body);
+    throw new ApiError(
+      res.status,
+      extractApiErrorMessage(body, res.statusText),
+      body,
+    );
   }
 
   return body as T;
