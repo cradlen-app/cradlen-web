@@ -17,10 +17,11 @@ export type Step2Data = {
 export type Step3Data = {
   accountName: string;
   specialties: string;
+  branchName: string;
   city: string;
   address: string;
   governorate: string;
-  country: string;
+  country?: string;
   role: "owner" | "owner_doctor";
   specialty?: string;
   jobTitle?: string;
@@ -43,15 +44,17 @@ export type RegisterPersonalRequest = {
 };
 
 export type VerifyEmailRequest = {
-  signup_token?: string;
   code: string;
 };
 
 export type RegisterOrganizationRequest = {
-  signup_token: string;
   account_name: string;
   specialties: string[];
   branch_name: string;
+  branch_address: string;
+  branch_city: string;
+  branch_governorate: string;
+  branch_country?: string;
   roles: ("OWNER" | "DOCTOR")[];
   specialty?: string;
   job_title?: string;

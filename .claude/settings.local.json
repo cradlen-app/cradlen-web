@@ -21,7 +21,16 @@
       "Bash(xargs wc *)",
       "Skill(code-review:code-review)",
       "Skill(code-review:code-review:*)",
-      "Bash(node -e \"const m=require\\('./src/messages/en.json'\\); console.log\\(JSON.stringify\\(m?.auth?.signUp?.errors, null, 2\\)\\)\")"
+      "Bash(node -e \"const m=require\\('./src/messages/en.json'\\); console.log\\(JSON.stringify\\(m?.auth?.signUp?.errors, null, 2\\)\\)\")",
+      "Bash(git commit *)",
+      "Bash(git show *)",
+      "Read(//tmp/**)",
+      "Bash(npx vitest *)",
+      "Bash(npx eslint *)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('/f/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); console.log\\('en.json valid'\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/en.json','utf8'\\)\\); console.log\\('en.json valid'\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/ar.json','utf8'\\)\\); console.log\\('ar.json valid'\\)\")",
+      "Bash(node -e ' *)"
     ]
   }
 }

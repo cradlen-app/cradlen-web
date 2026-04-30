@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
+import { ApiError } from "@/lib/api";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import {
   getProfilesFromAuthResponse,
@@ -15,29 +16,25 @@ import {
 import { DoctorFields } from "./DoctorFields";
 import { RoleSelector } from "./RoleSelector";
 import { StepIndicator } from "./StepIndicator";
-import { step3Schema } from "../lib/sign-up.schemas";
+import { makeStep3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
-import {
-  clearPendingSignupSession,
-  getPendingSignupToken,
-  getSignupTokenOrRedirect,
-} from "../lib/registration-session";
+import { clearPendingSignupSession } from "../lib/registration-session";
 import { setPendingProfileSelection } from "../lib/profile-selection-session";
 import { useRegisterOrganization } from "../hooks/useSignUp";
 import type { Step3Data } from "../types/sign-up.types";
 
 export function SignUpCompleteForm() {
   const t = useTranslations("auth.signUp");
+  const schema = useMemo(() => makeStep3Schema(t), [t]);
   const router = useRouter();
   const { email, isChecking } = useAuthRedirect({
     currentStep: "COMPLETE_ONBOARDING",
   });
-  const [signupToken] = useState<string | null>(() => getPendingSignupToken());
   const [stepError, setStepError] = useState<string | null>(null);
   const registerOrganization = useRegisterOrganization();
 
   const form = useForm<Step3Data>({
-    resolver: zodResolver(step3Schema),
+    resolver: zodResolver(schema),
     mode: "onChange",
     defaultValues: {
       accountName: "",
@@ -46,6 +43,7 @@ export function SignUpCompleteForm() {
       address: "",
       governorate: "",
       country: "",
+      branchName: "",
       role: "owner",
       specialty: "",
       jobTitle: "",
@@ -55,12 +53,6 @@ export function SignUpCompleteForm() {
     control: form.control,
     name: "role",
   });
-
-  useEffect(() => {
-    if (!signupToken) {
-      getSignupTokenOrRedirect(router);
-    }
-  }, [router, signupToken]);
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -75,15 +67,10 @@ export function SignUpCompleteForm() {
     msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    if (!signupToken) {
-      getSignupTokenOrRedirect(router);
-      return;
-    }
-
     setStepError(null);
     try {
       const res = await registerOrganization.mutateAsync(
-        buildRegisterOrganizationRequest(data, signupToken),
+        buildRegisterOrganizationRequest(data),
       );
       const nextPath = resolveAuthRedirect(res, email ?? undefined);
 
@@ -97,18 +84,25 @@ export function SignUpCompleteForm() {
       }
 
       if (isOnboardingRedirectPath(nextPath)) {
+        clearPendingSignupSession();
         router.replace(nextPath);
         return;
       }
 
       clearPendingSignupSession();
       router.replace("/sign-in");
-    } catch {
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearPendingSignupSession();
+        setStepError(t("errors.sessionExpired"));
+        return;
+      }
+
       setStepError(t("errors.serverError"));
     }
   });
 
-  if (!signupToken || isChecking) {
+  if (isChecking) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={3} />
@@ -160,6 +154,23 @@ export function SignUpCompleteForm() {
           <h3 className="border-b border-gray-100 pb-2 text-sm font-medium text-brand-black">
             {t("mainBranchHeading")}
           </h3>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="branchName" className="text-sm text-brand-black">
+              {t("branchNameLabel")}
+            </label>
+            <input
+              id="branchName"
+              type="text"
+              placeholder={t("branchNamePlaceholder")}
+              {...form.register("branchName")}
+              className={cn(
+                inputClass,
+                errorInputClass(!!form.formState.errors.branchName),
+              )}
+            />
+            {fieldError(form.formState.errors.branchName?.message)}
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="country" className="text-sm text-brand-black">

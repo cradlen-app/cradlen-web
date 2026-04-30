@@ -9,6 +9,7 @@ const mockRouter = vi.hoisted(() => ({
 }));
 const mockVerifyEmail = vi.hoisted(() => vi.fn());
 const mockResendOtp = vi.hoisted(() => vi.fn());
+const mockUseRegistrationStatus = vi.hoisted(() => vi.fn());
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => mockRouter,
@@ -23,6 +24,7 @@ vi.mock("../hooks/useSignUp", () => ({
     isPending: false,
     mutate: mockResendOtp,
   }),
+  useRegistrationStatus: (email: string | null) => mockUseRegistrationStatus(email),
 }));
 
 describe("SignUpVerifyForm", () => {
@@ -43,9 +45,15 @@ describe("SignUpVerifyForm", () => {
     mockVerifyEmail.mockReset();
     mockVerifyEmail.mockResolvedValue({});
     mockResendOtp.mockReset();
+    mockUseRegistrationStatus.mockReset();
+    mockUseRegistrationStatus.mockReturnValue({
+      data: undefined,
+      error: null,
+      isLoading: false,
+    });
   });
 
-  it("redirects without mounting the form when the signup token is missing", async () => {
+  it("redirects without mounting the form when pending email is missing", async () => {
     renderWithIntl(<SignUpVerifyForm />);
 
     await waitFor(() => {
@@ -54,9 +62,13 @@ describe("SignUpVerifyForm", () => {
     expect(screen.queryByLabelText("Verification code")).not.toBeInTheDocument();
   });
 
-  it("renders the verification input with id and name when the signup token exists", async () => {
-    window.localStorage.setItem("cradlen-signup-token", "signup-token");
+  it("renders the verification input with id and name when status allows verification", async () => {
     window.localStorage.setItem("cradlen-signup-email", "person@example.com");
+    mockUseRegistrationStatus.mockReturnValue({
+      data: { step: "VERIFY_OTP" },
+      error: null,
+      isLoading: false,
+    });
 
     renderWithIntl(<SignUpVerifyForm />);
 
@@ -67,8 +79,13 @@ describe("SignUpVerifyForm", () => {
     expect(screen.getByText(/person@example.com/)).toBeInTheDocument();
   });
 
-  it("submits the verification code with the signup token", async () => {
-    window.localStorage.setItem("cradlen-signup-token", "signup-token");
+  it("submits only the verification code", async () => {
+    window.localStorage.setItem("cradlen-signup-email", "person@example.com");
+    mockUseRegistrationStatus.mockReturnValue({
+      data: { step: "VERIFY_OTP" },
+      error: null,
+      isLoading: false,
+    });
 
     renderWithIntl(<SignUpVerifyForm />);
 
@@ -79,7 +96,6 @@ describe("SignUpVerifyForm", () => {
     await waitFor(() => {
       expect(mockVerifyEmail).toHaveBeenCalledWith({
         code: "123456",
-        signup_token: "signup-token",
       });
     });
   });
