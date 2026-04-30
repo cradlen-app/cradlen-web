@@ -16,6 +16,7 @@ const baseStep1Data: Step1Data = {
 const baseStep3Data: Step3Data = {
   accountName: "Test Clinic",
   specialties: "Cardiology, Pediatrics",
+  branchName: "Main Branch",
   city: "Cairo",
   address: "123 Main St",
   governorate: "Cairo",
@@ -110,7 +111,7 @@ describe("step1Schema", () => {
 });
 
 describe("step3Schema", () => {
-  it("accepts required account setup fields", () => {
+  it("accepts a fully populated step 3 payload", () => {
     expect(step3Schema.safeParse(baseStep3Data).success).toBe(true);
   });
 
@@ -128,6 +129,39 @@ describe("step3Schema", () => {
         ]),
       );
     }
+  });
+
+  it("requires branchName", () => {
+    const result = step3Schema.safeParse({ ...baseStep3Data, branchName: "" });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ path: ["branchName"] }),
+        ]),
+      );
+    }
+  });
+
+  it("requires city, address, and governorate", () => {
+    for (const field of ["city", "address", "governorate"] as const) {
+      const result = step3Schema.safeParse({ ...baseStep3Data, [field]: "" });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ path: [field] }),
+          ]),
+        );
+      }
+    }
+  });
+
+  it("allows country to be omitted", () => {
+    const { country: _, ...withoutCountry } = baseStep3Data;
+    expect(step3Schema.safeParse(withoutCountry).success).toBe(true);
   });
 });
 
@@ -192,10 +226,8 @@ describe("buildRegisterOrganizationRequest", () => {
           specialty: "Pediatrics",
           jobTitle: "Senior Physician",
         },
-        "signup-token",
       ),
     ).toEqual({
-      signup_token: "signup-token",
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",
@@ -206,10 +238,7 @@ describe("buildRegisterOrganizationRequest", () => {
   });
 
   it("maps owner to a non-clinical signup complete payload", () => {
-    expect(
-      buildRegisterOrganizationRequest(baseStep3Data, "signup-token"),
-    ).toEqual({
-      signup_token: "signup-token",
+    expect(buildRegisterOrganizationRequest(baseStep3Data)).toEqual({
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",
@@ -226,10 +255,8 @@ describe("buildRegisterOrganizationRequest", () => {
           specialty: " ",
           jobTitle: "",
         },
-        "signup-token",
       ),
     ).toEqual({
-      signup_token: "signup-token",
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Test Clinic",
