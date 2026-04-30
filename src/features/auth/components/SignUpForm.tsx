@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -11,15 +11,25 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { PasswordInput } from "./PasswordInput";
 import { PhoneInput } from "./PhoneInput";
 import { StepIndicator } from "./StepIndicator";
-import { step1Schema } from "../lib/sign-up.schemas";
+import { makeStep1Schema } from "../lib/sign-up.schemas";
 import {
-  extractSignupToken,
   setPendingSignupEmail,
-  setPendingSignupToken,
 } from "../lib/registration-session";
 import { buildSignupStartRequest } from "../lib/signup-start";
 import { useRegisterPersonal } from "../hooks/useSignUp";
 import type { Step1Data } from "../types/sign-up.types";
+
+function getConflictFields(err: unknown): string[] {
+  if (!(err instanceof ApiError)) return [];
+  const error = (err.body as Record<string, unknown>)?.error;
+  if (!error || typeof error !== "object") return [];
+  const details = (error as Record<string, unknown>).details;
+  if (!details || typeof details !== "object") return [];
+  const fields = (details as Record<string, unknown>).fields;
+  return Array.isArray(fields)
+    ? fields.filter((f): f is string => typeof f === "string")
+    : [];
+}
 
 export function SignUpForm() {
   const t = useTranslations("auth.signUp");
@@ -29,9 +39,10 @@ export function SignUpForm() {
   });
   const [stepError, setStepError] = useState<string | null>(null);
   const registerPersonal = useRegisterPersonal();
+  const schema = useMemo(() => makeStep1Schema(t), [t]);
 
   const form = useForm<Step1Data>({
-    resolver: zodResolver(step1Schema),
+    resolver: zodResolver(schema),
     mode: "onChange",
     defaultValues: {
       firstName: "",
@@ -60,20 +71,17 @@ export function SignUpForm() {
     const payload = buildSignupStartRequest(data);
 
     try {
-      const response = await registerPersonal.mutateAsync(payload);
-      const signupToken = extractSignupToken(response);
-
-      if (!signupToken) {
-        setStepError(t("errors.serverError"));
-        return;
-      }
-
+      await registerPersonal.mutateAsync(payload);
       setPendingSignupEmail(payload.email);
-      setPendingSignupToken(signupToken);
       router.replace("/sign-up/verify");
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        setStepError(t("errors.emailAlreadyRegistered"));
+        const fields = getConflictFields(err);
+        if (fields.includes("phone_number")) {
+          setStepError(t("errors.phoneTaken"));
+        } else {
+          setStepError(t("errors.emailAlreadyRegistered"));
+        }
       } else {
         setStepError(t("errors.serverError"));
       }
