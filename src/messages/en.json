@@ -426,6 +426,7 @@
         "emailTaken": "An account with this email already exists.",
         "emailAlreadyRegistered": "This email is already registered. Please sign in instead.",
         "invalidCode": "Invalid or expired verification code.",
+        "sessionExpired": "Your session has expired. Please request a new code.",
         "tryAgainLater": "Try again later.",
         "resendSuccess": "A new code has been sent to your email."
       },
