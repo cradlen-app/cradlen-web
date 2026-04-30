@@ -43,10 +43,12 @@ export type RegisterPersonalRequest = {
 };
 
 export type VerifyEmailRequest = {
+  signup_token: string;
   code: string;
 };
 
 export type RegisterOrganizationRequest = {
+  signup_token: string;
   account_name: string;
   specialties: string[];
   branch_name: string;

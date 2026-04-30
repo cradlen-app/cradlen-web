@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -18,8 +18,9 @@ import { StepIndicator } from "./StepIndicator";
 import { step3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
 import {
-  clearPendingSignupEmail,
-  setPendingSignupEmail,
+  clearPendingSignupSession,
+  getPendingSignupToken,
+  getSignupTokenOrRedirect,
 } from "../lib/registration-session";
 import { setPendingProfileSelection } from "../lib/profile-selection-session";
 import { useRegisterOrganization } from "../hooks/useSignUp";
@@ -31,6 +32,7 @@ export function SignUpCompleteForm() {
   const { email, isChecking } = useAuthRedirect({
     currentStep: "COMPLETE_ONBOARDING",
   });
+  const [signupToken] = useState<string | null>(() => getPendingSignupToken());
   const [stepError, setStepError] = useState<string | null>(null);
   const registerOrganization = useRegisterOrganization();
 
@@ -54,6 +56,12 @@ export function SignUpCompleteForm() {
     name: "role",
   });
 
+  useEffect(() => {
+    if (!signupToken) {
+      getSignupTokenOrRedirect(router);
+    }
+  }, [router, signupToken]);
+
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
     "placeholder:text-gray-400 outline-none transition-colors",
@@ -67,17 +75,20 @@ export function SignUpCompleteForm() {
     msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    if (!email) return;
+    if (!signupToken) {
+      getSignupTokenOrRedirect(router);
+      return;
+    }
 
     setStepError(null);
     try {
       const res = await registerOrganization.mutateAsync(
-        buildRegisterOrganizationRequest(data),
+        buildRegisterOrganizationRequest(data, signupToken),
       );
-      const nextPath = resolveAuthRedirect(res, email);
+      const nextPath = resolveAuthRedirect(res, email ?? undefined);
 
       if (nextPath === "/select-profile") {
-        clearPendingSignupEmail();
+        clearPendingSignupSession();
         setPendingProfileSelection({
           profiles: getProfilesFromAuthResponse(res),
         });
@@ -86,19 +97,18 @@ export function SignUpCompleteForm() {
       }
 
       if (isOnboardingRedirectPath(nextPath)) {
-        setPendingSignupEmail(email);
         router.replace(nextPath);
         return;
       }
 
-      clearPendingSignupEmail();
+      clearPendingSignupSession();
       router.replace("/sign-in");
     } catch {
       setStepError(t("errors.serverError"));
     }
   });
 
-  if (!email || isChecking) {
+  if (!signupToken || isChecking) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={3} />
