@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -16,50 +16,36 @@ import {
 } from "../lib/registration-session";
 import type { Step2Data } from "../types/sign-up.types";
 
-type SignupVerifySession = {
-  email: string | null;
-  isReady: boolean;
-  signupToken: string | null;
-};
-
 type SignUpVerifyFormContentProps = {
   email: string | null;
   signupToken: string;
 };
 
+const emptySubscribe = () => () => {};
+const nullSnapshot = () => null;
+
 export function SignUpVerifyForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
-  const [session, setSession] = useState<SignupVerifySession>({
-    email: null,
-    isReady: false,
-    signupToken: null,
-  });
+
+  const signupToken = useSyncExternalStore(
+    emptySubscribe,
+    getPendingSignupToken,
+    nullSnapshot,
+  );
+  const email = useSyncExternalStore(
+    emptySubscribe,
+    getPendingSignupEmail,
+    nullSnapshot,
+  );
 
   useEffect(() => {
-    let isActive = true;
-    const token = getPendingSignupToken();
-    const email = getPendingSignupEmail();
-
-    if (!token) {
+    if (!signupToken) {
       router.replace("/sign-up");
-      return () => {
-        isActive = false;
-      };
     }
+  }, [signupToken, router]);
 
-    queueMicrotask(() => {
-      if (isActive) {
-        setSession({ email, isReady: true, signupToken: token });
-      }
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, [router]);
-
-  if (!session.isReady || !session.signupToken) {
+  if (!signupToken) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={2} />
@@ -68,12 +54,7 @@ export function SignUpVerifyForm() {
     );
   }
 
-  return (
-    <SignUpVerifyFormContent
-      email={session.email}
-      signupToken={session.signupToken}
-    />
-  );
+  return <SignUpVerifyFormContent email={email} signupToken={signupToken} />;
 }
 
 function SignUpVerifyFormContent({
