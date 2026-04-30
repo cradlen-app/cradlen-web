@@ -16,7 +16,7 @@ export function extractSignupToken(body: unknown) {
   const root = getObject(body);
   const data = getObject(root?.data);
   const source = data ?? root;
-  const token = source?.signup_token;
+  const token = source?.signup_token ?? source?.registration_token;
 
   return typeof token === "string" ? token : null;
 }
@@ -37,12 +37,14 @@ export function sanitizeSignupTokenResponse(body: unknown) {
   if (data) {
     const safeData = { ...data };
     delete safeData.signup_token;
+    delete safeData.registration_token;
     return { ...root, data: safeData };
   }
 
   if (root) {
     const safeRoot = { ...root };
     delete safeRoot.signup_token;
+    delete safeRoot.registration_token;
     return safeRoot;
   }
 
@@ -52,7 +54,7 @@ export function sanitizeSignupTokenResponse(body: unknown) {
 export async function getSignupTokenFromRequest(body?: Record<string, unknown>) {
   const cookieStore = await cookies();
   const cookieToken = cookieStore.get(SIGNUP_TOKEN_COOKIE)?.value;
-  const bodyToken = body?.signup_token;
+  const bodyToken = body?.signup_token ?? body?.registration_token;
 
   return cookieToken ?? (typeof bodyToken === "string" ? bodyToken : null);
 }
