@@ -97,7 +97,6 @@ export function Navbar() {
     if (!nextProfile || !accountId) return;
 
     const response = await selectProfile.mutateAsync({
-      account_id: accountId,
       branch_id: branch?.id ?? null,
       profile_id: profileId,
     });
