@@ -7,20 +7,81 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { StepIndicator } from "./StepIndicator";
 import { step2Schema } from "../lib/sign-up.schemas";
 import { useResendOtp, useVerifyEmail } from "../hooks/useSignUp";
-import { getPendingSignupToken } from "../lib/registration-session";
+import {
+  getPendingSignupEmail,
+  getPendingSignupToken,
+} from "../lib/registration-session";
 import type { Step2Data } from "../types/sign-up.types";
+
+type SignupVerifySession = {
+  email: string | null;
+  isReady: boolean;
+  signupToken: string | null;
+};
+
+type SignUpVerifyFormContentProps = {
+  email: string | null;
+  signupToken: string;
+};
 
 export function SignUpVerifyForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
-  const { email, isChecking } = useAuthRedirect({
-    currentStep: "VERIFY_OTP",
+  const [session, setSession] = useState<SignupVerifySession>({
+    email: null,
+    isReady: false,
+    signupToken: null,
   });
-  const [signupToken, setSignupToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isActive = true;
+    const token = getPendingSignupToken();
+    const email = getPendingSignupEmail();
+
+    if (!token) {
+      router.replace("/sign-up");
+      return () => {
+        isActive = false;
+      };
+    }
+
+    queueMicrotask(() => {
+      if (isActive) {
+        setSession({ email, isReady: true, signupToken: token });
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [router]);
+
+  if (!session.isReady || !session.signupToken) {
+    return (
+      <div className="w-full flex flex-col gap-7">
+        <StepIndicator currentStep={2} />
+        <p className="text-center text-sm text-gray-500">{t("loading")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <SignUpVerifyFormContent
+      email={session.email}
+      signupToken={session.signupToken}
+    />
+  );
+}
+
+function SignUpVerifyFormContent({
+  email,
+  signupToken,
+}: SignUpVerifyFormContentProps) {
+  const t = useTranslations("auth.signUp");
+  const router = useRouter();
   const [stepError, setStepError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -35,26 +96,6 @@ export function SignUpVerifyForm() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
-  useEffect(() => {
-    let isActive = true;
-    const token = getPendingSignupToken();
-
-    if (!token) {
-      router.replace("/sign-up");
-      return () => {
-        isActive = false;
-      };
-    }
-
-    queueMicrotask(() => {
-      if (isActive) setSignupToken(token);
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, [router]);
-
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
     "placeholder:text-gray-400 outline-none transition-colors",
@@ -68,10 +109,6 @@ export function SignUpVerifyForm() {
     msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    if (!signupToken) {
-      return;
-    }
-
     setStepError(null);
     setResendMessage(null);
     try {
@@ -107,15 +144,6 @@ export function SignUpVerifyForm() {
       },
     );
   };
-
-  if (!signupToken || isChecking) {
-    return (
-      <div className="w-full flex flex-col gap-7">
-        <StepIndicator currentStep={2} />
-        <p className="text-center text-sm text-gray-500">{t("loading")}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full flex flex-col gap-7">
