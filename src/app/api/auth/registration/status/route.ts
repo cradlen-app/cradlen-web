@@ -1,4 +1,6 @@
 import { backendFetch, readBackendJson } from "@/lib/server/backend";
+import { SIGNUP_TOKEN_COOKIE } from "@/features/auth/lib/auth.constants";
+import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 const VALID_STEPS = new Set([
@@ -20,9 +22,16 @@ function extractStep(body: unknown) {
 
 export async function GET(request: NextRequest) {
   const email = request.nextUrl.searchParams.get("email") ?? "";
+  const cookieStore = await cookies();
+  const signupToken = cookieStore.get(SIGNUP_TOKEN_COOKIE)?.value;
   const response = await backendFetch(
     `/auth/registration/status?email=${encodeURIComponent(email)}`,
-    { method: "GET" },
+    {
+      method: "GET",
+      headers: signupToken
+        ? { Authorization: `Bearer ${signupToken}` }
+        : undefined,
+    },
   );
   const body = await readBackendJson(response);
 

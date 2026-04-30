@@ -42,4 +42,21 @@ describe("apiFetch", () => {
       messages: ["Invalid email or password"],
     });
   });
+
+  it("preserves API error body messages in ApiError", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({ error: { message: ["Email is already registered"] } }),
+        {
+          status: 409,
+          statusText: "Conflict",
+        },
+      ),
+    );
+
+    await expect(apiFetch("/auth/signup/start")).rejects.toMatchObject({
+      status: 409,
+      messages: ["Email is already registered"],
+    });
+  });
 });
