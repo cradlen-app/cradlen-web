@@ -7,6 +7,8 @@ import {
   AUTH_SELECTION_TOKEN_MAX_AGE,
   AUTH_TOKEN_COOKIE,
   DEFAULT_AUTH_EXPIRES_IN,
+  SIGNUP_TOKEN_COOKIE,
+  SIGNUP_TOKEN_MAX_AGE,
 } from "@/features/auth/lib/auth.constants";
 import type {
   AuthTokens,
@@ -117,8 +119,26 @@ export function setSelectionTokenCookie(response: NextResponse, token: string) {
   });
 }
 
+export function setSignupTokenCookie(
+  response: NextResponse,
+  token: string,
+  maxAge = SIGNUP_TOKEN_MAX_AGE,
+) {
+  response.cookies.set(SIGNUP_TOKEN_COOKIE, token, {
+    ...AUTH_COOKIE_OPTIONS,
+    maxAge: Math.max(0, maxAge),
+  });
+}
+
 export function clearSelectionTokenCookie(response: NextResponse) {
   response.cookies.set(AUTH_SELECTION_TOKEN_COOKIE, "", {
+    ...AUTH_COOKIE_OPTIONS,
+    maxAge: 0,
+  });
+}
+
+export function clearSignupTokenCookie(response: NextResponse) {
+  response.cookies.set(SIGNUP_TOKEN_COOKIE, "", {
     ...AUTH_COOKIE_OPTIONS,
     maxAge: 0,
   });
@@ -134,6 +154,7 @@ export function clearAuthCookies(response: NextResponse) {
     maxAge: 0,
   });
   clearSelectionTokenCookie(response);
+  clearSignupTokenCookie(response);
 }
 
 export function sessionResponse(

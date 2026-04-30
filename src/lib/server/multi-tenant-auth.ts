@@ -3,12 +3,14 @@ import { NextResponse } from "next/server";
 import { AUTH_SELECTION_TOKEN_COOKIE, AUTH_TOKEN_COOKIE } from "@/features/auth/lib/auth.constants";
 import {
   backendFetch,
+  clearSignupTokenCookie,
   clearSelectionTokenCookie,
   extractTokens,
   readBackendJson,
   sessionResponse,
   setSelectionTokenCookie,
 } from "./backend";
+import { getSignupTokenFromRequest } from "./signup-session";
 
 function getObject(value: unknown) {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
@@ -73,6 +75,41 @@ export async function profileSelectionResponse(
   if (selectionToken) {
     setSelectionTokenCookie(frontendResponse, selectionToken);
   }
+
+  return frontendResponse;
+}
+
+export async function signupCompleteResponse(request: Request) {
+  const body = (await request.json()) as Record<string, unknown>;
+  const signupToken = await getSignupTokenFromRequest(body);
+  const bodyWithoutToken = { ...body };
+  delete bodyWithoutToken.signup_token;
+  const payload = {
+    ...bodyWithoutToken,
+    signup_token: signupToken,
+  };
+  const response = await backendFetch("/auth/signup/complete", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  const responseBody = await readBackendJson(response);
+
+  if (!response.ok) {
+    return NextResponse.json(responseBody ?? { message: response.statusText }, {
+      status: response.status,
+    });
+  }
+
+  const selectionToken = extractSelectionToken(responseBody);
+  const frontendResponse = NextResponse.json(
+    sanitizeProfileSelection(responseBody),
+    { status: response.status },
+  );
+
+  if (selectionToken) {
+    setSelectionTokenCookie(frontendResponse, selectionToken);
+  }
+  clearSignupTokenCookie(frontendResponse);
 
   return frontendResponse;
 }
