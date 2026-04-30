@@ -5,7 +5,6 @@ import type {
 
 export function buildRegisterOrganizationRequest(
   data: Step3Data,
-  signupToken: string,
 ): RegisterOrganizationRequest {
   const accountSpecialities = data.specialties
     .split(",")
@@ -16,13 +15,16 @@ export function buildRegisterOrganizationRequest(
   const jobTitle = data.jobTitle?.trim();
 
   const payload: RegisterOrganizationRequest = {
-    signup_token: signupToken,
     account_name: data.accountName,
     specialties: accountSpecialities,
-    branch_name: data.accountName,
+    branch_name: data.branchName,
+    branch_address: data.address,
+    branch_city: data.city,
+    branch_governorate: data.governorate,
     roles: isClinical ? ["OWNER", "DOCTOR"] : ["OWNER"],
   };
 
+  if (data.country) payload.branch_country = data.country;
   if (isClinical && specialty) payload.specialty = specialty;
   if (isClinical && jobTitle) payload.job_title = jobTitle;
 

@@ -219,18 +219,20 @@ describe("buildSignupStartRequest", () => {
 describe("buildRegisterOrganizationRequest", () => {
   it("maps owner doctor to the signup complete payload", () => {
     expect(
-      buildRegisterOrganizationRequest(
-        {
-          ...baseStep3Data,
-          role: "owner_doctor",
-          specialty: "Pediatrics",
-          jobTitle: "Senior Physician",
-        },
-      ),
+      buildRegisterOrganizationRequest({
+        ...baseStep3Data,
+        role: "owner_doctor",
+        specialty: "Pediatrics",
+        jobTitle: "Senior Physician",
+      }),
     ).toEqual({
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
-      branch_name: "Test Clinic",
+      branch_name: "Main Branch",
+      branch_address: "123 Main St",
+      branch_city: "Cairo",
+      branch_governorate: "Cairo",
+      branch_country: "Egypt",
       roles: ["OWNER", "DOCTOR"],
       specialty: "Pediatrics",
       job_title: "Senior Physician",
@@ -241,26 +243,38 @@ describe("buildRegisterOrganizationRequest", () => {
     expect(buildRegisterOrganizationRequest(baseStep3Data)).toEqual({
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
-      branch_name: "Test Clinic",
+      branch_name: "Main Branch",
+      branch_address: "123 Main St",
+      branch_city: "Cairo",
+      branch_governorate: "Cairo",
+      branch_country: "Egypt",
       roles: ["OWNER"],
     });
   });
 
   it("omits empty doctor optional fields", () => {
     expect(
-      buildRegisterOrganizationRequest(
-        {
-          ...baseStep3Data,
-          role: "owner_doctor",
-          specialty: " ",
-          jobTitle: "",
-        },
-      ),
+      buildRegisterOrganizationRequest({
+        ...baseStep3Data,
+        role: "owner_doctor",
+        specialty: " ",
+        jobTitle: "",
+      }),
     ).toEqual({
       account_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
-      branch_name: "Test Clinic",
+      branch_name: "Main Branch",
+      branch_address: "123 Main St",
+      branch_city: "Cairo",
+      branch_governorate: "Cairo",
+      branch_country: "Egypt",
       roles: ["OWNER", "DOCTOR"],
     });
+  });
+
+  it("omits branch_country when not provided", () => {
+    const { country: _, ...withoutCountry } = baseStep3Data;
+    const result = buildRegisterOrganizationRequest(withoutCountry);
+    expect(result).not.toHaveProperty("branch_country");
   });
 });
