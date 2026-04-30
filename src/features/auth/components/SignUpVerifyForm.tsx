@@ -9,8 +9,13 @@ import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { StepIndicator } from "./StepIndicator";
 import { step2Schema } from "../lib/sign-up.schemas";
-import { useResendOtp, useVerifyEmail } from "../hooks/useSignUp";
 import {
+  useResendOtp,
+  useVerifyEmail,
+  useRegistrationStatus,
+} from "../hooks/useSignUp";
+import {
+  clearPendingSignupSession,
   getPendingSignupEmail,
   getPendingSignupToken,
 } from "../lib/registration-session";
@@ -18,7 +23,7 @@ import type { Step2Data } from "../types/sign-up.types";
 
 type SignUpVerifyFormContentProps = {
   email: string | null;
-  signupToken: string;
+  signupToken: string | null;
 };
 
 const emptySubscribe = () => () => {};
@@ -28,6 +33,7 @@ export function SignUpVerifyForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
 
+  // Read localStorage synchronously on the client; server always gets null.
   const signupToken = useSyncExternalStore(
     emptySubscribe,
     getPendingSignupToken,
@@ -39,13 +45,57 @@ export function SignUpVerifyForm() {
     nullSnapshot,
   );
 
+  // When the token is absent from localStorage but we have an email, the token
+  // may still be alive in the server-side HttpOnly cookie. Check registration
+  // status so we can render the form and let the server route use its cookie.
+  const shouldCheckStatus = !signupToken && !!email;
+  const statusQuery = useRegistrationStatus(shouldCheckStatus ? email : null);
+
+  const statusStep = statusQuery.data?.step;
+  const statusError = statusQuery.error;
+  const statusLoading = statusQuery.isLoading;
+
   useEffect(() => {
-    if (!signupToken) {
+    // No session at all — go back to start.
+    if (!email && !signupToken) {
+      router.replace("/sign-up");
+      return;
+    }
+
+    // Still waiting for the status response.
+    if (!shouldCheckStatus || statusLoading) return;
+
+    if (statusError) {
+      clearPendingSignupSession();
+      router.replace("/sign-up");
+      return;
+    }
+
+    if (statusStep === "COMPLETE_ONBOARDING") {
+      router.replace("/sign-up/complete");
+      return;
+    }
+
+    if (statusStep === "DONE" || statusStep === "NONE" || !statusStep) {
+      clearPendingSignupSession();
       router.replace("/sign-up");
     }
-  }, [signupToken, router]);
+    // statusStep === "VERIFY_OTP": stay here, shouldShowForm becomes true.
+  }, [
+    email,
+    signupToken,
+    shouldCheckStatus,
+    statusLoading,
+    statusStep,
+    statusError,
+    router,
+  ]);
 
-  if (!signupToken) {
+  const isLoading = shouldCheckStatus && statusLoading;
+  const shouldShowForm =
+    !!signupToken || (shouldCheckStatus && statusStep === "VERIFY_OTP");
+
+  if (isLoading || !shouldShowForm) {
     return (
       <div className="w-full flex flex-col gap-7">
         <StepIndicator currentStep={2} />
@@ -94,7 +144,8 @@ function SignUpVerifyFormContent({
     setResendMessage(null);
     try {
       await verifyEmail.mutateAsync({
-        signup_token: signupToken,
+        // If no localStorage token the server route falls back to its cookie.
+        ...(signupToken ? { signup_token: signupToken } : {}),
         code: data.verificationCode,
       });
       router.replace("/sign-up/complete");
@@ -141,7 +192,10 @@ function SignUpVerifyFormContent({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="verificationCode" className="text-sm text-brand-black">
+          <label
+            htmlFor="verificationCode"
+            className="text-sm text-brand-black"
+          >
             {t("verificationCodeLabel")}
           </label>
           <input
