@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -58,13 +58,15 @@ export function SelectProfilePage() {
   const searchParams = useSearchParams();
   const [pending] = useState(() => getPendingProfileSelection());
   const profiles = useMemo(() => pending?.profiles ?? [], [pending?.profiles]);
-  const initialProfile = profiles.length === 1 ? profiles[0] : null;
-  const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(
-    initialProfile,
-  );
+  const singleProfile = profiles.length === 1 ? profiles[0] : null;
+  const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(singleProfile);
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(
-    getAutoBranchId(initialProfile),
+    getAutoBranchId(singleProfile),
   );
+  const [isAutoProceeding, setIsAutoProceeding] = useState(
+    () => profiles.length === 1 && !!getAutoBranchId(profiles[0]),
+  );
+  const autoTriggered = useRef(false);
   const selectProfile = useSelectProfile();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const clearSession = useAuthStore((state) => state.clearSession);
@@ -119,7 +121,6 @@ export function SelectProfilePage() {
 
     try {
       const response = await selectProfile.mutateAsync({
-        account_id: accountId,
         branch_id: branchId,
         profile_id: profileId,
       });
@@ -139,6 +140,7 @@ export function SelectProfilePage() {
         searchParams.get("redirectTo") ? redirectTo : getDefaultRouteForRole(role),
       );
     } catch (error) {
+      setIsAutoProceeding(false);
       if (isSessionExpiredError(error)) {
         expireSelectionSession();
         return;
@@ -147,6 +149,18 @@ export function SelectProfilePage() {
       toast.error(t("error"));
     }
   }
+
+  // Auto-proceed when there is exactly 1 profile with exactly 1 branch.
+  useEffect(() => {
+    if (autoTriggered.current) return;
+    if (profiles.length === 1 && getAutoBranchId(profiles[0])) {
+      autoTriggered.current = true;
+      // setState calls inside handleContinue are async — no cascading render risk.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      handleContinue();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!profiles.length) {
     return (
@@ -161,6 +175,50 @@ export function SelectProfilePage() {
           {t("backToSignIn")}
         </Button>
       </div>
+    );
+  }
+
+  if (isAutoProceeding) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-16">
+        <div className="h-9 w-9 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+        <p className="text-sm text-gray-500">{t("signingIn")}</p>
+      </div>
+    );
+  }
+
+  // Single profile with multiple branches — skip profile card, go straight to branch selection.
+  if (profiles.length === 1 && branches.length > 1) {
+    return (
+      <SelectionLayout
+        title={t("selectBranch")}
+        subtitle={t("selectBranchSubtitle")}
+        actions={
+          <Button
+            type="button"
+            disabled={!canContinue || selectProfile.isPending}
+            onClick={handleContinue}
+            className="h-11 w-full rounded-full bg-brand-primary text-sm font-semibold text-white hover:bg-brand-primary/90"
+          >
+            {selectProfile.isPending ? t("loading") : t("continue")}
+          </Button>
+        }
+      >
+        <BranchSelector
+          title={t("branch")}
+          branches={branches
+            .map((branch) => {
+              const id = getBranchId(branch);
+              return id
+                ? { id, isMain: branch.is_main, label: getBranchLabel(branch) }
+                : null;
+            })
+            .filter((b): b is NonNullable<typeof b> => !!b)}
+          selectedBranchId={selectedBranchId}
+          onChange={setSelectedBranchId}
+          mainBranchLabel={t("mainBranch")}
+        />
+      </SelectionLayout>
     );
   }
 
@@ -212,13 +270,8 @@ export function SelectProfilePage() {
           branches={branches
             .map((branch) => {
               const id = getBranchId(branch);
-
               return id
-                ? {
-                    id,
-                    isMain: branch.is_main,
-                    label: getBranchLabel(branch),
-                  }
+                ? { id, isMain: branch.is_main, label: getBranchLabel(branch) }
                 : null;
             })
             .filter((branch): branch is NonNullable<typeof branch> => !!branch)}

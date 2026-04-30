@@ -7,21 +7,43 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
+import { queryClient } from "@/lib/queryClient";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import {
   getProfilesFromAuthResponse,
   isOnboardingRedirectPath,
   resolveAuthRedirect,
 } from "@/lib/auth/redirect";
+import {
+  getBranchId,
+  getProfileAccountId,
+  getProfileBranches,
+  getProfileId,
+  getProfileRoles,
+} from "../lib/current-user";
+import { getDefaultRouteForRole } from "../lib/redirect";
 import { DoctorFields } from "./DoctorFields";
 import { RoleSelector } from "./RoleSelector";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
 import { clearPendingSignupSession } from "../lib/registration-session";
-import { setPendingProfileSelection } from "../lib/profile-selection-session";
+import {
+  clearPendingProfileSelection,
+  setPendingProfileSelection,
+} from "../lib/profile-selection-session";
 import { useRegisterOrganization } from "../hooks/useSignUp";
+import { useSelectProfile } from "../hooks/useSelectProfile";
+import { useAuthStore } from "../store/authStore";
+import { useAuthContextStore } from "../store/authContextStore";
+import type { UserProfile, UserRole } from "@/types/user.types";
 import type { Step3Data } from "../types/sign-up.types";
+
+function canAutoSelect(profiles: UserProfile[]): boolean {
+  if (profiles.length !== 1) return false;
+  const branches = getProfileBranches(profiles[0]);
+  return branches.length === 1 && !!getBranchId(branches[0]);
+}
 
 export function SignUpCompleteForm() {
   const t = useTranslations("auth.signUp");
@@ -32,6 +54,9 @@ export function SignUpCompleteForm() {
   });
   const [stepError, setStepError] = useState<string | null>(null);
   const registerOrganization = useRegisterOrganization();
+  const selectProfile = useSelectProfile();
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
+  const setContext = useAuthContextStore((state) => state.setContext);
 
   const form = useForm<Step3Data>({
     resolver: zodResolver(schema),
@@ -75,10 +100,33 @@ export function SignUpCompleteForm() {
       const nextPath = resolveAuthRedirect(res, email ?? undefined);
 
       if (nextPath === "/select-profile") {
+        const profiles = getProfilesFromAuthResponse(res);
+
+        if (canAutoSelect(profiles)) {
+          const profile = profiles[0];
+          const branch = getProfileBranches(profile)[0];
+          const profileId = getProfileId(profile)!;
+          const accountId = getProfileAccountId(profile)!;
+          const branchId = getBranchId(branch)!;
+          const selectionRes = await selectProfile.mutateAsync({
+            branch_id: branchId,
+            profile_id: profileId,
+          });
+          setAuthenticated();
+          setContext({
+            accountId: selectionRes.data.account_id || accountId,
+            branchId: selectionRes.data.branch_id ?? branchId,
+            profileId: selectionRes.data.profile_id || profileId,
+          });
+          clearPendingProfileSelection();
+          queryClient.clear();
+          const role = getProfileRoles(profile)[0] ?? ("unknown" as UserRole);
+          router.replace(getDefaultRouteForRole(role));
+          return;
+        }
+
         clearPendingSignupSession();
-        setPendingProfileSelection({
-          profiles: getProfilesFromAuthResponse(res),
-        });
+        setPendingProfileSelection({ profiles });
         router.replace("/select-profile");
         return;
       }
