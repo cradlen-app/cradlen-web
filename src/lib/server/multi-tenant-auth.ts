@@ -139,8 +139,9 @@ export async function selectProfileSession(request: Request) {
   const selectionToken = cookieStore.get(AUTH_SELECTION_TOKEN_COOKIE)?.value;
   const accessToken = getCookieValue(request.headers.get("cookie"), AUTH_TOKEN_COOKIE);
   const body = (await request.json()) as Record<string, unknown>;
+  const { account_id: bodyAccountId, ...bodyWithoutAccount } = body;
   const payload = {
-    ...body,
+    ...bodyWithoutAccount,
     ...(selectionToken ? { selection_token: selectionToken } : {}),
   };
   const headers: HeadersInit = {};
@@ -168,7 +169,7 @@ export async function selectProfileSession(request: Request) {
     {
       data: {
         authenticated: true,
-        account_id: data.account_id ?? body.account_id ?? null,
+        account_id: data.account_id ?? bodyAccountId ?? null,
         branch_id: body.branch_id ?? data.branch_id ?? null,
         profile_id: data.profile_id ?? body.profile_id ?? null,
       },

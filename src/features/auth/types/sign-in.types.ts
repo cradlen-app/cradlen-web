@@ -23,7 +23,6 @@ export type LoginProfilesResponse = {
 };
 
 export type SelectProfileRequest = {
-  account_id?: string;
   branch_id?: string | null;
   profile_id: string;
 };
