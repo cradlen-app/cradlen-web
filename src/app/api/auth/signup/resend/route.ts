@@ -1,5 +1,8 @@
 import { backendFetch, readBackendJson } from "@/lib/server/backend";
-import { persistSignupTokenFromBody } from "@/lib/server/signup-session";
+import {
+  persistSignupTokenFromBody,
+  sanitizeSignupTokenResponse,
+} from "@/lib/server/signup-session";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -16,9 +19,10 @@ export async function POST(request: Request) {
   }
 
   // Persist a refreshed signup token if the backend includes one in the resend response.
-  const frontendResponse = NextResponse.json(body ?? {}, {
-    status: response.status,
-  });
+  const frontendResponse = NextResponse.json(
+    sanitizeSignupTokenResponse(body) ?? {},
+    { status: response.status },
+  );
   persistSignupTokenFromBody(frontendResponse, body);
   return frontendResponse;
 }

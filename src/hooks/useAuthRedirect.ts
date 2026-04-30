@@ -6,7 +6,6 @@ import { ApiError } from "@/lib/api";
 import {
   clearPendingSignupSession,
   getPendingSignupEmail,
-  getPendingSignupToken,
 } from "@/features/auth/lib/registration-session";
 import { useRegistrationStatus } from "@/features/auth/hooks/useSignUp";
 import type { RegistrationStep } from "@/features/auth/types/sign-up.types";
@@ -41,8 +40,7 @@ export function isExpiredRegistrationStatusError(error: unknown) {
 export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
   const router = useRouter();
   const [email] = useState<string | null>(() => getPendingSignupEmail());
-  const [signupToken] = useState<string | null>(() => getPendingSignupToken());
-  const shouldCheckRegistrationStatus = !!email && !signupToken;
+  const shouldCheckRegistrationStatus = !!email;
   const registrationStatus = useRegistrationStatus(
     shouldCheckRegistrationStatus ? email : null,
   );
@@ -55,7 +53,7 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
 
   useEffect(() => {
     if (!email) {
-      if (currentStep !== "NONE" && !signupToken) router.replace("/sign-up");
+      if (currentStep !== "NONE") router.replace("/sign-up");
       return;
     }
 
@@ -83,13 +81,12 @@ export function useAuthRedirect({ currentStep }: UseAuthRedirectOptions) {
     registrationStatus.data,
     router,
     shouldCheckRegistrationStatus,
-    signupToken,
   ]);
 
   return {
     email,
     isChecking:
-      (!email && !signupToken && currentStep !== "NONE") ||
+      (!email && currentStep !== "NONE") ||
       (shouldCheckRegistrationStatus &&
         (registrationStatus.isLoading || hasExpiredStatus || !!nextPath)),
   };

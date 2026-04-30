@@ -86,6 +86,14 @@ export async function profileSelectionResponse(
 export async function signupCompleteResponse(request: Request) {
   const body = (await request.json()) as Record<string, unknown>;
   const signupToken = await getSignupTokenFromRequest(body);
+
+  if (!signupToken) {
+    return NextResponse.json(
+      { message: "Session expired. Please start registration again." },
+      { status: 401 },
+    );
+  }
+
   const bodyWithoutToken = { ...body };
   delete bodyWithoutToken.signup_token;
   const payload = {
