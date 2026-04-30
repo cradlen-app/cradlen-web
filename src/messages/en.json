@@ -521,6 +521,7 @@
       "showPassword": "Show",
       "hidePassword": "Hide",
       "submitButton": "Sign in",
+      "noticeAccountExists": "You already have an account. Please sign in below.",
       "forgotPassword": "Forget your password ?",
       "newToCommunity": "New to our community ?",
       "copyright": "2026 CRADLEN. All rights reserved.",

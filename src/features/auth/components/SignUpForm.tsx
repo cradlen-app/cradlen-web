@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { PasswordInput } from "./PasswordInput";
 import { PhoneInput } from "./PhoneInput";
@@ -17,19 +17,8 @@ import {
 } from "../lib/registration-session";
 import { buildSignupStartRequest } from "../lib/signup-start";
 import { useRegisterPersonal } from "../hooks/useSignUp";
-import type { Step1Data } from "../types/sign-up.types";
+import type { Step1Data, RegistrationStatusResponse } from "../types/sign-up.types";
 
-function getConflictFields(err: unknown): string[] {
-  if (!(err instanceof ApiError)) return [];
-  const error = (err.body as Record<string, unknown>)?.error;
-  if (!error || typeof error !== "object") return [];
-  const details = (error as Record<string, unknown>).details;
-  if (!details || typeof details !== "object") return [];
-  const fields = (details as Record<string, unknown>).fields;
-  return Array.isArray(fields)
-    ? fields.filter((f): f is string => typeof f === "string")
-    : [];
-}
 
 export function SignUpForm() {
   const t = useTranslations("auth.signUp");
@@ -76,10 +65,23 @@ export function SignUpForm() {
       router.replace("/sign-up/verify");
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        const fields = getConflictFields(err);
-        if (fields.includes("phone_number")) {
-          setStepError(t("errors.phoneTaken"));
-        } else {
+        const email = form.getValues("email");
+        try {
+          const status = await apiFetch<RegistrationStatusResponse>(
+            `/auth/registration/status?email=${encodeURIComponent(email)}`,
+          );
+          if (status.step === "VERIFY_OTP") {
+            setPendingSignupEmail(email);
+            router.replace("/sign-up/verify");
+          } else if (status.step === "COMPLETE_ONBOARDING") {
+            setPendingSignupEmail(email);
+            router.replace("/sign-up/complete");
+          } else if (status.step === "DONE") {
+            router.replace("/sign-in?notice=account-exists");
+          } else {
+            setStepError(t("errors.emailAlreadyRegistered"));
+          }
+        } catch {
           setStepError(t("errors.emailAlreadyRegistered"));
         }
       } else {
