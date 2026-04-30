@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { StepIndicator } from "./StepIndicator";
-import { step2Schema } from "../lib/sign-up.schemas";
+import { makeStep2Schema } from "../lib/sign-up.schemas";
 import {
   useResendOtp,
   useVerifyEmail,
@@ -16,41 +16,39 @@ import {
 } from "../hooks/useSignUp";
 import {
   clearPendingSignupSession,
-  extractSignupToken,
   getPendingSignupEmail,
-  getPendingSignupToken,
-  setPendingSignupToken,
 } from "../lib/registration-session";
 import type { Step2Data } from "../types/sign-up.types";
 
 type SignUpVerifyFormContentProps = {
   email: string | null;
-  signupToken: string | null;
 };
 
 const emptySubscribe = () => () => {};
 const nullSnapshot = () => null;
 
+function getErrorCode(err: unknown): string | null {
+  if (!(err instanceof ApiError)) return null;
+  const error = (err.body as Record<string, unknown>)?.error;
+  if (!error || typeof error !== "object") return null;
+  const code = (error as Record<string, unknown>).code;
+  return typeof code === "string" ? code : null;
+}
+
 export function SignUpVerifyForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
 
-  // Read localStorage synchronously on the client; server always gets null.
-  const signupToken = useSyncExternalStore(
-    emptySubscribe,
-    getPendingSignupToken,
-    nullSnapshot,
-  );
+  // Read non-sensitive pending email synchronously on the client.
   const email = useSyncExternalStore(
     emptySubscribe,
     getPendingSignupEmail,
     nullSnapshot,
   );
 
-  // When the token is absent from localStorage but we have an email, the token
-  // may still be alive in the server-side HttpOnly cookie. Check registration
-  // status so we can render the form and let the server route use its cookie.
-  const shouldCheckStatus = !signupToken && !!email;
+  // The signup token is kept in an HttpOnly cookie. Check registration status
+  // so we can render the form and let the server route use its cookie.
+  const shouldCheckStatus = !!email;
   const statusQuery = useRegistrationStatus(shouldCheckStatus ? email : null);
 
   const statusStep = statusQuery.data?.step;
@@ -59,7 +57,7 @@ export function SignUpVerifyForm() {
 
   useEffect(() => {
     // No session at all — go back to start.
-    if (!email && !signupToken) {
+    if (!email) {
       router.replace("/sign-up");
       return;
     }
@@ -85,7 +83,6 @@ export function SignUpVerifyForm() {
     // statusStep === "VERIFY_OTP": stay here, shouldShowForm becomes true.
   }, [
     email,
-    signupToken,
     shouldCheckStatus,
     statusLoading,
     statusStep,
@@ -94,8 +91,7 @@ export function SignUpVerifyForm() {
   ]);
 
   const isLoading = shouldCheckStatus && statusLoading;
-  const shouldShowForm =
-    !!signupToken || (shouldCheckStatus && statusStep === "VERIFY_OTP");
+  const shouldShowForm = shouldCheckStatus && statusStep === "VERIFY_OTP";
 
   if (isLoading || !shouldShowForm) {
     return (
@@ -106,22 +102,31 @@ export function SignUpVerifyForm() {
     );
   }
 
-  return <SignUpVerifyFormContent email={email} signupToken={signupToken} />;
+  return <SignUpVerifyFormContent email={email} />;
 }
 
 function SignUpVerifyFormContent({
   email,
-  signupToken,
 }: SignUpVerifyFormContentProps) {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
   const [stepError, setStepError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
   const verifyEmail = useVerifyEmail();
   const resendOtp = useResendOtp();
 
-  const form = useForm<Step2Data>({ resolver: zodResolver(step2Schema) });
+  const handleStartOver = () => {
+    clearPendingSignupSession();
+    router.replace("/sign-up");
+  };
+
+  const schema = useMemo(() => makeStep2Schema(t), [t]);
+  const form = useForm<Step2Data>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+  });
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -146,16 +151,23 @@ function SignUpVerifyFormContent({
     setResendMessage(null);
     try {
       await verifyEmail.mutateAsync({
-        // If no localStorage token the server route falls back to its cookie.
-        ...(signupToken ? { signup_token: signupToken } : {}),
         code: data.verificationCode,
       });
       router.replace("/sign-up/complete");
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setStepError(t("errors.sessionExpired"));
+        setIsSessionExpired(true);
+      } else if (err instanceof ApiError && err.status === 400) {
+        const code = getErrorCode(err);
+        if (code === "OTP_EXPIRED") {
+          setStepError(t("errors.otpExpired"));
+        } else if (code === "MAX_ATTEMPTS_EXCEEDED") {
+          setStepError(t("errors.otpLocked"));
+        } else {
+          setStepError(t("errors.invalidCode"));
+        }
       } else {
-        setStepError(t("errors.invalidCode"));
+        setStepError(t("errors.serverError"));
       }
     }
   });
@@ -168,17 +180,18 @@ function SignUpVerifyFormContent({
     resendOtp.mutate(
       { email },
       {
-        onSuccess: (data) => {
-          const newToken = extractSignupToken(data);
-          if (newToken) {
-            setPendingSignupToken(newToken);
-          }
+        onSuccess: () => {
           setResendMessage(t("errors.resendSuccess"));
           setResendCooldown(60);
         },
         onError: (err) => {
           if (err instanceof ApiError && err.status === 429) {
-            setStepError(t("errors.tryAgainLater"));
+            const code = getErrorCode(err);
+            if (code === "RESEND_LIMIT_EXCEEDED") {
+              setStepError(t("errors.resendLocked"));
+            } else {
+              setStepError(t("errors.tryAgainLater"));
+            }
           } else {
             setStepError(t("errors.serverError"));
           }
@@ -186,6 +199,31 @@ function SignUpVerifyFormContent({
       },
     );
   };
+
+  if (isSessionExpired) {
+    return (
+      <div className="w-full flex flex-col gap-7">
+        <StepIndicator currentStep={2} />
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium text-red-500">
+              {t("errors.sessionExpired")}
+            </p>
+            <p className="text-sm text-gray-500">
+              {t("errors.sessionExpiredDetail")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleStartOver}
+            className="w-full rounded-full bg-brand-primary py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary/90 active:scale-[0.99]"
+          >
+            {t("errors.startOver")}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col gap-7">
@@ -246,14 +284,14 @@ function SignUpVerifyFormContent({
         <div className="flex gap-3 mt-1">
           <button
             type="button"
-            onClick={() => router.push("/sign-up")}
+            onClick={handleStartOver}
             className="flex-1 rounded-full border border-brand-primary py-3.5 text-sm font-semibold text-brand-primary transition-all hover:bg-brand-primary/5"
           >
             {t("backButton")}
           </button>
           <button
             type="submit"
-            disabled={verifyEmail.isPending}
+            disabled={!form.formState.isValid || verifyEmail.isPending}
             className="flex-1 rounded-full bg-brand-primary py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary/90 active:scale-[0.99] disabled:opacity-50"
           >
             {verifyEmail.isPending ? `${t("nextButton")}...` : t("nextButton")}
