@@ -18,6 +18,7 @@ import {
   ChevronDown,
   Check,
   Loader2,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -110,6 +111,7 @@ function NavLink({
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [branchMenuOpen, setBranchMenuOpen] = useState(false);
+  const [switchingToBranchId, setSwitchingToBranchId] = useState<string | null>(null);
   const branchMenuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("nav");
   const pathname = usePathname();
@@ -151,6 +153,7 @@ export function Sidebar() {
     if (!profile) return;
     const pid = profileId ?? getProfileId(profile);
     if (!pid) return;
+    setSwitchingToBranchId(newBranchId);
     try {
       const response = await selectProfile.mutateAsync({
         branch_id: newBranchId,
@@ -158,6 +161,7 @@ export function Sidebar() {
       });
       const newOrgId = response.data.account_id ?? getProfileAccountId(profile);
       if (!newOrgId) {
+        setSwitchingToBranchId(null);
         toast.error(t("switchBranchError"));
         return;
       }
@@ -173,6 +177,7 @@ export function Sidebar() {
       setBranchMenuOpen(false);
     } catch (error) {
       console.error("[branch-switch]", error);
+      setSwitchingToBranchId(null);
       toast.error(t("switchBranchError"));
     }
   }
@@ -269,36 +274,68 @@ export function Sidebar() {
         </div>
 
         {branchMenuOpen && !collapsed && (
-          <div className="absolute top-full start-0 end-0 z-50 bg-white border border-gray-100 rounded-xl shadow-lg py-1 mt-1 mx-2">
-            {branches.map((b) => {
-              const bId = getBranchId(b) ?? b.id;
-              const isActive = bId === (branchId ?? getBranchId(branch));
-              return (
-                <button
-                  key={bId}
-                  type="button"
-                  disabled={selectProfile.isPending}
-                  onClick={() => void handleBranchSwitch(bId)}
-                  className={cn(
-                    "w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors",
-                    isActive
-                      ? "text-brand-primary font-medium"
-                      : "text-gray-600 hover:bg-gray-50",
-                    selectProfile.isPending && "opacity-50 cursor-not-allowed",
-                  )}
-                >
-                  <span className="flex-1 text-start truncate">
-                    {b.city || b.name || bId}
-                    {b.is_main && (
-                      <span className="ms-1.5 text-[10px] text-gray-400 font-normal">
-                        main
-                      </span>
+          <div className="absolute top-full start-0 end-0 z-50 bg-white border border-gray-100 rounded-xl shadow-lg mt-1 mx-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+            {/* Header */}
+            <div className="px-3 pt-2.5 pb-1.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                {t("switchBranch")}
+              </span>
+            </div>
+            <div className="border-t border-gray-100 mb-1" />
+            {/* Branch items */}
+            <div className="px-1 pb-1 space-y-0.5">
+              {branches.map((b) => {
+                const bId = getBranchId(b) ?? b.id;
+                const isActive = bId === (branchId ?? getBranchId(branch));
+                const isLoading = switchingToBranchId === bId;
+                const label = b.name || b.city;
+                const sublabel = b.name ? b.city : null;
+                return (
+                  <button
+                    key={bId}
+                    type="button"
+                    disabled={selectProfile.isPending}
+                    onClick={() => void handleBranchSwitch(bId)}
+                    className={cn(
+                      "w-full flex items-start gap-2 rounded-lg px-2.5 py-2 text-start transition-colors",
+                      isActive
+                        ? "bg-brand-primary/10 text-brand-primary"
+                        : "text-gray-600 hover:bg-gray-50",
+                      selectProfile.isPending && !isLoading && "opacity-40 cursor-not-allowed",
                     )}
-                  </span>
-                  {isActive && <Check className="size-3.5 shrink-0" />}
-                </button>
-              );
-            })}
+                  >
+                    <MapPin
+                      className={cn(
+                        "size-3.5 shrink-0 mt-0.5",
+                        isActive ? "text-brand-primary" : "text-gray-400",
+                      )}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate text-[13px] font-medium leading-tight">
+                          {label}
+                        </span>
+                        {b.is_main && (
+                          <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-secondary/20 text-brand-secondary leading-none">
+                            main
+                          </span>
+                        )}
+                      </div>
+                      {sublabel && (
+                        <span className="block truncate text-[11px] text-gray-400 leading-tight mt-0.5">
+                          {sublabel}
+                        </span>
+                      )}
+                    </div>
+                    {isLoading ? (
+                      <Loader2 className="size-3.5 shrink-0 text-brand-primary animate-spin mt-0.5" />
+                    ) : isActive ? (
+                      <Check className="size-3.5 shrink-0 text-brand-primary mt-0.5" />
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

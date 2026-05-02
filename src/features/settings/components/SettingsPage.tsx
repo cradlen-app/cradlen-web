@@ -15,6 +15,7 @@ import {
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUserStore } from "@/features/auth/store/userStore";
+import type { CurrentUser } from "@/types/user.types";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
@@ -96,8 +97,19 @@ export function SettingsPage() {
 
       if (confirmSoftDelete?.type === "branch") {
         if (!confirmSoftDelete.branchId || !profile?.organization.id) return;
-        await deleteBranch(profile.organization.id, confirmSoftDelete.branchId);
+        const deletedBranchId = confirmSoftDelete.branchId;
+        await deleteBranch(profile.organization.id, deletedBranchId);
         toast.success(t("branches.deleteSuccess"));
+        queryClient.setQueryData(CURRENT_USER_QUERY_KEY, (old: CurrentUser | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            profiles: old.profiles.map((p) => ({
+              ...p,
+              branches: p.branches.filter((b) => b.id !== deletedBranchId),
+            })),
+          };
+        });
       }
 
       setConfirmSoftDelete(null);
