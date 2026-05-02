@@ -15,7 +15,7 @@ const baseStep1Data: Step1Data = {
 
 const baseStep3Data: Step3Data = {
   accountName: "Test Clinic",
-  specialties: "Cardiology, Pediatrics",
+  specialties: ["Cardiology", "Pediatrics"],
   branchName: "Main Branch",
   city: "Cairo",
   address: "123 Main St",

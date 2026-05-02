@@ -91,8 +91,26 @@ export function SettingsPage() {
     try {
       if (confirmSoftDelete?.type === "organization") {
         if (!profile?.organization.id) return;
+        const hasOtherOrgs = (user?.profiles.length ?? 0) > 1;
         await deleteOrganization(profile.organization.id);
         toast.success(t("organization.deleteSuccess"));
+        setConfirmSoftDelete(null);
+
+        if (hasOtherOrgs) {
+          await queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+          router.replace("/select-profile");
+        } else {
+          try {
+            await fetch("/api/auth/logout", { method: "POST" });
+          } catch {
+            // best-effort
+          }
+          clearSession();
+          clearUser();
+          queryClient.clear();
+          router.replace("/create-organization");
+        }
+        return;
       }
 
       if (confirmSoftDelete?.type === "branch") {

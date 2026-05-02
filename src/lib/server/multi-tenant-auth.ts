@@ -134,6 +134,36 @@ function getCookieValue(cookieHeader: string | null, name: string) {
     ?.slice(name.length + 1);
 }
 
+export async function switchBranchSession(request: Request) {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(AUTH_TOKEN_COOKIE)?.value;
+
+  if (!accessToken) {
+    return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+  }
+
+  const body = (await request.json()) as { branch_id?: string };
+  const response = await backendFetch("/auth/branches/switch", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ branch_id: body.branch_id }),
+  });
+  const responseBody = await readBackendJson(response);
+
+  if (!response.ok) {
+    return NextResponse.json(responseBody ?? { message: response.statusText }, {
+      status: response.status,
+    });
+  }
+
+  const tokens = extractTokens(responseBody);
+  return sessionResponse(
+    { data: { branch_id: body.branch_id ?? null }, meta: {} },
+    tokens,
+    response.status,
+  );
+}
+
 export async function selectProfileSession(request: Request) {
   const cookieStore = await cookies();
   const selectionToken = cookieStore.get(AUTH_SELECTION_TOKEN_COOKIE)?.value;
