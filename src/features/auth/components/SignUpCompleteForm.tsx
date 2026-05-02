@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ import {
   getProfileRoles,
 } from "../lib/current-user";
 import { getDefaultRouteForRole } from "../lib/redirect";
+import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
 import { DoctorFields } from "./DoctorFields";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
@@ -62,7 +63,7 @@ export function SignUpCompleteForm() {
     mode: "onChange",
     defaultValues: {
       accountName: "",
-      specialties: "",
+      specialties: [],
       city: "",
       address: "",
       governorate: "",
@@ -183,20 +184,22 @@ export function SignUpCompleteForm() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="specialties" className="text-sm text-brand-black">
+          <label className="text-sm text-brand-black">
             {t("specialtiesLabel")}
           </label>
-          <input
-            id="specialties"
-            type="text"
-            placeholder={t("specialtiesPlaceholder")}
-            {...form.register("specialties")}
-            className={cn(
-              inputClass,
-              errorInputClass(!!form.formState.errors.specialties),
+          <Controller
+            control={form.control}
+            name="specialties"
+            render={({ field }) => (
+              <SpecialtiesSelect
+                value={field.value}
+                onChange={field.onChange}
+                placeholder={t("specialtiesPlaceholder")}
+                hasError={!!form.formState.errors.specialties}
+              />
             )}
           />
-          {fieldError(form.formState.errors.specialties?.message)}
+          {fieldError(form.formState.errors.specialties?.message as string | undefined)}
         </div>
 
         <div className="flex flex-col gap-4">

@@ -23,6 +23,7 @@ const SESSION_ENDPOINTS: Record<string, string> = {
   "/join-codes/accept": "/api/join-codes/accept",
   "/join-codes/preview": "/api/join-codes/preview",
   "/staff/invite/accept": "/api/staff/invite/accept",
+  "/auth/switch-branch": "/api/auth/switch-branch",
 };
 
 export class ApiError extends Error {
