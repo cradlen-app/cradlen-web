@@ -10,7 +10,7 @@ export function buildRegisterOrganizationRequest(
     .split(",")
     .map((specialty) => specialty.trim())
     .filter(Boolean);
-  const isClinical = data.role === "owner_doctor";
+  const isClinical = data.isClinical;
   const specialty = data.specialty?.trim();
   const jobTitle = data.jobTitle?.trim();
 

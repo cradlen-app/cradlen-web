@@ -14,11 +14,11 @@ export function normalizeRoleName(name?: string | null): UserRole {
 }
 
 export function getProfileId(profile: UserProfile) {
-  return profile.profile_id ?? profile.id ?? profile.staff_id;
+  return profile.profile_id ?? profile.staff_id;
 }
 
 export function getProfileAccount(profile?: UserProfile) {
-  return profile?.account ?? profile?.organization;
+  return profile?.organization;
 }
 
 export function getProfileAccountName(profile?: UserProfile) {
@@ -26,7 +26,7 @@ export function getProfileAccountName(profile?: UserProfile) {
 }
 
 export function getProfileAccountId(profile?: UserProfile) {
-  return profile?.account_id ?? getProfileAccount(profile)?.id;
+  return getProfileAccount(profile)?.id;
 }
 
 export function getBranchId(branch?: UserProfile["branch"]) {
@@ -34,13 +34,9 @@ export function getBranchId(branch?: UserProfile["branch"]) {
 }
 
 export function getProfileBranches(profile?: UserProfile) {
-  const branches = profile?.branches?.length
-    ? profile.branches
-    : profile?.branch
-      ? [profile.branch]
-      : [];
-
-  return branches;
+  if (profile?.branches?.length) return profile.branches;
+  if (profile?.branch) return [profile.branch];
+  return [];
 }
 
 export function getDefaultBranch(profile?: UserProfile, branchId?: string | null) {
@@ -53,14 +49,18 @@ export function getDefaultBranch(profile?: UserProfile, branchId?: string | null
 }
 
 export function getProfileRoles(profile?: UserProfile): UserRole[] {
-  const roles = profile?.roles?.length
-    ? profile.roles
+  const rawNames = profile?.roles?.length
+    ? profile.roles.map((r) => (typeof r === "string" ? r : r.name))
     : profile?.role?.name
       ? [profile.role.name]
       : [];
 
-  const normalizedRoles = roles.map((role) => normalizeRoleName(role));
+  const normalizedRoles = rawNames.map((name) => normalizeRoleName(name));
   return normalizedRoles.length ? normalizedRoles : ["unknown"];
+}
+
+export function getProfilePrimaryRole(profile?: UserProfile): UserRole {
+  return getProfileRoles(profile)[0];
 }
 
 export function getActiveProfile(user?: CurrentUser | null): UserProfile | undefined {

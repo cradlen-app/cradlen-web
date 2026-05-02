@@ -22,7 +22,7 @@ export type Step3Data = {
   address: string;
   governorate: string;
   country?: string;
-  role: "owner" | "owner_doctor";
+  isClinical: boolean;
   specialty?: string;
   jobTitle?: string;
 };

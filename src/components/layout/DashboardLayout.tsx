@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveRole } from "@/features/auth/lib/current-user";
+import { buildDashboardUrl } from "@/lib/routes";
 import { Navbar } from "../common/Navbar";
 import { Sidebar } from "../common/Sidebar";
-import { canAccessRoute } from "./dashboard-access";
+import { canAccessRoute, getCanonicalDashboardPath } from "./dashboard-access";
 
 type Props = {
   children: React.ReactNode;
@@ -15,6 +17,7 @@ type Props = {
 export function DashboardLayout({ children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
+  const { orgId, branchId } = useParams<{ orgId: string; branchId: string }>();
   const { data: user, isLoading } = useCurrentUser();
   const role = getActiveRole(user);
 
@@ -31,10 +34,10 @@ export function DashboardLayout({ children }: Props) {
       return;
     }
 
-    if (!canAccessRoute(role, pathname)) {
-      router.replace("/dashboard");
+    if (!canAccessRoute(role, getCanonicalDashboardPath(pathname))) {
+      router.replace(buildDashboardUrl(orgId, branchId));
     }
-  }, [isLoading, pathname, role, router]);
+  }, [isLoading, orgId, branchId, pathname, role, router]);
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">

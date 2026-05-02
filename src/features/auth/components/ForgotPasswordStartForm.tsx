@@ -15,11 +15,13 @@ import {
   startForgotPasswordResendCooldown,
 } from "../lib/forgot-password-session";
 import { useStartForgotPassword } from "../hooks/useForgotPassword";
+import { useForgotPasswordStore } from "../store/forgotPasswordStore";
 
 export function ForgotPasswordStartForm() {
   const t = useTranslations("auth.forgotPassword");
   const router = useRouter();
   const startForgotPassword = useStartForgotPassword();
+  const setResetToken = useForgotPasswordStore((state) => state.setResetToken);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const form = useForm<ForgotPasswordStartData>({
@@ -36,9 +38,10 @@ export function ForgotPasswordStartForm() {
     setSuccessMessage(null);
 
     try {
-      await startForgotPassword.mutateAsync({ email: data.email });
+      const response = await startForgotPassword.mutateAsync({ email: data.email });
+      setResetToken(response.data.reset_token);
     } catch {
-      // Keep this generic to avoid leaking account existence.
+      // Swallow — silent success design prevents user enumeration.
     } finally {
       setPendingForgotPasswordEmail(data.email);
       startForgotPasswordResendCooldown();

@@ -1,19 +1,21 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { backendFetch, clearAuthCookies } from "@/lib/server/backend";
-import { AUTH_TOKEN_COOKIE } from "@/features/auth/lib/auth.constants";
+import {
+  AUTH_REFRESH_TOKEN_COOKIE,
+  AUTH_TOKEN_COOKIE,
+} from "@/features/auth/lib/auth.constants";
 
-export async function POST(request: Request) {
-  const accessToken = request.headers
-    .get("cookie")
-    ?.split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith(`${AUTH_TOKEN_COOKIE}=`))
-    ?.split("=")[1];
+export async function POST() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(AUTH_TOKEN_COOKIE)?.value;
+  const refreshToken = cookieStore.get(AUTH_REFRESH_TOKEN_COOKIE)?.value;
 
-  if (accessToken) {
+  if (refreshToken) {
     await backendFetch("/auth/logout", {
       method: "POST",
-      headers: { Authorization: `Bearer ${decodeURIComponent(accessToken)}` },
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      body: JSON.stringify({ refresh_token: refreshToken }),
     }).catch(() => null);
   }
 

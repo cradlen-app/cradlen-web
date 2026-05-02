@@ -32,7 +32,20 @@
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/ar.json','utf8'\\)\\); console.log\\('ar.json valid'\\)\")",
       "Bash(node -e ' *)",
       "Bash(xargs find *)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(xargs ls *)",
+      "Bash(find f:/Cradlen/cradlen-web/src/app/[locale] -type f -name \"page.tsx\")",
+      "Bash(find /f/Cradlen/cradlen-web/src/app/[locale]/\\\\\\(dashboard\\\\\\)/ -type f \\\\\\( -name \"page.tsx\" -o -name \"layout.tsx\" -o -name \"loading.tsx\" -o -name \"error.tsx\" \\\\\\))",
+      "Bash(find src/app/[locale]/\\\\\\(dashboard\\\\\\)/ -type f)",
+      "Bash(find src/app/[locale]/ -type d)",
+      "Bash(git rev-parse *)",
+      "Bash(ls F:/Cradlen/cradlen-web/src/app/\\\\[locale\\\\]/\\\\[orgId\\\\]/)",
+      "Bash(Get-ChildItem -Path \"F:/Cradlen/cradlen-web/src/app/[locale]\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(cat src/features/auth/hooks/useCurrentUser.ts)",
+      "Bash(cat src/features/auth/hooks/useCurrentUser.tsx)",
+      "Bash(cat src/hooks/useAuthRedirect.ts)",
+      "Bash(cat src/hooks/useAuthRedirect.tsx)"
     ]
   }
 }

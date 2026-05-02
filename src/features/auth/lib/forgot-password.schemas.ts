@@ -28,7 +28,12 @@ export function createForgotPasswordResetSchema(t: ForgotPasswordTranslations) {
     .object({
       password: z
         .string()
-        .min(8, { message: t("errors.passwordMinLength") }),
+        .min(8, { message: t("errors.passwordMinLength") })
+        .max(128, { message: t("errors.passwordMaxLength") })
+        .regex(/[A-Z]/, { message: t("errors.passwordUppercase") })
+        .regex(/[a-z]/, { message: t("errors.passwordLowercase") })
+        .regex(/[0-9]/, { message: t("errors.passwordDigit") })
+        .regex(/[^A-Za-z0-9]/, { message: t("errors.passwordSpecial") }),
       confirmPassword: z
         .string()
         .min(1, { message: t("errors.confirmPasswordRequired") }),
