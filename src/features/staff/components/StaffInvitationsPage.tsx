@@ -17,9 +17,13 @@ import { AlertDialog, Dialog } from "radix-ui";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { getActiveProfile } from "@/features/auth/lib/current-user";
+import {
+  getActiveProfile,
+  getDefaultBranch,
+} from "@/features/auth/lib/current-user";
 import { Link } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
+import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/lib/utils";
 import {
   useDeleteStaffInvitation,
@@ -580,6 +584,7 @@ function InvitationDrawer({
 export function StaffInvitationsPage() {
   const t = useTranslations("staff.invitations");
   const staffT = useTranslations("staff");
+  const dashboardPath = useDashboardPath();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<InvitationStatusFilter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -595,7 +600,7 @@ export function StaffInvitationsPage() {
   } = useCurrentUser();
   const primaryProfile = getActiveProfile(currentUser);
   const organizationId = primaryProfile?.organization.id;
-  const branchId = primaryProfile?.branch.id;
+  const branchId = getDefaultBranch(primaryProfile)?.id;
 
   const {
     data: invitationsResult,
@@ -687,7 +692,7 @@ export function StaffInvitationsPage() {
               className="flex items-center gap-2"
             >
               <Link
-                href="/dashboard/staff"
+                href={dashboardPath("/staff") as Parameters<typeof Link>[0]["href"]}
                 className="text-2xl font-medium text-gray-400 transition-colors hover:text-brand-primary"
               >
                 {staffT("title")}

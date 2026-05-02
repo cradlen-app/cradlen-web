@@ -9,24 +9,26 @@ import {
   getProfileRoles,
 } from "./current-user";
 
-function createProfile(roleName: UserProfile["role"]["name"]): UserProfile {
+function createProfile(roleName: string): UserProfile {
   return {
     staff_id: `${roleName}-staff`,
     job_title: `${roleName} title`,
-    role: { id: `${roleName}-role`, name: roleName },
+    roles: [{ id: `${roleName}-role`, name: roleName }],
     organization: {
       id: "org-1",
       name: "Test Clinic",
       specialities: ["Cardiology"],
       status: "active",
     },
-    branch: {
-      id: "branch-1",
-      address: "123 Main St",
-      city: "Cairo",
-      governorate: "Cairo",
-      is_main: true,
-    },
+    branches: [
+      {
+        id: "branch-1",
+        address: "123 Main St",
+        city: "Cairo",
+        governorate: "Cairo",
+        is_main: true,
+      },
+    ],
   };
 }
 

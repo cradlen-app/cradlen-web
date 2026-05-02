@@ -2,17 +2,13 @@ export interface ForgotPasswordStartRequest {
   email: string;
 }
 
-export interface ForgotPasswordSuccessResponse {
-  success: true;
+export interface ForgotPasswordResendRequest {
+  reset_token: string;
 }
 
 export interface ForgotPasswordVerifyRequest {
-  email: string;
-  code: string;
-}
-
-export interface ForgotPasswordVerifyResponse {
   reset_token: string;
+  code: string;
 }
 
 export interface ForgotPasswordResetRequest {
@@ -21,6 +17,7 @@ export interface ForgotPasswordResetRequest {
   confirm_password: string;
 }
 
-export interface ForgotPasswordResendRequest {
-  email: string;
+export interface ResetTokenResponse {
+  data: { reset_token: string; expires_in: number };
+  meta: Record<string, unknown>;
 }

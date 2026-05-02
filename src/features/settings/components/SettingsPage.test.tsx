@@ -41,21 +41,23 @@ function createCurrentUser(role: UserRole): CurrentUser {
       {
         staff_id: "staff-1",
         job_title: "Clinic owner",
-        role: { id: "role-1", name: role },
+        roles: [{ id: "role-1", name: role }],
         organization: {
           id: "org-1",
           name: "Cradlen Clinic",
           specialities: ["Cardiology", "Pediatrics"],
           status: "active",
         },
-        branch: {
-          id: "branch-1",
-          address: "123 Medical St",
-          city: "Cairo",
-          country: "Egypt",
-          governorate: "Cairo",
-          is_main: true,
-        },
+        branches: [
+          {
+            id: "branch-1",
+            address: "123 Medical St",
+            city: "Cairo",
+            country: "Egypt",
+            governorate: "Cairo",
+            is_main: true,
+          },
+        ],
       },
     ],
   };

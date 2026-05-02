@@ -56,7 +56,9 @@ export function SignInForm() {
           profiles: getProfilesFromAuthResponse(res),
         });
         router.replace(
-          `/select-profile?redirectTo=${encodeURIComponent(redirectTo)}`,
+          redirectTo
+            ? `/select-profile?redirectTo=${encodeURIComponent(redirectTo)}`
+            : "/select-profile",
         );
         return;
       }

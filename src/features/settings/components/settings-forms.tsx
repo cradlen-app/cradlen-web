@@ -3,6 +3,10 @@ import { Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/hooks/useCurrentUser";
+import {
+  getDefaultBranch,
+  getProfilePrimaryRole,
+} from "@/features/auth/lib/current-user";
 import { queryClient } from "@/lib/queryClient";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import {
@@ -92,7 +96,7 @@ export function ProfileForm({
         label={t("fields.phone")}
         name="phone"
       />
-      {(profile?.role.name === "doctor" ||
+      {(getProfilePrimaryRole(profile) === "doctor" ||
         (profile?.organization?.specialities?.length ?? 0) > 0) && (
         <TextField
           defaultValue={profile?.specialty ?? ""}
@@ -264,13 +268,14 @@ export function BranchForm({
   t,
 }: SettingsFormProps) {
   const isEdit = activeDrawer === "branchEdit";
+  const activeBranch = getDefaultBranch(profile);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const requiredFields = isEdit
       ? ["city", "governorate", "address"]
-      : ["country", "city", "governorate", "address"];
+      : ["branchName", "country", "city", "governorate", "address"];
 
     if (!hasRequiredValues(form, requiredFields)) {
       toast.error(t("validation.required"));
@@ -286,12 +291,13 @@ export function BranchForm({
 
     try {
       if (isEdit) {
-        if (!profile.branch?.id) {
+        if (!activeBranch?.id) {
           toast.error(t("branches.updateError"));
           return;
         }
 
-        await updateBranch(profile.branch.id, profile.organization.id, {
+        await updateBranch(activeBranch.id, profile.organization.id, {
+          name: getFormString(form, "branchName") || undefined,
           country: getFormString(form, "country") || undefined,
           city: getFormString(form, "city"),
           governorate: getFormString(form, "governorate"),
@@ -301,6 +307,7 @@ export function BranchForm({
         toast.success(t("branches.updateSuccess"));
       } else {
         await createBranch({
+          name: getFormString(form, "branchName"),
           organization_id: profile.organization.id,
           country: getFormString(form, "country") || undefined,
           city: getFormString(form, "city"),
@@ -323,28 +330,35 @@ export function BranchForm({
   return (
     <form className="grid gap-3" onSubmit={handleSubmit}>
       <TextField
-        defaultValue={isEdit ? profile?.branch.country : ""}
+        defaultValue={isEdit ? (activeBranch?.name ?? "") : ""}
+        id="branch-name"
+        label={t("fields.name")}
+        name="branchName"
+        required={!isEdit}
+      />
+      <TextField
+        defaultValue={isEdit ? activeBranch?.country : ""}
         id="branch-country"
         label={t("fields.country")}
         name="country"
         required={!isEdit}
       />
       <TextField
-        defaultValue={isEdit ? profile?.branch.city : ""}
+        defaultValue={isEdit ? activeBranch?.city : ""}
         id="branch-city"
         label={t("fields.city")}
         name="city"
         required
       />
       <TextField
-        defaultValue={isEdit ? profile?.branch.governorate : ""}
+        defaultValue={isEdit ? activeBranch?.governorate : ""}
         id="branch-governorate"
         label={t("fields.governorate")}
         name="governorate"
         required
       />
       <TextField
-        defaultValue={isEdit ? profile?.branch.address : ""}
+        defaultValue={isEdit ? activeBranch?.address : ""}
         id="branch-address"
         label={t("fields.address")}
         name="address"
@@ -352,7 +366,7 @@ export function BranchForm({
       />
       <label className="flex items-center gap-2 text-sm text-brand-black">
         <input
-          defaultChecked={isEdit && profile?.branch.is_main}
+          defaultChecked={isEdit && activeBranch?.is_main}
           name="isMain"
           type="checkbox"
           className="size-4 rounded border-gray-300"

@@ -18,14 +18,12 @@ export default async function SignUpCompletePage({ params }: Props) {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <header className="flex items-center justify-between px-8 py-5">
-        <Link href="/" aria-label="Cradlen home" className="inline-flex">
-          <Image
-            src={Logo}
-            alt="CRADLEN"
-            loading="eager"
-            height={36}
-            className="w-auto"
-          />
+        <Link
+          href="/"
+          aria-label="Cradlen home"
+          className="w-30 shrink-0 inline-flex"
+        >
+          <Image src={Logo} alt="CRADLEN" loading="eager" className="w-auto" />
         </Link>
         <Link
           href="/sign-in"
