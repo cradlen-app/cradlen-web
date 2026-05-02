@@ -32,7 +32,9 @@
     "upload": "upload",
     "notifications": "Notifications",
     "messages": "Messages",
-    "profileSwitcher": "Switch profile"
+    "profileSwitcher": "Switch profile",
+    "switchBranch": "Switch branch",
+    "switchBranchError": "Failed to switch branch"
   },
   "staff": {
     "title": "Staff",
@@ -255,7 +257,7 @@
     "yes": "Yes",
     "no": "No",
     "cancel": "Cancel",
-    "softDeleteConfirm": "Soft delete",
+    "softDeleteConfirm": "Delete",
     "status": {
       "active": "Active",
       "inactive": "Inactive"
@@ -263,8 +265,14 @@
     "roles": {
       "owner": "Owner",
       "doctor": "Doctor",
-      "receptionist": "Reception",
-      "patient": "Patient"
+      "reception": "Reception",
+      "patient": "Patient",
+      "unknown": "Unknown"
+    },
+    "orgStatus": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "SUSPENDED": "Suspended"
     },
     "tabs": {
       "profile": "Profile",
@@ -290,7 +298,7 @@
       "city": "City",
       "governorate": "Governorate",
       "address": "Address",
-      "isClinical": "Clinical organization",
+      "isClinical": "I am a doctor (clinical staff)",
       "specialty": "Specialty",
       "mainBranch": "Main branch"
     },
@@ -305,8 +313,7 @@
     },
     "organization": {
       "title": "Organization",
-      "description": "Review the current clinic and prepare a new owned clinic.",
-      "drawerDescription": "Create a new organization with its main branch.",
+      "description": "Review the current clinic organization and manage its details.",
       "editDrawerDescription": "Update the organization details that identify this clinic.",
       "add": "Add organization",
       "edit": "Edit organization",
@@ -314,8 +321,6 @@
       "Delete": "Delete organization",
       "DeleteTitle": "Delete organization?",
       "DeleteDescription": "This will disable the organization, its branches, staff, subscriptions, and pending invitations.",
-      "createSuccess": "Organization created.",
-      "createError": "Failed to create organization. Please try again.",
       "updateSuccess": "Organization updated.",
       "updateError": "Failed to update organization. Please try again.",
       "deleteSuccess": "Organization deleted.",
@@ -331,13 +336,14 @@
       "save": "Save branch",
       "Delete": "Delete branch",
       "DeleteTitle": "Delete branch?",
-      "DeleteDescription": "This will disable the branch. The backend prevents deleting the only active branch.",
+      "DeleteDescription": "This branch will be disabled and no longer accessible. Your clinic must always have at least one active branch.",
       "createSuccess": "Branch created.",
       "createError": "Failed to create branch. Please try again.",
       "updateSuccess": "Branch updated.",
       "updateError": "Failed to update branch. Please try again.",
       "deleteSuccess": "Branch deleted.",
-      "deleteError": "Failed to delete branch. Please try again."
+      "deleteError": "Failed to delete branch. Please try again.",
+      "deleteForbidden": "You don't have permission to delete branches. Only the organization owner can do this."
     },
     "danger": {
       "title": "Danger Zone",
@@ -566,7 +572,36 @@
       "error": "Could not select this profile. Please try again.",
       "signingIn": "Signing you in...",
       "selectBranch": "Select your branch",
-      "selectBranchSubtitle": "Choose the branch you want to work in."
+      "selectBranchSubtitle": "Choose the branch you want to work in.",
+      "createOrganization": "Create new organization"
+    }
+  },
+  "createOrganization": {
+    "title": "Add new organization",
+    "subtitle": "Set up a new clinic with its first branch and your role.",
+    "backToProfiles": "Back to profiles",
+    "groupOrganization": "Organization details",
+    "groupBranch": "Main branch",
+    "groupRole": "Your role",
+    "isClinical": "I am a doctor (clinical staff)",
+    "isClinicalHint": "Adds the Doctor role and enables clinical features for your account",
+    "createSuccess": "Organization created. Please select your new profile.",
+    "createError": "Failed to create organization. Please try again.",
+    "validationError": "Please complete all required fields.",
+    "selectProfileFirst": "You need to select an existing profile first. Once authenticated, you'll be brought back here to finish.",
+    "selectProfile": "Select a profile",
+    "submit": "Create organization",
+    "fields": {
+      "organizationName": "Organization name",
+      "specialties": "Specialties",
+      "specialtiesPlaceholder": "e.g. Pediatrics, Cardiology",
+      "branchName": "Branch name",
+      "city": "City",
+      "governorate": "Governorate",
+      "address": "Address",
+      "country": "Country",
+      "specialty": "Specialty",
+      "jobTitle": "Job title"
     }
   }
 }

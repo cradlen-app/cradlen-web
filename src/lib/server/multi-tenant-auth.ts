@@ -131,7 +131,7 @@ function getCookieValue(cookieHeader: string | null, name: string) {
     ?.split(";")
     .map((cookie) => cookie.trim())
     .find((cookie) => cookie.startsWith(`${name}=`))
-    ?.split("=")[1];
+    ?.slice(name.length + 1);
 }
 
 export async function selectProfileSession(request: Request) {

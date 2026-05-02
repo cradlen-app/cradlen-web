@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
@@ -9,18 +10,22 @@ import {
 } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
-  getDefaultBranch,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { useRouter } from "@/i18n/navigation";
+import { ApiError } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import {
+  branchesQueryKey,
   deactivateAccount,
   deleteBranch,
   deleteOrganization,
+  listBranches,
+  type AccountBranch,
 } from "../lib/settings.api";
 import { SettingsConfirmDialogs } from "./settings-dialogs";
 import { BranchForm, OrganizationForm, ProfileForm } from "./settings-forms";
@@ -45,13 +50,23 @@ export function SettingsPage() {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState<SectionKey>("profile");
   const [activeDrawer, setActiveDrawer] = useState<DrawerKey>(null);
+  const [activeBranchId, setActiveBranchId] = useState<string | null>(null);
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [confirmSoftDelete, setConfirmSoftDelete] =
     useState<SoftDeleteKey>(null);
   const { data: user, isError, isLoading } = useCurrentUser();
   const clearSession = useAuthStore((state) => state.clearSession);
   const clearUser = useUserStore((state) => state.clearUser);
+  const currentBranchId = useAuthContextStore((state) => state.branchId);
   const profile = getActiveProfile(user);
+  const accountId = profile?.organization.id;
+
+  const { data: branchesData, isLoading: branchesLoading } = useQuery({
+    queryKey: branchesQueryKey(accountId ?? ""),
+    queryFn: () => listBranches(accountId!),
+    enabled: !!accountId,
+  });
+  const branches: AccountBranch[] = branchesData?.data ?? [];
 
   if (isLoading) {
     return (
@@ -70,40 +85,40 @@ export function SettingsPage() {
   }
 
   const displayName = `${user.first_name} ${user.last_name}`;
-  const activeBranch = getDefaultBranch(profile);
-  const branchAddress = activeBranch
-    ? [
-        activeBranch.address,
-        activeBranch.city,
-        activeBranch.governorate,
-        activeBranch.country,
-      ]
-        .filter(Boolean)
-        .join(", ")
-    : "";
 
   async function handleSoftDeleteConfirm() {
     try {
-      if (confirmSoftDelete === "organization") {
+      if (confirmSoftDelete?.type === "organization") {
         if (!profile?.organization.id) return;
         await deleteOrganization(profile.organization.id);
         toast.success(t("organization.deleteSuccess"));
       }
 
-      if (confirmSoftDelete === "branch") {
-        if (!activeBranch?.id || !profile?.organization.id) return;
-        await deleteBranch(activeBranch.id, profile.organization.id);
+      if (confirmSoftDelete?.type === "branch") {
+        if (!confirmSoftDelete.branchId || !profile?.organization.id) return;
+        await deleteBranch(profile.organization.id, confirmSoftDelete.branchId);
         toast.success(t("branches.deleteSuccess"));
       }
 
       setConfirmSoftDelete(null);
-      await queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
-    } catch {
-      toast.error(
-        confirmSoftDelete === "organization"
-          ? t("organization.deleteError")
-          : t("branches.deleteError"),
-      );
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY }),
+        accountId
+          ? queryClient.invalidateQueries({
+              queryKey: branchesQueryKey(accountId),
+            })
+          : Promise.resolve(),
+      ]);
+    } catch (error) {
+      if (confirmSoftDelete?.type === "branch" && error instanceof ApiError && error.status === 403) {
+        toast.error(t("branches.deleteForbidden"));
+      } else {
+        toast.error(
+          confirmSoftDelete?.type === "organization"
+            ? t("organization.deleteError")
+            : t("branches.deleteError"),
+        );
+      }
     }
   }
 
@@ -129,11 +144,15 @@ export function SettingsPage() {
   }
 
   const sectionProps = {
-    branchAddress,
+    branches,
+    branchesLoading,
+    branchAddress: "",
+    currentBranchId,
     displayName,
     locale,
     profile,
     setActiveDrawer,
+    setActiveBranchId,
     setConfirmDeactivate,
     setConfirmSoftDelete,
     t,
@@ -168,8 +187,13 @@ export function SettingsPage() {
       </div>
 
       <SettingsDrawers
+        activeBranchId={activeBranchId}
         activeDrawer={activeDrawer}
-        onClose={() => setActiveDrawer(null)}
+        branches={branches}
+        onClose={() => {
+          setActiveDrawer(null);
+          setActiveBranchId(null);
+        }}
         profile={profile}
         t={t}
         user={user}
@@ -267,13 +291,17 @@ function SettingsNav({
 }
 
 function SettingsDrawers({
+  activeBranchId,
   activeDrawer,
+  branches,
   onClose,
   profile,
   t,
   user,
 }: {
+  activeBranchId: string | null;
   activeDrawer: DrawerKey;
+  branches: import("../lib/settings.api").AccountBranch[];
   onClose: () => void;
   profile: ReturnType<typeof getActiveProfile>;
   t: ReturnType<typeof useTranslations>;
@@ -300,23 +328,12 @@ function SettingsDrawers({
       </SettingsDrawer>
 
       <SettingsDrawer
-        description={
-          activeDrawer === "organizationEdit"
-            ? t("organization.editDrawerDescription")
-            : t("organization.drawerDescription")
-        }
+        description={t("organization.editDrawerDescription")}
         onOpenChange={(open) => {
           if (!open) onClose();
         }}
-        open={
-          activeDrawer === "organizationCreate" ||
-          activeDrawer === "organizationEdit"
-        }
-        title={
-          activeDrawer === "organizationEdit"
-            ? t("organization.edit")
-            : t("organization.add")
-        }
+        open={activeDrawer === "organizationEdit"}
+        title={t("organization.edit")}
       >
         <OrganizationForm
           activeDrawer={activeDrawer}
@@ -344,6 +361,8 @@ function SettingsDrawers({
       >
         <BranchForm
           activeDrawer={activeDrawer}
+          branches={branches}
+          branchId={activeBranchId ?? undefined}
           cancelLabel={t("cancel")}
           onDone={onClose}
           profile={profile}

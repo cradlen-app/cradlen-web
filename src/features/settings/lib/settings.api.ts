@@ -1,25 +1,38 @@
-import { apiAuthFetch } from "@/lib/api";
+import { apiAuthFetch, apiFetch } from "@/lib/api";
+
+export type AccountBranch = {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  governorate: string;
+  country: string | null;
+  is_main: boolean;
+  status: string;
+};
+
+export const branchesQueryKey = (accountId: string) => ["branches", accountId];
 
 export type UpdateAccountProfileRequest = {
   first_name?: string;
   is_clinical?: boolean;
   job_title?: string;
   last_name?: string;
-  organization_id?: string;
   phone_number?: string;
   specialty?: string;
 };
 
 export type CreateOrganizationRequest = {
-  address: string;
-  city: string;
-  country: string;
-  governorate: string;
-  is_clinical?: boolean;
-  job_title?: string;
-  name: string;
-  specialities?: string[];
+  account_name: string;
+  branch_name: string;
+  branch_address: string;
+  branch_city: string;
+  branch_governorate: string;
+  branch_country?: string;
+  specialties: string[];
+  roles: string[];
   specialty?: string;
+  job_title?: string;
 };
 
 export type UpdateOrganizationRequest = {
@@ -29,13 +42,12 @@ export type UpdateOrganizationRequest = {
 };
 
 export type CreateBranchRequest = {
-  address: string;
-  city: string;
-  country?: string;
-  governorate: string;
-  is_main?: boolean;
   name: string;
-  organization_id: string;
+  address: string;
+  city?: string;
+  country?: string;
+  governorate?: string;
+  is_main?: boolean;
 };
 
 export type UpdateBranchRequest = {
@@ -47,8 +59,11 @@ export type UpdateBranchRequest = {
   name?: string;
 };
 
-export function updateAccountProfile(data: UpdateAccountProfileRequest) {
-  return apiAuthFetch("/account/profile", {
+export function updateAccountProfile(
+  profileId: string,
+  data: UpdateAccountProfileRequest,
+) {
+  return apiAuthFetch(`/profiles/${profileId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
@@ -65,7 +80,14 @@ export function deactivateAccount(data: { reason?: string } = {}) {
 }
 
 export function createOrganization(data: CreateOrganizationRequest) {
-  return apiAuthFetch("/owner/organizations", {
+  return apiAuthFetch("/accounts", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function createOrganizationSession(data: CreateOrganizationRequest) {
+  return apiFetch("/api/auth/create-organization", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -75,42 +97,47 @@ export function updateOrganization(
   organizationId: string,
   data: UpdateOrganizationRequest,
 ) {
-  return apiAuthFetch(`/owner/organizations/${organizationId}`, {
+  return apiAuthFetch(`/accounts/${organizationId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
 export function deleteOrganization(organizationId: string) {
-  return apiAuthFetch(`/owner/organizations/${organizationId}`, {
+  return apiAuthFetch(`/accounts/${organizationId}`, {
     method: "DELETE",
   });
 }
 
-export function createBranch(data: CreateBranchRequest) {
-  return apiAuthFetch("/owner/branches", {
+export function createBranch(
+  organizationId: string,
+  data: CreateBranchRequest,
+) {
+  return apiAuthFetch(`/accounts/${organizationId}/branches`, {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
 export function updateBranch(
-  branchId: string,
   organizationId: string,
+  branchId: string,
   data: UpdateBranchRequest,
 ) {
-  const params = new URLSearchParams({ organization_id: organizationId });
-
-  return apiAuthFetch(`/owner/branches/${branchId}?${params}`, {
+  return apiAuthFetch(`/accounts/${organizationId}/branches/${branchId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
-export function deleteBranch(branchId: string, organizationId: string) {
-  const params = new URLSearchParams({ organization_id: organizationId });
-
-  return apiAuthFetch(`/owner/branches/${branchId}?${params}`, {
+export function deleteBranch(organizationId: string, branchId: string) {
+  return apiAuthFetch(`/accounts/${organizationId}/branches/${branchId}`, {
     method: "DELETE",
   });
+}
+
+export function listBranches(accountId: string) {
+  return apiAuthFetch<{ data: AccountBranch[] }>(
+    `/accounts/${accountId}/branches`,
+  );
 }
