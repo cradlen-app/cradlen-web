@@ -104,13 +104,17 @@ export function SelectProfilePage() {
   }
 
   async function handleContinue() {
-    if (!selectedProfile || !canContinue) return;
+    if (!selectedProfile || !canContinue) {
+      setIsAutoProceeding(false);
+      return;
+    }
 
     const profileId = getProfileId(selectedProfile);
     const accountId = getProfileAccountId(selectedProfile);
     const branchId = getBranchId(selectedBranch);
 
     if (!profileId || !accountId || !branchId) {
+      setIsAutoProceeding(false);
       toast.error(t("missingContext"));
       return;
     }
@@ -183,13 +187,13 @@ export function SelectProfilePage() {
 
   if (!profiles.length) {
     return (
-      <div className="w-full max-w-md rounded-xl border border-gray-100 bg-white p-5 text-center shadow-sm">
-        <h1 className="text-lg font-semibold text-brand-black">{t("title")}</h1>
-        <p className="mt-2 text-sm text-gray-500">{t("empty")}</p>
+      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+        <p className="text-base font-semibold text-brand-black">{t("title")}</p>
+        <p className="mt-2 text-sm text-gray-400">{t("empty")}</p>
         <Button
           type="button"
           onClick={() => router.replace("/sign-in")}
-          className="mt-5 rounded-full px-5 py-2.5"
+          className="mt-6 h-10 rounded-full px-6 bg-brand-primary text-white text-sm font-medium hover:bg-brand-primary/90"
         >
           {t("backToSignIn")}
         </Button>
@@ -299,6 +303,7 @@ export function SelectProfilePage() {
           mainBranchLabel={t("mainBranch")}
         />
       )}
+
     </SelectionLayout>
   );
 }

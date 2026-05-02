@@ -4,13 +4,15 @@ export type SectionKey = "profile" | "organization" | "branches" | "danger";
 
 export type DrawerKey =
   | "profile"
-  | "organizationCreate"
   | "organizationEdit"
   | "branchCreate"
   | "branchEdit"
   | null;
 
-export type SoftDeleteKey = "organization" | "branch" | null;
+export type SoftDeleteKey =
+  | { type: "organization" }
+  | { type: "branch"; branchId: string }
+  | null;
 
 export const SETTINGS_SECTIONS: { key: SectionKey; icon: typeof UserRound }[] =
   [

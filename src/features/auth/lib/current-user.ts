@@ -26,7 +26,7 @@ export function getProfileAccountName(profile?: UserProfile) {
 }
 
 export function getProfileAccountId(profile?: UserProfile) {
-  return getProfileAccount(profile)?.id;
+  return getProfileAccount(profile)?.id ?? profile?.account_id;
 }
 
 export function getBranchId(branch?: UserProfile["branch"]) {

@@ -32,7 +32,9 @@
     "upload": "رفع",
     "notifications": "الإشعارات",
     "messages": "الرسائل",
-    "profileSwitcher": "تبديل الملف"
+    "profileSwitcher": "تبديل الملف",
+    "switchBranch": "تبديل الفرع",
+    "switchBranchError": "فشل تبديل الفرع"
   },
   "staff": {
     "title": "الموظفون",
@@ -255,7 +257,7 @@
     "yes": "نعم",
     "no": "لا",
     "cancel": "إلغاء",
-    "softDeleteConfirm": "حذف مؤقت",
+    "softDeleteConfirm": "احذف",
     "status": {
       "active": "نشط",
       "inactive": "غير نشط"
@@ -263,8 +265,14 @@
     "roles": {
       "owner": "مالك",
       "doctor": "طبيب",
-      "receptionist": "استقبال",
-      "patient": "مريض"
+      "reception": "استقبال",
+      "patient": "مريض",
+      "unknown": "غير معروف"
+    },
+    "orgStatus": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط",
+      "SUSPENDED": "موقوف"
     },
     "tabs": {
       "profile": "الملف الشخصي",
@@ -290,7 +298,7 @@
       "city": "المدينة",
       "governorate": "المحافظة",
       "address": "العنوان",
-      "isClinical": "منظمة طبية",
+      "isClinical": "أنا طبيب (موظف سريري)",
       "specialty": "التخصص",
       "mainBranch": "الفرع الرئيسي"
     },
@@ -305,8 +313,7 @@
     },
     "organization": {
       "title": "المنظمة",
-      "description": "راجع العيادة الحالية وجهز عيادة جديدة تملكها.",
-      "drawerDescription": "أنشئ منظمة جديدة مع فرعها الرئيسي.",
+      "description": "راجع بيانات المنظمة الحالية وأدر تفاصيلها.",
       "editDrawerDescription": "حدّث بيانات المنظمة التي تعرّف هذه العيادة.",
       "add": "إضافة منظمة",
       "edit": "تعديل المنظمة",
@@ -314,8 +321,6 @@
       "Delete": "حذف المنظمة مؤقتاً",
       "DeleteTitle": "حذف المنظمة مؤقتاً؟",
       "DeleteDescription": "سيتم تعطيل المنظمة وفروعها والموظفين والاشتراكات والدعوات المعلقة.",
-      "createSuccess": "تم إنشاء المنظمة.",
-      "createError": "فشل إنشاء المنظمة. حاول مرة أخرى.",
       "updateSuccess": "تم تحديث المنظمة.",
       "updateError": "فشل تحديث المنظمة. حاول مرة أخرى.",
       "deleteSuccess": "تم حذف المنظمة.",
@@ -331,13 +336,14 @@
       "save": "حفظ الفرع",
       "Delete": "حذف الفرع مؤقتاً",
       "DeleteTitle": "حذف الفرع مؤقتاً؟",
-      "DeleteDescription": "سيتم تعطيل الفرع. يمنع الخادم حذف الفرع النشط الوحيد.",
+      "DeleteDescription": "سيتم تعطيل هذا الفرع ولن يكون متاحاً بعد الآن. يجب أن يكون لدى عيادتك فرع نشط واحد على الأقل.",
       "createSuccess": "تم إنشاء الفرع.",
       "createError": "فشل إنشاء الفرع. حاول مرة أخرى.",
       "updateSuccess": "تم تحديث الفرع.",
       "updateError": "فشل تحديث الفرع. حاول مرة أخرى.",
       "deleteSuccess": "تم حذف الفرع.",
-      "deleteError": "فشل حذف الفرع. حاول مرة أخرى."
+      "deleteError": "فشل حذف الفرع. حاول مرة أخرى.",
+      "deleteForbidden": "ليس لديك صلاحية حذف الفروع. يمكن للمالك فقط القيام بذلك."
     },
     "danger": {
       "title": "منطقة الخطر",
@@ -566,7 +572,36 @@
       "error": "تعذر اختيار هذا الملف. حاول مرة أخرى.",
       "signingIn": "جاري تسجيل دخولك...",
       "selectBranch": "اختر الفرع",
-      "selectBranchSubtitle": "اختر الفرع الذي تريد العمل فيه."
+      "selectBranchSubtitle": "اختر الفرع الذي تريد العمل فيه.",
+      "createOrganization": "إنشاء منظمة جديدة"
+    }
+  },
+  "createOrganization": {
+    "title": "إضافة منظمة جديدة",
+    "subtitle": "أنشئ عيادة جديدة مع فرعها الأول ودورك فيها.",
+    "backToProfiles": "العودة إلى الملفات",
+    "groupOrganization": "تفاصيل المنظمة",
+    "groupBranch": "الفرع الرئيسي",
+    "groupRole": "دورك",
+    "isClinical": "أنا طبيب (موظف سريري)",
+    "isClinicalHint": "يضيف دور الطبيب ويتيح الميزات السريرية لحسابك",
+    "createSuccess": "تم إنشاء المنظمة. اختر ملفك الجديد.",
+    "createError": "فشل إنشاء المنظمة. حاول مرة أخرى.",
+    "validationError": "يرجى إكمال جميع الحقول المطلوبة.",
+    "selectProfileFirst": "يجب عليك اختيار ملف موجود أولاً. بعد تسجيل الدخول، ستعود هنا لإتمام الإنشاء.",
+    "selectProfile": "اختر ملفاً",
+    "submit": "إنشاء المنظمة",
+    "fields": {
+      "organizationName": "اسم المنظمة",
+      "specialties": "التخصصات",
+      "specialtiesPlaceholder": "مثال: طب الأطفال، أمراض القلب",
+      "branchName": "اسم الفرع",
+      "city": "المدينة",
+      "governorate": "المحافظة",
+      "address": "العنوان",
+      "country": "الدولة",
+      "specialty": "التخصص",
+      "jobTitle": "المسمى الوظيفي"
     }
   }
 }
