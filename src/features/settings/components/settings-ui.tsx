@@ -29,7 +29,7 @@ type EntitySummaryProps = {
   actions?: ReactNode;
   description?: string;
   icon: ReactNode;
-  label: string;
+  label?: string;
   meta?: ReactNode;
   title: string;
 };
@@ -143,9 +143,11 @@ export function EntitySummary({
             {icon}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase text-gray-400">
-              {label}
-            </p>
+            {label && (
+              <p className="text-xs font-medium uppercase text-gray-400">
+                {label}
+              </p>
+            )}
             <h3 className="mt-1 truncate text-base font-medium text-brand-black">
               {title}
             </h3>
@@ -192,6 +194,23 @@ export function SettingsDrawer({
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+export function FormGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-gray-100 bg-gray-50/40 p-4">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+        {title}
+      </p>
+      <div className="grid gap-3">{children}</div>
+    </div>
   );
 }
 

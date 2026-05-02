@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
 import {
   AUTH_REFRESH_TOKEN_COOKIE,
+  AUTH_SELECTION_TOKEN_COOKIE,
   AUTH_TOKEN_COOKIE,
 } from "./features/auth/lib/auth.constants";
 
@@ -66,14 +67,25 @@ function isExpiredJwt(token: string) {
   }
 }
 
+// Routes a logged-in-but-not-yet-profiled user (selection token only) can reach.
+// The page itself handles the missing auth context gracefully.
+const SELECTION_TOKEN_ALLOWED_PATHS = ["/create-organization"];
+
 export default function proxy(request: NextRequest) {
   if (isProtectedPath(request.nextUrl.pathname)) {
     const authToken = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
     const refreshToken = request.cookies.get(AUTH_REFRESH_TOKEN_COOKIE)?.value;
+    const selectionToken = request.cookies.get(AUTH_SELECTION_TOKEN_COOKIE)?.value;
     const hasAuthToken = Boolean(authToken && !isExpiredJwt(authToken));
     const hasRefreshToken = Boolean(refreshToken);
+    const pathWithoutLocale = getPathWithoutLocale(request.nextUrl.pathname);
+    const hasSelectionAccess =
+      Boolean(selectionToken) &&
+      SELECTION_TOKEN_ALLOWED_PATHS.some(
+        (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(p + "/"),
+      );
 
-    if (!hasAuthToken && !hasRefreshToken) {
+    if (!hasAuthToken && !hasRefreshToken && !hasSelectionAccess) {
       const locale = getLocale(request.nextUrl.pathname);
       const signInUrl = new URL(`/${locale}/sign-in`, request.url);
       signInUrl.searchParams.set(
