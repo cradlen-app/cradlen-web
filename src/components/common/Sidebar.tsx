@@ -120,6 +120,7 @@ export function Sidebar() {
   const clearSession = useAuthStore((s) => s.clearSession);
   const clearContext = useAuthContextStore((s) => s.clearContext);
   const branchId = useAuthContextStore((s) => s.branchId);
+  const profileId = useAuthContextStore((s) => s.profileId);
   const setContext = useAuthContextStore((s) => s.setContext);
   const selectProfile = useSelectProfile();
 
@@ -148,25 +149,30 @@ export function Sidebar() {
 
   async function handleBranchSwitch(newBranchId: string) {
     if (!profile) return;
-    const profileId = getProfileId(profile);
-    if (!profileId) return;
+    const pid = profileId ?? getProfileId(profile);
+    if (!pid) return;
     try {
       const response = await selectProfile.mutateAsync({
         branch_id: newBranchId,
-        profile_id: profileId,
+        profile_id: pid,
       });
       const newOrgId = response.data.account_id ?? getProfileAccountId(profile);
+      if (!newOrgId) {
+        toast.error(t("switchBranchError"));
+        return;
+      }
       const finalBranchId = response.data.branch_id ?? newBranchId;
       setContext({
-        accountId: newOrgId ?? null,
+        accountId: newOrgId,
         branchId: finalBranchId ?? null,
-        profileId: response.data.profile_id ?? profileId,
+        profileId: response.data.profile_id ?? pid,
       });
       queryClient.clear();
       const dashboardSegment = pathname.split("/").slice(3).join("/");
       router.replace(`/${newOrgId}/${finalBranchId ?? ""}/${dashboardSegment}`);
       setBranchMenuOpen(false);
-    } catch {
+    } catch (error) {
+      console.error("[branch-switch]", error);
       toast.error(t("switchBranchError"));
     }
   }
