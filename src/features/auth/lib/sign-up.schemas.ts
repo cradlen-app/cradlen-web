@@ -56,7 +56,7 @@ export function makeStep3Schema(t: (key: string) => string = (k) => k) {
       .string()
       .min(1, { message: t("errors.accountNameRequired") }),
     specialties: z
-      .string()
+      .array(z.string())
       .min(1, { message: t("errors.specialtiesRequired") }),
     branchName: z
       .string()

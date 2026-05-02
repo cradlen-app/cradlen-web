@@ -6,10 +6,10 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Link, useRouter } from "@/i18n/navigation";
+import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
 import { createOrganizationSession } from "@/features/settings/lib/settings.api";
 import {
   getFormString,
-  getSpecialities,
   hasRequiredValues,
 } from "@/features/settings/components/settings.utils";
 
@@ -72,6 +72,7 @@ export function CreateOrganizationPage() {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [isClinical, setIsClinical] = useState(false);
+  const [specialties, setSpecialties] = useState<string[]>([]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -81,7 +82,6 @@ export function CreateOrganizationPage() {
       !hasRequiredValues(form, [
         "organizationName",
         "branchName",
-        "specialties",
         "city",
         "governorate",
         "address",
@@ -91,9 +91,13 @@ export function CreateOrganizationPage() {
       return;
     }
 
+    if (!specialties.length) {
+      toast.error(t("validationError"));
+      return;
+    }
+
     setIsPending(true);
     try {
-      const specialties = getSpecialities(getFormString(form, "specialties"));
       const roles = isClinical ? ["OWNER", "DOCTOR"] : ["OWNER"];
 
       await createOrganizationSession({
@@ -137,13 +141,17 @@ export function CreateOrganizationPage() {
             name="organizationName"
             required
           />
-          <Field
-            id="org-specialties"
-            label={t("fields.specialties")}
-            name="specialties"
-            placeholder={t("fields.specialtiesPlaceholder")}
-            required
-          />
+          <label className="flex flex-col gap-1.5 text-sm text-brand-black">
+            <span className="font-medium">
+              {t("fields.specialties")}
+              <span className="ms-0.5 text-brand-primary">*</span>
+            </span>
+            <SpecialtiesSelect
+              value={specialties}
+              onChange={setSpecialties}
+              placeholder={t("fields.specialtiesPlaceholder")}
+            />
+          </label>
         </FieldGroup>
 
         <FieldGroup icon={<GitBranch className="size-4" />} title={t("groupBranch")}>

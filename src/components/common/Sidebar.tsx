@@ -26,7 +26,7 @@ import { usePathname } from "@/i18n/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { useSelectProfile } from "@/features/auth/hooks/useSelectProfile";
+import { useSwitchBranch } from "@/features/auth/hooks/useSwitchBranch";
 import {
   getActiveProfile,
   getDefaultBranch,
@@ -34,7 +34,6 @@ import {
   getProfileAccount,
   getProfileAccountId,
   getProfileBranches,
-  getProfileId,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
 import { useUserStore } from "@/features/auth/store/userStore";
@@ -124,7 +123,7 @@ export function Sidebar() {
   const branchId = useAuthContextStore((s) => s.branchId);
   const profileId = useAuthContextStore((s) => s.profileId);
   const setContext = useAuthContextStore((s) => s.setContext);
-  const selectProfile = useSelectProfile();
+  const switchBranch = useSwitchBranch();
 
   useEffect(() => {
     if (!branchMenuOpen) return;
@@ -151,29 +150,23 @@ export function Sidebar() {
 
   async function handleBranchSwitch(newBranchId: string) {
     if (!profile) return;
-    const pid = profileId ?? getProfileId(profile);
-    if (!pid) return;
     setSwitchingToBranchId(newBranchId);
     try {
-      const response = await selectProfile.mutateAsync({
-        branch_id: newBranchId,
-        profile_id: pid,
-      });
-      const newOrgId = response.data.account_id ?? getProfileAccountId(profile);
-      if (!newOrgId) {
+      await switchBranch.mutateAsync({ branch_id: newBranchId });
+      const orgId = getProfileAccountId(profile);
+      if (!orgId) {
         setSwitchingToBranchId(null);
         toast.error(t("switchBranchError"));
         return;
       }
-      const finalBranchId = response.data.branch_id ?? newBranchId;
       setContext({
-        accountId: newOrgId,
-        branchId: finalBranchId ?? null,
-        profileId: response.data.profile_id ?? pid,
+        accountId: orgId,
+        branchId: newBranchId,
+        profileId: profileId ?? "",
       });
       queryClient.clear();
       const dashboardSegment = pathname.split("/").slice(3).join("/");
-      router.replace(`/${newOrgId}/${finalBranchId ?? ""}/${dashboardSegment}`);
+      router.replace(`/${orgId}/${newBranchId}/${dashboardSegment}`);
       setBranchMenuOpen(false);
     } catch (error) {
       console.error("[branch-switch]", error);
@@ -238,7 +231,7 @@ export function Sidebar() {
               <button
                 type="button"
                 onClick={() => setBranchMenuOpen((o) => !o)}
-                disabled={selectProfile.isPending}
+                disabled={switchBranch.isPending}
                 className="flex items-center gap-1 flex-1 min-w-0 text-start hover:opacity-70 transition-opacity"
                 aria-label={t("switchBranch")}
               >
@@ -250,7 +243,7 @@ export function Sidebar() {
                     {clinicBranch}
                   </span>
                 </div>
-                {selectProfile.isPending ? (
+                {switchBranch.isPending ? (
                   <Loader2 className="size-3.5 shrink-0 text-gray-400 animate-spin" />
                 ) : (
                   <ChevronDown
@@ -294,14 +287,14 @@ export function Sidebar() {
                   <button
                     key={bId}
                     type="button"
-                    disabled={selectProfile.isPending}
+                    disabled={switchBranch.isPending}
                     onClick={() => void handleBranchSwitch(bId)}
                     className={cn(
                       "w-full flex items-start gap-2 rounded-lg px-2.5 py-2 text-start transition-colors",
                       isActive
                         ? "bg-brand-primary/10 text-brand-primary"
                         : "text-gray-600 hover:bg-gray-50",
-                      selectProfile.isPending && !isLoading && "opacity-40 cursor-not-allowed",
+                      switchBranch.isPending && !isLoading && "opacity-40 cursor-not-allowed",
                     )}
                   >
                     <MapPin
