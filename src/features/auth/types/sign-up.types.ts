@@ -16,7 +16,7 @@ export type Step2Data = {
 
 export type Step3Data = {
   accountName: string;
-  specialties: string;
+  specialties: string[];
   branchName: string;
   city: string;
   address: string;

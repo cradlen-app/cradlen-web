@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from "react";
+import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
 import { Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,6 @@ import type { DrawerKey } from "./settings.types";
 import {
   getFormBoolean,
   getFormString,
-  getSpecialities,
   hasRequiredValues,
   type SettingsT,
 } from "./settings.utils";
@@ -145,12 +145,20 @@ export function OrganizationForm({
   t,
 }: SettingsFormProps) {
   const [isPending, setIsPending] = useState(false);
+  const [specialties, setSpecialties] = useState<string[]>(
+    profile?.organization.specialities ?? [],
+  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
 
-    if (!hasRequiredValues(form, ["organizationName", "specialties"])) {
+    if (!hasRequiredValues(form, ["organizationName"])) {
+      toast.error(t("validation.required"));
+      return;
+    }
+
+    if (!specialties.length) {
       toast.error(t("validation.required"));
       return;
     }
@@ -164,7 +172,7 @@ export function OrganizationForm({
     try {
       await updateOrganization(profile.organization.id, {
         name: getFormString(form, "organizationName"),
-        specialities: getSpecialities(getFormString(form, "specialties")),
+        specialities: specialties,
       });
       toast.success(t("organization.updateSuccess"));
       onDone();
@@ -185,13 +193,13 @@ export function OrganizationForm({
         name="organizationName"
         required
       />
-      <TextField
-        defaultValue={profile?.organization.specialities?.join(", ")}
-        id="organization-specialties"
-        label={t("fields.specialties")}
-        name="specialties"
-        required
-      />
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-brand-black">
+          {t("fields.specialties")}
+          <span className="ms-0.5 text-red-500">*</span>
+        </label>
+        <SpecialtiesSelect value={specialties} onChange={setSpecialties} />
+      </div>
       <DrawerActions cancelLabel={cancelLabel}>
         <Button
           type="submit"
