@@ -1,20 +1,18 @@
-import type { FormEvent } from "react";
-import { Pencil, Plus } from "lucide-react";
+import { type FormEvent, useState } from "react";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/hooks/useCurrentUser";
-import {
-  getDefaultBranch,
-  getProfilePrimaryRole,
-} from "@/features/auth/lib/current-user";
+import { getProfilePrimaryRole } from "@/features/auth/lib/current-user";
 import { queryClient } from "@/lib/queryClient";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import {
+  branchesQueryKey,
   createBranch,
-  createOrganization,
   updateAccountProfile,
   updateBranch,
   updateOrganization,
+  type AccountBranch,
 } from "../lib/settings.api";
 import type { DrawerKey } from "./settings.types";
 import {
@@ -28,6 +26,8 @@ import { DrawerActions, TextField } from "./settings-ui";
 
 type SettingsFormProps = {
   activeDrawer: DrawerKey;
+  branches?: AccountBranch[];
+  branchId?: string;
   cancelLabel: string;
   onDone: () => void;
   profile?: UserProfile;
@@ -42,6 +42,8 @@ export function ProfileForm({
   t,
   user,
 }: SettingsFormProps) {
+  const [isPending, setIsPending] = useState(false);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -51,20 +53,28 @@ export function ProfileForm({
       return;
     }
 
+    if (!profile?.staff_id) {
+      toast.error(t("profile.updateError"));
+      return;
+    }
+
+    setIsPending(true);
     try {
-      await updateAccountProfile({
+      await updateAccountProfile(profile.staff_id, {
         first_name: getFormString(form, "firstName"),
         last_name: getFormString(form, "lastName"),
         job_title: getFormString(form, "jobTitle") || undefined,
-        organization_id: profile?.organization.id,
         phone_number: getFormString(form, "phone") || undefined,
         specialty: getFormString(form, "specialty") || undefined,
+        is_clinical: getFormBoolean(form, "isClinical"),
       });
       toast.success(t("profile.updateSuccess"));
       onDone();
       await queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
     } catch {
       toast.error(t("profile.updateError"));
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -105,11 +115,22 @@ export function ProfileForm({
           name="specialty"
         />
       )}
+      <label className="flex items-center gap-2 text-sm text-brand-black">
+        <input
+          defaultChecked={profile?.is_clinical ?? false}
+          name="isClinical"
+          type="checkbox"
+          className="size-4 rounded border-gray-300"
+        />
+        <span>{t("fields.isClinical")}</span>
+      </label>
       <DrawerActions cancelLabel={cancelLabel}>
         <Button
           type="submit"
+          disabled={isPending}
           className="bg-brand-primary text-white hover:bg-brand-primary/90"
         >
+          {isPending && <Loader2 className="size-4 animate-spin" />}
           {t("profile.save")}
         </Button>
       </DrawerActions>
@@ -118,142 +139,71 @@ export function ProfileForm({
 }
 
 export function OrganizationForm({
-  activeDrawer,
   cancelLabel,
   onDone,
   profile,
   t,
 }: SettingsFormProps) {
-  const isEdit = activeDrawer === "organizationEdit";
+  const [isPending, setIsPending] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
-    const requiredFields = isEdit
-      ? ["organizationName", "specialties"]
-      : [
-          "organizationName",
-          "specialties",
-          "country",
-          "city",
-          "governorate",
-          "address",
-        ];
 
-    if (!hasRequiredValues(form, requiredFields)) {
+    if (!hasRequiredValues(form, ["organizationName", "specialties"])) {
       toast.error(t("validation.required"));
       return;
     }
 
+    if (!profile?.organization.id) {
+      toast.error(t("organization.updateError"));
+      return;
+    }
+
+    setIsPending(true);
     try {
-      const specialities = getSpecialities(getFormString(form, "specialties"));
-
-      if (isEdit) {
-        if (!profile?.organization.id) {
-          toast.error(t("organization.updateError"));
-          return;
-        }
-
-        await updateOrganization(profile.organization.id, {
-          name: getFormString(form, "organizationName"),
-          specialities,
-        });
-        toast.success(t("organization.updateSuccess"));
-      } else {
-        await createOrganization({
-          name: getFormString(form, "organizationName"),
-          specialities,
-          country: getFormString(form, "country"),
-          city: getFormString(form, "city"),
-          governorate: getFormString(form, "governorate"),
-          address: getFormString(form, "address"),
-          is_clinical: getFormBoolean(form, "isClinical"),
-          job_title: getFormString(form, "jobTitle") || undefined,
-          specialty: getFormString(form, "specialty") || undefined,
-        });
-        toast.success(t("organization.createSuccess"));
-      }
-
+      await updateOrganization(profile.organization.id, {
+        name: getFormString(form, "organizationName"),
+        specialities: getSpecialities(getFormString(form, "specialties")),
+      });
+      toast.success(t("organization.updateSuccess"));
       onDone();
       await queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
     } catch {
-      toast.error(
-        isEdit ? t("organization.updateError") : t("organization.createError"),
-      );
+      toast.error(t("organization.updateError"));
+    } finally {
+      setIsPending(false);
     }
   }
 
   return (
-    <form className="grid gap-3" onSubmit={handleSubmit}>
+    <form className="grid gap-4" onSubmit={handleSubmit}>
       <TextField
-        defaultValue={isEdit ? profile?.organization.name : ""}
+        defaultValue={profile?.organization.name}
         id="organization-name"
         label={t("fields.organizationName")}
         name="organizationName"
         required
       />
       <TextField
-        defaultValue={
-          isEdit ? profile?.organization.specialities?.join(", ") : ""
-        }
+        defaultValue={profile?.organization.specialities?.join(", ")}
         id="organization-specialties"
         label={t("fields.specialties")}
         name="specialties"
         required
       />
-      {!isEdit && (
-        <>
-          <TextField
-            id="organization-country"
-            label={t("fields.country")}
-            name="country"
-            required
-          />
-          <TextField
-            id="organization-city"
-            label={t("fields.city")}
-            name="city"
-            required
-          />
-          <TextField
-            id="organization-governorate"
-            label={t("fields.governorate")}
-            name="governorate"
-            required
-          />
-          <TextField
-            id="organization-address"
-            label={t("fields.address")}
-            name="address"
-            required
-          />
-          <label className="flex items-center gap-2 text-sm text-brand-black">
-            <input
-              name="isClinical"
-              type="checkbox"
-              className="size-4 rounded border-gray-300"
-            />
-            <span>{t("fields.isClinical")}</span>
-          </label>
-          <TextField
-            id="organization-specialty"
-            label={t("fields.specialty")}
-            name="specialty"
-          />
-          <TextField
-            id="organization-job-title"
-            label={t("fields.jobTitle")}
-            name="jobTitle"
-          />
-        </>
-      )}
       <DrawerActions cancelLabel={cancelLabel}>
         <Button
           type="submit"
+          disabled={isPending}
           className="bg-brand-primary text-white hover:bg-brand-primary/90"
         >
-          {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
-          {isEdit ? t("organization.save") : t("organization.add")}
+          {isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Pencil className="size-4" />
+          )}
+          {t("organization.save")}
         </Button>
       </DrawerActions>
     </form>
@@ -262,20 +212,25 @@ export function OrganizationForm({
 
 export function BranchForm({
   activeDrawer,
+  branches = [],
+  branchId,
   cancelLabel,
   onDone,
   profile,
   t,
 }: SettingsFormProps) {
   const isEdit = activeDrawer === "branchEdit";
-  const activeBranch = getDefaultBranch(profile);
+  const [isPending, setIsPending] = useState(false);
+  const targetBranch = isEdit
+    ? (branches.find((b) => b.id === branchId) ?? branches[0])
+    : undefined;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const requiredFields = isEdit
       ? ["city", "governorate", "address"]
-      : ["branchName", "country", "city", "governorate", "address"];
+      : ["branchName", "city", "governorate", "address"];
 
     if (!hasRequiredValues(form, requiredFields)) {
       toast.error(t("validation.required"));
@@ -289,14 +244,15 @@ export function BranchForm({
       return;
     }
 
+    setIsPending(true);
     try {
       if (isEdit) {
-        if (!activeBranch?.id) {
+        if (!targetBranch?.id) {
           toast.error(t("branches.updateError"));
           return;
         }
 
-        await updateBranch(activeBranch.id, profile.organization.id, {
+        await updateBranch(profile.organization.id, targetBranch.id, {
           name: getFormString(form, "branchName") || undefined,
           country: getFormString(form, "country") || undefined,
           city: getFormString(form, "city"),
@@ -306,9 +262,8 @@ export function BranchForm({
         });
         toast.success(t("branches.updateSuccess"));
       } else {
-        await createBranch({
+        await createBranch(profile.organization.id, {
           name: getFormString(form, "branchName"),
-          organization_id: profile.organization.id,
           country: getFormString(form, "country") || undefined,
           city: getFormString(form, "city"),
           governorate: getFormString(form, "governorate"),
@@ -319,46 +274,52 @@ export function BranchForm({
       }
 
       onDone();
-      await queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY }),
+        queryClient.invalidateQueries({
+          queryKey: branchesQueryKey(profile.organization.id),
+        }),
+      ]);
     } catch {
       toast.error(
         isEdit ? t("branches.updateError") : t("branches.createError"),
       );
+    } finally {
+      setIsPending(false);
     }
   }
 
   return (
     <form className="grid gap-3" onSubmit={handleSubmit}>
       <TextField
-        defaultValue={isEdit ? (activeBranch?.name ?? "") : ""}
+        defaultValue={isEdit ? (targetBranch?.name ?? "") : ""}
         id="branch-name"
         label={t("fields.name")}
         name="branchName"
         required={!isEdit}
       />
       <TextField
-        defaultValue={isEdit ? activeBranch?.country : ""}
+        defaultValue={isEdit ? (targetBranch?.country ?? "") : ""}
         id="branch-country"
         label={t("fields.country")}
         name="country"
-        required={!isEdit}
       />
       <TextField
-        defaultValue={isEdit ? activeBranch?.city : ""}
+        defaultValue={isEdit ? targetBranch?.city : ""}
         id="branch-city"
         label={t("fields.city")}
         name="city"
         required
       />
       <TextField
-        defaultValue={isEdit ? activeBranch?.governorate : ""}
+        defaultValue={isEdit ? targetBranch?.governorate : ""}
         id="branch-governorate"
         label={t("fields.governorate")}
         name="governorate"
         required
       />
       <TextField
-        defaultValue={isEdit ? activeBranch?.address : ""}
+        defaultValue={isEdit ? targetBranch?.address : ""}
         id="branch-address"
         label={t("fields.address")}
         name="address"
@@ -366,7 +327,7 @@ export function BranchForm({
       />
       <label className="flex items-center gap-2 text-sm text-brand-black">
         <input
-          defaultChecked={isEdit && activeBranch?.is_main}
+          defaultChecked={isEdit && targetBranch?.is_main}
           name="isMain"
           type="checkbox"
           className="size-4 rounded border-gray-300"
@@ -376,9 +337,16 @@ export function BranchForm({
       <DrawerActions cancelLabel={cancelLabel}>
         <Button
           type="submit"
+          disabled={isPending}
           className="bg-brand-primary text-white hover:bg-brand-primary/90"
         >
-          {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
+          {isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : isEdit ? (
+            <Pencil className="size-4" />
+          ) : (
+            <Plus className="size-4" />
+          )}
           {isEdit ? t("branches.save") : t("branches.add")}
         </Button>
       </DrawerActions>

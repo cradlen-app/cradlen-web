@@ -36,6 +36,15 @@ export function formatRole(role: string | undefined, t: SettingsT) {
   return t(`roles.${normalizeRoleName(role)}`);
 }
 
+export function formatOrgStatus(status: string | undefined, t: SettingsT) {
+  if (!status) return t("empty.missing");
+  const key = status.toUpperCase();
+  if (key === "ACTIVE" || key === "INACTIVE" || key === "SUSPENDED") {
+    return t(`orgStatus.${key}`);
+  }
+  return status;
+}
+
 export function formatSettingsDateTime(
   value: string | null | undefined,
   locale: SettingsLocale,

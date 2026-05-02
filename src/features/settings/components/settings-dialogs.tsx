@@ -37,12 +37,12 @@ export function SettingsConfirmDialogs({
           <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
           <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
             <AlertDialog.Title className="text-lg font-medium text-brand-black">
-              {confirmSoftDelete === "organization"
+              {confirmSoftDelete?.type === "organization"
                 ? t("organization.DeleteTitle")
                 : t("branches.DeleteTitle")}
             </AlertDialog.Title>
             <AlertDialog.Description className="mt-2 text-sm text-gray-500">
-              {confirmSoftDelete === "organization"
+              {confirmSoftDelete?.type === "organization"
                 ? t("organization.DeleteDescription")
                 : t("branches.DeleteDescription")}
             </AlertDialog.Description>

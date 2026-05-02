@@ -9,13 +9,13 @@ import {
   UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  getDefaultBranch,
-  getProfilePrimaryRole,
-} from "@/features/auth/lib/current-user";
+import { Link } from "@/i18n/navigation";
+import { getProfilePrimaryRole } from "@/features/auth/lib/current-user";
+import type { AccountBranch } from "@/features/settings/lib/settings.api";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import type { DrawerKey, SoftDeleteKey } from "./settings.types";
 import {
+  formatOrgStatus,
   formatRole,
   formatSettingsDateTime,
   type SettingsLocale,
@@ -29,11 +29,15 @@ import {
 } from "./settings-ui";
 
 type SectionProps = {
+  branches: AccountBranch[];
+  branchesLoading?: boolean;
   branchAddress: string;
+  currentBranchId?: string | null;
   displayName: string;
   locale: SettingsLocale;
   profile?: UserProfile;
   setActiveDrawer: (drawer: DrawerKey) => void;
+  setActiveBranchId: (branchId: string | null) => void;
   setConfirmDeactivate: (open: boolean) => void;
   setConfirmSoftDelete: (target: SoftDeleteKey) => void;
   t: SettingsT;
@@ -104,10 +108,16 @@ export function ProfileSection({
             />
             {(getProfilePrimaryRole(profile) === "doctor" ||
               (profile.organization?.specialities?.length ?? 0) > 0) && (
-              <DetailRow
-                label={t("fields.specialty")}
-                value={profile.specialty}
-              />
+              <>
+                <DetailRow
+                  label={t("fields.specialty")}
+                  value={profile.specialty}
+                />
+                <DetailRow
+                  label={t("fields.isClinical")}
+                  value={profile.is_clinical ? t("yes") : t("no")}
+                />
+              </>
             )}
             <DetailRow
               label={t("fields.verifiedAt")}
@@ -130,14 +140,13 @@ export function OrganizationSection({
     <SectionPanel
       action={
         <div className="flex shrink-0 items-center gap-2">
-          <Button
-            type="button"
-            className="bg-brand-primary text-white hover:bg-brand-primary/90"
-            onClick={() => setActiveDrawer("organizationCreate")}
+          <Link
+            href="/create-organization"
+            className="inline-flex items-center gap-1.5 rounded-md bg-brand-primary px-3 py-2 text-sm font-medium text-white hover:bg-brand-primary/90"
           >
             <Plus className="size-4" />
             {t("organization.add")}
-          </Button>
+          </Link>
         </div>
       }
       description={t("organization.description")}
@@ -166,7 +175,7 @@ export function OrganizationSection({
             label={t("fields.organization")}
             meta={
               <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-500">
-                {profile.organization.status || t("empty.missing")}
+                {formatOrgStatus(profile.organization.status, t)}
               </span>
             }
             title={profile.organization.name}
@@ -175,7 +184,7 @@ export function OrganizationSection({
           <SoftDeletePanel
             description={t("organization.DeleteDescription")}
             label={t("organization.Delete")}
-            onClick={() => setConfirmSoftDelete("organization")}
+            onClick={() => setConfirmSoftDelete({ type: "organization" })}
           />
         </>
       )}
@@ -184,13 +193,21 @@ export function OrganizationSection({
 }
 
 export function BranchesSection({
-  branchAddress,
+  branches,
+  branchesLoading,
+  currentBranchId,
   profile,
   setActiveDrawer,
+  setActiveBranchId,
   setConfirmSoftDelete,
   t,
 }: SectionProps) {
-  const activeBranch = getDefaultBranch(profile);
+  function branchAddress(branch: AccountBranch) {
+    return [branch.address, branch.city, branch.governorate, branch.country]
+      .filter(Boolean)
+      .join(", ");
+  }
+
   return (
     <SectionPanel
       action={
@@ -199,6 +216,7 @@ export function BranchesSection({
             type="button"
             className="bg-brand-primary text-white hover:bg-brand-primary/90"
             onClick={() => setActiveDrawer("branchCreate")}
+            disabled={!profile?.organization.id}
           >
             <Plus className="size-4" />
             {t("branches.add")}
@@ -209,42 +227,60 @@ export function BranchesSection({
       icon={<MapPin className="size-5" />}
       title={t("branches.title")}
     >
-      {!activeBranch ? (
+      {branchesLoading ? (
+        <div className="py-6 text-center text-sm text-gray-400">
+          {t("loading")}
+        </div>
+      ) : branches.length === 0 ? (
         <EmptyState
           description={t("empty.branchDescription")}
           title={t("empty.branchTitle")}
         />
       ) : (
-        <>
-          <EntitySummary
-            actions={
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setActiveDrawer("branchEdit")}
-              >
-                <Pencil className="size-4" />
-                {t("branches.edit")}
-              </Button>
-            }
-            icon={<MapPin className="size-5" />}
-            label={t("fields.currentBranch")}
-            meta={
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-500">
-                {activeBranch.is_main
-                  ? t("fields.mainBranch")
-                  : t("empty.missing")}
-              </span>
-            }
-            title={activeBranch.city || t("empty.branchTitle")}
-            description={branchAddress}
-          />
-          <SoftDeletePanel
-            description={t("branches.DeleteDescription")}
-            label={t("branches.Delete")}
-            onClick={() => setConfirmSoftDelete("branch")}
-          />
-        </>
+        <div className="flex flex-col gap-4">
+          {branches.map((branch) => (
+            <EntitySummary
+              key={branch.id}
+              actions={
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setActiveBranchId(branch.id);
+                      setActiveDrawer("branchEdit");
+                    }}
+                  >
+                    <Pencil className="size-4" />
+                    {t("branches.edit")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="text-red-600 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                    onClick={() =>
+                      setConfirmSoftDelete({ type: "branch", branchId: branch.id })
+                    }
+                  >
+                    <Trash2 className="size-4" />
+                    {t("branches.Delete")}
+                  </Button>
+                </div>
+              }
+              icon={<MapPin className="size-5" />}
+              label={branch.id === currentBranchId ? t("fields.currentBranch") : undefined}
+              meta={
+                branch.is_main ? (
+                  <span className="rounded-full bg-brand-primary/8 px-2.5 py-1 text-xs font-medium text-brand-primary">
+                    {t("fields.mainBranch")}
+                  </span>
+                ) : undefined
+              }
+              title={branch.name || branch.city || t("empty.branchTitle")}
+              description={branchAddress(branch)}
+            />
+          ))}
+        </div>
       )}
     </SectionPanel>
   );

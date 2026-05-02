@@ -203,9 +203,6 @@ export function Navbar() {
               })}
             </select>
           )}
-          {activeBranch && user?.profiles.length === 1 && (
-            <span className="text-xs text-gray-400">{activeBranch.city}</span>
-          )}
         </div>
       </div>
     </header>

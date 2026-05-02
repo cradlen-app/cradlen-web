@@ -1,0 +1,232 @@
+"use client";
+
+import { type FormEvent, useState } from "react";
+import { Building2, GitBranch, Loader2, Stethoscope } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Link, useRouter } from "@/i18n/navigation";
+import { createOrganizationSession } from "@/features/settings/lib/settings.api";
+import {
+  getFormString,
+  getSpecialities,
+  hasRequiredValues,
+} from "@/features/settings/components/settings.utils";
+
+function FieldGroup({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <span className="flex size-7 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
+          {icon}
+        </span>
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          {title}
+        </p>
+      </div>
+      <div className="grid gap-3">{children}</div>
+    </div>
+  );
+}
+
+function Field({
+  id,
+  label,
+  name,
+  placeholder,
+  required,
+}: {
+  id: string;
+  label: string;
+  name: string;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="flex flex-col gap-1.5 text-sm text-brand-black" htmlFor={id}>
+      <span className="font-medium">
+        {label}
+        {required && <span className="ms-0.5 text-brand-primary">*</span>}
+      </span>
+      <input
+        id={id}
+        name={name}
+        placeholder={placeholder}
+        aria-required={required}
+        className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-brand-black outline-none transition focus:border-brand-primary/60 focus:ring-2 focus:ring-brand-primary/10"
+      />
+    </label>
+  );
+}
+
+export function CreateOrganizationPage() {
+  const t = useTranslations("createOrganization");
+  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
+  const [isClinical, setIsClinical] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+
+    if (
+      !hasRequiredValues(form, [
+        "organizationName",
+        "branchName",
+        "specialties",
+        "city",
+        "governorate",
+        "address",
+      ])
+    ) {
+      toast.error(t("validationError"));
+      return;
+    }
+
+    setIsPending(true);
+    try {
+      const specialties = getSpecialities(getFormString(form, "specialties"));
+      const roles = isClinical ? ["OWNER", "DOCTOR"] : ["OWNER"];
+
+      await createOrganizationSession({
+        account_name: getFormString(form, "organizationName"),
+        branch_name: getFormString(form, "branchName"),
+        specialties,
+        branch_city: getFormString(form, "city"),
+        branch_governorate: getFormString(form, "governorate"),
+        branch_address: getFormString(form, "address"),
+        branch_country: getFormString(form, "country") || undefined,
+        roles,
+        job_title: isClinical
+          ? getFormString(form, "jobTitle") || undefined
+          : undefined,
+        specialty: isClinical
+          ? getFormString(form, "specialty") || undefined
+          : undefined,
+      });
+
+      toast.success(t("createSuccess"));
+      router.replace("/select-profile");
+    } catch {
+      toast.error(t("createError"));
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  return (
+    <div className="w-full">
+      <div className="mb-8 text-center">
+        <h1 className="text-2xl font-semibold text-brand-black">{t("title")}</h1>
+        <p className="mt-1.5 text-sm text-gray-400">{t("subtitle")}</p>
+      </div>
+
+      <form className="grid gap-4" onSubmit={handleSubmit}>
+        <FieldGroup icon={<Building2 className="size-4" />} title={t("groupOrganization")}>
+          <Field
+            id="org-name"
+            label={t("fields.organizationName")}
+            name="organizationName"
+            required
+          />
+          <Field
+            id="org-specialties"
+            label={t("fields.specialties")}
+            name="specialties"
+            placeholder={t("fields.specialtiesPlaceholder")}
+            required
+          />
+        </FieldGroup>
+
+        <FieldGroup icon={<GitBranch className="size-4" />} title={t("groupBranch")}>
+          <Field
+            id="branch-name"
+            label={t("fields.branchName")}
+            name="branchName"
+            required
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <Field
+              id="branch-city"
+              label={t("fields.city")}
+              name="city"
+              required
+            />
+            <Field
+              id="branch-governorate"
+              label={t("fields.governorate")}
+              name="governorate"
+              required
+            />
+          </div>
+          <Field
+            id="branch-address"
+            label={t("fields.address")}
+            name="address"
+            required
+          />
+          <Field
+            id="branch-country"
+            label={t("fields.country")}
+            name="country"
+          />
+        </FieldGroup>
+
+        <FieldGroup icon={<Stethoscope className="size-4" />} title={t("groupRole")}>
+          <div>
+            <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-gray-200 bg-white p-3 transition hover:border-brand-primary/40">
+              <input
+                checked={isClinical}
+                className="size-4 rounded border-gray-300 accent-brand-primary"
+                name="isClinical"
+                type="checkbox"
+                onChange={(e) => setIsClinical(e.target.checked)}
+              />
+              <span className="text-sm font-medium text-brand-black">{t("isClinical")}</span>
+            </label>
+            <p className="mt-1.5 ps-1 text-xs text-gray-400">{t("isClinicalHint")}</p>
+          </div>
+          {isClinical && (
+            <div className="grid gap-3 pt-1">
+              <Field
+                id="org-specialty"
+                label={t("fields.specialty")}
+                name="specialty"
+              />
+              <Field
+                id="org-job-title"
+                label={t("fields.jobTitle")}
+                name="jobTitle"
+              />
+            </div>
+          )}
+        </FieldGroup>
+
+        <div className="flex flex-col gap-3 pt-1">
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full rounded-full bg-brand-primary text-sm font-semibold text-white hover:bg-brand-primary/90 disabled:opacity-60"
+          >
+            {isPending && <Loader2 className="size-4 animate-spin" />}
+            {isPending ? "" : t("submit")}
+          </Button>
+          <Link
+            href="/select-profile"
+            className="text-center text-sm text-gray-400 hover:text-brand-black transition"
+          >
+            {t("backToProfiles")}
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}

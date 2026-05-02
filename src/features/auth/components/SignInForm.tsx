@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { queryClient } from "@/lib/queryClient";
 import {
   getProfilesFromAuthResponse,
   isOnboardingRedirectPath,
@@ -15,10 +16,20 @@ import {
 } from "@/lib/auth/redirect";
 import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas";
 import { useSignIn } from "../hooks/useSignIn";
-import { getSafeRedirectPath } from "../lib/redirect";
+import { useSelectProfile } from "../hooks/useSelectProfile";
+import { getSafeRedirectPath, getDefaultRouteForRole } from "../lib/redirect";
 import { setPendingProfileSelection } from "../lib/profile-selection-session";
 import { setPendingSignupEmail } from "../lib/registration-session";
 import { isInvalidSignInError } from "../lib/sign-in-errors";
+import {
+  getBranchId,
+  getProfileAccountId,
+  getProfileBranches,
+  getProfileId,
+  getProfileRoles,
+} from "../lib/current-user";
+import { useAuthStore } from "../store/authStore";
+import { useAuthContextStore } from "../store/authContextStore";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
@@ -27,6 +38,9 @@ export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { mutateAsync, isError, error } = useSignIn();
+  const { mutateAsync: selectProfileAsync } = useSelectProfile();
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
+  const setContext = useAuthContextStore((state) => state.setContext);
   const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
   const notice = searchParams.get("notice");
 
@@ -52,9 +66,37 @@ export function SignInForm() {
       }
 
       if (nextPath === "/select-profile") {
-        setPendingProfileSelection({
-          profiles: getProfilesFromAuthResponse(res),
-        });
+        const profiles = getProfilesFromAuthResponse(res);
+
+        if (profiles.length === 1 && getProfileBranches(profiles[0]).length === 1) {
+          const profile = profiles[0];
+          const branch = getProfileBranches(profile)[0];
+          const profileId = getProfileId(profile);
+          const accountId = getProfileAccountId(profile);
+          const branchId = getBranchId(branch);
+
+          if (profileId && accountId && branchId) {
+            try {
+              const selRes = await selectProfileAsync({ profile_id: profileId, branch_id: branchId });
+              setAuthenticated();
+              setContext({
+                accountId: selRes.data.account_id || accountId,
+                branchId: selRes.data.branch_id ?? branchId,
+                profileId: selRes.data.profile_id || profileId,
+              });
+              queryClient.clear();
+              const role = getProfileRoles(profile)[0] ?? "unknown";
+              const resolvedOrgId = selRes.data.account_id || accountId;
+              const resolvedBranchId = selRes.data.branch_id ?? branchId;
+              router.replace(redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
+              return;
+            } catch {
+              // Fall through to normal /select-profile flow
+            }
+          }
+        }
+
+        setPendingProfileSelection({ profiles });
         router.replace(
           redirectTo
             ? `/select-profile?redirectTo=${encodeURIComponent(redirectTo)}`
