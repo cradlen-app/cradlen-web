@@ -67,9 +67,7 @@ export function makeStep3Schema(t: (key: string) => string = (k) => k) {
       .string()
       .min(1, { message: t("errors.governorateRequired") }),
     country: z.string().optional(),
-    role: z.enum(["owner", "owner_doctor"], {
-      message: t("errors.roleRequired"),
-    }),
+    isClinical: z.boolean(),
     specialty: z.string().optional(),
     jobTitle: z.string().optional(),
   });

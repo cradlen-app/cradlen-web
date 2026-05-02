@@ -17,14 +17,12 @@ export default async function SelectProfileRoute({ params }: Props) {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <header className="flex items-center justify-between px-8 py-5">
-        <Link href="/" aria-label="Cradlen home" className="inline-flex">
-          <Image
-            src={Logo}
-            alt="CRADLEN"
-            loading="eager"
-            height={36}
-            className="w-auto"
-          />
+        <Link
+          href="/"
+          aria-label="Cradlen home"
+          className="w-30 shrink-0 inline-flex"
+        >
+          <Image src={Logo} alt="CRADLEN" loading="eager" className="w-auto" />
         </Link>
       </header>
       <main className="flex-1 flex items-center justify-center px-4 py-10">

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Search, Upload, Bell, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useSelectProfile } from "@/features/auth/hooks/useSelectProfile";
 import {
@@ -11,10 +12,11 @@ import {
   getProfileAccount,
   getProfileAccountId,
   getProfileId,
-  normalizeRoleName,
+  getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { queryClient } from "@/lib/queryClient";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
@@ -79,6 +81,8 @@ function IconButton({
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const pathname = usePathname();
+  const router = useRouter();
   const { data: user } = useCurrentUser();
   const selectProfile = useSelectProfile();
   const setContext = useAuthContextStore((state) => state.setContext);
@@ -87,25 +91,37 @@ export function Navbar() {
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
   const activeBranch = getDefaultBranch(profile, branchId);
-  const subLabel = profile?.job_title || normalizeRoleName(profile?.role.name) || "";
+  const subLabel = profile?.job_title || getProfilePrimaryRole(profile) || "";
 
   async function handleProfileChange(profileId: string) {
-    const nextProfile = user?.profiles.find((item) => getProfileId(item) === profileId);
+    const nextProfile = user?.profiles.find(
+      (item) => getProfileId(item) === profileId,
+    );
     const accountId = getProfileAccountId(nextProfile);
     const branch = getDefaultBranch(nextProfile);
 
     if (!nextProfile || !accountId) return;
 
-    const response = await selectProfile.mutateAsync({
-      branch_id: branch?.id ?? null,
-      profile_id: profileId,
-    });
-    setContext({
-      accountId: response.data.account_id || accountId,
-      branchId: response.data.branch_id ?? branch?.id ?? null,
-      profileId: response.data.profile_id || profileId,
-    });
-    queryClient.clear();
+    try {
+      const response = await selectProfile.mutateAsync({
+        branch_id: branch?.id ?? null,
+        profile_id: profileId,
+      });
+      const newOrgId = response.data.account_id || accountId;
+      const newBranchId = response.data.branch_id ?? branch?.id ?? null;
+      setContext({
+        accountId: newOrgId,
+        branchId: newBranchId,
+        profileId: response.data.profile_id || profileId,
+      });
+      queryClient.clear();
+      // Keep the user on the same dashboard section in the new org/branch context.
+      // pathname is locale-stripped: /oldOrgId/oldBranchId/dashboard/calendar
+      const dashboardSegment = pathname.split("/").slice(3).join("/");
+      router.replace(`/${newOrgId}/${newBranchId ?? ""}/${dashboardSegment}`);
+    } catch {
+      toast.error(t("profileSwitcher"));
+    }
   }
 
   return (

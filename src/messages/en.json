@@ -30,6 +30,8 @@
     "logout": "Logout",
     "searchPlaceholder": "Search patient....",
     "upload": "upload",
+    "notifications": "Notifications",
+    "messages": "Messages",
     "profileSwitcher": "Switch profile"
   },
   "staff": {
@@ -506,6 +508,11 @@
         "codeLength": "Code must be exactly 6 digits.",
         "codeDigits": "Code must contain only digits.",
         "passwordMinLength": "Password must be at least 8 characters.",
+        "passwordMaxLength": "Password must be at most 128 characters.",
+        "passwordUppercase": "Password must contain at least one uppercase letter.",
+        "passwordLowercase": "Password must contain at least one lowercase letter.",
+        "passwordDigit": "Password must contain at least one number.",
+        "passwordSpecial": "Password must contain at least one special character.",
         "confirmPasswordRequired": "Please confirm your password.",
         "passwordMismatch": "Passwords do not match.",
         "invalidToken": "This reset link has expired. Please request a new code.",
@@ -521,6 +528,7 @@
       "showPassword": "Show",
       "hidePassword": "Hide",
       "submitButton": "Sign in",
+      "noticeAccountExists": "You already have an account. Please sign in below.",
       "forgotPassword": "Forget your password ?",
       "newToCommunity": "New to our community ?",
       "copyright": "2026 CRADLEN. All rights reserved.",

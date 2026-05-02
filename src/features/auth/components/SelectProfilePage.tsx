@@ -56,16 +56,12 @@ export function SelectProfilePage() {
   const roleT = useTranslations("staff.roles");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [pending] = useState(() => getPendingProfileSelection());
+  const [mounted, setMounted] = useState(false);
+  const [pending, setPending] = useState<ReturnType<typeof getPendingProfileSelection>>(null);
   const profiles = useMemo(() => pending?.profiles ?? [], [pending?.profiles]);
-  const singleProfile = profiles.length === 1 ? profiles[0] : null;
-  const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(singleProfile);
-  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(
-    getAutoBranchId(singleProfile),
-  );
-  const [isAutoProceeding, setIsAutoProceeding] = useState(
-    () => profiles.length === 1 && !!getAutoBranchId(profiles[0]),
-  );
+  const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null);
+  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
+  const [isAutoProceeding, setIsAutoProceeding] = useState(false);
   const autoTriggered = useRef(false);
   const selectProfile = useSelectProfile();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
@@ -134,10 +130,12 @@ export function SelectProfilePage() {
       clearPendingProfileSelection();
       queryClient.clear();
 
+      const resolvedOrgId = response.data.account_id || accountId;
+      const resolvedBranchId = response.data.branch_id ?? branchId;
       const role = getProfileRoles(selectedProfile)[0] ?? ("unknown" as UserRole);
       const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
       router.replace(
-        searchParams.get("redirectTo") ? redirectTo : getDefaultRouteForRole(role),
+        redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId),
       );
     } catch (error) {
       setIsAutoProceeding(false);
@@ -150,17 +148,38 @@ export function SelectProfilePage() {
     }
   }
 
+  // Read sessionStorage on mount — must not run during SSR to avoid hydration mismatch.
+  useEffect(() => {
+    const data = getPendingProfileSelection();
+    const sp = data && data.profiles.length === 1 ? data.profiles[0] : null;
+    // One-time client-only read; React batches these into a single render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPending(data);
+    setSelectedProfile(sp);
+    setSelectedBranchId(getAutoBranchId(sp));
+    setMounted(true);
+  }, []);
+
   // Auto-proceed when there is exactly 1 profile with exactly 1 branch.
   useEffect(() => {
+    if (!mounted) return;
     if (autoTriggered.current) return;
     if (profiles.length === 1 && getAutoBranchId(profiles[0])) {
       autoTriggered.current = true;
-      // setState calls inside handleContinue are async — no cascading render risk.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- triggers async mutation; setState in catch is not synchronous
+      setIsAutoProceeding(true);
       handleContinue();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [mounted]);
+
+  if (!mounted) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-16">
+        <div className="h-9 w-9 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!profiles.length) {
     return (

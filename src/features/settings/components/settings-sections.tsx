@@ -9,6 +9,10 @@ import {
   UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  getDefaultBranch,
+  getProfilePrimaryRole,
+} from "@/features/auth/lib/current-user";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import type { DrawerKey, SoftDeleteKey } from "./settings.types";
 import {
@@ -73,7 +77,7 @@ export function ProfileSection({
             meta={
               <>
                 <span className="rounded-full bg-brand-primary/8 px-2.5 py-1 text-xs font-medium text-brand-primary">
-                  {formatRole(profile.role.name, t)}
+                  {formatRole(getProfilePrimaryRole(profile), t)}
                 </span>
                 <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
                   {user.is_active ? t("status.active") : t("status.inactive")}
@@ -92,13 +96,13 @@ export function ProfileSection({
             />
             <DetailRow
               label={t("fields.role")}
-              value={formatRole(profile.role.name, t)}
+              value={formatRole(getProfilePrimaryRole(profile), t)}
             />
             <DetailRow
               label={t("fields.jobTitle")}
               value={profile.job_title}
             />
-            {(profile.role.name === "doctor" ||
+            {(getProfilePrimaryRole(profile) === "doctor" ||
               (profile.organization?.specialities?.length ?? 0) > 0) && (
               <DetailRow
                 label={t("fields.specialty")}
@@ -186,6 +190,7 @@ export function BranchesSection({
   setConfirmSoftDelete,
   t,
 }: SectionProps) {
+  const activeBranch = getDefaultBranch(profile);
   return (
     <SectionPanel
       action={
@@ -204,7 +209,7 @@ export function BranchesSection({
       icon={<MapPin className="size-5" />}
       title={t("branches.title")}
     >
-      {!profile?.branch ? (
+      {!activeBranch ? (
         <EmptyState
           description={t("empty.branchDescription")}
           title={t("empty.branchTitle")}
@@ -226,12 +231,12 @@ export function BranchesSection({
             label={t("fields.currentBranch")}
             meta={
               <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-500">
-                {profile.branch.is_main
+                {activeBranch.is_main
                   ? t("fields.mainBranch")
                   : t("empty.missing")}
               </span>
             }
-            title={profile.branch.city || t("empty.branchTitle")}
+            title={activeBranch.city || t("empty.branchTitle")}
             description={branchAddress}
           />
           <SoftDeletePanel

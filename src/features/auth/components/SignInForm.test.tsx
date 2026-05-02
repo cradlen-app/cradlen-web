@@ -43,10 +43,10 @@ describe("getSafeRedirectPath", () => {
     );
   });
 
-  it("falls back for missing or unsafe redirect paths", () => {
-    expect(getSafeRedirectPath(null)).toBe("/dashboard");
-    expect(getSafeRedirectPath("https://example.com")).toBe("/dashboard");
-    expect(getSafeRedirectPath("//example.com")).toBe("/dashboard");
+  it("returns null for missing or unsafe redirect paths", () => {
+    expect(getSafeRedirectPath(null)).toBeNull();
+    expect(getSafeRedirectPath("https://example.com")).toBeNull();
+    expect(getSafeRedirectPath("//example.com")).toBeNull();
   });
 });
 

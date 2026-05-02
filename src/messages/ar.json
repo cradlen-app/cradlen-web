@@ -30,6 +30,8 @@
     "logout": "تسجيل الخروج",
     "searchPlaceholder": "البحث عن مريض....",
     "upload": "رفع",
+    "notifications": "الإشعارات",
+    "messages": "الرسائل",
     "profileSwitcher": "تبديل الملف"
   },
   "staff": {
@@ -506,6 +508,11 @@
         "codeLength": "يجب أن يتكون الرمز من 6 أرقام بالضبط.",
         "codeDigits": "يجب أن يحتوي الرمز على أرقام فقط.",
         "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+        "passwordMaxLength": "يجب ألا تتجاوز كلمة المرور 128 حرفًا.",
+        "passwordUppercase": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل.",
+        "passwordLowercase": "يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل.",
+        "passwordDigit": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل.",
+        "passwordSpecial": "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل.",
         "confirmPasswordRequired": "يرجى تأكيد كلمة المرور.",
         "passwordMismatch": "كلمتا المرور غير متطابقتين.",
         "invalidToken": "انتهت صلاحية رابط إعادة التعيين. يرجى طلب رمز جديد.",
@@ -521,6 +528,7 @@
       "showPassword": "إظهار",
       "hidePassword": "إخفاء",
       "submitButton": "تسجيل الدخول",
+      "noticeAccountExists": "لديك حساب بالفعل. يرجى تسجيل الدخول أدناه.",
       "forgotPassword": "هل نسيت كلمة المرور ؟",
       "newToCommunity": "عضو جديد في مجتمعنا ؟",
       "copyright": "2026 CRADLEN. جميع الحقوق محفوظة.",
