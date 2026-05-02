@@ -24,14 +24,12 @@ export default async function HomePage({ params }: Props) {
   return (
     <div className="min-h-screen bg-white text-brand-black">
       <header className="flex items-center justify-between px-6 py-5 sm:px-8 lg:px-10">
-        <Link href="/" aria-label="Cradlen home" className="inline-flex">
-          <Image
-            src={Logo}
-            alt="CRADLEN"
-            height={34}
-            priority
-            className="h-8 w-auto sm:h-9"
-          />
+        <Link
+          href="/"
+          aria-label="Cradlen home"
+          className="w-30 shrink-0 inline-flex"
+        >
+          <Image src={Logo} alt="CRADLEN" priority className="w-auto" />
         </Link>
 
         <Button

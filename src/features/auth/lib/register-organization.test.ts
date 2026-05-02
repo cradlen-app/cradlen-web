@@ -21,7 +21,7 @@ const baseStep3Data: Step3Data = {
   address: "123 Main St",
   governorate: "Cairo",
   country: "Egypt",
-  role: "owner",
+  isClinical: false,
 };
 
 describe("step1Schema", () => {
@@ -115,20 +115,9 @@ describe("step3Schema", () => {
     expect(step3Schema.safeParse(baseStep3Data).success).toBe(true);
   });
 
-  it("requires a role", () => {
-    const result = step3Schema.safeParse({
-      ...baseStep3Data,
-      role: "" as Step3Data["role"],
-    });
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ path: ["role"] }),
-        ]),
-      );
-    }
+  it("accepts isClinical as a boolean", () => {
+    expect(step3Schema.safeParse({ ...baseStep3Data, isClinical: true }).success).toBe(true);
+    expect(step3Schema.safeParse({ ...baseStep3Data, isClinical: false }).success).toBe(true);
   });
 
   it("requires branchName", () => {
@@ -221,7 +210,7 @@ describe("buildRegisterOrganizationRequest", () => {
     expect(
       buildRegisterOrganizationRequest({
         ...baseStep3Data,
-        role: "owner_doctor",
+        isClinical: true,
         specialty: "Pediatrics",
         jobTitle: "Senior Physician",
       }),
@@ -256,7 +245,7 @@ describe("buildRegisterOrganizationRequest", () => {
     expect(
       buildRegisterOrganizationRequest({
         ...baseStep3Data,
-        role: "owner_doctor",
+        isClinical: true,
         specialty: " ",
         jobTitle: "",
       }),

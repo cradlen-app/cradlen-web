@@ -1,25 +1,27 @@
 import type { UserRole } from "@/types/user.types";
-
-const DEFAULT_AUTH_REDIRECT = "/dashboard";
+import { buildDashboardUrl } from "@/lib/routes";
 
 export function getSafeRedirectPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return DEFAULT_AUTH_REDIRECT;
+    return null;
   }
 
   return value;
 }
 
-export function getDefaultRouteForRole(role: UserRole | undefined): string {
+export function getDefaultRouteForRole(
+  role: UserRole | undefined,
+  orgId: string,
+  branchId: string,
+): string {
   switch (role) {
     case "doctor":
-      return "/dashboard/calendar";
+      return buildDashboardUrl(orgId, branchId, "/calendar");
     case "reception":
-    case "receptionist":
-      return "/dashboard/patients";
+      return buildDashboardUrl(orgId, branchId, "/patients");
     case "patient":
       return "/patient/dashboard";
     default:
-      return "/dashboard";
+      return buildDashboardUrl(orgId, branchId);
   }
 }

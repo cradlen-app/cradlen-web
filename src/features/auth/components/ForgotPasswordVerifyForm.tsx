@@ -11,6 +11,7 @@ import {
   type ForgotPasswordOtpData,
 } from "../lib/forgot-password.schemas";
 import {
+  clearForgotPasswordSession,
   getForgotPasswordResendSecondsRemaining,
   getPendingForgotPasswordEmail,
   startForgotPasswordResendCooldown,
@@ -23,6 +24,14 @@ import { useForgotPasswordStore } from "../store/forgotPasswordStore";
 import { OTPInput } from "./OTPInput";
 import { ResendButton } from "./ResendButton";
 
+function getErrorCode(error: unknown): string | undefined {
+  const body = (error instanceof ApiError ? error.body : null) as
+    | { error?: { code?: string } }
+    | null
+    | undefined;
+  return body?.error?.code;
+}
+
 export function ForgotPasswordVerifyForm() {
   const t = useTranslations("auth.forgotPassword");
   const router = useRouter();
@@ -34,7 +43,9 @@ export function ForgotPasswordVerifyForm() {
   );
   const verifyOtp = useVerifyForgotPasswordOtp();
   const resendOtp = useResendForgotPasswordOtp();
+  const resetToken = useForgotPasswordStore((state) => state.resetToken);
   const setResetToken = useForgotPasswordStore((state) => state.setResetToken);
+  const clearResetToken = useForgotPasswordStore((state) => state.clearResetToken);
 
   const form = useForm<ForgotPasswordOtpData>({
     resolver: zodResolver(createForgotPasswordOtpSchema(t)),
@@ -42,10 +53,10 @@ export function ForgotPasswordVerifyForm() {
   });
 
   useEffect(() => {
-    if (!email) {
+    if (!resetToken) {
       router.replace("/forgot-password");
     }
-  }, [email, router]);
+  }, [resetToken, router]);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
@@ -58,33 +69,49 @@ export function ForgotPasswordVerifyForm() {
   }, [cooldownSeconds]);
 
   const onSubmit = form.handleSubmit(async (data) => {
-    if (!email) return;
+    if (!resetToken) return;
 
     setStepError(null);
     setResendMessage(null);
 
     try {
       const response = await verifyOtp.mutateAsync({
-        email,
+        reset_token: resetToken,
         code: data.verificationCode,
       });
-      setResetToken(response.reset_token);
+      setResetToken(response.data.reset_token);
       router.push("/forgot-password/reset");
-    } catch {
+    } catch (error) {
+      const code = getErrorCode(error);
+
+      if (code === "CODE_EXPIRED" || code === "MAX_ATTEMPTS_EXCEEDED") {
+        clearResetToken();
+        clearForgotPasswordSession();
+        router.replace("/forgot-password");
+        return;
+      }
+
+      if (error instanceof ApiError && error.status === 401) {
+        clearResetToken();
+        router.replace("/forgot-password");
+        return;
+      }
+
       setStepError(t("errors.invalidCode"));
     }
   });
 
   const handleResend = () => {
-    if (!email || resendOtp.isPending || cooldownSeconds > 0) return;
+    if (!resetToken || resendOtp.isPending || cooldownSeconds > 0) return;
 
     setStepError(null);
     setResendMessage(null);
 
     resendOtp.mutate(
-      { email },
+      { reset_token: resetToken },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
+          setResetToken(response.data.reset_token);
           startForgotPasswordResendCooldown();
           setCooldownSeconds(getForgotPasswordResendSecondsRemaining());
           setResendMessage(t("resendSuccess"));
@@ -92,6 +119,12 @@ export function ForgotPasswordVerifyForm() {
         onError: (error) => {
           if (error instanceof ApiError && error.status === 429) {
             setStepError(t("errors.tryAgainLater"));
+            return;
+          }
+
+          if (error instanceof ApiError && error.status === 401) {
+            clearResetToken();
+            router.replace("/forgot-password");
             return;
           }
 
@@ -103,7 +136,7 @@ export function ForgotPasswordVerifyForm() {
 
   const isSubmitting = form.formState.isSubmitting || verifyOtp.isPending;
 
-  if (!email) {
+  if (!resetToken) {
     return (
       <div className="w-full flex flex-col gap-5 text-center">
         <h1 className="text-xl font-medium text-brand-black">
@@ -121,7 +154,7 @@ export function ForgotPasswordVerifyForm() {
           {t("verificationTitle")}
         </h1>
         <p className="text-sm text-gray-500">
-          {t("verificationDescription", { email })}
+          {t("verificationDescription", { email: email ?? "" })}
         </p>
       </div>
 

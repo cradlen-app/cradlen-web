@@ -34,6 +34,7 @@ export type CreateBranchRequest = {
   country?: string;
   governorate: string;
   is_main?: boolean;
+  name: string;
   organization_id: string;
 };
 
@@ -43,6 +44,7 @@ export type UpdateBranchRequest = {
   country?: string;
   governorate?: string;
   is_main?: boolean;
+  name?: string;
 };
 
 export function updateAccountProfile(data: UpdateAccountProfileRequest) {

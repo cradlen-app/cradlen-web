@@ -7,7 +7,11 @@ import {
   CURRENT_USER_QUERY_KEY,
   useCurrentUser,
 } from "@/features/auth/hooks/useCurrentUser";
-import { getActiveProfile } from "@/features/auth/lib/current-user";
+import {
+  getActiveProfile,
+  getDefaultBranch,
+  getProfilePrimaryRole,
+} from "@/features/auth/lib/current-user";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { useRouter } from "@/i18n/navigation";
@@ -66,12 +70,13 @@ export function SettingsPage() {
   }
 
   const displayName = `${user.first_name} ${user.last_name}`;
-  const branchAddress = profile?.branch
+  const activeBranch = getDefaultBranch(profile);
+  const branchAddress = activeBranch
     ? [
-        profile.branch.address,
-        profile.branch.city,
-        profile.branch.governorate,
-        profile.branch.country,
+        activeBranch.address,
+        activeBranch.city,
+        activeBranch.governorate,
+        activeBranch.country,
       ]
         .filter(Boolean)
         .join(", ")
@@ -86,8 +91,8 @@ export function SettingsPage() {
       }
 
       if (confirmSoftDelete === "branch") {
-        if (!profile?.branch.id || !profile.organization.id) return;
-        await deleteBranch(profile.branch.id, profile.organization.id);
+        if (!activeBranch?.id || !profile?.organization.id) return;
+        await deleteBranch(activeBranch.id, profile.organization.id);
         toast.success(t("branches.deleteSuccess"));
       }
 
@@ -139,7 +144,7 @@ export function SettingsPage() {
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-4 lg:p-6">
       <SettingsHeader
         active={user.is_active}
-        roleLabel={formatRole(profile?.role.name, t)}
+        roleLabel={formatRole(getProfilePrimaryRole(profile), t)}
         t={t}
       />
 

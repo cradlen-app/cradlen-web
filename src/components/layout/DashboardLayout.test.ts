@@ -7,8 +7,8 @@ describe("canAccessRoute", () => {
     expect(canAccessRoute("doctor", "/dashboard/settings")).toBe(true);
   });
 
-  it("blocks receptionists and patients from settings", () => {
-    expect(canAccessRoute("receptionist", "/dashboard/settings")).toBe(false);
+  it("blocks reception and patients from settings", () => {
+    expect(canAccessRoute("reception", "/dashboard/settings")).toBe(false);
     expect(canAccessRoute("patient", "/dashboard/settings")).toBe(false);
   });
 });

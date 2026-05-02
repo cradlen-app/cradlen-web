@@ -23,7 +23,6 @@ import {
 } from "../lib/current-user";
 import { getDefaultRouteForRole } from "../lib/redirect";
 import { DoctorFields } from "./DoctorFields";
-import { RoleSelector } from "./RoleSelector";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
@@ -69,14 +68,14 @@ export function SignUpCompleteForm() {
       governorate: "",
       country: "",
       branchName: "",
-      role: "owner",
+      isClinical: false,
       specialty: "",
       jobTitle: "",
     },
   });
-  const selectedRole = useWatch({
+  const isClinical = useWatch({
     control: form.control,
-    name: "role",
+    name: "isClinical",
   });
 
   const inputClass = cn(
@@ -121,7 +120,9 @@ export function SignUpCompleteForm() {
           clearPendingProfileSelection();
           queryClient.clear();
           const role = getProfileRoles(profile)[0] ?? ("unknown" as UserRole);
-          router.replace(getDefaultRouteForRole(role));
+          const resolvedOrgId = selectionRes.data.account_id || accountId;
+          const resolvedBranchId = selectionRes.data.branch_id ?? branchId;
+          router.replace(getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
           return;
         }
 
@@ -290,16 +291,23 @@ export function SignUpCompleteForm() {
           </div>
         </div>
 
-        <RoleSelector
-          heading={t("clinicianHeading")}
-          ownerLabel={t("ownerRole")}
-          ownerDoctorLabel={t("ownerDoctorRole")}
-          registration={form.register("role")}
-          error={form.formState.errors.role?.message}
-        />
+        <div className="flex flex-col gap-4">
+          <h3 className="border-b border-gray-100 pb-2 text-sm font-medium text-brand-black">
+            {t("clinicianHeading")}
+          </h3>
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3.5 transition-colors hover:border-brand-primary/30 hover:bg-brand-primary/5">
+            <input
+              type="checkbox"
+              {...form.register("isClinical")}
+              className="size-4 cursor-pointer rounded border-gray-300 accent-brand-primary"
+            />
+            <span className="text-sm text-brand-black">{t("isClinicalLabel")}</span>
+            <span className="ms-auto text-xs text-gray-400">{t("ownerDoctorRole")}</span>
+          </label>
+        </div>
 
         <DoctorFields
-          isVisible={selectedRole === "owner_doctor"}
+          isVisible={isClinical}
           register={form.register}
           inputClassName={inputClass}
           specialtyLabel={t("specialtyLabel")}

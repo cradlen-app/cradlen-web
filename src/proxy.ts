@@ -8,19 +8,17 @@ import {
 
 const intlMiddleware = createMiddleware(routing);
 
-const PROTECTED_ROUTES = [
-  "/analytics",
-  "/calendar",
-  "/dashboard",
-  "/medical-rep",
-  "/medicine",
+// All paths that are publicly accessible without authentication (locale-stripped).
+// Anything not matching these prefixes is treated as protected.
+const PUBLIC_ROUTE_PREFIXES = [
+  "/sign-in",
+  "/sign-up",
+  "/forgot-password",
+  "/select-profile",
+  "/staff/invite",
+  "/staff/join-code",
   "/patient",
-  "/patients",
-  "/settings",
-  "/staff",
 ];
-
-const PUBLIC_ROUTES = ["/staff/invite", "/staff/join-code"];
 
 function getPathWithoutLocale(pathname: string) {
   const segments = pathname.split("/");
@@ -37,12 +35,11 @@ function getPathWithoutLocale(pathname: string) {
 function isProtectedPath(pathname: string) {
   const pathWithoutLocale = getPathWithoutLocale(pathname);
 
-  if (PUBLIC_ROUTES.some((route) => pathWithoutLocale === route)) {
-    return false;
-  }
+  if (pathWithoutLocale === "/") return false;
 
-  return PROTECTED_ROUTES.some(
-    (route) => pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`),
+  return !PUBLIC_ROUTE_PREFIXES.some(
+    (prefix) =>
+      pathWithoutLocale === prefix || pathWithoutLocale.startsWith(prefix + "/"),
   );
 }
 

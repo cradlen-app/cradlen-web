@@ -1,12 +1,6 @@
 export type BackendUserRole = "OWNER" | "DOCTOR" | "RECEPTIONIST";
 
-export type UserRole =
-  | "owner"
-  | "reception"
-  | "receptionist"
-  | "doctor"
-  | "patient"
-  | "unknown";
+export type UserRole = "owner" | "reception" | "doctor" | "patient" | "unknown";
 
 export type UserBranch = {
   id: string;
@@ -29,7 +23,8 @@ export type UserProfile = {
   job_title: string;
   specialty?: string;
   is_clinical?: boolean;
-  roles: UserProfileRole[];
+  /** /auth/me returns role objects; login/signup returns role name strings */
+  roles: (UserProfileRole | string)[];
   organization: {
     id: string;
     name: string;
@@ -37,9 +32,13 @@ export type UserProfile = {
     status: string;
   };
   branches: UserBranch[];
-  /** @deprecated — not returned by /auth/me; use roles[0] */
+  /** @deprecated login/signup response only — /auth/me uses staff_id */
+  profile_id?: string;
+  /** @deprecated login/signup response only — /auth/me uses organization.name */
+  account_name?: string;
+  /** @deprecated not returned by /auth/me; use roles[0] */
   role?: { id?: string; name: UserRole | BackendUserRole | string };
-  /** @deprecated — not returned by /auth/me; use branches[0] */
+  /** @deprecated not returned by /auth/me; use branches[0] */
   branch?: UserBranch;
 };
 
