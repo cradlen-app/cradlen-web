@@ -15,9 +15,7 @@ const PUBLIC_ROUTE_PREFIXES = [
   "/sign-in",
   "/sign-up",
   "/forgot-password",
-  "/select-profile",
-  "/staff/invite",
-  "/staff/join-code",
+  "/invitations/accept",
   "/patient",
 ];
 
@@ -69,7 +67,7 @@ function isExpiredJwt(token: string) {
 
 // Routes a logged-in-but-not-yet-profiled user (selection token only) can reach.
 // The page itself handles the missing auth context gracefully.
-const SELECTION_TOKEN_ALLOWED_PATHS = ["/create-organization"];
+const SELECTION_TOKEN_ALLOWED_PATHS = ["/create-organization", "/select-profile"];
 
 export default function proxy(request: NextRequest) {
   if (isProtectedPath(request.nextUrl.pathname)) {

@@ -20,8 +20,6 @@ const SESSION_ENDPOINTS: Record<string, string> = {
   "/auth/registration/status": "/api/auth/registration/status",
   "/auth/register/organization": "/api/auth/register-organization",
   "/auth/reset-password": "/api/auth/reset-password",
-  "/join-codes/accept": "/api/join-codes/accept",
-  "/join-codes/preview": "/api/join-codes/preview",
   "/staff/invite/accept": "/api/staff/invite/accept",
   "/auth/switch-branch": "/api/auth/switch-branch",
 };
