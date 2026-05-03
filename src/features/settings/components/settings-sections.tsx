@@ -96,7 +96,7 @@ export function ProfileSection({
             <DetailRow label={t("fields.email")} value={user.email} />
             <DetailRow
               label={t("fields.phone")}
-              value={user.phone_number ?? user.phone}
+              value={profile?.phone_number ?? user.phone_number ?? user.phone}
             />
             <DetailRow
               label={t("fields.role")}

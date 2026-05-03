@@ -71,7 +71,9 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
                 <td className="py-3 pe-4">
                   <div className="flex flex-col leading-tight">
                     <span className="text-brand-black">
-                      {t(getRoleTranslationKey(member.role))}
+                      {(member.roles?.length ? member.roles : [member.role])
+                        .map((r) => t(getRoleTranslationKey(r)))
+                        .join(", ")}
                     </span>
                     <span className="text-xs font-thin italic text-gray-400">
                       {member.jobTitle}

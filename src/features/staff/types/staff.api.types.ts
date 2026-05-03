@@ -110,15 +110,12 @@ export type CreateStaffDirectResponse = {
 export type UpdateStaffRequest = {
   first_name?: string;
   last_name?: string;
-  phone?: string;
   phone_number?: string;
-  role_id?: string;
+  role_ids?: string[];
+  branch_ids?: string[];
   job_title?: string;
   specialty?: string;
-  branches?: Array<{
-    branch_id: string;
-    schedule: { days: InviteStaffDay[] };
-  }>;
+  is_clinical?: boolean;
 };
 
 export type InviteStaffResponse = {
