@@ -24,6 +24,7 @@ export type UserProfile = {
   specialty?: string;
   is_clinical?: boolean;
   phone_number?: string | null;
+  phone?: string | null;
   /** /auth/me returns role objects; login/signup returns role name strings */
   roles: (UserProfileRole | string)[];
   organization: {
