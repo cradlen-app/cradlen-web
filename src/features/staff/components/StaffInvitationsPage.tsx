@@ -134,13 +134,14 @@ function humanizeStatus(status: string) {
 function getBranchLabel(
   branch: NonNullable<ApiStaffInvitation["branches"]>[number],
 ) {
+  if (branch.name) return branch.name;
   if (branch.branch_name) return branch.branch_name;
   if (branch.branch?.name) return branch.branch.name;
 
   return [
+    branch.city ?? branch.branch?.city,
+    branch.governorate ?? branch.branch?.governorate,
     branch.branch?.address,
-    branch.branch?.city,
-    branch.branch?.governorate,
     branch.branch?.country,
   ]
     .filter(Boolean)
@@ -162,7 +163,7 @@ function getRoleLabel(
   invitation: ApiStaffInvitation,
   t: ReturnType<typeof useTranslations>,
 ) {
-  const raw = invitation.role?.name ?? invitation.role_name;
+  const raw = invitation.role?.name ?? invitation.roles?.[0]?.name ?? invitation.role_name;
   if (!raw) return "-";
 
   const normalized = normalizeApiRoleName(raw);
@@ -171,17 +172,35 @@ function getRoleLabel(
     : raw;
 }
 
+const FULL_DAY_TO_SHORT: Record<string, string> = {
+  MONDAY: "MON",
+  TUESDAY: "TUE",
+  WEDNESDAY: "WED",
+  THURSDAY: "THU",
+  FRIDAY: "FRI",
+  SATURDAY: "SAT",
+  SUNDAY: "SUN",
+};
+
+function formatScheduleDay(dayOfWeek: string, shifts: Array<{ start_time: string; end_time: string }>) {
+  const short = FULL_DAY_TO_SHORT[dayOfWeek] ?? dayOfWeek;
+  const label = STAFF_INVITE_DAY_LABELS[short as keyof typeof STAFF_INVITE_DAY_LABELS] ?? short;
+  const shiftStr = shifts.map((s) => `${s.start_time} - ${s.end_time}`).join(", ");
+  return `${label}: ${shiftStr}`;
+}
+
 function getScheduleLabel(invitation: ApiStaffInvitation) {
+  if (invitation.working_schedule) {
+    return invitation.working_schedule
+      .flatMap((entry) => entry.days)
+      .map((day) => formatScheduleDay(day.day_of_week, day.shifts))
+      .join("\n") || undefined;
+  }
+
   return invitation.branches
     ?.flatMap((branch) => branch.schedule?.days ?? [])
-    .map((day) => {
-      const shifts = day.shifts
-        .map((shift) => `${shift.start_time} - ${shift.end_time}`)
-        .join(", ");
-
-      return `${STAFF_INVITE_DAY_LABELS[day.day_of_week]}: ${shifts}`;
-    })
-    .join("\n");
+    .map((day) => formatScheduleDay(day.day_of_week, day.shifts))
+    .join("\n") || undefined;
 }
 
 function matchesSearch(invitation: ApiStaffInvitation, search: string) {
@@ -192,7 +211,9 @@ function matchesSearch(invitation: ApiStaffInvitation, search: string) {
     getFullName(invitation),
     invitation.email,
     invitation.phone,
+    invitation.phone_number,
     invitation.role?.name,
+    invitation.roles?.[0]?.name,
     invitation.role_name,
     invitation.job_title,
     invitation.specialty,
@@ -503,15 +524,15 @@ function InvitationDrawer({
                   />
                   <DetailRow
                     label={t("fields.jobTitle")}
-                    value={invitation.job_title}
+                    value={invitation.job_title ?? undefined}
                   />
                   <DetailRow
                     label={t("fields.phone")}
-                    value={invitation.phone}
+                    value={invitation.phone_number ?? invitation.phone ?? undefined}
                   />
                   <DetailRow
                     label={t("fields.specialty")}
-                    value={invitation.specialty}
+                    value={invitation.specialty ?? undefined}
                   />
                   <DetailRow
                     label={t("fields.invitedAt")}
@@ -523,7 +544,7 @@ function InvitationDrawer({
                   />
                   <DetailRow
                     label={t("fields.acceptedAt")}
-                    value={formatDate(invitation.accepted_at)}
+                    value={formatDate(invitation.accepted_at ?? undefined)}
                   />
                   <DetailRow
                     label={t("fields.invitedBy")}
@@ -613,7 +634,7 @@ export function StaffInvitationsPage() {
   );
   const selectedFallback =
     invitations.find((invitation) => invitation.id === selectedId) ?? null;
-  const detailQuery = useStaffInvitation(organizationId, branchId, selectedId);
+  const detailQuery = useStaffInvitation(organizationId, selectedId);
   const resendInvitation = useResendStaffInvitation();
   const deleteInvitation = useDeleteStaffInvitation();
 
@@ -638,7 +659,7 @@ export function StaffInvitationsPage() {
   const isDrawerOpen = !!selectedId;
 
   async function handleResend(invitation: ApiStaffInvitation) {
-    if (!organizationId || !branchId) {
+    if (!organizationId) {
       toast.error(t("noBranch"));
       return;
     }
@@ -647,9 +668,8 @@ export function StaffInvitationsPage() {
 
     try {
       await resendInvitation.mutateAsync({
-        branchId,
+        accountId: organizationId,
         invitationId: invitation.id,
-        organizationId,
       });
       toast.success(t("resendSuccess"));
     } catch (error) {
