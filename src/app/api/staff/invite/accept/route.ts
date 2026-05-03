@@ -13,7 +13,7 @@ import {
 
 export async function POST(request: Request) {
   const requestBody = await request.arrayBuffer();
-  const response = await backendFetch("/staff/invite/accept", {
+  const response = await backendFetch("/invitations/accept", {
     method: "POST",
     body: requestBody,
   });
