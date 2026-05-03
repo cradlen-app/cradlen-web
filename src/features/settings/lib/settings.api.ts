@@ -1,4 +1,5 @@
 import { apiAuthFetch, apiFetch } from "@/lib/api";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 
 export type AccountBranch = {
   id: string;
@@ -69,14 +70,9 @@ export function updateAccountProfile(
   });
 }
 
-export function deactivateAccount(data: { reason?: string } = {}) {
-  return apiAuthFetch<{ user_id: string; is_active: false }>(
-    "/account/deactivate",
-    {
-      method: "POST",
-      body: JSON.stringify(data),
-    },
-  );
+export function deactivateAccount() {
+  const { accountId } = useAuthContextStore.getState();
+  return apiAuthFetch<void>(`/accounts/${accountId}`, { method: "DELETE" });
 }
 
 export function createOrganization(data: CreateOrganizationRequest) {
