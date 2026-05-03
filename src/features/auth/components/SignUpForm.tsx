@@ -19,6 +19,14 @@ import { buildSignupStartRequest } from "../lib/signup-start";
 import { useRegisterPersonal } from "../hooks/useSignUp";
 import type { Step1Data, RegistrationStatusResponse } from "../types/sign-up.types";
 
+function getConflictFields(err: ApiError): string[] {
+  const body = err.body as Record<string, unknown> | null;
+  const error = body?.error as Record<string, unknown> | null;
+  const details = error?.details as Record<string, unknown> | null;
+  const fields = details?.fields;
+  return Array.isArray(fields) ? (fields as string[]) : [];
+}
+
 
 export function SignUpForm() {
   const t = useTranslations("auth.signUp");
@@ -65,6 +73,11 @@ export function SignUpForm() {
       router.replace("/sign-up/verify");
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
+        const conflictFields = getConflictFields(err);
+        if (conflictFields.includes("phone_number") && !conflictFields.includes("email")) {
+          setStepError(t("errors.phoneTaken"));
+          return;
+        }
         const email = form.getValues("email");
         try {
           const status = await apiFetch<RegistrationStatusResponse>(

@@ -45,8 +45,6 @@ export default async function SignUpPage({ params }: Props) {
             height={100}
           />
 
-          {/* <h1 className="text-xl font-medium text-brand-black">{t("title")}</h1> */}
-
           <SignUpForm />
         </div>
       </main>

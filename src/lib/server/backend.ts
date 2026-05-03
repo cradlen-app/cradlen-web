@@ -7,6 +7,8 @@ import {
   AUTH_SELECTION_TOKEN_MAX_AGE,
   AUTH_TOKEN_COOKIE,
   DEFAULT_AUTH_EXPIRES_IN,
+  RESET_TOKEN_COOKIE,
+  RESET_TOKEN_MAX_AGE,
   SIGNUP_TOKEN_COOKIE,
   SIGNUP_TOKEN_MAX_AGE,
 } from "@/features/auth/lib/auth.constants";
@@ -142,6 +144,28 @@ export function clearSignupTokenCookie(response: NextResponse) {
     ...AUTH_COOKIE_OPTIONS,
     maxAge: 0,
   });
+}
+
+export function setResetTokenCookie(
+  response: NextResponse,
+  token: string,
+  maxAge = RESET_TOKEN_MAX_AGE,
+) {
+  response.cookies.set(RESET_TOKEN_COOKIE, token, {
+    ...AUTH_COOKIE_OPTIONS,
+    maxAge: Math.max(0, maxAge),
+  });
+}
+
+export function clearResetTokenCookie(response: NextResponse) {
+  response.cookies.set(RESET_TOKEN_COOKIE, "", {
+    ...AUTH_COOKIE_OPTIONS,
+    maxAge: 0,
+  });
+}
+
+export function getResetTokenFromRequest(req: NextRequest): string | null {
+  return req.cookies.get(RESET_TOKEN_COOKIE)?.value ?? null;
 }
 
 export function clearAuthCookies(response: NextResponse) {

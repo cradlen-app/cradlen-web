@@ -493,7 +493,9 @@
         "cityRequired": "City is required",
         "addressRequired": "Address is required",
         "governorateRequired": "Governorate is required",
-        "roleRequired": "Please select a role"
+        "roleRequired": "Please select a role",
+        "specialtyRequired": "Specialty is required for clinical professionals",
+        "jobTitleRequired": "Job title is required for clinical professionals"
       },
       "toasts": {
         "resumingRegistration": "Email already registered — resuming your incomplete registration.",
@@ -563,7 +565,7 @@
       "hidePassword": "Hide",
       "submitButton": "Sign in",
       "noticeAccountExists": "You already have an account. Please sign in below.",
-      "forgotPassword": "Forget your password ?",
+      "forgotPassword": "Forgot your password?",
       "newToCommunity": "New to our community ?",
       "copyright": "2026 CRADLEN. All rights reserved.",
       "termsOfService": "Terms of Service",

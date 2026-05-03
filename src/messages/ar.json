@@ -493,7 +493,9 @@
         "cityRequired": "المدينة مطلوبة",
         "addressRequired": "العنوان مطلوب",
         "governorateRequired": "المحافظة مطلوبة",
-        "roleRequired": "يرجى اختيار دور"
+        "roleRequired": "يرجى اختيار دور",
+        "specialtyRequired": "التخصص مطلوب للمتخصصين السريريين",
+        "jobTitleRequired": "المسمى الوظيفي مطلوب للمتخصصين السريريين"
       },
       "toasts": {
         "resumingRegistration": "البريد الإلكتروني مسجل بالفعل — سنستكمل تسجيلك غير المكتمل.",
