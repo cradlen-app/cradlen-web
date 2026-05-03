@@ -1,8 +1,10 @@
 import type {
+  ApiStaffBranchSchedule,
   ApiStaffDay,
   ApiStaffMember,
   ApiStaffRole,
   ApiStaffSchedule,
+  NewApiStaffMember,
 } from "../types/staff.api.types";
 import type {
   StaffFilter,
@@ -25,13 +27,21 @@ const DAY_MAP: Record<number, ApiStaffDay["day_of_week"]> = {
 };
 
 export function computeStaffStatus(
-  schedule: ApiStaffSchedule | undefined,
+  schedule: ApiStaffSchedule | ApiStaffBranchSchedule[] | undefined,
   now = new Date(),
 ): StaffStatus {
-  if (!schedule?.days?.length) return "notAvailable";
+  if (!schedule) return "notAvailable";
+
+  // Normalize both formats into a flat days array
+  const days: Array<{ day_of_week: ApiStaffDay["day_of_week"]; shifts: Array<{ start_time: string; end_time: string }> }> =
+    Array.isArray(schedule)
+      ? schedule.flatMap((b) => b.days)
+      : schedule.days ?? [];
+
+  if (!days.length) return "notAvailable";
 
   const todayKey = DAY_MAP[now.getDay()];
-  const todaySchedule = schedule.days.find((d) => d.day_of_week === todayKey);
+  const todaySchedule = days.find((d) => d.day_of_week === todayKey);
   if (!todaySchedule?.shifts?.length) return "notAvailable";
 
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -44,6 +54,7 @@ export function computeStaffStatus(
 
   return inShift ? "available" : "notAvailable";
 }
+
 const DAY_NAMES: Record<string, string> = {
   MON: "Mon",
   TUE: "Tue",
@@ -61,7 +72,25 @@ function formatTime(time: string) {
   return `${hour}:${String(m).padStart(2, "0")}${suffix}`;
 }
 
-function formatSchedule(schedule?: ApiStaffSchedule): string | undefined {
+function formatBranchSchedule(schedule: ApiStaffBranchSchedule[]): string | undefined {
+  const days = schedule.flatMap((b) => b.days);
+  if (!days.length) return undefined;
+  const sorted = [...days].sort(
+    (a, b) =>
+      DAY_ORDER.indexOf(a.day_of_week as never) -
+      DAY_ORDER.indexOf(b.day_of_week as never),
+  );
+  return sorted
+    .map((day) => {
+      const shifts = day.shifts
+        .map((s) => `${formatTime(s.start_time)} - ${formatTime(s.end_time)}`)
+        .join(", ");
+      return `${DAY_NAMES[day.day_of_week]}: ${shifts}`;
+    })
+    .join("\n");
+}
+
+function formatLegacySchedule(schedule?: ApiStaffSchedule): string | undefined {
   if (!schedule?.days?.length) return undefined;
   const sorted = [...schedule.days].sort(
     (a: ApiStaffDay, b: ApiStaffDay) =>
@@ -86,27 +115,51 @@ export function normalizeApiRoleName(name?: string): StaffRole {
   return "unknown";
 }
 
-function mapApiRole(apiMember: ApiStaffMember): StaffRole {
-  return normalizeApiRoleName(apiMember.role?.name);
-}
+// Maps the new /accounts/:accountId/staff response shape
+export function mapApiStaffToMember(api: NewApiStaffMember): StaffMember {
+  const primaryRole = api.roles?.[0];
+  const role = normalizeApiRoleName(primaryRole?.name);
 
-export function mapApiStaffToMember(api: ApiStaffMember): StaffMember {
   return {
-    id: api.id,
-    roleId: api.role_id,
-    firstName: api.user?.first_name ?? "",
-    lastName: api.user?.last_name ?? "",
-    email: api.user?.email,
-    handle: api.user?.email
-      ? `@${api.user.email.split("@")[0]}`
+    id: api.profile_id,
+    roleId: primaryRole?.id,
+    firstName: api.first_name,
+    lastName: api.last_name,
+    email: api.email,
+    handle: api.email
+      ? `@${api.email.split("@")[0]}`
       : `@${api.user_id.slice(0, 8)}`,
-    role: mapApiRole(api),
+    role,
     jobTitle: api.job_title ?? "",
     specialty: api.specialty ?? "",
-    phone: api.user?.phone_number ?? api.user?.phone ?? "-",
+    phone: api.phone_number ?? "-",
     status: computeStaffStatus(api.schedule),
-    schedule: api.schedule,
-    workSchedule: formatSchedule(api.schedule),
+    schedule: api.schedule?.length
+      ? { days: api.schedule.flatMap((b) => b.days) as ApiStaffDay[] }
+      : undefined,
+    workSchedule: api.schedule?.length ? formatBranchSchedule(api.schedule) : undefined,
+  };
+}
+
+// Legacy mapper for old /staff/:id response shape (used by updateStaff/deactivateStaff)
+export function mapLegacyApiStaffToMember(api: ApiStaffMember): StaffMember {
+  const legacySchedule = Array.isArray(api.schedule) ? undefined : (api.schedule as ApiStaffSchedule | undefined);
+  return {
+    id: api.id ?? api.profile_id,
+    roleId: api.role_id ?? api.roles?.[0]?.id,
+    firstName: api.user?.first_name ?? api.first_name,
+    lastName: api.user?.last_name ?? api.last_name,
+    email: api.user?.email ?? api.email,
+    handle: (api.user?.email ?? api.email)
+      ? `@${(api.user?.email ?? api.email)!.split("@")[0]}`
+      : `@${api.user_id.slice(0, 8)}`,
+    role: normalizeApiRoleName(api.role?.name ?? api.roles?.[0]?.name),
+    jobTitle: api.job_title ?? "",
+    specialty: api.specialty ?? "",
+    phone: api.user?.phone_number ?? api.user?.phone ?? api.phone_number ?? "-",
+    status: computeStaffStatus(legacySchedule),
+    schedule: legacySchedule,
+    workSchedule: formatLegacySchedule(legacySchedule),
   };
 }
 

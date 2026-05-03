@@ -40,68 +40,83 @@ const staffBaseSchema = z.object({
   shifts: z.array(shiftSchema),
 });
 
-function validateStaffForm(
+function validateNameAndSpecialty(
   value: z.infer<typeof staffBaseSchema>,
   ctx: z.RefinementCtx,
 ) {
   const nameParts = value.name.split(/\s+/).filter(Boolean);
 
-    if (nameParts.length < 2) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["name"],
-        message: "Enter first and last name",
-      });
-    }
+  if (nameParts.length < 2) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["name"],
+      message: "Enter first and last name",
+    });
+  }
 
-    const needsSpecialty =
-      value.role === "doctor" || (value.role === "owner" && value.isClinical);
+  const needsSpecialty =
+    value.role === "doctor" || (value.role === "owner" && value.isClinical);
 
-    if (needsSpecialty && !value.specialty) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["specialty"],
-        message: "Specialty is required",
-      });
-    }
+  if (needsSpecialty && !value.specialty) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["specialty"],
+      message: "Specialty is required",
+    });
+  }
+}
 
-    const enabledShifts = value.shifts.filter((shift) => shift.enabled);
-
-    if (enabledShifts.length === 0) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["shifts", "root"],
-        message: "Select at least one working day",
-      });
-    }
-
+function validateShiftTimes(
+  value: z.infer<typeof staffBaseSchema>,
+  ctx: z.RefinementCtx,
+) {
   value.shifts.forEach((shift, index) => {
     if (!shift.enabled) return;
 
-      if (!shift.startTime) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["shifts", index, "startTime"],
-          message: "Start time is required",
-        });
-      }
+    if (!shift.startTime) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["shifts", index, "startTime"],
+        message: "Start time is required",
+      });
+    }
 
-      if (!shift.endTime) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["shifts", index, "endTime"],
-          message: "End time is required",
-        });
-      }
+    if (!shift.endTime) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["shifts", index, "endTime"],
+        message: "End time is required",
+      });
+    }
 
-      if (shift.startTime && shift.endTime && shift.startTime >= shift.endTime) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["shifts", index, "endTime"],
-          message: "End time must be later",
-        });
-      }
+    if (shift.startTime && shift.endTime && shift.startTime >= shift.endTime) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["shifts", index, "endTime"],
+        message: "End time must be later",
+      });
+    }
   });
+}
+
+function validateInviteForm(
+  value: z.infer<typeof staffBaseSchema>,
+  ctx: z.RefinementCtx,
+) {
+  validateNameAndSpecialty(value, ctx);
+  validateShiftTimes(value, ctx);
+}
+
+function validateDirectCreateForm(
+  value: z.infer<typeof staffBaseSchema> & { phone: string; password: string },
+  ctx: z.RefinementCtx,
+) {
+  validateNameAndSpecialty(value, ctx);
+
+  const enabledShifts = value.shifts.filter((shift) => shift.enabled);
+  if (enabledShifts.length > 0) {
+    validateShiftTimes(value, ctx);
+  }
 }
 
 export const staffInviteSchema = staffBaseSchema
@@ -112,17 +127,25 @@ export const staffInviteSchema = staffBaseSchema
       .min(1, "Email is required")
       .email("Enter a valid email address"),
   })
-  .superRefine(validateStaffForm);
+  .superRefine(validateInviteForm);
 
 export const staffEditSchema = staffBaseSchema
   .extend({
     email: z.string(),
   })
-  .superRefine(validateStaffForm);
+  .superRefine(validateInviteForm);
+
+export const staffCreateDirectSchema = staffBaseSchema
+  .extend({
+    phone: z.string().trim().min(1, "Phone number is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  })
+  .superRefine(validateDirectCreateForm);
 
 export type StaffInviteFormValues = z.infer<typeof staffInviteSchema>;
 export type StaffEditFormValues = z.infer<typeof staffEditSchema>;
 export type StaffFormValues = StaffInviteFormValues | StaffEditFormValues;
+export type StaffCreateDirectFormValues = z.infer<typeof staffCreateDirectSchema>;
 
 export function getDefaultStaffInviteValues(): StaffInviteFormValues {
   return {
@@ -134,6 +157,25 @@ export function getDefaultStaffInviteValues(): StaffInviteFormValues {
     isClinical: false,
     specialty: "",
     email: "",
+    shifts: STAFF_INVITE_DAYS.map((day) => ({
+      day,
+      enabled: false,
+      startTime: "09:00",
+      endTime: "17:00",
+    })),
+  };
+}
+
+export function getDefaultStaffCreateDirectValues(): StaffCreateDirectFormValues {
+  return {
+    name: "",
+    roleId: "",
+    role: "doctor" satisfies StaffRole,
+    jobTitle: "",
+    phone: "",
+    password: "",
+    isClinical: false,
+    specialty: "",
     shifts: STAFF_INVITE_DAYS.map((day) => ({
       day,
       enabled: false,

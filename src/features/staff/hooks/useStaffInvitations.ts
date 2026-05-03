@@ -6,7 +6,6 @@ import {
   fetchStaffInvitation,
   fetchStaffInvitations,
   resendStaffInvitation,
-  type FetchStaffInvitationsOptions,
 } from "../lib/staff.api";
 import type {
   ApiStaffInvitation,
@@ -42,23 +41,22 @@ function unwrapInvitation(response: StaffInvitationResponse): ApiStaffInvitation
 export const STAFF_INVITATIONS_QUERY_KEY = "staff-invitations";
 
 export function useStaffInvitations(
-  organizationId: string | undefined,
-  branchId: string | undefined,
+  accountId: string | undefined,
+  _branchId: string | undefined,
   { page = 1, limit = 100, status = "all" }: UseStaffInvitationsOptions = {},
 ) {
   return useQuery<{ data: ApiStaffInvitation[]; meta?: StaffInvitationsMeta }>({
-    queryKey: [STAFF_INVITATIONS_QUERY_KEY, organizationId, branchId, page, limit, status],
+    queryKey: [STAFF_INVITATIONS_QUERY_KEY, accountId, page, limit, status],
     queryFn: async () =>
       unwrapInvitations(
         await fetchStaffInvitations({
-          branchId: branchId!,
+          accountId: accountId!,
           limit,
-          organizationId: organizationId!,
           page,
           status,
-        } satisfies FetchStaffInvitationsOptions),
+        }),
       ),
-    enabled: !!organizationId && !!branchId,
+    enabled: !!accountId,
     staleTime: 60 * 1000,
   });
 }
@@ -88,7 +86,7 @@ export function useStaffInvitation(
   });
 }
 
-type InvitationActionVariables = {
+type ResendVariables = {
   branchId: string;
   invitationId: string;
   organizationId: string;
@@ -98,11 +96,7 @@ export function useResendStaffInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      branchId,
-      invitationId,
-      organizationId,
-    }: InvitationActionVariables) =>
+    mutationFn: ({ branchId, invitationId, organizationId }: ResendVariables) =>
       resendStaffInvitation(invitationId, { branchId, organizationId }),
     onSuccess: async (_data, variables) => {
       await Promise.all([
@@ -121,16 +115,17 @@ export function useResendStaffInvitation() {
   });
 }
 
+type DeleteVariables = {
+  accountId: string;
+  invitationId: string;
+};
+
 export function useDeleteStaffInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      branchId,
-      invitationId,
-      organizationId,
-    }: InvitationActionVariables) =>
-      deleteStaffInvitation(invitationId, { branchId, organizationId }),
+    mutationFn: ({ accountId, invitationId }: DeleteVariables) =>
+      deleteStaffInvitation(accountId, invitationId),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [STAFF_INVITATIONS_QUERY_KEY] }),
