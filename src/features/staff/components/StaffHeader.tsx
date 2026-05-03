@@ -1,16 +1,18 @@
 "use client";
 
-import { Mail, Plus } from "lucide-react";
+import { ChevronDown, Mail, Plus, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 
 type StaffHeaderProps = {
-  onCreateStaff?: () => void;
+  onInviteStaff?: () => void;
+  onCreateDirectStaff?: () => void;
 };
 
-export function StaffHeader({ onCreateStaff }: StaffHeaderProps) {
+export function StaffHeader({ onInviteStaff, onCreateDirectStaff }: StaffHeaderProps) {
   const t = useTranslations("staff");
   const dashboardPath = useDashboardPath();
 
@@ -25,14 +27,49 @@ export function StaffHeader({ onCreateStaff }: StaffHeaderProps) {
           <Mail className="size-4" aria-hidden="true" />
           {t("invitations.link")}
         </Link>
-        <Button
-          type="button"
-          onClick={onCreateStaff}
-          className="rounded-full bg-brand-primary px-5 text-white hover:bg-brand-primary/90"
-        >
-          <Plus className="size-4" aria-hidden="true" />
-          {t("newStaff")}
-        </Button>
+
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <Button
+              type="button"
+              className="rounded-full bg-brand-primary px-5 text-white hover:bg-brand-primary/90"
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              {t("newStaff")}
+              <ChevronDown className="ms-1 size-3.5 opacity-70" aria-hidden="true" />
+            </Button>
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              align="end"
+              sideOffset={6}
+              className="z-50 min-w-[200px] overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"
+            >
+              <DropdownMenu.Item
+                onSelect={onInviteStaff}
+                className="flex cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-sm text-brand-black outline-none transition-colors hover:bg-gray-50 focus:bg-gray-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-40"
+              >
+                <Mail className="size-4 text-gray-400" aria-hidden="true" />
+                <div>
+                  <p className="font-medium">{t("create.tabs.invite")}</p>
+                  <p className="text-xs text-gray-400">{t("create.tabs.inviteHint")}</p>
+                </div>
+              </DropdownMenu.Item>
+
+              <DropdownMenu.Item
+                onSelect={onCreateDirectStaff}
+                className="flex cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-sm text-brand-black outline-none transition-colors hover:bg-gray-50 focus:bg-gray-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-40"
+              >
+                <UserPlus className="size-4 text-gray-400" aria-hidden="true" />
+                <div>
+                  <p className="font-medium">{t("create.tabs.direct")}</p>
+                  <p className="text-xs text-gray-400">{t("create.tabs.directHint")}</p>
+                </div>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
       </div>
     </div>
   );

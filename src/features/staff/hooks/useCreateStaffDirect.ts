@@ -1,10 +1,10 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { inviteStaff } from "../lib/staff.api";
-import type { InviteStaffRequest } from "../types/staff.api.types";
+import { createStaffDirect } from "../lib/staff.api";
+import type { CreateStaffDirectRequest } from "../types/staff.api.types";
 
-export function useInviteStaff() {
+export function useCreateStaffDirect() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -13,8 +13,8 @@ export function useInviteStaff() {
       data,
     }: {
       accountId: string;
-      data: InviteStaffRequest;
-    }) => inviteStaff(accountId, data),
+      data: CreateStaffDirectRequest;
+    }) => createStaffDirect(accountId, data),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ["staff", variables.accountId],

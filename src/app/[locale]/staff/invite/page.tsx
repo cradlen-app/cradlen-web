@@ -27,7 +27,7 @@ export default async function StaffInvitePage({ params }: Props) {
         </Link>
       </header>
 
-      <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4 py-10">
+      <main className="flex min-h-[calc(100vh-5rem)] items-start justify-center px-4 py-10">
         <StaffInviteAcceptance />
       </main>
       <Footer />
