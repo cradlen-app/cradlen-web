@@ -159,7 +159,7 @@ function SignUpVerifyFormContent({
         setIsSessionExpired(true);
       } else if (err instanceof ApiError && err.status === 400) {
         const code = getErrorCode(err);
-        if (code === "OTP_EXPIRED") {
+        if (code === "CODE_EXPIRED") {
           setStepError(t("errors.otpExpired"));
         } else if (code === "MAX_ATTEMPTS_EXCEEDED") {
           setStepError(t("errors.otpLocked"));

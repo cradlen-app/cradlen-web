@@ -1,5 +1,6 @@
 import type { UserProfile } from "@/types/user.types";
 import type { OnboardingRequiredResponse } from "@/lib/auth/redirect";
+import type { AuthTokens } from "./sign-in.types";
 
 export type Step1Data = {
   firstName: string;
@@ -94,13 +95,6 @@ export type PendingLoginResponse = {
   registration_token: string;
   expires_in: number;
   pending_step: "verify_email" | "organization";
-};
-
-export type AuthTokens = {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
 };
 
 export type LoginResponse = ApiResponse<

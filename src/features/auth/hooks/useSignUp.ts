@@ -23,7 +23,7 @@ export function useRegisterPersonal() {
 export function useVerifyEmail() {
   return useMutation({
     mutationFn: (data: VerifyEmailRequest) =>
-      apiFetch<unknown>("/auth/signup/verify", {
+      apiFetch<RegistrationTokenResponse>("/auth/signup/verify", {
         method: "POST",
         body: JSON.stringify(data),
       }),

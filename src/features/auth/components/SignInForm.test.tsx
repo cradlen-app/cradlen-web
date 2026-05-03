@@ -36,6 +36,12 @@ vi.mock("../hooks/useSignIn", () => ({
   }),
 }));
 
+vi.mock("../hooks/useSelectProfile", () => ({
+  useSelectProfile: () => ({
+    mutateAsync: vi.fn(),
+  }),
+}));
+
 describe("getSafeRedirectPath", () => {
   it("allows same-origin absolute paths", () => {
     expect(getSafeRedirectPath("/staff?tab=invitations")).toBe(

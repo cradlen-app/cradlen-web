@@ -1,13 +1,4 @@
-import { create } from "zustand";
-
-type ForgotPasswordState = {
-  resetToken: string | null;
-  setResetToken: (resetToken: string) => void;
-  clearResetToken: () => void;
-};
-
-export const useForgotPasswordStore = create<ForgotPasswordState>()((set) => ({
-  resetToken: null,
-  setResetToken: (resetToken) => set({ resetToken }),
-  clearResetToken: () => set({ resetToken: null }),
-}));
+// Reset token is no longer stored client-side.
+// It is managed as an HttpOnly BFF cookie by the /api/auth/forgot-password/* route handlers.
+// This file is kept as a placeholder to avoid breaking imports during the transition.
+export {};
