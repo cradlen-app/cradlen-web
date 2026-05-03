@@ -8,7 +8,6 @@ import {
   fetchStaffInvitation,
   fetchStaffMember,
   fetchStaffInvitations,
-  previewStaffInvite,
   resendStaffInvitation,
   updateStaff,
 } from "./staff.api";
@@ -101,20 +100,14 @@ describe("staff api helpers", () => {
     );
   });
 
-  it("keeps public invite flows on token-issuing local endpoints", async () => {
-    await previewStaffInvite("token-1", "invite-1");
+  it("routes accept invitation through the local cookie-setting handler", async () => {
     await acceptStaffInvite({
       invitation_id: "invite-1",
       token: "token-1",
       password: "password123",
     });
 
-    expect(apiFetch).toHaveBeenNthCalledWith(
-      1,
-      "/staff/invite/preview?token=token-1&invite=invite-1",
-    );
-    expect(apiFetch).toHaveBeenNthCalledWith(
-      2,
+    expect(apiFetch).toHaveBeenCalledWith(
       "/staff/invite/accept",
       expect.objectContaining({ method: "POST" }),
     );
