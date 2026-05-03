@@ -79,7 +79,7 @@ function getStaffFormValues(member: StaffMember | null | undefined): StaffInvite
   return {
     ...defaults,
     email: member.email ?? "",
-    isClinical: member.role === "doctor",
+    isClinical: member.roles?.includes("doctor") ?? member.role === "doctor",
     jobTitle: member.jobTitle,
     name: [member.firstName, member.lastName].filter(Boolean).join(" "),
     phone: member.phone === "-" ? "" : member.phone,

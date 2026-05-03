@@ -101,7 +101,7 @@ export function ProfileForm({
         name="jobTitle"
       />
       <TextField
-        defaultValue={profile?.phone_number ?? user.phone_number ?? user.phone ?? ""}
+        defaultValue={profile?.phone_number ?? profile?.phone ?? user.phone_number ?? user.phone ?? ""}
         id="settings-phone"
         label={t("fields.phone")}
         name="phone"
