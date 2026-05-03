@@ -263,56 +263,12 @@ export type StaffInvitationActionResponse =
       meta?: Record<string, unknown>;
     };
 
-export type StaffInvitePreview = {
-  id: string;
-  organization_id?: string;
-  organization_name?: string;
-  email?: string;
-  first_name?: string;
-  last_name?: string;
-  phone?: string;
-  role?: ApiStaffRole;
-  role_id?: string;
-  role_name?: string;
-  job_title?: string;
-  specialty?: string;
-  invited_by?: {
-    id?: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  inviter?: {
-    id?: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  created_by?: {
-    id?: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  branches?: StaffInvitationBranch[];
-  organization?: {
-    id?: string;
-    name?: string;
-  };
-  user_exists: boolean;
-};
-
-export type StaffInvitePreviewResponse =
-  | StaffInvitePreview
-  | {
-      data: StaffInvitePreview;
-      meta?: Record<string, unknown>;
-    };
-
 export type AcceptStaffInviteRequest = {
   invitation_id: string;
   token: string;
   password: string;
+  first_name?: string;
+  last_name?: string;
   schedule?: ApiStaffBranchSchedule[];
 };
 
