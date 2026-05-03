@@ -25,9 +25,8 @@ describe("staff api helpers", () => {
     vi.mocked(apiFetch).mockResolvedValue({ data: {} });
   });
 
-  it("sends authenticated staff list requests through the same-origin proxy", async () => {
+  it("sends authenticated staff list requests through account-scoped paths", async () => {
     await fetchStaff("org-1", {
-      branchId: "branch-1",
       page: 2,
       limit: 25,
       q: "cardio",
@@ -35,19 +34,18 @@ describe("staff api helpers", () => {
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/staff?organization_id=org-1&branch_id=branch-1&page=2&limit=25&q=cardio&role_id=role-1",
+      "/accounts/org-1/staff?page=2&limit=25&q=cardio&role_id=role-1",
     );
   });
 
-  it("omits all-status invitation filters", async () => {
+  it("omits all-status invitation filters and uses account-scoped path", async () => {
     await fetchStaffInvitations({
-      organizationId: "org-1",
-      branchId: "branch-1",
+      accountId: "org-1",
       status: "all",
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/staff/invitations?organization_id=org-1&branch_id=branch-1&page=1&limit=100",
+      "/accounts/org-1/invitations?page=1&limit=100",
     );
   });
 
@@ -82,11 +80,11 @@ describe("staff api helpers", () => {
     );
   });
 
-  it("calls branch-scoped invitation action endpoints", async () => {
+  it("calls account-scoped invitation delete and branch-scoped resend endpoints", async () => {
     const scope = { organizationId: "org-1", branchId: "branch-1" };
 
     await fetchStaffInvitation("invite-1", scope);
-    await deleteStaffInvitation("invite-1", scope);
+    await deleteStaffInvitation("org-1", "invite-1");
     await resendStaffInvitation("invite-1", scope);
 
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
@@ -95,7 +93,7 @@ describe("staff api helpers", () => {
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       2,
-      "/staff/invitations/invite-1?organization_id=org-1&branch_id=branch-1",
+      "/accounts/org-1/invitations/invite-1",
       expect.objectContaining({ method: "DELETE" }),
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(

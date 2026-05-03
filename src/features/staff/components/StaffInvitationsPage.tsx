@@ -661,16 +661,15 @@ export function StaffInvitationsPage() {
 
   async function handleDelete() {
     if (!pendingDelete) return;
-    if (!organizationId || !branchId) {
+    if (!organizationId) {
       toast.error(t("noBranch"));
       return;
     }
 
     try {
       await deleteInvitation.mutateAsync({
-        branchId,
+        accountId: organizationId,
         invitationId: pendingDelete.id,
-        organizationId,
       });
       toast.success(t("deleteSuccess"));
       if (selectedId === pendingDelete.id) {
