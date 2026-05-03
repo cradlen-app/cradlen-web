@@ -90,7 +90,7 @@ export function StaffInviteAcceptance() {
   );
 
   const token = searchParams.get("token") ?? "";
-  const invitationId = searchParams.get("invite") ?? "";
+  const invitationId = searchParams.get("invitation") ?? searchParams.get("invite") ?? "";
   const hasParams = Boolean(token && invitationId);
 
   const previewQuery = useQuery({
