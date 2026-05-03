@@ -147,6 +147,8 @@
       "lastName": "Last name",
       "createPassword": "Create password",
       "createPasswordHint": "Create a password for your new Cradlen account.",
+      "confirmPassword": "Confirm password",
+      "passwordMismatch": "Passwords do not match.",
       "showPassword": "Show password",
       "hidePassword": "Hide password",
       "passwordMin": "Password must be at least 8 characters.",

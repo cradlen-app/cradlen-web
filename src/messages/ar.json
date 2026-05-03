@@ -147,6 +147,8 @@
       "lastName": "اسم العائلة",
       "createPassword": "إنشاء كلمة مرور",
       "createPasswordHint": "أنشئ كلمة مرور لحسابك الجديد في Cradlen.",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين.",
       "showPassword": "إظهار كلمة المرور",
       "hidePassword": "إخفاء كلمة المرور",
       "passwordMin": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",

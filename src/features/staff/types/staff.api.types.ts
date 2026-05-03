@@ -269,7 +269,13 @@ export type AcceptStaffInviteRequest = {
   password: string;
   first_name?: string;
   last_name?: string;
-  schedule?: ApiStaffBranchSchedule[];
+  schedule?: Array<{
+    branch_id?: string;
+    days: Array<{
+      day_of_week: string;
+      shifts: Array<{ start_time: string; end_time: string }>;
+    }>;
+  }>;
 };
 
 export type AcceptStaffInviteResponse = {
