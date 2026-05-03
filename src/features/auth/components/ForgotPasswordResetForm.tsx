@@ -14,14 +14,20 @@ import {
 } from "../lib/forgot-password.schemas";
 import { clearForgotPasswordSession } from "../lib/forgot-password-session";
 import { useResetForgotPassword } from "../hooks/useForgotPassword";
-import { useForgotPasswordStore } from "../store/forgotPasswordStore";
+
+function getErrorCode(error: unknown): string | undefined {
+  const body = (error instanceof ApiError ? error.body : null) as
+    | { error?: { code?: string } }
+    | null
+    | undefined;
+  return body?.error?.code;
+}
 
 export function ForgotPasswordResetForm() {
   const t = useTranslations("auth.forgotPassword");
   const router = useRouter();
   const resetPassword = useResetForgotPassword();
-  const resetToken = useForgotPasswordStore((state) => state.resetToken);
-  const clearResetToken = useForgotPasswordStore((state) => state.clearResetToken);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [stepError, setStepError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -38,27 +44,30 @@ export function ForgotPasswordResetForm() {
     "border-red-400 focus:border-red-400 focus:ring-red-400/20";
 
   const onSubmit = form.handleSubmit(async (data) => {
-    if (!resetToken) return;
-
     setStepError(null);
     setSuccessMessage(null);
 
     try {
       await resetPassword.mutateAsync({
-        reset_token: resetToken,
         password: data.password,
         confirm_password: data.confirmPassword,
       });
       clearForgotPasswordSession();
-      clearResetToken();
       setSuccessMessage(t("resetSuccess"));
       window.setTimeout(() => router.replace("/sign-in"), 900);
     } catch (error) {
+      const code = getErrorCode(error);
+
+      if (code === "SESSION_EXPIRED" || (error instanceof ApiError && error.status === 401)) {
+        clearForgotPasswordSession();
+        setSessionExpired(true);
+        return;
+      }
+
       if (
         error instanceof ApiError &&
-        [400, 401, 403, 404, 422].includes(error.status)
+        [400, 403, 404, 422].includes(error.status)
       ) {
-        clearResetToken();
         setStepError(t("errors.invalidToken"));
         return;
       }
@@ -69,7 +78,7 @@ export function ForgotPasswordResetForm() {
 
   const isSubmitting = form.formState.isSubmitting || resetPassword.isPending;
 
-  if (!resetToken) {
+  if (sessionExpired) {
     return (
       <div className="w-full flex flex-col gap-5 text-center">
         <div className="flex flex-col gap-2">

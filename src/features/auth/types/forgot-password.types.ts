@@ -2,22 +2,19 @@ export interface ForgotPasswordStartRequest {
   email: string;
 }
 
-export interface ForgotPasswordResendRequest {
-  reset_token: string;
-}
+// Resend sends an empty body — reset_token is read from the HttpOnly cookie server-side.
+export type ForgotPasswordResendRequest = Record<string, never>;
 
 export interface ForgotPasswordVerifyRequest {
-  reset_token: string;
   code: string;
 }
 
 export interface ForgotPasswordResetRequest {
-  reset_token: string;
   password: string;
   confirm_password: string;
 }
 
-export interface ResetTokenResponse {
-  data: { reset_token: string; expires_in: number };
+export interface ForgotPasswordSuccessResponse {
+  data: { success: true };
   meta: Record<string, unknown>;
 }
