@@ -11,7 +11,6 @@ import type {
   StaffInvitationActionResponse,
   StaffInvitationResponse,
   StaffInvitationsResponse,
-  StaffInvitePreviewResponse,
   StaffMemberResponse,
   UpdateStaffRequest,
   UpdateStaffResponse,
@@ -167,11 +166,6 @@ export function resendStaffInvitation(accountId: string, invitationId: string) {
     `/accounts/${accountId}/invitations/${invitationId}/resend`,
     { method: "POST" },
   );
-}
-
-export function previewStaffInvite(token: string, invitationId: string) {
-  const params = new URLSearchParams({ token, invite: invitationId });
-  return apiFetch<StaffInvitePreviewResponse>(`/staff/invite/preview?${params}`);
 }
 
 export function acceptStaffInvite(data: AcceptStaffInviteRequest) {
