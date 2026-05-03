@@ -62,42 +62,29 @@ export function useStaffInvitations(
 }
 
 export function useStaffInvitation(
-  organizationId: string | undefined,
-  branchId: string | undefined,
+  accountId: string | undefined,
   invitationId: string | null,
 ) {
   return useQuery({
-    queryKey: [
-      STAFF_INVITATIONS_QUERY_KEY,
-      "detail",
-      organizationId,
-      branchId,
-      invitationId,
-    ],
+    queryKey: [STAFF_INVITATIONS_QUERY_KEY, "detail", accountId, invitationId],
     queryFn: async () =>
-      unwrapInvitation(
-        await fetchStaffInvitation(invitationId!, {
-          branchId: branchId!,
-          organizationId: organizationId!,
-        }),
-      ),
-    enabled: !!organizationId && !!branchId && !!invitationId,
+      unwrapInvitation(await fetchStaffInvitation(accountId!, invitationId!)),
+    enabled: !!accountId && !!invitationId,
     staleTime: 60 * 1000,
   });
 }
 
 type ResendVariables = {
-  branchId: string;
+  accountId: string;
   invitationId: string;
-  organizationId: string;
 };
 
 export function useResendStaffInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ branchId, invitationId, organizationId }: ResendVariables) =>
-      resendStaffInvitation(invitationId, { branchId, organizationId }),
+    mutationFn: ({ accountId, invitationId }: ResendVariables) =>
+      resendStaffInvitation(accountId, invitationId),
     onSuccess: async (_data, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [STAFF_INVITATIONS_QUERY_KEY] }),
@@ -105,8 +92,7 @@ export function useResendStaffInvitation() {
           queryKey: [
             STAFF_INVITATIONS_QUERY_KEY,
             "detail",
-            variables.organizationId,
-            variables.branchId,
+            variables.accountId,
             variables.invitationId,
           ],
         }),

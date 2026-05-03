@@ -80,16 +80,14 @@ describe("staff api helpers", () => {
     );
   });
 
-  it("calls account-scoped invitation delete and branch-scoped resend endpoints", async () => {
-    const scope = { organizationId: "org-1", branchId: "branch-1" };
-
-    await fetchStaffInvitation("invite-1", scope);
+  it("calls account-scoped invitation detail, delete, and resend endpoints", async () => {
+    await fetchStaffInvitation("org-1", "invite-1");
     await deleteStaffInvitation("org-1", "invite-1");
-    await resendStaffInvitation("invite-1", scope);
+    await resendStaffInvitation("org-1", "invite-1");
 
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       1,
-      "/staff/invitations/invite-1?organization_id=org-1&branch_id=branch-1",
+      "/accounts/org-1/invitations/invite-1",
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       2,
@@ -98,7 +96,7 @@ describe("staff api helpers", () => {
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       3,
-      "/staff/invitations/invite-1/resend?organization_id=org-1&branch_id=branch-1",
+      "/accounts/org-1/invitations/invite-1/resend",
       expect.objectContaining({ method: "POST" }),
     );
   });
