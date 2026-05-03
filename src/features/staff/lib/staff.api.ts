@@ -146,12 +146,9 @@ export function fetchStaffInvitations({
   return apiAuthFetch<StaffInvitationsResponse>(`/accounts/${accountId}/invitations?${params}`);
 }
 
-export function fetchStaffInvitation(
-  invitationId: string,
-  options: BranchScopedOptions,
-) {
+export function fetchStaffInvitation(accountId: string, invitationId: string) {
   return apiAuthFetch<StaffInvitationResponse>(
-    `/staff/invitations/${invitationId}?${getBranchScopedParams(options)}`,
+    `/accounts/${accountId}/invitations/${invitationId}`,
   );
 }
 
@@ -165,12 +162,9 @@ export function deleteStaffInvitation(
   );
 }
 
-export function resendStaffInvitation(
-  invitationId: string,
-  options: BranchScopedOptions,
-) {
-  return apiAuthFetch<StaffInvitationActionResponse>(
-    `/staff/invitations/${invitationId}/resend?${getBranchScopedParams(options)}`,
+export function resendStaffInvitation(accountId: string, invitationId: string) {
+  return apiAuthFetch<void>(
+    `/accounts/${accountId}/invitations/${invitationId}/resend`,
     { method: "POST" },
   );
 }

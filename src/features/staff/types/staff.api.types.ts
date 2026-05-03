@@ -152,6 +152,9 @@ export type StaffInvitationStatus =
 
 export type StaffInvitationBranch = {
   id?: string;
+  name?: string;
+  city?: string;
+  governorate?: string;
   branch_id?: string;
   branch_name?: string;
   branch?: {
@@ -169,6 +172,14 @@ export type StaffInvitationBranch = {
   };
 };
 
+export type ApiInvitationWorkingSchedule = {
+  branch: { id: string; name: string };
+  days: Array<{
+    day_of_week: string;
+    shifts: Array<{ start_time: string; end_time: string }>;
+  }>;
+};
+
 export type ApiStaffInvitation = {
   id: string;
   account_id?: string;
@@ -178,19 +189,21 @@ export type ApiStaffInvitation = {
   first_name?: string;
   last_name?: string;
   phone?: string;
-  phone_number?: string;
+  phone_number?: string | null;
+  job_title?: string | null;
+  specialty?: string | null;
+  is_clinical?: boolean;
   role_id?: string;
   role_name?: string;
   role?: ApiStaffRole;
   roles?: ApiStaffRole[];
   branches?: StaffInvitationBranch[];
-  job_title?: string;
-  specialty?: string;
+  working_schedule?: ApiInvitationWorkingSchedule[] | null;
   status?: StaffInvitationStatus;
   token?: string;
   expires_at?: string;
   expired_at?: string;
-  accepted_at?: string;
+  accepted_at?: string | null;
   created_at?: string;
   updated_at?: string;
   sent_at?: string;
