@@ -12,6 +12,7 @@ export type StaffMember = {
   email?: string;
   handle: string;
   role: StaffRole;
+  roles?: StaffRole[];
   jobTitle: string;
   specialty: string;
   phone: string;
