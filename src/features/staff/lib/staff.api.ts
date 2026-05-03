@@ -115,14 +115,14 @@ export function updateStaff(
   data: UpdateStaffRequest,
   options: BranchScopedOptions,
 ) {
-  return apiAuthFetch<UpdateStaffResponse>(`/staff/${staffId}?${getBranchScopedParams(options)}`, {
+  return apiAuthFetch<UpdateStaffResponse>(`/accounts/${options.organizationId}/staff/${staffId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
 export function deactivateStaff(staffId: string, options: BranchScopedOptions) {
-  return apiAuthFetch<void>(`/staff/${staffId}?${getBranchScopedParams(options)}`, {
+  return apiAuthFetch<void>(`/accounts/${options.organizationId}/staff/${staffId}`, {
     method: "DELETE",
   });
 }

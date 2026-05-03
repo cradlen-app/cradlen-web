@@ -30,7 +30,7 @@ export function DashboardLayout({ children }: Props) {
     }
 
     if (role === "unknown") {
-      router.replace("/select-profile");
+      router.replace("/sign-in");
       return;
     }
 
