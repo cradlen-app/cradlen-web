@@ -130,6 +130,7 @@ export function mapApiStaffToMember(api: NewApiStaffMember): StaffMember {
       ? `@${api.email.split("@")[0]}`
       : `@${api.user_id.slice(0, 8)}`,
     role,
+    roles: api.roles?.map((r) => normalizeApiRoleName(r.name)) ?? [],
     jobTitle: api.job_title ?? "",
     specialty: api.specialty ?? "",
     phone: api.phone_number ?? "-",

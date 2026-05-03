@@ -295,14 +295,11 @@ export function StaffCreateDrawer({
             data: {
               first_name: firstName,
               last_name: lastName,
-              ...(values.phone ? { phone: values.phone } : {}),
-              role_id: values.roleId,
+              ...(values.phone ? { phone_number: values.phone } : {}),
+              role_ids: [values.roleId],
+              branch_ids: [branchId],
               job_title: values.jobTitle,
               ...(showSpecialty && values.specialty ? { specialty: values.specialty } : {}),
-              branches: [{
-                branch_id: branchId,
-                schedule: { days: enabledShifts },
-              }],
             },
             organizationId,
             staffId: member.id,

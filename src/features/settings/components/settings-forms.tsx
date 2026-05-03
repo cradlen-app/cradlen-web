@@ -4,7 +4,7 @@ import { Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/hooks/useCurrentUser";
-import { getProfilePrimaryRole } from "@/features/auth/lib/current-user";
+import { getProfilePrimaryRole, getProfileRoles } from "@/features/auth/lib/current-user";
 import { queryClient } from "@/lib/queryClient";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import {
@@ -101,7 +101,7 @@ export function ProfileForm({
         name="jobTitle"
       />
       <TextField
-        defaultValue={user.phone_number ?? user.phone ?? ""}
+        defaultValue={profile?.phone_number ?? user.phone_number ?? user.phone ?? ""}
         id="settings-phone"
         label={t("fields.phone")}
         name="phone"
@@ -117,7 +117,7 @@ export function ProfileForm({
       )}
       <label className="flex items-center gap-2 text-sm text-brand-black">
         <input
-          defaultChecked={profile?.is_clinical ?? false}
+          defaultChecked={profile?.is_clinical ?? getProfileRoles(profile).includes("doctor")}
           name="isClinical"
           type="checkbox"
           className="size-4 rounded border-gray-300"
