@@ -57,7 +57,7 @@ describe("staff api helpers", () => {
       {
         first_name: "Mona",
         last_name: "Amin",
-        phone: "+201000000000",
+        phone_number: "+201000000000",
       },
       scope,
     );
