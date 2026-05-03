@@ -61,7 +61,7 @@ export function StaffPage() {
   const [filter, setFilter] = useState<StaffFilter>("all");
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
-  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
+  const [createMethod, setCreateMethod] = useState<"invite" | "direct" | null>(null);
   const [editingMember, setEditingMember] = useState<StaffMember | null>(null);
   const [deactivatingMember, setDeactivatingMember] =
     useState<StaffMember | null>(null);
@@ -158,7 +158,10 @@ export function StaffPage() {
     <>
       <div className="flex h-full flex-col gap-4 p-4 lg:flex-row lg:p-6">
         <section className="flex min-w-0 flex-1 flex-col gap-4">
-          <StaffHeader onCreateStaff={() => setIsCreateDrawerOpen(true)} />
+          <StaffHeader
+            onInviteStaff={() => setCreateMethod("invite")}
+            onCreateDirectStaff={() => setCreateMethod("direct")}
+          />
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
             <StaffToolbar
@@ -208,8 +211,11 @@ export function StaffPage() {
       <StaffCreateDrawer
         branchId={branchId}
         branchName={branchName}
-        onOpenChange={setIsCreateDrawerOpen}
-        open={isCreateDrawerOpen}
+        method={createMethod ?? "invite"}
+        onOpenChange={(open) => {
+          if (!open) setCreateMethod(null);
+        }}
+        open={!!createMethod}
         organizationId={organizationId}
         organizationName={organizationName}
       />

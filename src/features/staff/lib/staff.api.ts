@@ -6,7 +6,7 @@ import type {
   InviteStaffRequest,
   InviteStaffResponse,
   ApiStaffListResponse,
-  ApiStaffMember,
+  NewApiStaffMember,
   ApiStaffRole,
   StaffInvitationActionResponse,
   StaffInvitationResponse,
@@ -15,10 +15,11 @@ import type {
   StaffMemberResponse,
   UpdateStaffRequest,
   UpdateStaffResponse,
+  CreateStaffDirectRequest,
+  CreateStaffDirectResponse,
 } from "../types/staff.api.types";
 
 type FetchStaffOptions = {
-  branchId: string;
   limit?: number;
   page?: number;
   q?: string;
@@ -26,9 +27,8 @@ type FetchStaffOptions = {
 };
 
 export type FetchStaffInvitationsOptions = {
-  branchId: string;
+  accountId: string;
   limit?: number;
-  organizationId: string;
   page?: number;
   status?: string;
 };
@@ -38,19 +38,16 @@ type BranchScopedOptions = {
   organizationId: string;
 };
 
-export async function fetchRoles(organizationId: string) {
-  const params = new URLSearchParams({ organization_id: organizationId });
-  const response = await apiAuthFetch<ApiRolesResponse>(`/roles?${params}`);
+export async function fetchRoles(accountId: string) {
+  const response = await apiAuthFetch<ApiRolesResponse>(`/accounts/${accountId}/roles`);
   return (Array.isArray(response) ? response : response.data) as ApiStaffRole[];
 }
 
 export function fetchStaff(
-  organizationId: string,
-  { branchId, page = 1, limit = 100, q, roleId }: FetchStaffOptions,
+  accountId: string,
+  { page = 1, limit = 100, q, roleId }: FetchStaffOptions,
 ) {
   const params = new URLSearchParams({
-    organization_id: organizationId,
-    branch_id: branchId,
     page: String(page),
     limit: String(limit),
   });
@@ -64,20 +61,20 @@ export function fetchStaff(
     params.set("role_id", roleId);
   }
 
-  return apiAuthFetch<ApiStaffListResponse>(`/staff?${params}`);
+  return apiAuthFetch<ApiStaffListResponse>(`/accounts/${accountId}/staff?${params}`);
 }
 
 export async function fetchAllStaff(
-  organizationId: string,
-  { branchId, q, roleId }: Pick<FetchStaffOptions, "branchId" | "q" | "roleId">,
+  accountId: string,
+  { q, roleId }: Pick<FetchStaffOptions, "q" | "roleId">,
   limit = 100,
 ) {
-  const firstPage = await fetchStaff(organizationId, { branchId, page: 1, limit, q, roleId });
-  const staff: ApiStaffMember[] = [...firstPage.data];
+  const firstPage = await fetchStaff(accountId, { page: 1, limit, q, roleId });
+  const staff: NewApiStaffMember[] = [...firstPage.data];
   const totalPages = firstPage.meta.totalPages;
 
   for (let page = 2; page <= totalPages; page += 1) {
-    const res = await fetchStaff(organizationId, { branchId, page, limit, q, roleId });
+    const res = await fetchStaff(accountId, { page, limit, q, roleId });
     staff.push(...res.data);
   }
 
@@ -100,8 +97,15 @@ export function fetchStaffMember(
   );
 }
 
-export function inviteStaff(data: InviteStaffRequest) {
-  return apiAuthFetch<InviteStaffResponse>("/staff/invite", {
+export function inviteStaff(accountId: string, data: InviteStaffRequest) {
+  return apiAuthFetch<InviteStaffResponse>(`/accounts/${accountId}/invitations`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function createStaffDirect(accountId: string, data: CreateStaffDirectRequest) {
+  return apiAuthFetch<CreateStaffDirectResponse>(`/accounts/${accountId}/staff`, {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -125,24 +129,21 @@ export function deactivateStaff(staffId: string, options: BranchScopedOptions) {
 }
 
 export function fetchStaffInvitations({
-  branchId,
+  accountId,
   limit = 100,
-  organizationId,
   page = 1,
   status,
 }: FetchStaffInvitationsOptions) {
   const params = new URLSearchParams({
-    organization_id: organizationId,
-    branch_id: branchId,
     page: String(page),
     limit: String(limit),
   });
 
   if (status && status !== "all") {
-    params.set("status", status);
+    params.set("status", status.toUpperCase());
   }
 
-  return apiAuthFetch<StaffInvitationsResponse>(`/staff/invitations?${params}`);
+  return apiAuthFetch<StaffInvitationsResponse>(`/accounts/${accountId}/invitations?${params}`);
 }
 
 export function fetchStaffInvitation(
@@ -155,14 +156,12 @@ export function fetchStaffInvitation(
 }
 
 export function deleteStaffInvitation(
+  accountId: string,
   invitationId: string,
-  options: BranchScopedOptions,
 ) {
   return apiAuthFetch<StaffInvitationActionResponse>(
-    `/staff/invitations/${invitationId}?${getBranchScopedParams(options)}`,
-    {
-      method: "DELETE",
-    },
+    `/accounts/${accountId}/invitations/${invitationId}`,
+    { method: "DELETE" },
   );
 }
 

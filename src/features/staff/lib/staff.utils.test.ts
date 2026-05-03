@@ -4,7 +4,7 @@ import {
   computeStaffStatus,
   getStaffFullName,
   getStaffInitials,
-  mapApiStaffToMember,
+  mapLegacyApiStaffToMember,
   matchesStaffSearch,
   normalizeApiRoleName,
 } from "./staff.utils";
@@ -43,7 +43,11 @@ describe("staff utils", () => {
   it("maps backend staff members into display-ready staff members", () => {
     const apiMember: ApiStaffMember = {
       id: "staff-1",
+      profile_id: "staff-1",
       user_id: "user-123456789",
+      first_name: "Mona",
+      last_name: "Said",
+      email: "mona@example.com",
       organization_id: "org-1",
       branch_id: "branch-1",
       role_id: "role-1",
@@ -51,6 +55,8 @@ describe("staff utils", () => {
       specialty: "Pediatrics",
       created_at: "2026-04-28T00:00:00Z",
       schedule: mondaySchedule,
+      roles: [{ id: "role-1", name: "owner" }],
+      branches: [],
       role: { id: "role-1", name: "owner" },
       user: {
         id: "user-1",
@@ -61,7 +67,7 @@ describe("staff utils", () => {
       },
     };
 
-    expect(mapApiStaffToMember(apiMember)).toMatchObject({
+    expect(mapLegacyApiStaffToMember(apiMember)).toMatchObject({
       id: "staff-1",
       roleId: "role-1",
       firstName: "Mona",
