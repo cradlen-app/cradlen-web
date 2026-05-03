@@ -20,7 +20,6 @@ import {
   useResendForgotPasswordOtp,
   useVerifyForgotPasswordOtp,
 } from "../hooks/useForgotPassword";
-import { useForgotPasswordStore } from "../store/forgotPasswordStore";
 import { OTPInput } from "./OTPInput";
 import { ResendButton } from "./ResendButton";
 
@@ -43,20 +42,11 @@ export function ForgotPasswordVerifyForm() {
   );
   const verifyOtp = useVerifyForgotPasswordOtp();
   const resendOtp = useResendForgotPasswordOtp();
-  const resetToken = useForgotPasswordStore((state) => state.resetToken);
-  const setResetToken = useForgotPasswordStore((state) => state.setResetToken);
-  const clearResetToken = useForgotPasswordStore((state) => state.clearResetToken);
 
   const form = useForm<ForgotPasswordOtpData>({
     resolver: zodResolver(createForgotPasswordOtpSchema(t)),
     defaultValues: { verificationCode: "" },
   });
-
-  useEffect(() => {
-    if (!resetToken) {
-      router.replace("/forgot-password");
-    }
-  }, [resetToken, router]);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
@@ -69,30 +59,23 @@ export function ForgotPasswordVerifyForm() {
   }, [cooldownSeconds]);
 
   const onSubmit = form.handleSubmit(async (data) => {
-    if (!resetToken) return;
-
     setStepError(null);
     setResendMessage(null);
 
     try {
-      const response = await verifyOtp.mutateAsync({
-        reset_token: resetToken,
-        code: data.verificationCode,
-      });
-      setResetToken(response.data.reset_token);
+      await verifyOtp.mutateAsync({ code: data.verificationCode });
       router.push("/forgot-password/reset");
     } catch (error) {
       const code = getErrorCode(error);
 
-      if (code === "CODE_EXPIRED" || code === "MAX_ATTEMPTS_EXCEEDED") {
-        clearResetToken();
+      if (code === "SESSION_EXPIRED" || (error instanceof ApiError && error.status === 401)) {
         clearForgotPasswordSession();
         router.replace("/forgot-password");
         return;
       }
 
-      if (error instanceof ApiError && error.status === 401) {
-        clearResetToken();
+      if (code === "CODE_EXPIRED" || code === "MAX_ATTEMPTS_EXCEEDED") {
+        clearForgotPasswordSession();
         router.replace("/forgot-password");
         return;
       }
@@ -102,29 +85,30 @@ export function ForgotPasswordVerifyForm() {
   });
 
   const handleResend = () => {
-    if (!resetToken || resendOtp.isPending || cooldownSeconds > 0) return;
+    if (resendOtp.isPending || cooldownSeconds > 0) return;
 
     setStepError(null);
     setResendMessage(null);
 
     resendOtp.mutate(
-      { reset_token: resetToken },
+      undefined,
       {
-        onSuccess: (response) => {
-          setResetToken(response.data.reset_token);
+        onSuccess: () => {
           startForgotPasswordResendCooldown();
           setCooldownSeconds(getForgotPasswordResendSecondsRemaining());
           setResendMessage(t("resendSuccess"));
         },
         onError: (error) => {
-          if (error instanceof ApiError && error.status === 429) {
-            setStepError(t("errors.tryAgainLater"));
+          const code = getErrorCode(error);
+
+          if (code === "SESSION_EXPIRED" || (error instanceof ApiError && error.status === 401)) {
+            clearForgotPasswordSession();
+            router.replace("/forgot-password");
             return;
           }
 
-          if (error instanceof ApiError && error.status === 401) {
-            clearResetToken();
-            router.replace("/forgot-password");
+          if (error instanceof ApiError && error.status === 429) {
+            setStepError(t("errors.tryAgainLater"));
             return;
           }
 
@@ -135,17 +119,6 @@ export function ForgotPasswordVerifyForm() {
   };
 
   const isSubmitting = form.formState.isSubmitting || verifyOtp.isPending;
-
-  if (!resetToken) {
-    return (
-      <div className="w-full flex flex-col gap-5 text-center">
-        <h1 className="text-xl font-medium text-brand-black">
-          {t("verificationTitle")}
-        </h1>
-        <p className="text-sm text-gray-500">{t("loading")}</p>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={onSubmit} className="w-full flex flex-col gap-5">

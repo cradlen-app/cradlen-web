@@ -7,7 +7,6 @@ import {
   setPendingForgotPasswordEmail,
   startForgotPasswordResendCooldown,
 } from "./forgot-password-session";
-import { useForgotPasswordStore } from "../store/forgotPasswordStore";
 
 describe("forgot password session", () => {
   const storage = new Map<string, string>();
@@ -15,7 +14,6 @@ describe("forgot password session", () => {
   beforeEach(() => {
     storage.clear();
     vi.useRealTimers();
-    useForgotPasswordStore.getState().clearResetToken();
     Object.defineProperty(window, "localStorage", {
       configurable: true,
       value: {
@@ -55,16 +53,5 @@ describe("forgot password session", () => {
     vi.setSystemTime(new Date("2026-04-29T10:01:01.000Z"));
 
     expect(getForgotPasswordResendSecondsRemaining()).toBe(0);
-  });
-
-  it("keeps reset tokens in memory only", () => {
-    useForgotPasswordStore.getState().setResetToken("reset-token");
-
-    expect(useForgotPasswordStore.getState().resetToken).toBe("reset-token");
-    expect([...storage.values()]).not.toContain("reset-token");
-
-    useForgotPasswordStore.getState().clearResetToken();
-
-    expect(useForgotPasswordStore.getState().resetToken).toBeNull();
   });
 });
