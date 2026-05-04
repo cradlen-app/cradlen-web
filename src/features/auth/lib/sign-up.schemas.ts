@@ -53,7 +53,7 @@ export function makeStep2Schema(t: (key: string) => string = (k) => k) {
 export function makeStep3Schema(t: (key: string) => string = (k) => k) {
   return z
     .object({
-      accountName: z
+      organizationName: z
         .string()
         .min(1, { message: t("errors.accountNameRequired") }),
       specialties: z

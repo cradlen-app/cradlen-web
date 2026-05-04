@@ -9,15 +9,15 @@ export function useCreateStaffDirect() {
 
   return useMutation({
     mutationFn: ({
-      accountId,
+      organizationId,
       data,
     }: {
-      accountId: string;
+      organizationId: string;
       data: CreateStaffDirectRequest;
-    }) => createStaffDirect(accountId, data),
+    }) => createStaffDirect(organizationId, data),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: ["staff", variables.accountId],
+        queryKey: ["staff", variables.organizationId],
       });
     },
   });

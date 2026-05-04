@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.arrayBuffer();
-  const response = await backendFetch("/accounts", {
+  const response = await backendFetch("/organizations", {
     method: "POST",
     headers: { Authorization: `Bearer ${bearer}` },
     body,

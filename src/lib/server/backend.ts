@@ -261,11 +261,11 @@ async function getValidAccessToken() {
 function copyRequestHeaders(request: NextRequest, accessToken: string) {
   const headers = new Headers(request.headers);
   headers.set("Authorization", `Bearer ${accessToken}`);
-  const accountId = request.headers.get("x-account-id");
+  const organizationId = request.headers.get("x-organization-id");
   const profileId = request.headers.get("x-profile-id");
   const branchId = request.headers.get("x-branch-id");
 
-  if (accountId) headers.set("X-Account-Id", accountId);
+  if (organizationId) headers.set("X-Organization-Id", organizationId);
   if (profileId) headers.set("X-Profile-Id", profileId);
   if (branchId) headers.set("X-Branch-Id", branchId);
 

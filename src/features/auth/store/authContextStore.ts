@@ -2,11 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type AuthContextState = {
-  accountId: string | null;
+  organizationId: string | null;
   branchId: string | null;
   profileId: string | null;
   setContext: (context: {
-    accountId: string;
+    organizationId: string;
     branchId?: string | null;
     profileId: string;
   }) => void;
@@ -17,15 +17,15 @@ type AuthContextState = {
 export const useAuthContextStore = create<AuthContextState>()(
   persist(
     (set) => ({
-      accountId: null,
+      organizationId: null,
       branchId: null,
       profileId: null,
-      setContext: ({ accountId, branchId = null, profileId }) =>
-        set({ accountId, branchId, profileId }),
+      setContext: ({ organizationId, branchId = null, profileId }) =>
+        set({ organizationId, branchId, profileId }),
       setBranchId: (branchId) => set({ branchId }),
       clearContext: () =>
-        set({ accountId: null, branchId: null, profileId: null }),
+        set({ organizationId: null, branchId: null, profileId: null }),
     }),
-    { name: "cradlen-auth-context" },
+    { name: "cradlen-org-context" },
   ),
 );

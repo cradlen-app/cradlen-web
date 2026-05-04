@@ -31,8 +31,8 @@ import {
   getActiveProfile,
   getDefaultBranch,
   getBranchId,
-  getProfileAccount,
-  getProfileAccountId,
+  getProfileOrganization,
+  getProfileOrganizationId,
   getProfileBranches,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
@@ -141,11 +141,11 @@ export function Sidebar() {
   const role = rawRole as StaffRole;
   const navItems = NAV_BY_ROLE[role];
 
-  const account = getProfileAccount(profile);
+  const organization = getProfileOrganization(profile);
   const branch = getDefaultBranch(profile, branchId);
   const branches = getProfileBranches(profile);
   const hasMultipleBranches = branches.length > 1;
-  const clinicName = account?.name ?? "-";
+  const clinicName = organization?.name ?? "-";
   const clinicBranch = branch?.city ? `${branch.city} branch` : "-";
 
   async function handleBranchSwitch(newBranchId: string) {
@@ -153,14 +153,14 @@ export function Sidebar() {
     setSwitchingToBranchId(newBranchId);
     try {
       await switchBranch.mutateAsync({ branch_id: newBranchId });
-      const orgId = getProfileAccountId(profile);
+      const orgId = getProfileOrganizationId(profile);
       if (!orgId) {
         setSwitchingToBranchId(null);
         toast.error(t("switchBranchError"));
         return;
       }
       setContext({
-        accountId: orgId,
+        organizationId: orgId,
         branchId: newBranchId,
         profileId: profileId ?? "",
       });

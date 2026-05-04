@@ -10,10 +10,10 @@ import type { CurrentUser, UserProfile } from "@/types/user.types";
 import {
   branchesQueryKey,
   createBranch,
-  updateAccountProfile,
+  updateProfile,
   updateBranch,
   updateOrganization,
-  type AccountBranch,
+  type OrganizationBranch,
 } from "../lib/settings.api";
 import type { DrawerKey } from "./settings.types";
 import {
@@ -26,7 +26,7 @@ import { DrawerActions, TextField } from "./settings-ui";
 
 type SettingsFormProps = {
   activeDrawer: DrawerKey;
-  branches?: AccountBranch[];
+  branches?: OrganizationBranch[];
   branchId?: string;
   cancelLabel: string;
   onDone: () => void;
@@ -60,7 +60,7 @@ export function ProfileForm({
 
     setIsPending(true);
     try {
-      await updateAccountProfile(profile.staff_id, {
+      await updateProfile(profile.staff_id, {
         first_name: getFormString(form, "firstName"),
         last_name: getFormString(form, "lastName"),
         job_title: getFormString(form, "jobTitle") || undefined,

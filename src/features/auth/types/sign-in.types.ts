@@ -29,7 +29,7 @@ export type SelectProfileRequest = {
 
 export type SelectProfileResponse = {
   data: {
-    account_id: string;
+    organization_id: string;
     authenticated: true;
     branch_id?: string | null;
     profile_id: string;

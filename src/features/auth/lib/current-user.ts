@@ -17,16 +17,16 @@ export function getProfileId(profile: UserProfile) {
   return profile.profile_id ?? profile.staff_id;
 }
 
-export function getProfileAccount(profile?: UserProfile) {
+export function getProfileOrganization(profile?: UserProfile) {
   return profile?.organization;
 }
 
-export function getProfileAccountName(profile?: UserProfile) {
-  return profile?.account_name ?? getProfileAccount(profile)?.name;
+export function getProfileOrganizationName(profile?: UserProfile) {
+  return profile?.organization_name ?? getProfileOrganization(profile)?.name;
 }
 
-export function getProfileAccountId(profile?: UserProfile) {
-  return getProfileAccount(profile)?.id ?? profile?.account_id;
+export function getProfileOrganizationId(profile?: UserProfile) {
+  return getProfileOrganization(profile)?.id ?? profile?.organization_id;
 }
 
 export function getBranchId(branch?: UserProfile["branch"]) {
