@@ -115,7 +115,7 @@ export function normalizeApiRoleName(name?: string): StaffRole {
   return "unknown";
 }
 
-// Maps the new /accounts/:accountId/staff response shape
+// Maps the /organizations/:organizationId/staff response shape
 export function mapApiStaffToMember(api: NewApiStaffMember): StaffMember {
   const primaryRole = api.roles?.[0];
   const role = normalizeApiRoleName(primaryRole?.name);

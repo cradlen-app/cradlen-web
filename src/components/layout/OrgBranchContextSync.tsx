@@ -11,13 +11,13 @@ type Props = {
 
 export function OrgBranchContextSync({ orgId, branchId, children }: Props) {
   const setContext = useAuthContextStore((s) => s.setContext);
-  const storeOrgId = useAuthContextStore((s) => s.accountId);
+  const storeOrgId = useAuthContextStore((s) => s.organizationId);
   const storeBranchId = useAuthContextStore((s) => s.branchId);
 
   useEffect(() => {
     if (storeOrgId !== orgId || storeBranchId !== branchId) {
       const { profileId } = useAuthContextStore.getState();
-      setContext({ accountId: orgId, branchId, profileId: profileId ?? "" });
+      setContext({ organizationId: orgId, branchId, profileId: profileId ?? "" });
     }
   }, [orgId, branchId, storeOrgId, storeBranchId, setContext]);
 

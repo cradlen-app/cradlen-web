@@ -11,17 +11,17 @@ type UseStaffOptions = {
 };
 
 export function useStaff(
-  accountId: string | undefined,
+  organizationId: string | undefined,
   _branchId: string | undefined,
   { q, roleId }: UseStaffOptions = {},
 ) {
   return useQuery({
-    queryKey: ["staff", accountId, q, roleId],
+    queryKey: ["staff", organizationId, q, roleId],
     queryFn: async () => {
-      const staff = await fetchAllStaff(accountId!, { q, roleId });
+      const staff = await fetchAllStaff(organizationId!, { q, roleId });
       return staff.map(mapApiStaffToMember);
     },
-    enabled: !!accountId,
+    enabled: !!organizationId,
     staleTime: 2 * 60 * 1000,
   });
 }

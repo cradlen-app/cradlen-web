@@ -22,11 +22,11 @@ import { queryClient } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import {
   branchesQueryKey,
-  deactivateAccount,
+  deactivateOrganization,
   deleteBranch,
   deleteOrganization,
   listBranches,
-  type AccountBranch,
+  type OrganizationBranch,
 } from "../lib/settings.api";
 import { SettingsConfirmDialogs } from "./settings-dialogs";
 import { BranchForm, OrganizationForm, ProfileForm } from "./settings-forms";
@@ -60,14 +60,14 @@ export function SettingsPage() {
   const clearUser = useUserStore((state) => state.clearUser);
   const currentBranchId = useAuthContextStore((state) => state.branchId);
   const profile = getActiveProfile(user);
-  const accountId = profile?.organization.id;
+  const organizationId = profile?.organization.id;
 
   const { data: branchesData, isLoading: branchesLoading } = useQuery({
-    queryKey: branchesQueryKey(accountId ?? ""),
-    queryFn: () => listBranches(accountId!),
-    enabled: !!accountId,
+    queryKey: branchesQueryKey(organizationId ?? ""),
+    queryFn: () => listBranches(organizationId!),
+    enabled: !!organizationId,
   });
-  const branches: AccountBranch[] = branchesData?.data ?? [];
+  const branches: OrganizationBranch[] = branchesData?.data ?? [];
 
   if (isLoading) {
     return (
@@ -127,9 +127,9 @@ export function SettingsPage() {
       setConfirmSoftDelete(null);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY }),
-        accountId
+        organizationId
           ? queryClient.invalidateQueries({
-              queryKey: branchesQueryKey(accountId),
+              queryKey: branchesQueryKey(organizationId),
             })
           : Promise.resolve(),
       ]);
@@ -148,14 +148,14 @@ export function SettingsPage() {
 
   async function handleDeactivateConfirm() {
     try {
-      await deactivateAccount();
+      await deactivateOrganization();
       toast.success(t("danger.deactivateSuccess"));
       setConfirmDeactivate(false);
 
       try {
         await fetch("/api/auth/logout", { method: "POST" });
       } catch {
-        // Continue with local session cleanup after account deactivation.
+        // Continue with local session cleanup after organization deactivation.
       }
 
       clearSession();
@@ -325,7 +325,7 @@ function SettingsDrawers({
 }: {
   activeBranchId: string | null;
   activeDrawer: DrawerKey;
-  branches: import("../lib/settings.api").AccountBranch[];
+  branches: import("../lib/settings.api").OrganizationBranch[];
   onClose: () => void;
   profile: ReturnType<typeof getActiveProfile>;
   t: ReturnType<typeof useTranslations>;

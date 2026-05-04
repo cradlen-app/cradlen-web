@@ -9,15 +9,15 @@ export function useInviteStaff() {
 
   return useMutation({
     mutationFn: ({
-      accountId,
+      organizationId,
       data,
     }: {
-      accountId: string;
+      organizationId: string;
       data: InviteStaffRequest;
-    }) => inviteStaff(accountId, data),
+    }) => inviteStaff(organizationId, data),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: ["staff", variables.accountId],
+        queryKey: ["staff", variables.organizationId],
       });
     },
   });

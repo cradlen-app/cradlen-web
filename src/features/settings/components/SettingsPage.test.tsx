@@ -77,24 +77,24 @@ describe("SettingsPage", () => {
     vi.mocked(apiAuthFetch).mockResolvedValue({});
   });
 
-  it("renders account settings for an owner", () => {
+  it("renders organization settings for an owner", () => {
     mockCurrentUser("owner");
 
     renderWithIntl(<SettingsPage />);
 
-    expect(screen.getByRole("heading", { name: "Account settings" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Organization settings" })).toBeInTheDocument();
     expect(screen.getByText("+201000000000")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Organization/ }));
     expect(screen.getAllByText("Cradlen Clinic").length).toBeGreaterThan(0);
     expect(screen.getByText("Owner")).toBeInTheDocument();
   });
 
-  it("renders account settings for a doctor", () => {
+  it("renders organization settings for a doctor", () => {
     mockCurrentUser("doctor");
 
     renderWithIntl(<SettingsPage />);
 
-    expect(screen.getByRole("heading", { name: "Account settings" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Organization settings" })).toBeInTheDocument();
     expect(screen.getAllByText("Doctor").length).toBeGreaterThan(0);
   });
 
@@ -186,13 +186,12 @@ describe("SettingsPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Save profile/ }));
 
     await waitFor(() => {
-      expect(apiAuthFetch).toHaveBeenCalledWith("/account/profile", {
+      expect(apiAuthFetch).toHaveBeenCalledWith("/profiles/staff-1", {
         method: "PATCH",
         body: JSON.stringify({
           first_name: "Mona",
           last_name: "Amin",
           job_title: "Clinic owner",
-          organization_id: "org-1",
           phone_number: "+201111111111",
         }),
       });

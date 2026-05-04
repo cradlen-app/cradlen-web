@@ -24,7 +24,7 @@ describe("staff api helpers", () => {
     vi.mocked(apiFetch).mockResolvedValue({ data: {} });
   });
 
-  it("sends authenticated staff list requests through account-scoped paths", async () => {
+  it("sends authenticated staff list requests through organization-scoped paths", async () => {
     await fetchStaff("org-1", {
       page: 2,
       limit: 25,
@@ -33,18 +33,18 @@ describe("staff api helpers", () => {
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/accounts/org-1/staff?page=2&limit=25&q=cardio&role_id=role-1",
+      "/organizations/org-1/staff?page=2&limit=25&q=cardio&role_id=role-1",
     );
   });
 
-  it("omits all-status invitation filters and uses account-scoped path", async () => {
+  it("omits all-status invitation filters and uses organization-scoped path", async () => {
     await fetchStaffInvitations({
-      accountId: "org-1",
+      organizationId: "org-1",
       status: "all",
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/accounts/org-1/invitations?page=1&limit=100",
+      "/organizations/org-1/invitations?page=1&limit=100",
     );
   });
 
@@ -69,33 +69,33 @@ describe("staff api helpers", () => {
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       2,
-      "/staff/staff-1?organization_id=org-1&branch_id=branch-1",
+      "/organizations/org-1/staff/staff-1",
       expect.objectContaining({ method: "PATCH" }),
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       3,
-      "/staff/staff-1?organization_id=org-1&branch_id=branch-1",
+      "/organizations/org-1/staff/staff-1",
       expect.objectContaining({ method: "DELETE" }),
     );
   });
 
-  it("calls account-scoped invitation detail, delete, and resend endpoints", async () => {
+  it("calls organization-scoped invitation detail, delete, and resend endpoints", async () => {
     await fetchStaffInvitation("org-1", "invite-1");
     await deleteStaffInvitation("org-1", "invite-1");
     await resendStaffInvitation("org-1", "invite-1");
 
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       1,
-      "/accounts/org-1/invitations/invite-1",
+      "/organizations/org-1/invitations/invite-1",
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       2,
-      "/accounts/org-1/invitations/invite-1",
+      "/organizations/org-1/invitations/invite-1",
       expect.objectContaining({ method: "DELETE" }),
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       3,
-      "/accounts/org-1/invitations/invite-1/resend",
+      "/organizations/org-1/invitations/invite-1/resend",
       expect.objectContaining({ method: "POST" }),
     );
   });

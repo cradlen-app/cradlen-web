@@ -9,8 +9,8 @@ import { useSelectProfile } from "@/features/auth/hooks/useSelectProfile";
 import {
   getActiveProfile,
   getDefaultBranch,
-  getProfileAccount,
-  getProfileAccountId,
+  getProfileOrganization,
+  getProfileOrganizationId,
   getProfileId,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
@@ -97,20 +97,20 @@ export function Navbar() {
     const nextProfile = user?.profiles.find(
       (item) => getProfileId(item) === profileId,
     );
-    const accountId = getProfileAccountId(nextProfile);
+    const organizationId = getProfileOrganizationId(nextProfile);
     const branch = getDefaultBranch(nextProfile);
 
-    if (!nextProfile || !accountId) return;
+    if (!nextProfile || !organizationId) return;
 
     try {
       const response = await selectProfile.mutateAsync({
         branch_id: branch?.id ?? null,
         profile_id: profileId,
       });
-      const newOrgId = response.data.account_id || accountId;
+      const newOrgId = response.data.organization_id || organizationId;
       const newBranchId = response.data.branch_id ?? branch?.id ?? null;
       setContext({
-        accountId: newOrgId,
+        organizationId: newOrgId,
         branchId: newBranchId,
         profileId: response.data.profile_id || profileId,
       });
@@ -193,11 +193,11 @@ export function Navbar() {
               className="max-w-36 rounded-full border border-gray-100 bg-white px-2 py-1 text-xs text-gray-500 outline-none focus:border-brand-primary/60"
             >
               {user?.profiles.map((item) => {
-                const account = getProfileAccount(item);
+                const organization = getProfileOrganization(item);
                 const branch = getDefaultBranch(item);
                 return (
                   <option key={getProfileId(item)} value={getProfileId(item)}>
-                    {[account?.name, branch?.city].filter(Boolean).join(" / ")}
+                    {[organization?.name, branch?.city].filter(Boolean).join(" / ")}
                   </option>
                 );
               })}
