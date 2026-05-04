@@ -101,7 +101,7 @@ export function CreateOrganizationPage() {
       const roles = isClinical ? ["OWNER", "DOCTOR"] : ["OWNER"];
 
       await createOrganizationSession({
-        account_name: getFormString(form, "organizationName"),
+        organization_name: getFormString(form, "organizationName"),
         branch_name: getFormString(form, "branchName"),
         specialties,
         branch_city: getFormString(form, "city"),

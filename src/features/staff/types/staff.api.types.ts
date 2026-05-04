@@ -44,7 +44,7 @@ export type ApiStaffBranch = {
   governorate?: string;
 };
 
-// New staff list item shape from GET /accounts/:accountId/staff
+// New staff list item shape from GET /organizations/:organizationId/staff
 export type NewApiStaffMember = {
   profile_id: string;
   user_id: string;
@@ -70,7 +70,7 @@ export type InviteStaffDay = {
   shifts: InviteStaffShift[];
 };
 
-// Updated: POST /accounts/:accountId/invitations — flat arrays, no schedule
+// Updated: POST /organizations/:organizationId/invitations — flat arrays, no schedule
 export type InviteStaffRequest = {
   first_name: string;
   last_name: string;
@@ -83,7 +83,7 @@ export type InviteStaffRequest = {
   branch_ids: string[];
 };
 
-// POST /accounts/:accountId/staff — direct creation with phone + password
+// POST /organizations/:organizationId/staff — direct creation with phone + password
 export type CreateStaffDirectRequest = {
   first_name: string;
   last_name: string;
@@ -101,7 +101,7 @@ export type CreateStaffDirectResponse = {
   data: {
     user_id: string;
     profile_id: string;
-    account_id: string;
+    organization_id: string;
     generated_email: string;
   };
   meta?: Record<string, unknown>;
@@ -179,7 +179,6 @@ export type ApiInvitationWorkingSchedule = {
 
 export type ApiStaffInvitation = {
   id: string;
-  account_id?: string;
   organization_id?: string;
   branch_id?: string;
   email?: string;

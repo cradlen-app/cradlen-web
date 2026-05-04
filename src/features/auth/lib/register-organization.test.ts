@@ -14,7 +14,7 @@ const baseStep1Data: Step1Data = {
 };
 
 const baseStep3Data: Step3Data = {
-  accountName: "Test Clinic",
+  organizationName: "Test Clinic",
   specialties: ["Cardiology", "Pediatrics"],
   branchName: "Main Branch",
   city: "Cairo",
@@ -215,7 +215,7 @@ describe("buildRegisterOrganizationRequest", () => {
         jobTitle: "Senior Physician",
       }),
     ).toEqual({
-      account_name: "Test Clinic",
+      organization_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Main Branch",
       branch_address: "123 Main St",
@@ -230,7 +230,7 @@ describe("buildRegisterOrganizationRequest", () => {
 
   it("maps owner to a non-clinical signup complete payload", () => {
     expect(buildRegisterOrganizationRequest(baseStep3Data)).toEqual({
-      account_name: "Test Clinic",
+      organization_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Main Branch",
       branch_address: "123 Main St",
@@ -250,7 +250,7 @@ describe("buildRegisterOrganizationRequest", () => {
         jobTitle: "",
       }),
     ).toEqual({
-      account_name: "Test Clinic",
+      organization_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
       branch_name: "Main Branch",
       branch_address: "123 Main St",

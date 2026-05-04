@@ -90,7 +90,7 @@ export function SignUpForm() {
             setPendingSignupEmail(email);
             router.replace("/sign-up/complete");
           } else if (status.step === "DONE") {
-            router.replace("/sign-in?notice=account-exists");
+            router.replace("/sign-in?notice=organization-exists");
           } else {
             setStepError(t("errors.emailAlreadyRegistered"));
           }

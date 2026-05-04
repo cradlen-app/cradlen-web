@@ -16,7 +16,7 @@ export type Step2Data = {
 };
 
 export type Step3Data = {
-  accountName: string;
+  organizationName: string;
   specialties: string[];
   branchName: string;
   city: string;
@@ -49,7 +49,7 @@ export type VerifyEmailRequest = {
 };
 
 export type RegisterOrganizationRequest = {
-  account_name: string;
+  organization_name: string;
   specialties: string[];
   branch_name: string;
   branch_address: string;

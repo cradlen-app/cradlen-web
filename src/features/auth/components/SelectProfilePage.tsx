@@ -15,8 +15,8 @@ import {
 import {
   getBranchId,
   getDefaultBranch,
-  getProfileAccountId,
-  getProfileAccountName,
+  getProfileOrganizationId,
+  getProfileOrganizationName,
   getProfileBranches,
   getProfileId,
   getProfileRoles,
@@ -78,7 +78,7 @@ export function SelectProfilePage() {
   const canContinue =
     !!selectedProfile &&
     !!getProfileId(selectedProfile) &&
-    !!getProfileAccountId(selectedProfile) &&
+    !!getProfileOrganizationId(selectedProfile) &&
     branches.length > 0 &&
     (branches.length === 1 || !!selectedBranchId);
 
@@ -110,10 +110,10 @@ export function SelectProfilePage() {
     }
 
     const profileId = getProfileId(selectedProfile);
-    const accountId = getProfileAccountId(selectedProfile);
+    const organizationId = getProfileOrganizationId(selectedProfile);
     const branchId = getBranchId(selectedBranch);
 
-    if (!profileId || !accountId || !branchId) {
+    if (!profileId || !organizationId || !branchId) {
       setIsAutoProceeding(false);
       toast.error(t("missingContext"));
       return;
@@ -127,14 +127,14 @@ export function SelectProfilePage() {
 
       setAuthenticated();
       setContext({
-        accountId: response.data.account_id || accountId,
+        organizationId: response.data.organization_id || organizationId,
         branchId: response.data.branch_id ?? branchId,
         profileId: response.data.profile_id || profileId,
       });
       clearPendingProfileSelection();
       queryClient.clear();
 
-      const resolvedOrgId = response.data.account_id || accountId;
+      const resolvedOrgId = response.data.organization_id || organizationId;
       const resolvedBranchId = response.data.branch_id ?? branchId;
       const role = getProfileRoles(selectedProfile)[0] ?? ("unknown" as UserRole);
       const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
@@ -271,7 +271,7 @@ export function SelectProfilePage() {
           return (
             <ProfileCard
               key={profileId ?? `profile-${index}`}
-              accountName={getProfileAccountName(profile) ?? t("unknownAccount")}
+              organizationName={getProfileOrganizationName(profile) ?? t("unknownAccount")}
               branchCountLabel={t("branchCount", { count: branchCount })}
               isSelected={!!profileId && selectedProfileId === profileId}
               onSelect={() => chooseProfile(profile)}

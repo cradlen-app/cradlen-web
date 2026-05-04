@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     });
   }
 
-  // Single-account user: backend returns auth tokens directly
+  // Single-organization user: backend returns auth tokens directly
   const tokens = extractTokens(body);
   if (tokens) {
     return sessionResponse(
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // Multi-account user: backend returns a selection token + profiles
+  // Multi-organization user: backend returns a selection token + profiles
   const selectionToken = extractSelectionToken(body);
   const frontendResponse = NextResponse.json(sanitizeProfileSelection(body), {
     status: response.status,

@@ -2,7 +2,7 @@ import { Building2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ProfileCardProps = {
-  accountName: string;
+  organizationName: string;
   branchCountLabel: string;
   isSelected: boolean;
   onSelect: () => void;
@@ -10,7 +10,7 @@ type ProfileCardProps = {
 };
 
 export function ProfileCard({
-  accountName,
+  organizationName,
   branchCountLabel,
   isSelected,
   onSelect,
@@ -38,7 +38,7 @@ export function ProfileCard({
 
       <div className="min-w-0">
         <p className="truncate text-sm font-semibold text-brand-black">
-          {accountName}
+          {organizationName}
         </p>
         <p className="mt-1 text-xs text-gray-500">{rolesLabel}</p>
       </div>

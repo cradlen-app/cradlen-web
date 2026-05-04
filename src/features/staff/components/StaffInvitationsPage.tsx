@@ -668,7 +668,7 @@ export function StaffInvitationsPage() {
 
     try {
       await resendInvitation.mutateAsync({
-        accountId: organizationId,
+        organizationId: organizationId,
         invitationId: invitation.id,
       });
       toast.success(t("resendSuccess"));
@@ -688,7 +688,7 @@ export function StaffInvitationsPage() {
 
     try {
       await deleteInvitation.mutateAsync({
-        accountId: organizationId,
+        organizationId: organizationId,
         invitationId: pendingDelete.id,
       });
       toast.success(t("deleteSuccess"));

@@ -23,7 +23,7 @@ import { setPendingSignupEmail } from "../lib/registration-session";
 import { isInvalidSignInError } from "../lib/sign-in-errors";
 import {
   getBranchId,
-  getProfileAccountId,
+  getProfileOrganizationId,
   getProfileBranches,
   getProfileId,
   getProfileRoles,
@@ -72,21 +72,21 @@ export function SignInForm() {
           const profile = profiles[0];
           const branch = getProfileBranches(profile)[0];
           const profileId = getProfileId(profile);
-          const accountId = getProfileAccountId(profile);
+          const organizationId = getProfileOrganizationId(profile);
           const branchId = getBranchId(branch);
 
-          if (profileId && accountId && branchId) {
+          if (profileId && organizationId && branchId) {
             try {
               const selRes = await selectProfileAsync({ profile_id: profileId, branch_id: branchId });
               setAuthenticated();
               setContext({
-                accountId: selRes.data.account_id || accountId,
+                organizationId: selRes.data.organization_id || organizationId,
                 branchId: selRes.data.branch_id ?? branchId,
                 profileId: selRes.data.profile_id || profileId,
               });
               queryClient.clear();
               const role = getProfileRoles(profile)[0] ?? "unknown";
-              const resolvedOrgId = selRes.data.account_id || accountId;
+              const resolvedOrgId = selRes.data.organization_id || organizationId;
               const resolvedBranchId = selRes.data.branch_id ?? branchId;
               router.replace(redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
               return;
@@ -130,7 +130,7 @@ export function SignInForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="w-full flex flex-col gap-5"
     >
-      {notice === "account-exists" && (
+      {notice === "organization-exists" && (
         <p className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 text-center">
           {t("noticeAccountExists")}
         </p>

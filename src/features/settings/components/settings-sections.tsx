@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { getProfilePrimaryRole } from "@/features/auth/lib/current-user";
-import type { AccountBranch } from "@/features/settings/lib/settings.api";
+import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import type { DrawerKey, SoftDeleteKey } from "./settings.types";
 import {
@@ -29,7 +29,7 @@ import {
 } from "./settings-ui";
 
 type SectionProps = {
-  branches: AccountBranch[];
+  branches: OrganizationBranch[];
   branchesLoading?: boolean;
   branchAddress: string;
   currentBranchId?: string | null;
@@ -202,7 +202,7 @@ export function BranchesSection({
   setConfirmSoftDelete,
   t,
 }: SectionProps) {
-  function branchAddress(branch: AccountBranch) {
+  function branchAddress(branch: OrganizationBranch) {
     return [branch.address, branch.city, branch.governorate, branch.country]
       .filter(Boolean)
       .join(", ");

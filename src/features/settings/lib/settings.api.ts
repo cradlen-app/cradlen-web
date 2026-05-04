@@ -1,7 +1,7 @@
 import { apiAuthFetch, apiFetch } from "@/lib/api";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 
-export type AccountBranch = {
+export type OrganizationBranch = {
   id: string;
   name: string;
   address: string;
@@ -12,9 +12,9 @@ export type AccountBranch = {
   status: string;
 };
 
-export const branchesQueryKey = (accountId: string) => ["branches", accountId];
+export const branchesQueryKey = (organizationId: string) => ["branches", organizationId];
 
-export type UpdateAccountProfileRequest = {
+export type UpdateProfileRequest = {
   first_name?: string;
   is_clinical?: boolean;
   job_title?: string;
@@ -24,7 +24,7 @@ export type UpdateAccountProfileRequest = {
 };
 
 export type CreateOrganizationRequest = {
-  account_name: string;
+  organization_name: string;
   branch_name: string;
   branch_address: string;
   branch_city: string;
@@ -60,9 +60,9 @@ export type UpdateBranchRequest = {
   name?: string;
 };
 
-export function updateAccountProfile(
+export function updateProfile(
   profileId: string,
-  data: UpdateAccountProfileRequest,
+  data: UpdateProfileRequest,
 ) {
   return apiAuthFetch(`/profiles/${profileId}`, {
     method: "PATCH",
@@ -70,13 +70,13 @@ export function updateAccountProfile(
   });
 }
 
-export function deactivateAccount() {
-  const { accountId } = useAuthContextStore.getState();
-  return apiAuthFetch<void>(`/accounts/${accountId}`, { method: "DELETE" });
+export function deactivateOrganization() {
+  const { organizationId } = useAuthContextStore.getState();
+  return apiAuthFetch<void>(`/organizations/${organizationId}`, { method: "DELETE" });
 }
 
 export function createOrganization(data: CreateOrganizationRequest) {
-  return apiAuthFetch("/accounts", {
+  return apiAuthFetch("/organizations", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -93,14 +93,14 @@ export function updateOrganization(
   organizationId: string,
   data: UpdateOrganizationRequest,
 ) {
-  return apiAuthFetch(`/accounts/${organizationId}`, {
+  return apiAuthFetch(`/organizations/${organizationId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
 export function deleteOrganization(organizationId: string) {
-  return apiAuthFetch(`/accounts/${organizationId}`, {
+  return apiAuthFetch(`/organizations/${organizationId}`, {
     method: "DELETE",
   });
 }
@@ -109,7 +109,7 @@ export function createBranch(
   organizationId: string,
   data: CreateBranchRequest,
 ) {
-  return apiAuthFetch(`/accounts/${organizationId}/branches`, {
+  return apiAuthFetch(`/organizations/${organizationId}/branches`, {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -120,20 +120,20 @@ export function updateBranch(
   branchId: string,
   data: UpdateBranchRequest,
 ) {
-  return apiAuthFetch(`/accounts/${organizationId}/branches/${branchId}`, {
+  return apiAuthFetch(`/organizations/${organizationId}/branches/${branchId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
 export function deleteBranch(organizationId: string, branchId: string) {
-  return apiAuthFetch(`/accounts/${organizationId}/branches/${branchId}`, {
+  return apiAuthFetch(`/organizations/${organizationId}/branches/${branchId}`, {
     method: "DELETE",
   });
 }
 
-export function listBranches(accountId: string) {
-  return apiAuthFetch<{ data: AccountBranch[] }>(
-    `/accounts/${accountId}/branches`,
+export function listBranches(organizationId: string) {
+  return apiAuthFetch<{ data: OrganizationBranch[] }>(
+    `/organizations/${organizationId}/branches`,
   );
 }

@@ -118,9 +118,9 @@ export async function apiFetch<T>(
 }
 
 export function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const { accountId, branchId, profileId } = useAuthContextStore.getState();
+  const { organizationId, branchId, profileId } = useAuthContextStore.getState();
   const headers = {
-    ...(accountId ? { "X-Account-Id": accountId } : {}),
+    ...(organizationId ? { "X-Organization-Id": organizationId } : {}),
     ...(profileId ? { "X-Profile-Id": profileId } : {}),
     ...(branchId ? { "X-Branch-Id": branchId } : {}),
     ...options?.headers,
