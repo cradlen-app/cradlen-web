@@ -16,7 +16,7 @@ import {
 } from "@/lib/auth/redirect";
 import {
   getBranchId,
-  getProfileAccountId,
+  getProfileOrganizationId,
   getProfileBranches,
   getProfileId,
   getProfileRoles,
@@ -62,7 +62,7 @@ export function SignUpCompleteForm() {
     resolver: zodResolver(schema),
     mode: "onChange",
     defaultValues: {
-      accountName: "",
+      organizationName: "",
       specialties: [],
       city: "",
       address: "",
@@ -106,7 +106,7 @@ export function SignUpCompleteForm() {
           const profile = profiles[0];
           const branch = getProfileBranches(profile)[0];
           const profileId = getProfileId(profile)!;
-          const accountId = getProfileAccountId(profile)!;
+          const organizationId = getProfileOrganizationId(profile)!;
           const branchId = getBranchId(branch)!;
           const selectionRes = await selectProfile.mutateAsync({
             branch_id: branchId,
@@ -114,14 +114,14 @@ export function SignUpCompleteForm() {
           });
           setAuthenticated();
           setContext({
-            accountId: selectionRes.data.account_id || accountId,
+            organizationId: selectionRes.data.organization_id || organizationId,
             branchId: selectionRes.data.branch_id ?? branchId,
             profileId: selectionRes.data.profile_id || profileId,
           });
           clearPendingProfileSelection();
           queryClient.clear();
           const role = getProfileRoles(profile)[0] ?? ("unknown" as UserRole);
-          const resolvedOrgId = selectionRes.data.account_id || accountId;
+          const resolvedOrgId = selectionRes.data.organization_id || organizationId;
           const resolvedBranchId = selectionRes.data.branch_id ?? branchId;
           router.replace(getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
           return;
@@ -167,20 +167,20 @@ export function SignUpCompleteForm() {
 
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="accountName" className="text-sm text-brand-black">
+          <label htmlFor="organizationName" className="text-sm text-brand-black">
             {t("organizationNameLabel")}
           </label>
           <input
-            id="accountName"
+            id="organizationName"
             type="text"
             placeholder={t("organizationNamePlaceholder")}
-            {...form.register("accountName")}
+            {...form.register("organizationName")}
             className={cn(
               inputClass,
-              errorInputClass(!!form.formState.errors.accountName),
+              errorInputClass(!!form.formState.errors.organizationName),
             )}
           />
-          {fieldError(form.formState.errors.accountName?.message)}
+          {fieldError(form.formState.errors.organizationName?.message)}
         </div>
 
         <div className="flex flex-col gap-1.5">

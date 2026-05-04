@@ -9,8 +9,8 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
   getDefaultBranch,
-  getProfileAccount,
-  getProfileAccountId,
+  getProfileOrganization,
+  getProfileOrganizationId,
 } from "@/features/auth/lib/current-user";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { ApiError } from "@/lib/api";
@@ -74,10 +74,10 @@ export function StaffPage() {
   const selectedBranchId = useAuthContextStore((state) => state.branchId);
   const primaryProfile = getActiveProfile(currentUser);
   const currentUserStaffId = primaryProfile?.staff_id;
-  const account = getProfileAccount(primaryProfile);
+  const organization = getProfileOrganization(primaryProfile);
   const activeBranch = getDefaultBranch(primaryProfile, selectedBranchId);
-  const organizationId = getProfileAccountId(primaryProfile);
-  const organizationName = account?.name;
+  const organizationId = getProfileOrganizationId(primaryProfile);
+  const organizationName = organization?.name;
   const branchId = activeBranch?.id;
   const branchName = activeBranch
     ? [

@@ -11,7 +11,7 @@ export function buildRegisterOrganizationRequest(
   const jobTitle = data.jobTitle?.trim();
 
   const payload: RegisterOrganizationRequest = {
-    account_name: data.accountName,
+    organization_name: data.organizationName,
     specialties: data.specialties,
     branch_name: data.branchName,
     branch_address: data.address,

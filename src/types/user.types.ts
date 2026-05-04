@@ -37,9 +37,9 @@ export type UserProfile = {
   /** @deprecated login/signup response only — /auth/me uses staff_id */
   profile_id?: string;
   /** @deprecated login/signup response only — /auth/me uses organization.name */
-  account_name?: string;
+  organization_name?: string;
   /** @deprecated login/signup response only — /auth/me uses organization.id */
-  account_id?: string;
+  organization_id?: string;
   /** @deprecated not returned by /auth/me; use roles[0] */
   role?: { id?: string; name: UserRole | BackendUserRole | string };
   /** @deprecated not returned by /auth/me; use branches[0] */

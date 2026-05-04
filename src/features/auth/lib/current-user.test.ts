@@ -5,7 +5,7 @@ import {
   getActiveRole,
   getBranchId,
   getDefaultBranch,
-  getProfileAccountName,
+  getProfileOrganizationName,
   getProfileRoles,
 } from "./current-user";
 
@@ -70,20 +70,20 @@ describe("current user helpers", () => {
   it("normalizes profile roles from the profiles selection response", () => {
     const profile = {
       profile_id: "profile-1",
-      account_id: "account-1",
-      account_name: "Selection Clinic",
+      organization_id: "org-1",
+      organization_name: "Selection Clinic",
       roles: ["OWNER", "DOCTOR"],
       branches: [],
     } as unknown as UserProfile;
 
-    expect(getProfileAccountName(profile)).toBe("Selection Clinic");
+    expect(getProfileOrganizationName(profile)).toBe("Selection Clinic");
     expect(getProfileRoles(profile)).toEqual(["owner", "doctor"]);
   });
 
   it("supports branch_id when selecting and reading branches", () => {
     const profile = {
       profile_id: "profile-1",
-      account_id: "account-1",
+      organization_id: "org-1",
       roles: ["OWNER"],
       branches: [
         { branch_id: "branch-1", name: "Main", is_main: true },

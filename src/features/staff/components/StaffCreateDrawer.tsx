@@ -314,7 +314,7 @@ export function StaffCreateDrawer({
         if (isDirectMode) {
           const directValues = values as unknown as StaffCreateDirectFormValues;
           const result = await createDirect.mutateAsync({
-            accountId: organizationId,
+            organizationId: organizationId,
             data: {
               first_name: firstName,
               last_name: lastName,
@@ -340,7 +340,7 @@ export function StaffCreateDrawer({
         // Invite by email
         const inviteValues = values as StaffInviteFormValues;
         await inviteStaff.mutateAsync({
-          accountId: organizationId,
+          organizationId: organizationId,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -452,7 +452,7 @@ export function StaffCreateDrawer({
                   </div>
                 </section>
 
-                {/* Account credentials section */}
+                {/* Login credentials section */}
                 {!isEditMode && (
                   <section className="space-y-3">
                     <SectionTitle title={t("account")} />
