@@ -71,7 +71,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
 ];
 
 export function useNotifications(): UseNotificationsReturn {
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<Notification[]>([...MOCK_NOTIFICATIONS]);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
