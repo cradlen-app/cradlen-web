@@ -3,6 +3,7 @@ import type {
   ApiRolesResponse,
   AcceptStaffInviteRequest,
   AcceptStaffInviteResponse,
+  InvitationPreview,
   InviteStaffRequest,
   InviteStaffResponse,
   ApiStaffListResponse,
@@ -166,6 +167,19 @@ export function resendStaffInvitation(organizationId: string, invitationId: stri
     `/organizations/${organizationId}/invitations/${invitationId}/resend`,
     { method: "POST" },
   );
+}
+
+export function getInvitationPreview(invitation: string, token: string) {
+  return apiFetch<{ data: InvitationPreview }>(
+    `/staff/invite/preview?invitation=${encodeURIComponent(invitation)}&token=${encodeURIComponent(token)}`,
+  );
+}
+
+export function declineStaffInvite(invitation: string, token: string) {
+  return apiFetch<{ message: string }>("/staff/invite/decline", {
+    method: "POST",
+    body: JSON.stringify({ invitation, token }),
+  });
 }
 
 export function acceptStaffInvite(data: AcceptStaffInviteRequest) {
