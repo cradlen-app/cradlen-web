@@ -643,5 +643,23 @@
       "specialty": "Specialty",
       "jobTitle": "Job title"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "unreadCount": "{count} unread",
+    "viewAll": "View all notifications",
+    "allCaughtUp": "You're all caught up",
+    "allCaughtUpSub": "No new notifications right now. Check back later.",
+    "showing": "Showing {from}–{to} of {total} notifications",
+    "categories": {
+      "all": "All",
+      "appointment": "Appointments",
+      "staff": "Staff",
+      "medicine": "Medicine",
+      "patient": "Patients",
+      "report": "Reports",
+      "system": "System"
+    }
   }
 }
