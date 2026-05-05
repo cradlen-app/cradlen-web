@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronRight,
   Eye,
@@ -21,7 +21,7 @@ import {
   getActiveProfile,
   getDefaultBranch,
 } from "@/features/auth/lib/current-user";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/lib/utils";
@@ -602,13 +602,36 @@ function InvitationDrawer({
   );
 }
 
-export function StaffInvitationsPage() {
+export function StaffInvitationsPage({
+  initialSelectedId,
+}: {
+  initialSelectedId?: string;
+}) {
   const t = useTranslations("staff.invitations");
   const staffT = useTranslations("staff");
   const dashboardPath = useDashboardPath();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<InvitationStatusFilter>("all");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    initialSelectedId ?? null,
+  );
+  const isFirstSync = useRef(true);
+
+  useEffect(() => {
+    if (isFirstSync.current) {
+      isFirstSync.current = false;
+      return;
+    }
+    const href = selectedId
+      ? dashboardPath(`/staff/invitations/${selectedId}`)
+      : dashboardPath("/staff/invitations");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    router.replace(href as any);
+  // router and dashboardPath are stable references
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
+
   const [pendingDelete, setPendingDelete] = useState<ApiStaffInvitation | null>(
     null,
   );
