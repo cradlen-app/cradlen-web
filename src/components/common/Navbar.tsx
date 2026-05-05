@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Search, Upload, Bell, Mail } from "lucide-react";
+import { Search, Upload, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
@@ -20,6 +20,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
+import { NotificationDropdown } from "@/features/notifications/components/NotificationDropdown";
 
 function UserAvatar({
   name,
@@ -155,9 +156,7 @@ export function Navbar() {
         <div className="w-px h-5 bg-gray-200 mx-1.5" />
 
         {/* Notification */}
-        <IconButton label="Notifications" badge>
-          <Bell className="size-5" />
-        </IconButton>
+        <NotificationDropdown />
 
         {/* Messages */}
         <IconButton label="Messages">
