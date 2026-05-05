@@ -51,6 +51,7 @@ export function NotificationItem({ notification, variant, categoryLabel, onClick
           "w-full flex items-start gap-2.5 px-4 py-2.5 text-start transition-colors duration-100",
           "border-b border-gray-50 last:border-b-0",
           is_read ? "hover:bg-gray-50" : "bg-emerald-50/60 hover:bg-emerald-50",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:ring-inset",
         )}
       >
         <span
@@ -82,6 +83,7 @@ export function NotificationItem({ notification, variant, categoryLabel, onClick
         "w-full flex items-start gap-3.5 px-6 py-3.5 text-start transition-colors duration-100",
         "border-b border-gray-50 last:border-b-0",
         is_read ? "hover:bg-gray-50" : "bg-emerald-50/60 hover:bg-emerald-50",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:ring-inset",
       )}
     >
       <span
