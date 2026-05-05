@@ -25,20 +25,20 @@ const CATEGORY_FILTERS: CategoryFilter[] = [
 export function NotificationsPageClient() {
   const t = useTranslations("notifications");
   const router = useRouter();
-  const { notifications, isLoading, markAsRead, markAllAsRead } = useNotifications();
 
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [page, setPage] = useState(1);
 
-  const filtered =
-    activeCategory === "all"
-      ? notifications
-      : notifications.filter((n) => n.category === activeCategory);
+  const { notifications, isLoading, meta, markAsRead, markAllAsRead } = useNotifications({
+    page,
+    limit: PAGE_SIZE,
+    category: activeCategory,
+  });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
-  const start = (safePage - 1) * PAGE_SIZE;
-  const pageItems = filtered.slice(start, start + PAGE_SIZE);
+  const totalPages = meta?.totalPages ?? 1;
+  const total = meta?.total ?? 0;
+  const from = (page - 1) * PAGE_SIZE + 1;
+  const to = Math.min(page * PAGE_SIZE, total);
 
   function handleCategoryChange(cat: CategoryFilter) {
     setActiveCategory(cat);
@@ -58,13 +58,9 @@ export function NotificationsPageClient() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900">{t("title")}</h1>
-          {filtered.length > 0 && (
+          {total > 0 && (
             <p className="text-sm text-gray-500 mt-0.5">
-              {t("showing", {
-                from: start + 1,
-                to: Math.min(start + PAGE_SIZE, filtered.length),
-                total: filtered.length,
-              })}
+              {t("showing", { from, to, total })}
             </p>
           )}
         </div>
@@ -100,7 +96,7 @@ export function NotificationsPageClient() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="divide-y divide-gray-50">
-            {Array.from({ length: 5 }).map((_, i) => (
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
               <div key={i} className="flex items-start gap-3.5 px-6 py-3.5">
                 <div className="size-10 rounded-xl bg-gray-100 animate-pulse shrink-0" />
                 <div className="flex-1 space-y-2">
@@ -111,14 +107,14 @@ export function NotificationsPageClient() {
               </div>
             ))}
           </div>
-        ) : pageItems.length === 0 ? (
+        ) : notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <p className="text-sm font-semibold text-gray-600">{t("allCaughtUp")}</p>
             <p className="text-xs text-gray-400">{t("allCaughtUpSub")}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {pageItems.map((n) => (
+            {notifications.map((n) => (
               <NotificationItem
                 key={n.id}
                 notification={n}
@@ -134,16 +130,12 @@ export function NotificationsPageClient() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-6 py-3 border-t border-gray-50">
             <span className="text-xs text-gray-500">
-              {t("showing", {
-                from: start + 1,
-                to: Math.min(start + PAGE_SIZE, filtered.length),
-                total: filtered.length,
-              })}
+              {t("showing", { from, to, total })}
             </span>
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                disabled={safePage === 1}
+                disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
                 className="size-8 flex items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
@@ -156,7 +148,7 @@ export function NotificationsPageClient() {
                   onClick={() => setPage(p)}
                   className={cn(
                     "size-8 flex items-center justify-center rounded-lg border text-sm font-medium transition-colors",
-                    p === safePage
+                    p === page
                       ? "bg-brand-primary text-white border-brand-primary"
                       : "border-gray-200 text-gray-600 hover:bg-gray-50",
                   )}
@@ -166,7 +158,7 @@ export function NotificationsPageClient() {
               ))}
               <button
                 type="button"
-                disabled={safePage === totalPages}
+                disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
                 className="size-8 flex items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
