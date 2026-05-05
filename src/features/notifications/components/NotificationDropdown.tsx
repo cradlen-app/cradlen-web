@@ -113,10 +113,9 @@ export function NotificationDropdown() {
           <div className="max-h-80 overflow-y-auto">
             {isLoading ? (
               <>
-                <SkeletonRow />
-                <SkeletonRow />
-                <SkeletonRow />
-                <SkeletonRow />
+                {Array.from({ length: DROPDOWN_LIMIT }, (_, i) => (
+                  <SkeletonRow key={i} />
+                ))}
               </>
             ) : visibleNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
