@@ -643,5 +643,23 @@
       "specialty": "التخصص",
       "jobTitle": "المسمى الوظيفي"
     }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "unreadCount": "{count} غير مقروء",
+    "viewAll": "عرض جميع الإشعارات",
+    "allCaughtUp": "أنت على اطلاع بكل شيء",
+    "allCaughtUpSub": "لا توجد إشعارات جديدة الآن. تحقق لاحقاً.",
+    "showing": "عرض {from}–{to} من {total} إشعار",
+    "categories": {
+      "all": "الكل",
+      "appointment": "المواعيد",
+      "staff": "الموظفون",
+      "medicine": "الدواء",
+      "patient": "المرضى",
+      "report": "التقارير",
+      "system": "النظام"
+    }
   }
 }
