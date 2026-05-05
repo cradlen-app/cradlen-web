@@ -1,0 +1,241 @@
+<style>
+  .preview-wrap { display: flex; flex-direction: column; gap: 12px; }
+  .navbar-mock {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 10px 20px; height: 52px; font-size: 13px; color: #6b7280;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .navbar-right { display: flex; align-items: center; gap: 10px; }
+  .bell-btn {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: #f3f4f6; display: flex; align-items: center; justify-content: center;
+    position: relative; cursor: pointer; font-size: 16px;
+  }
+  .badge {
+    position: absolute; top: 5px; right: 5px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #11604C; border: 1.5px solid #fff;
+  }
+  .badge-count {
+    position: absolute; top: 3px; right: 3px;
+    min-width: 16px; height: 16px; border-radius: 8px;
+    background: #11604C; border: 1.5px solid #fff;
+    color: #fff; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 3px;
+  }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: #d1fae5; display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#11604C; }
+
+  /* Option A: dropdown panel */
+  .dropdown-panel {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    width: 340px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    overflow: hidden; margin-top: 4px;
+  }
+  .panel-header {
+    padding: 14px 16px 10px; display: flex; justify-content: space-between;
+    align-items: center; border-bottom: 1px solid #f3f4f6;
+  }
+  .panel-title { font-size: 14px; font-weight: 600; color: #111827; }
+  .mark-all { font-size: 11px; color: #11604C; cursor: pointer; font-weight: 500; }
+  .notif-item {
+    display: flex; gap: 10px; padding: 11px 16px;
+    border-bottom: 1px solid #f9fafb; align-items: flex-start;
+  }
+  .notif-item.unread { background: #f0fdf4; }
+  .notif-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #d1fae5; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .notif-icon.yellow { background: #fef9c3; }
+  .notif-icon.blue { background: #dbeafe; }
+  .notif-text { flex: 1; }
+  .notif-title { font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+  .notif-body { font-size: 11px; color: #6b7280; line-height: 1.4; }
+  .notif-time { font-size: 10px; color: #9ca3af; margin-top: 3px; }
+  .unread-dot { width: 7px; height: 7px; border-radius: 50%; background: #11604C; margin-top: 4px; flex-shrink: 0; }
+  .panel-footer { padding: 10px 16px; text-align: center; }
+  .view-all { font-size: 12px; color: #11604C; font-weight: 500; cursor: pointer; }
+
+  /* Option B: side drawer */
+  .layout-b { display: flex; gap: 0; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
+  .app-bg { flex:1; background: #f9fafb; min-height: 200px; display:flex;align-items:center;justify-content:center; color:#d1d5db;font-size:12px; }
+  .side-drawer {
+    width: 300px; background: #fff; border-left: 1px solid #e5e7eb;
+    display: flex; flex-direction: column;
+  }
+  .drawer-header {
+    padding: 14px 16px; border-bottom: 1px solid #f3f4f6;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .close-btn { width: 24px; height: 24px; border-radius: 6px; background: #f3f4f6; display:flex;align-items:center;justify-content:center;font-size:12px; }
+
+  /* Option C: pill toast strip */
+  .notif-pill {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1); width: 320px;
+    margin-top: 6px;
+  }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid #f3f4f6; padding: 0 16px; }
+  .tab { padding: 8px 12px; font-size: 12px; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: #11604C; border-bottom: 2px solid #11604C; font-weight: 600; }
+</style>
+
+<h2>How should the notification panel open?</h2>
+<p class="subtitle">Pick the interaction style that fits the dashboard best</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px">
+      <div class="preview-wrap">
+        <div class="navbar-mock">
+          <span style="font-weight:600;color:#11604C;font-size:13px;">Cradlen</span>
+          <div class="navbar-right">
+            <div class="bell-btn">🔔<span class="badge"></span></div>
+            <div class="avatar">IB</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+          <div class="dropdown-panel">
+            <div class="panel-header">
+              <span class="panel-title">Notifications</span>
+              <span class="mark-all">Mark all read</span>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon">📅</div>
+              <div class="notif-text">
+                <div class="notif-title">Appointment confirmed</div>
+                <div class="notif-body">Ahmed Hassan — tomorrow 10:30 AM</div>
+                <div class="notif-time">2 min ago</div>
+              </div>
+              <div class="unread-dot"></div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon yellow">⚠️</div>
+              <div class="notif-text">
+                <div class="notif-title">Staff invite accepted</div>
+                <div class="notif-body">Dr. Sara joined the team</div>
+                <div class="notif-time">1 hr ago</div>
+              </div>
+              <div class="unread-dot"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon blue">💊</div>
+              <div class="notif-text">
+                <div class="notif-title">Low medicine stock</div>
+                <div class="notif-body">Amoxicillin — 5 units left</div>
+                <div class="notif-time">Yesterday</div>
+              </div>
+            </div>
+            <div class="panel-footer">
+              <span class="view-all">View all notifications →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Dropdown Panel</h3>
+      <p>Popover anchored to bell icon. Compact, stays in context. Most common pattern in dashboards.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px">
+      <div class="layout-b" style="min-height:210px;">
+        <div class="app-bg">Dashboard content</div>
+        <div class="side-drawer">
+          <div class="drawer-header">
+            <span class="panel-title">Notifications</span>
+            <div class="close-btn">✕</div>
+          </div>
+          <div class="tabs">
+            <div class="tab active">All</div>
+            <div class="tab">Unread (3)</div>
+          </div>
+          <div class="notif-item unread" style="padding:10px 12px;">
+            <div class="notif-icon" style="width:28px;height:28px;font-size:12px;">📅</div>
+            <div class="notif-text">
+              <div class="notif-title">Appointment confirmed</div>
+              <div class="notif-body">Ahmed Hassan</div>
+              <div class="notif-time">2 min ago</div>
+            </div>
+            <div class="unread-dot"></div>
+          </div>
+          <div class="notif-item" style="padding:10px 12px;">
+            <div class="notif-icon yellow" style="width:28px;height:28px;font-size:12px;">⚠️</div>
+            <div class="notif-text">
+              <div class="notif-title">Staff invite accepted</div>
+              <div class="notif-body">Dr. Sara joined</div>
+              <div class="notif-time">1 hr ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Side Drawer</h3>
+      <p>Slides in from the right edge, pushing/overlaying content. More space for rich items and filters.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Dropdown with tabs -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px">
+      <div class="preview-wrap">
+        <div class="navbar-mock">
+          <span style="font-weight:600;color:#11604C;font-size:13px;">Cradlen</span>
+          <div class="navbar-right">
+            <div class="bell-btn">🔔<span class="badge-count">5</span></div>
+            <div class="avatar">IB</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+          <div class="dropdown-panel">
+            <div class="panel-header">
+              <span class="panel-title">Notifications</span>
+              <span class="mark-all">Mark all read</span>
+            </div>
+            <div class="tabs">
+              <div class="tab active">All</div>
+              <div class="tab">Appointments</div>
+              <div class="tab">System</div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon">📅</div>
+              <div class="notif-text">
+                <div class="notif-title">Appointment confirmed</div>
+                <div class="notif-body">Ahmed Hassan — tomorrow 10:30 AM</div>
+                <div class="notif-time">2 min ago</div>
+              </div>
+              <div class="unread-dot"></div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon yellow">⚠️</div>
+              <div class="notif-text">
+                <div class="notif-title">Staff invite accepted</div>
+                <div class="notif-body">Dr. Sara joined the team</div>
+                <div class="notif-time">1 hr ago</div>
+              </div>
+              <div class="unread-dot"></div>
+            </div>
+            <div class="panel-footer">
+              <span class="view-all">View all notifications →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Dropdown with Tabs</h3>
+      <p>Like A but with category tabs (Appointments, Staff, System). Better when many notification types exist.</p>
+    </div>
+  </div>
+
+</div>

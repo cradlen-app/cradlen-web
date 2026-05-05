@@ -1,0 +1,131 @@
+<style>
+  .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 640px; margin: 0 auto; }
+  .cat-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border: 1.5px solid #e5e7eb; border-radius: 10px; cursor: pointer;
+    background: #fff; transition: border-color .15s, background .15s;
+  }
+  .cat-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+  }
+  .green { background: #d1fae5; }
+  .yellow { background: #fef9c3; }
+  .blue { background: #dbeafe; }
+  .orange { background: #ffedd5; }
+  .purple { background: #ede9fe; }
+  .red { background: #fee2e2; }
+  .cat-text h4 { font-size: 13px; font-weight: 600; color: #111827; margin: 0 0 2px; }
+  .cat-text p { font-size: 11px; color: #6b7280; margin: 0; line-height: 1.4; }
+
+  /* sample notif items for preview */
+  .notif-panel {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    width: 320px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    margin: 16px auto 0;
+  }
+  .panel-header {
+    padding: 12px 14px 10px; display: flex; justify-content: space-between;
+    align-items: center; border-bottom: 1px solid #f3f4f6;
+  }
+  .panel-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .mark-all { font-size: 11px; color: #11604C; font-weight: 500; }
+  .notif-item {
+    display: flex; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid #f9fafb; align-items: flex-start;
+  }
+  .notif-item.unread { background: #f0fdf4; }
+  .n-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .n-title { font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 1px; }
+  .n-body { font-size: 11px; color: #6b7280; line-height: 1.35; }
+  .n-time { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+  .unread-dot { width: 7px; height: 7px; border-radius: 50%; background: #11604C; margin-top: 5px; flex-shrink: 0; }
+</style>
+
+<h2>Which notification types should the system support?</h2>
+<p class="subtitle">Select all that apply — these become the notification categories</p>
+
+<div class="options" data-multiselect style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:640px;margin:0 auto 24px;">
+
+  <div class="option" data-choice="appointments" onclick="toggleSelect(this)" style="flex-direction:row;align-items:center;gap:12px;">
+    <div class="letter" style="font-size:11px;min-width:28px;">📅</div>
+    <div class="content">
+      <h3 style="font-size:13px;margin-bottom:2px;">Appointments</h3>
+      <p style="font-size:11px;">Confirmed, cancelled, upcoming reminders</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="staff" onclick="toggleSelect(this)" style="flex-direction:row;align-items:center;gap:12px;">
+    <div class="letter" style="font-size:11px;min-width:28px;">👥</div>
+    <div class="content">
+      <h3 style="font-size:13px;margin-bottom:2px;">Staff</h3>
+      <p style="font-size:11px;">Invite accepted/declined, new staff joined</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="medicine" onclick="toggleSelect(this)" style="flex-direction:row;align-items:center;gap:12px;">
+    <div class="letter" style="font-size:11px;min-width:28px;">💊</div>
+    <div class="content">
+      <h3 style="font-size:13px;margin-bottom:2px;">Medicine / Inventory</h3>
+      <p style="font-size:11px;">Low stock alerts, expiry warnings</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="patients" onclick="toggleSelect(this)" style="flex-direction:row;align-items:center;gap:12px;">
+    <div class="letter" style="font-size:11px;min-width:28px;">🧑‍⚕️</div>
+    <div class="content">
+      <h3 style="font-size:13px;margin-bottom:2px;">Patients</h3>
+      <p style="font-size:11px;">New registrations, updates, notes</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="system" onclick="toggleSelect(this)" style="flex-direction:row;align-items:center;gap:12px;">
+    <div class="letter" style="font-size:11px;min-width:28px;">⚙️</div>
+    <div class="content">
+      <h3 style="font-size:13px;margin-bottom:2px;">System</h3>
+      <p style="font-size:11px;">Plan renewals, branch updates, billing</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="reports" onclick="toggleSelect(this)" style="flex-direction:row;align-items:center;gap:12px;">
+    <div class="letter" style="font-size:11px;min-width:28px;">📊</div>
+    <div class="content">
+      <h3 style="font-size:13px;margin-bottom:2px;">Reports</h3>
+      <p style="font-size:11px;">Analytics ready, export complete</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="notif-panel">
+  <div class="panel-header">
+    <span class="panel-title">Preview — sample notifications</span>
+    <span class="mark-all">Mark all read</span>
+  </div>
+  <div class="notif-item unread">
+    <div class="n-icon green">📅</div>
+    <div style="flex:1;">
+      <div class="n-title">Appointment confirmed</div>
+      <div class="n-body">Ahmed Hassan — tomorrow 10:30 AM</div>
+      <div class="n-time">2 min ago</div>
+    </div>
+    <div class="unread-dot"></div>
+  </div>
+  <div class="notif-item unread">
+    <div class="n-icon" style="background:#ede9fe;">👥</div>
+    <div style="flex:1;">
+      <div class="n-title">Staff invite accepted</div>
+      <div class="n-body">Dr. Sara joined the team</div>
+      <div class="n-time">1 hr ago</div>
+    </div>
+    <div class="unread-dot"></div>
+  </div>
+  <div class="notif-item">
+    <div class="n-icon yellow">💊</div>
+    <div style="flex:1;">
+      <div class="n-title">Low stock alert</div>
+      <div class="n-body">Amoxicillin — 5 units remaining</div>
+      <div class="n-time">Yesterday</div>
+    </div>
+  </div>
+</div>

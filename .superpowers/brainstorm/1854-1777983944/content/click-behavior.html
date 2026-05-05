@@ -1,0 +1,160 @@
+<style>
+  .notif-panel {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    width: 320px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .panel-header {
+    padding: 12px 14px 10px; display: flex; justify-content: space-between;
+    align-items: center; border-bottom: 1px solid #f3f4f6;
+  }
+  .panel-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .mark-all { font-size: 11px; color: #11604C; font-weight: 500; }
+  .notif-item {
+    display: flex; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid #f9fafb; align-items: flex-start;
+    transition: background .15s;
+  }
+  .notif-item.unread { background: #f0fdf4; }
+  .notif-item.hoverable:hover { background: #f9fafb; cursor: pointer; }
+  .n-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .green { background: #d1fae5; }
+  .yellow { background: #fef9c3; }
+  .purple { background: #ede9fe; }
+  .n-title { font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 1px; }
+  .n-body { font-size: 11px; color: #6b7280; line-height: 1.35; }
+  .n-time { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+  .unread-dot { width: 7px; height: 7px; border-radius: 50%; background: #11604C; margin-top: 5px; flex-shrink: 0; }
+  .action-row { display: flex; gap: 6px; margin-top: 5px; }
+  .chip {
+    font-size: 10px; padding: 2px 8px; border-radius: 5px;
+    font-weight: 600; border: 1px solid; cursor: pointer;
+  }
+  .chip-primary { background: #f0fdf4; color: #11604C; border-color: #a7f3d0; }
+  .chip-ghost { background: #f9fafb; color: #6b7280; border-color: #e5e7eb; }
+  .arrow-icon { color: #9ca3af; font-size: 11px; margin-top: 4px; flex-shrink: 0; align-self: center; }
+  .panel-footer { padding: 10px 14px; text-align: center; }
+  .view-all { font-size: 12px; color: #11604C; font-weight: 500; cursor: pointer; }
+  .caption { font-size: 11px; color: #9ca3af; margin-top: 4px; text-align: center; }
+</style>
+
+<h2>What happens when a notification is clicked?</h2>
+<p class="subtitle">Pick the interaction model for notification items</p>
+
+<div class="cards">
+
+  <!-- Option A: click navigates -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;display:flex;justify-content:center;">
+      <div class="notif-panel">
+        <div class="panel-header">
+          <span class="panel-title">Notifications</span>
+          <span class="mark-all">Mark all read</span>
+        </div>
+        <div class="notif-item unread hoverable" title="Click → navigate to Appointments page">
+          <div class="n-icon green">📅</div>
+          <div style="flex:1;">
+            <div class="n-title">Appointment confirmed</div>
+            <div class="n-body">Ahmed Hassan — tomorrow 10:30 AM</div>
+            <div class="n-time">2 min ago</div>
+          </div>
+          <div class="arrow-icon">→</div>
+        </div>
+        <div class="notif-item hoverable">
+          <div class="n-icon purple">👥</div>
+          <div style="flex:1;">
+            <div class="n-title">Staff invite accepted</div>
+            <div class="n-body">Dr. Sara joined the team</div>
+            <div class="n-time">1 hr ago</div>
+          </div>
+          <div class="arrow-icon">→</div>
+        </div>
+        <div class="panel-footer"><span class="view-all">View all →</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Click navigates</h3>
+      <p>Clicking a notification closes the panel and takes you to the related page (e.g. appointment detail). Marks it as read automatically.</p>
+    </div>
+  </div>
+
+  <!-- Option B: inline actions -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;display:flex;justify-content:center;">
+      <div class="notif-panel">
+        <div class="panel-header">
+          <span class="panel-title">Notifications</span>
+          <span class="mark-all">Mark all read</span>
+        </div>
+        <div class="notif-item unread">
+          <div class="n-icon green">📅</div>
+          <div style="flex:1;">
+            <div class="n-title">Appointment confirmed</div>
+            <div class="n-body">Ahmed Hassan — tomorrow 10:30 AM</div>
+            <div class="n-time">2 min ago</div>
+            <div class="action-row">
+              <span class="chip chip-primary">View →</span>
+              <span class="chip chip-ghost">Dismiss</span>
+            </div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item">
+          <div class="n-icon yellow">💊</div>
+          <div style="flex:1;">
+            <div class="n-title">Low stock alert</div>
+            <div class="n-body">Amoxicillin — 5 units remaining</div>
+            <div class="n-time">Yesterday</div>
+            <div class="action-row">
+              <span class="chip chip-primary">View →</span>
+              <span class="chip chip-ghost">Dismiss</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-footer"><span class="view-all">View all →</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Inline action buttons</h3>
+      <p>Each item has a "View →" and "Dismiss" button. More explicit, user stays in control. Panel stays open after actions.</p>
+    </div>
+  </div>
+
+  <!-- Option C: both -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;display:flex;justify-content:center;">
+      <div class="notif-panel">
+        <div class="panel-header">
+          <span class="panel-title">Notifications</span>
+          <span class="mark-all">Mark all read</span>
+        </div>
+        <div class="notif-item unread hoverable" style="position:relative;">
+          <div class="n-icon green">📅</div>
+          <div style="flex:1;">
+            <div class="n-title">Appointment confirmed</div>
+            <div class="n-body">Ahmed Hassan — tomorrow 10:30 AM</div>
+            <div class="n-time">2 min ago</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+            <div class="unread-dot"></div>
+            <span style="font-size:10px;color:#9ca3af;cursor:pointer;" title="Dismiss">✕</span>
+          </div>
+        </div>
+        <div class="notif-item hoverable">
+          <div class="n-icon yellow">💊</div>
+          <div style="flex:1;">
+            <div class="n-title">Low stock alert</div>
+            <div class="n-body">Amoxicillin — 5 units remaining</div>
+            <div class="n-time">Yesterday</div>
+          </div>
+          <span style="font-size:10px;color:#9ca3af;cursor:pointer;flex-shrink:0;align-self:center;" title="Dismiss">✕</span>
+        </div>
+        <div class="panel-footer"><span class="view-all">View all →</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Click navigates + dismiss ✕</h3>
+      <p>Clicking the row navigates. A small ✕ button lets users dismiss without leaving the panel. Best of both — clean and efficient.</p>
+    </div>
+  </div>
+
+</div>

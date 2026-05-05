@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notification System — Full Design</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #111827; padding: 24px; }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; color: #111827; }
+  .page-sub { font-size: 13px; color: #6b7280; margin-bottom: 32px; }
+
+  /* Section headers */
+  .section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: #9ca3af; margin-bottom: 12px;
+  }
+  .section { margin-bottom: 40px; }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 10px 20px; height: 56px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .navbar-logo { font-size: 15px; font-weight: 700; color: #11604C; display:flex;align-items:center;gap:8px; }
+  .navbar-logo img { width:24px;height:24px; }
+  .navbar-search {
+    flex: 1; max-width: 340px; margin: 0 24px;
+    display: flex; align-items: center; gap: 8px;
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 0 12px; height: 34px;
+  }
+  .navbar-search span { font-size: 12px; color: #9ca3af; }
+  .navbar-right { display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: #f3f4f6; display: flex; align-items: center; justify-content: center;
+    position: relative; cursor: pointer; font-size: 16px;
+    border: 1px solid transparent; transition: border-color .15s, background .15s;
+  }
+  .icon-btn:hover { background: #e5e7eb; }
+  .icon-btn.active { background: #f0fdf4; border-color: #a7f3d0; }
+  .badge-num {
+    position: absolute; top: 3px; right: 3px;
+    min-width: 17px; height: 17px; border-radius: 9px;
+    background: #11604C; border: 1.5px solid #fff;
+    color: #fff; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 3px;
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #d1fae5; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 700; color: #11604C;
+    cursor: pointer;
+  }
+
+  /* ── DROPDOWN PANEL ── */
+  .panel-wrap { display: flex; justify-content: flex-end; }
+  .dropdown {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 14px;
+    width: 352px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .dropdown-header {
+    padding: 14px 16px 12px; display: flex; justify-content: space-between;
+    align-items: center; border-bottom: 1px solid #f3f4f6;
+  }
+  .dropdown-title { font-size: 14px; font-weight: 700; color: #111827; }
+  .mark-all-btn { font-size: 11px; color: #11604C; font-weight: 600; cursor: pointer; }
+  .notif-list { max-height: 320px; overflow-y: auto; }
+
+  .notif-item {
+    display: flex; gap: 11px; padding: 11px 16px;
+    border-bottom: 1px solid #f9fafb; align-items: flex-start;
+    cursor: pointer; transition: background .12s;
+  }
+  .notif-item:hover { background: #f9fafb; }
+  .notif-item.unread { background: #f0fdf4; }
+  .notif-item.unread:hover { background: #ecfdf5; }
+  .n-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .ic-green { background: #d1fae5; }
+  .ic-purple { background: #ede9fe; }
+  .ic-yellow { background: #fef9c3; }
+  .ic-blue { background: #dbeafe; }
+  .ic-orange { background: #ffedd5; }
+  .ic-gray { background: #f3f4f6; }
+  .n-body { flex: 1; min-width: 0; }
+  .n-title { font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .n-desc { font-size: 11px; color: #6b7280; line-height: 1.4; }
+  .n-time { font-size: 10px; color: #9ca3af; margin-top: 3px; }
+  .unread-dot { width: 7px; height: 7px; border-radius: 50%; background: #11604C; flex-shrink: 0; margin-top: 6px; }
+
+  .dropdown-footer {
+    padding: 11px 16px; border-top: 1px solid #f3f4f6;
+    display: flex; justify-content: center;
+  }
+  .view-all-link { font-size: 12px; color: #11604C; font-weight: 600; cursor: pointer; }
+
+  /* skeleton */
+  .skel {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite;
+    border-radius: 5px;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  .skel-icon { width:32px;height:32px;border-radius:9px;flex-shrink:0; }
+  .skel-line { height:10px;margin-bottom:5px; }
+  .skel-short { width:60%; }
+  .skel-long { width:85%; }
+  .skel-time { width:35%;height:8px; }
+
+  /* empty state */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 36px 16px; gap: 8px;
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 4px; opacity: .5; }
+  .empty-title { font-size: 13px; font-weight: 600; color: #374151; }
+  .empty-sub { font-size: 12px; color: #9ca3af; text-align: center; max-width: 200px; line-height: 1.5; }
+
+  /* ── FULL PAGE ── */
+  .full-page {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 16px;
+    overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .full-page-header {
+    padding: 20px 24px 16px; border-bottom: 1px solid #f3f4f6;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .full-page-title { font-size: 18px; font-weight: 700; color: #111827; }
+  .full-page-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .full-page-actions { display: flex; gap: 8px; align-items: center; }
+  .btn-sm {
+    font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 8px;
+    cursor: pointer; border: 1px solid;
+  }
+  .btn-outline { background: #fff; color: #374151; border-color: #d1d5db; }
+  .btn-primary { background: #11604C; color: #fff; border-color: #11604C; }
+
+  .filter-bar {
+    display: flex; gap: 6px; padding: 12px 24px;
+    border-bottom: 1px solid #f3f4f6; flex-wrap: wrap;
+  }
+  .filter-chip {
+    font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+    cursor: pointer; border: 1px solid #e5e7eb; background: #f9fafb; color: #6b7280;
+    transition: all .12s;
+  }
+  .filter-chip.active { background: #f0fdf4; color: #11604C; border-color: #a7f3d0; }
+
+  .full-notif-item {
+    display: flex; gap: 14px; padding: 14px 24px;
+    border-bottom: 1px solid #f9fafb; align-items: flex-start;
+    cursor: pointer; transition: background .12s;
+  }
+  .full-notif-item:hover { background: #f9fafb; }
+  .full-notif-item.unread { background: #f0fdf4; }
+  .full-notif-item.unread:hover { background: #ecfdf5; }
+  .fn-icon {
+    width: 40px; height: 40px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .fn-body { flex: 1; min-width: 0; }
+  .fn-title { font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 3px; }
+  .fn-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
+  .fn-time { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+  .fn-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+  .fn-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: #11604C; }
+  .type-badge {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 6px; text-transform: uppercase;
+  }
+  .tb-apt { background: #d1fae5; color: #065f46; }
+  .tb-staff { background: #ede9fe; color: #5b21b6; }
+  .tb-med { background: #fef9c3; color: #854d0e; }
+  .tb-sys { background: #f3f4f6; color: #374151; }
+  .tb-pat { background: #dbeafe; color: #1e40af; }
+  .tb-rep { background: #ffedd5; color: #9a3412; }
+
+  .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; border-top: 1px solid #f3f4f6;
+  }
+  .pag-info { font-size: 12px; color: #6b7280; }
+  .pag-btns { display: flex; gap: 4px; }
+  .pag-btn {
+    width: 30px; height: 30px; border-radius: 7px; border: 1px solid #e5e7eb;
+    background: #fff; font-size: 12px; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; color: #374151; font-weight: 500;
+  }
+  .pag-btn.active { background: #11604C; color: #fff; border-color: #11604C; }
+
+  /* layout split */
+  .design-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media(max-width:900px) { .design-split { grid-template-columns: 1fr; } }
+</style>
+<body>
+
+<h1>Notification System — Complete Design</h1>
+<p class="page-sub">Cradlen Dashboard · Dropdown panel + Full notifications page</p>
+
+<!-- ═══ SURFACE 1: NAVBAR + DROPDOWN ═══ -->
+<div class="section">
+  <div class="section-label">Surface 1 — Navbar Bell + Dropdown Panel</div>
+
+  <!-- Navbar -->
+  <div class="navbar" style="margin-bottom:4px;">
+    <div class="navbar-logo">🌿 Cradlen</div>
+    <div class="navbar-search">
+      <span>🔍</span>
+      <span>Search patients, appointments…</span>
+    </div>
+    <div class="navbar-right">
+      <div class="icon-btn active" title="Notifications (open)">
+        🔔
+        <span class="badge-num">5</span>
+      </div>
+      <div class="icon-btn">✉️</div>
+      <div class="avatar">IB</div>
+    </div>
+  </div>
+
+  <!-- Dropdown -->
+  <div class="panel-wrap">
+    <div class="dropdown">
+      <div class="dropdown-header">
+        <span class="dropdown-title">Notifications <span style="font-size:11px;font-weight:500;color:#9ca3af;margin-left:4px;">5 unread</span></span>
+        <span class="mark-all-btn">Mark all as read</span>
+      </div>
+      <div class="notif-list">
+        <div class="notif-item unread">
+          <div class="n-icon ic-green">📅</div>
+          <div class="n-body">
+            <div class="n-title">Appointment confirmed</div>
+            <div class="n-desc">Ahmed Hassan — tomorrow 10:30 AM</div>
+            <div class="n-time">2 min ago</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item unread">
+          <div class="n-icon ic-purple">👥</div>
+          <div class="n-body">
+            <div class="n-title">Staff invite accepted</div>
+            <div class="n-desc">Dr. Sara Al-Mansouri joined the team</div>
+            <div class="n-time">1 hr ago</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item unread">
+          <div class="n-icon ic-yellow">💊</div>
+          <div class="n-body">
+            <div class="n-title">Low stock alert</div>
+            <div class="n-desc">Amoxicillin 500mg — 5 units remaining</div>
+            <div class="n-time">3 hr ago</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item unread">
+          <div class="n-icon ic-blue">🧑‍⚕️</div>
+          <div class="n-body">
+            <div class="n-title">New patient registered</div>
+            <div class="n-desc">Layla Khalid — added by reception</div>
+            <div class="n-time">5 hr ago</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item unread">
+          <div class="n-icon ic-orange">📊</div>
+          <div class="n-body">
+            <div class="n-title">Monthly report ready</div>
+            <div class="n-desc">April 2026 analytics are available</div>
+            <div class="n-time">Yesterday</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item">
+          <div class="n-icon ic-gray">⚙️</div>
+          <div class="n-body">
+            <div class="n-title">Branch settings updated</div>
+            <div class="n-desc">Working hours changed for Al-Nour branch</div>
+            <div class="n-time">2 days ago</div>
+          </div>
+        </div>
+      </div>
+      <div class="dropdown-footer">
+        <span class="view-all-link">View all notifications →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DROPDOWN STATES ═══ -->
+<div class="section">
+  <div class="section-label">Dropdown — Loading &amp; Empty States</div>
+  <div class="design-split">
+
+    <!-- Loading skeleton -->
+    <div>
+      <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">Loading state (skeleton)</div>
+      <div class="dropdown" style="width:100%;">
+        <div class="dropdown-header">
+          <span class="dropdown-title">Notifications</span>
+        </div>
+        <div class="notif-list">
+          <div class="notif-item" style="cursor:default;" v-for="i in 3">
+            <div class="skel skel-icon"></div>
+            <div style="flex:1;">
+              <div class="skel skel-line skel-long"></div>
+              <div class="skel skel-line skel-short"></div>
+              <div class="skel skel-time"></div>
+            </div>
+          </div>
+          <div class="notif-item" style="cursor:default;">
+            <div class="skel skel-icon"></div>
+            <div style="flex:1;">
+              <div class="skel skel-line skel-long"></div>
+              <div class="skel skel-line skel-short"></div>
+              <div class="skel skel-time"></div>
+            </div>
+          </div>
+          <div class="notif-item" style="cursor:default;">
+            <div class="skel skel-icon"></div>
+            <div style="flex:1;">
+              <div class="skel skel-line" style="width:75%;"></div>
+              <div class="skel skel-line skel-short"></div>
+              <div class="skel skel-time"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div>
+      <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">Empty state (all caught up)</div>
+      <div class="dropdown" style="width:100%;">
+        <div class="dropdown-header">
+          <span class="dropdown-title">Notifications</span>
+        </div>
+        <div class="empty-state">
+          <div class="empty-icon">🔔</div>
+          <div class="empty-title">You're all caught up</div>
+          <div class="empty-sub">No new notifications right now. Check back later.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SURFACE 2: FULL PAGE ═══ -->
+<div class="section">
+  <div class="section-label">Surface 2 — Full Notifications Page</div>
+  <div class="full-page">
+    <div class="full-page-header">
+      <div>
+        <div class="full-page-title">Notifications</div>
+        <div class="full-page-sub">Showing 1–10 of 24 notifications</div>
+      </div>
+      <div class="full-page-actions">
+        <button class="btn-sm btn-outline">Mark all as read</button>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <span class="filter-chip active">All</span>
+      <span class="filter-chip">📅 Appointments</span>
+      <span class="filter-chip">👥 Staff</span>
+      <span class="filter-chip">💊 Medicine</span>
+      <span class="filter-chip">🧑‍⚕️ Patients</span>
+      <span class="filter-chip">📊 Reports</span>
+      <span class="filter-chip">⚙️ System</span>
+    </div>
+
+    <!-- Notification rows -->
+    <div class="full-notif-item unread">
+      <div class="fn-icon ic-green">📅</div>
+      <div class="fn-body">
+        <div class="fn-title">Appointment confirmed — Ahmed Hassan</div>
+        <div class="fn-desc">Scheduled for tomorrow, 10:30 AM at Al-Nour Branch. Dr. Khalid will be attending.</div>
+        <div class="fn-time">2 minutes ago</div>
+      </div>
+      <div class="fn-right">
+        <div class="fn-unread-dot"></div>
+        <span class="type-badge tb-apt">Appointment</span>
+      </div>
+    </div>
+
+    <div class="full-notif-item unread">
+      <div class="fn-icon ic-purple">👥</div>
+      <div class="fn-body">
+        <div class="fn-title">Staff invite accepted — Dr. Sara Al-Mansouri</div>
+        <div class="fn-desc">Dr. Sara has accepted the invitation and joined as a Doctor at the main branch.</div>
+        <div class="fn-time">1 hour ago</div>
+      </div>
+      <div class="fn-right">
+        <div class="fn-unread-dot"></div>
+        <span class="type-badge tb-staff">Staff</span>
+      </div>
+    </div>
+
+    <div class="full-notif-item unread">
+      <div class="fn-icon ic-yellow">💊</div>
+      <div class="fn-body">
+        <div class="fn-title">Low stock alert — Amoxicillin 500mg</div>
+        <div class="fn-desc">Only 5 units remaining. Consider placing a new order to avoid running out.</div>
+        <div class="fn-time">3 hours ago</div>
+      </div>
+      <div class="fn-right">
+        <div class="fn-unread-dot"></div>
+        <span class="type-badge tb-med">Medicine</span>
+      </div>
+    </div>
+
+    <div class="full-notif-item unread">
+      <div class="fn-icon ic-blue">🧑‍⚕️</div>
+      <div class="fn-body">
+        <div class="fn-title">New patient registered — Layla Khalid</div>
+        <div class="fn-desc">Added by the reception team. Patient profile is now active.</div>
+        <div class="fn-time">5 hours ago</div>
+      </div>
+      <div class="fn-right">
+        <div class="fn-unread-dot"></div>
+        <span class="type-badge tb-pat">Patient</span>
+      </div>
+    </div>
+
+    <div class="full-notif-item unread">
+      <div class="fn-icon ic-orange">📊</div>
+      <div class="fn-body">
+        <div class="fn-title">Monthly report ready — April 2026</div>
+        <div class="fn-desc">Your analytics report is ready to view. Open it in the Analytics section.</div>
+        <div class="fn-time">Yesterday, 4:00 PM</div>
+      </div>
+      <div class="fn-right">
+        <div class="fn-unread-dot"></div>
+        <span class="type-badge tb-rep">Report</span>
+      </div>
+    </div>
+
+    <div class="full-notif-item">
+      <div class="fn-icon ic-gray">⚙️</div>
+      <div class="fn-body">
+        <div class="fn-title">Branch settings updated</div>
+        <div class="fn-desc">Working hours for Al-Nour Branch were updated by the owner.</div>
+        <div class="fn-time">2 days ago</div>
+      </div>
+      <div class="fn-right">
+        <span class="type-badge tb-sys">System</span>
+      </div>
+    </div>
+
+    <div class="full-notif-item">
+      <div class="fn-icon ic-green">📅</div>
+      <div class="fn-body">
+        <div class="fn-title">Appointment cancelled — Omar Farouk</div>
+        <div class="fn-desc">The 2:00 PM appointment on May 3rd was cancelled by the patient.</div>
+        <div class="fn-time">3 days ago</div>
+      </div>
+      <div class="fn-right">
+        <span class="type-badge tb-apt">Appointment</span>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="pag-info">Showing 1–7 of 24 notifications</span>
+      <div class="pag-btns">
+        <div class="pag-btn" style="color:#d1d5db;cursor:default;">‹</div>
+        <div class="pag-btn active">1</div>
+        <div class="pag-btn">2</div>
+        <div class="pag-btn">3</div>
+        <div class="pag-btn">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
