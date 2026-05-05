@@ -259,6 +259,22 @@ export type StaffInvitationActionResponse =
       meta?: Record<string, unknown>;
     };
 
+export type InvitationPreview = {
+  id: string;
+  status: string;
+  expires_at: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_clinical: boolean;
+  job_title: string | null;
+  specialty: string | null;
+  organization: { id: string; name: string };
+  invited_by: { first_name: string; last_name: string };
+  roles: { id: string; name: string }[];
+  branches: { id: string; name: string; city: string; governorate: string }[];
+};
+
 export type AcceptStaffInviteRequest = {
   invitation_id: string;
   token: string;
@@ -266,7 +282,7 @@ export type AcceptStaffInviteRequest = {
   first_name?: string;
   last_name?: string;
   schedule?: Array<{
-    branch_id?: string;
+    branch_id: string;
     days: Array<{
       day_of_week: string;
       shifts: Array<{ start_time: string; end_time: string }>;
