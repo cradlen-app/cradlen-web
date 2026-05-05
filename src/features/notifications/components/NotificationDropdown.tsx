@@ -32,9 +32,7 @@ export function NotificationDropdown() {
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
   const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } =
-    useNotifications();
-
-  const visibleNotifications = notifications.slice(0, DROPDOWN_LIMIT);
+    useNotifications({ limit: DROPDOWN_LIMIT });
 
   function handleItemClick(notification: Notification) {
     markAsRead(notification.id);
@@ -117,7 +115,7 @@ export function NotificationDropdown() {
                   <SkeletonRow key={i} />
                 ))}
               </>
-            ) : visibleNotifications.length === 0 ? (
+            ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
                 <Bell className="size-9 text-gray-200" />
                 <p className="text-sm font-semibold text-gray-600">{t("allCaughtUp")}</p>
@@ -126,7 +124,7 @@ export function NotificationDropdown() {
                 </p>
               </div>
             ) : (
-              visibleNotifications.map((n) => (
+              notifications.map((n) => (
                 <NotificationItem
                   key={n.id}
                   notification={n}
@@ -139,7 +137,7 @@ export function NotificationDropdown() {
           </div>
 
           {/* Footer */}
-          {!isLoading && visibleNotifications.length > 0 && (
+          {!isLoading && notifications.length > 0 && (
             <div className="border-t border-gray-50 px-4 py-2.5 flex justify-center">
               <button
                 type="button"

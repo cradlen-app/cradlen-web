@@ -12,14 +12,30 @@ export type Notification = {
   title: string;
   description: string;
   is_read: boolean;
-  navigate_to?: string; // locale-stripped route, e.g. "/orgId/branchId/dashboard/staff"
-  created_at: string;   // ISO 8601
+  read_at: string | null;
+  navigate_to: string | null;
+  metadata?: Record<string, unknown>;
+  created_at: string; // ISO 8601
+};
+
+export type NotificationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  unreadCount: number;
+};
+
+export type NotificationsResponse = {
+  data: Notification[];
+  meta: NotificationMeta;
 };
 
 export type UseNotificationsReturn = {
   notifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
+  meta: NotificationMeta | null;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
 };
