@@ -1,5 +1,7 @@
 export function formatRelativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return "";
+  const diff = Date.now() - date.getTime();
   const minutes = Math.floor(diff / 60_000);
   if (minutes < 1) return "Just now";
   if (minutes < 60) return `${minutes} min ago`;
