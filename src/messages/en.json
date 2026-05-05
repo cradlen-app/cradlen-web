@@ -157,6 +157,16 @@
       "accept": "Accept invitation",
       "accepting": "Accepting...",
       "success": "Invitation accepted. Welcome to Cradlen.",
+      "preview": {
+        "title": "You've been invited",
+        "subtitle": "Review your invitation details before accepting",
+        "expires": "Expires",
+        "accept": "Accept Invitation",
+        "decline": "Decline",
+        "declining": "Declining...",
+        "declineSuccess": "Invitation declined",
+        "back": "Back to preview"
+      },
       "errors": {
         "missing": "This invitation link is missing required information.",
         "invalid": "This invitation link is invalid.",
