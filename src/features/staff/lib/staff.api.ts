@@ -171,7 +171,7 @@ export function resendStaffInvitation(organizationId: string, invitationId: stri
 
 export function getInvitationPreview(invitation: string, token: string) {
   return apiFetch<{ data: InvitationPreview }>(
-    `/staff/invite/preview?invitation=${encodeURIComponent(invitation)}&token=${encodeURIComponent(token)}`,
+    `/api/staff/invite/preview?invitation=${encodeURIComponent(invitation)}&token=${encodeURIComponent(token)}`,
   );
 }
 
