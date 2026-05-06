@@ -20,6 +20,7 @@
   },
   "nav": {
     "dashboard": "لوحة التحكم",
+    "visits": "الزيارات",
     "calendar": "التقويم",
     "patients": "المرضى",
     "staff": "الموظفون",
@@ -660,6 +661,117 @@
       "patient": "المرضى",
       "report": "التقارير",
       "system": "النظام"
+    }
+  },
+  "dashboardHome": {
+    "title": "لوحة التحكم",
+    "titleWithName": "أهلاً بك، {name}",
+    "todayBadge": "{date}",
+    "stats": {
+      "totalVisits": "إجمالي الزيارات",
+      "visits": "الزيارات",
+      "followUps": "المتابعات",
+      "medicalReps": "المندوبون"
+    },
+    "upNext": {
+      "title": "التالي",
+      "empty": "لا يوجد شيء في قائمة الانتظار حالياً.",
+      "viewAll": "عرض الكل"
+    },
+    "schedule": {
+      "title": "جدول اليوم",
+      "empty": "لا توجد فعاليات اليوم."
+    },
+    "calendar": {
+      "title": "التقويم"
+    }
+  },
+  "visits": {
+    "pageTitle": "الزيارات",
+    "breadcrumb": "لوحة التحكم / الزيارات",
+    "currentVisit": {
+      "title": "الزيارة الحالية",
+      "empty": "لا توجد زيارة قيد التنفيذ.",
+      "startVisit": "بدء الزيارة",
+      "elapsed": "منذ {value}",
+      "queueNumber": "#{value}",
+      "startedToast": "تم بدء الزيارة.",
+      "startedError": "تعذّر بدء الزيارة. حاول مرة أخرى."
+    },
+    "waitingList": {
+      "title": "قائمة الانتظار",
+      "searchPlaceholder": "بحث عن مريض....",
+      "newVisit": "زيارة جديدة",
+      "empty": "لا توجد زيارات تطابق عوامل التصفية.",
+      "loadError": "فشل تحميل قائمة الانتظار.",
+      "filters": {
+        "all": "جميع الزيارات",
+        "visit": "زيارة",
+        "followUp": "متابعة",
+        "medicalRep": "مندوب طبي",
+        "emergency": "طارئ"
+      },
+      "columns": {
+        "queue": "الرقم",
+        "patient": "المريض",
+        "type": "النوع",
+        "priority": "الأولوية",
+        "doctor": "الطبيب",
+        "waitTime": "الانتظار",
+        "status": "الحالة"
+      }
+    },
+    "type": {
+      "visit": "زيارة",
+      "followUp": "متابعة",
+      "medicalRep": "مندوب طبي"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "waiting": "في الانتظار",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة"
+    },
+    "priority": {
+      "normal": "عادية",
+      "emergency": "طارئة"
+    },
+    "create": {
+      "title": "زيارة جديدة",
+      "description": "أضِف مريضاً إلى قائمة الانتظار وعيّن طبيباً.",
+      "close": "إغلاق",
+      "branchLabel": "الفرع: {branch}",
+      "missingBranch": "لا يوجد فرع مرتبط بهذه الجلسة.",
+      "patientSection": "المريض",
+      "existingPatient": "مريض موجود",
+      "newPatient": "مريض جديد",
+      "patientId": "معرّف المريض",
+      "patientIdPlaceholder": "أدخل أو الصق معرّف المريض",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "phone": "الهاتف",
+      "code": "كود المريض",
+      "detailsSection": "تفاصيل الزيارة",
+      "type": "النوع",
+      "priority": "الأولوية",
+      "assignedDoctor": "الطبيب المختص",
+      "noDoctor": "غير معيّن",
+      "complaint": "الشكوى",
+      "complaintPlaceholder": "سبب موجز للزيارة",
+      "scheduledAt": "موعد محدد (اختياري)",
+      "submit": "إضافة إلى قائمة الانتظار",
+      "submitting": "جارٍ الإضافة…",
+      "success": "تمت إضافة الزيارة إلى قائمة الانتظار.",
+      "error": "فشل إنشاء الزيارة. حاول مرة أخرى.",
+      "cancelConfirmTitle": "هل تريد إلغاء هذه الزيارة؟",
+      "cancelConfirmDescription": "ستتم تعليم زيارة {patient} كملغاة. لا يمكن التراجع.",
+      "cancelConfirmCta": "نعم، إلغاء"
+    },
+    "actions": {
+      "start": "بدء",
+      "cancel": "إلغاء",
+      "changeStatus": "تغيير الحالة"
     }
   }
 }

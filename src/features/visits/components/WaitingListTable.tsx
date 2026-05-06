@@ -1,0 +1,235 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Dialog } from "radix-ui";
+import { toast } from "sonner";
+import { ApiError } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
+import { formatWaitTime } from "../lib/visits.utils";
+import type { Visit, VisitStatus } from "../types/visits.types";
+import {
+  VisitPriorityBadge,
+  VisitStatusBadge,
+  VisitTypeBadge,
+} from "./VisitBadges";
+
+type Props = {
+  rows: Visit[];
+  branchId: string;
+  isLoading: boolean;
+  isError: boolean;
+  canManageStatus: boolean;
+  onRetry: () => void;
+};
+
+const SELECTABLE_STATUSES: VisitStatus[] = [
+  "waiting",
+  "pending",
+  "in_progress",
+  "completed",
+  "cancelled",
+];
+
+function StatusSelect({
+  visit,
+  branchId,
+}: {
+  visit: Visit;
+  branchId: string;
+}) {
+  const tStatus = useTranslations("visits.status");
+  const tCancel = useTranslations("visits.create");
+  const updateStatus = useUpdateVisitStatus();
+  const [pendingCancel, setPendingCancel] = useState<{
+    visit: Visit;
+  } | null>(null);
+
+  async function commit(status: VisitStatus) {
+    try {
+      await updateStatus.mutateAsync({
+        branchId,
+        visitId: visit.id,
+        status,
+      });
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.messages[0] : "Update failed";
+      toast.error(message);
+    }
+  }
+
+  function handleChange(next: VisitStatus) {
+    if (next === "cancelled") {
+      setPendingCancel({ visit });
+      return;
+    }
+    void commit(next);
+  }
+
+  const labelKey: Record<VisitStatus, string> = {
+    pending: "pending",
+    waiting: "waiting",
+    in_progress: "inProgress",
+    completed: "completed",
+    cancelled: "cancelled",
+  };
+
+  return (
+    <>
+      <div className="relative inline-flex items-center">
+        <select
+          value={visit.status}
+          onChange={(e) => handleChange(e.target.value as VisitStatus)}
+          disabled={updateStatus.isPending}
+          className={cn(
+            "appearance-none rounded-full border border-gray-200 bg-white py-1 ps-2.5 pe-7 text-[11px] font-medium text-gray-700 outline-none",
+            "focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/20",
+            "disabled:opacity-60",
+          )}
+          aria-label="Change status"
+        >
+          {SELECTABLE_STATUSES.map((status) => (
+            <option key={status} value={status}>
+              {tStatus(labelKey[status])}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          className="pointer-events-none absolute end-1.5 size-3.5 text-gray-400"
+          aria-hidden="true"
+        />
+      </div>
+
+      <Dialog.Root
+        open={!!pendingCancel}
+        onOpenChange={(open) => !open && setPendingCancel(null)}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
+            <Dialog.Title className="text-base font-semibold text-brand-black">
+              {tCancel("cancelConfirmTitle")}
+            </Dialog.Title>
+            <Dialog.Description className="mt-2 text-xs text-gray-500">
+              {tCancel("cancelConfirmDescription", {
+                patient: visit.patient.fullName,
+              })}
+            </Dialog.Description>
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <Dialog.Close className="inline-flex h-8 items-center rounded-full border border-gray-200 px-3 text-xs font-medium text-gray-600 hover:bg-gray-50">
+                {tCancel("close")}
+              </Dialog.Close>
+              <button
+                type="button"
+                onClick={async () => {
+                  setPendingCancel(null);
+                  await commit("cancelled");
+                }}
+                className="inline-flex h-8 items-center gap-1.5 rounded-full bg-red-500 px-3 text-xs font-semibold text-white hover:bg-red-500/90"
+              >
+                {updateStatus.isPending && (
+                  <Loader2 className="size-3 animate-spin" aria-hidden="true" />
+                )}
+                {tCancel("cancelConfirmCta")}
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </>
+  );
+}
+
+export function WaitingListTable({
+  rows,
+  branchId,
+  isLoading,
+  isError,
+  canManageStatus,
+  onRetry,
+}: Props) {
+  const t = useTranslations("visits.waitingList");
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-start gap-2 rounded-xl border border-red-100 bg-red-50/50 px-4 py-3 text-xs text-red-600">
+        <p>{t("loadError")}</p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded-full border border-red-200 bg-white px-3 py-1 font-medium text-red-600 hover:bg-red-50"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-100">
+      <div className="grid grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_88px_84px_124px] gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+        <span>{t("columns.queue")}</span>
+        <span>{t("columns.patient")}</span>
+        <span>{t("columns.doctor")}</span>
+        <span>{t("columns.waitTime")}</span>
+        <span>{t("columns.type")}</span>
+        <span>{t("columns.priority")}</span>
+        <span className="text-end">{t("columns.status")}</span>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-1 p-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-10 animate-pulse rounded-lg bg-gray-50"
+            />
+          ))}
+        </div>
+      ) : rows.length === 0 ? (
+        <p className="px-4 py-10 text-center text-xs text-gray-400">
+          {t("empty")}
+        </p>
+      ) : (
+        <ul>
+          {rows.map((visit) => (
+            <li
+              key={visit.id}
+              className="grid grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_88px_84px_124px] items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40"
+            >
+              <span className="text-xs font-medium text-gray-500 tabular-nums">
+                {visit.queueNumber ?? "—"}
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-brand-black truncate">
+                  {visit.patient.fullName}
+                </p>
+                <p className="mt-0.5 text-[10px] text-gray-400 truncate">
+                  {visit.patient.code ?? visit.patient.phone ?? ""}
+                </p>
+              </div>
+              <span className="truncate text-xs text-gray-500">
+                {visit.assignedDoctorName ?? "—"}
+              </span>
+              <span className="text-xs text-gray-500 tabular-nums">
+                {formatWaitTime(visit.createdAt)}
+              </span>
+              <VisitTypeBadge type={visit.type} />
+              <VisitPriorityBadge priority={visit.priority} />
+              <div className="flex items-center justify-end">
+                {canManageStatus ? (
+                  <StatusSelect visit={visit} branchId={branchId} />
+                ) : (
+                  <VisitStatusBadge status={visit.status} />
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

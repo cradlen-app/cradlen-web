@@ -5,6 +5,7 @@ import Image from "next/image";
 import LogoIcon from "@/public/Logo-icon.png";
 import {
   LayoutDashboard,
+  ClipboardList,
   Calendar,
   Users,
   UserCheck,
@@ -50,8 +51,9 @@ type NavItem = {
   icon: LucideIcon;
 };
 
-const ALL_STAFF_NAV: NavItem[] = [
+const OWNER_NAV: NavItem[] = [
   { path: "", key: "dashboard", icon: LayoutDashboard },
+  { path: "/visits", key: "visits", icon: ClipboardList },
   { path: "/calendar", key: "calendar", icon: Calendar },
   { path: "/patients", key: "patients", icon: Users },
   { path: "/staff", key: "staff", icon: UserCheck },
@@ -63,13 +65,20 @@ const ALL_STAFF_NAV: NavItem[] = [
 type StaffRole = "owner" | "doctor" | "reception";
 
 const NAV_BY_ROLE: Record<StaffRole, NavItem[]> = {
-  owner: ALL_STAFF_NAV,
-  doctor: ALL_STAFF_NAV,
+  owner: OWNER_NAV,
+  doctor: [
+    { path: "", key: "dashboard", icon: LayoutDashboard },
+    { path: "/visits", key: "visits", icon: ClipboardList },
+    { path: "/calendar", key: "calendar", icon: Calendar },
+    { path: "/patients", key: "patients", icon: Users },
+    { path: "/medicine", key: "medicine", icon: Pill },
+  ],
   reception: [
     { path: "", key: "dashboard", icon: LayoutDashboard },
+    { path: "/visits", key: "visits", icon: ClipboardList },
     { path: "/calendar", key: "calendar", icon: Calendar },
-    { path: "/staff", key: "staff", icon: UserCheck },
     { path: "/patients", key: "patients", icon: Users },
+    { path: "/staff", key: "staff", icon: UserCheck },
   ],
 };
 
