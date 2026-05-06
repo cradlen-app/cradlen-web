@@ -1,9 +1,11 @@
 import type {
+  ApiPatient,
   ApiScheduleEvent,
   ApiVisit,
   ApiVisitStats,
 } from "../types/visits.api.types";
 import type {
+  Patient,
   ScheduleEvent,
   Visit,
   VisitStats,
@@ -11,31 +13,46 @@ import type {
 } from "../types/visits.types";
 
 export function mapApiVisitToVisit(api: ApiVisit): Visit {
-  const fullName = `${api.patient.first_name} ${api.patient.last_name}`.trim();
+  const patient = api.episode?.journey?.patient;
+  const doctorUser = api.assigned_doctor?.user;
   return {
     id: api.id,
-    branchId: api.branch_id,
+    branchId: api.branch_id ?? "",
     queueNumber: api.queue_number,
     patient: {
-      id: api.patient.id,
-      firstName: api.patient.first_name,
-      lastName: api.patient.last_name,
-      fullName,
-      code: api.patient.code,
-      phone: api.patient.phone,
-      address: api.patient.address,
+      id: patient?.id ?? "",
+      firstName: "",
+      lastName: "",
+      fullName: patient?.full_name ?? "",
+      phone: undefined,
+      address: undefined,
     },
-    type: api.type,
+    type: api.visit_type,
     status: api.status,
     priority: api.priority,
-    assignedDoctorId: api.assigned_doctor_id,
-    assignedDoctorName: api.assigned_doctor_name,
-    complaint: api.complaint,
+    assignedDoctorId: api.assigned_doctor?.id,
+    assignedDoctorName: doctorUser
+      ? `${doctorUser.first_name} ${doctorUser.last_name}`.trim()
+      : undefined,
     notes: api.notes,
-    createdAt: api.created_at,
+    createdAt: api.created_at ?? "",
     scheduledAt: api.scheduled_at,
     startedAt: api.started_at,
     completedAt: api.completed_at,
+  };
+}
+
+export function mapApiPatientToPatient(api: ApiPatient): Patient {
+  return {
+    id: api.id,
+    fullName: api.full_name,
+    nationalId: api.national_id,
+    dateOfBirth: api.date_of_birth,
+    phoneNumber: api.phone_number,
+    address: api.address,
+    isMarried: api.is_married,
+    husbandName: api.husband_name,
+    activeEpisodes: api.active_episodes,
   };
 }
 
@@ -68,14 +85,14 @@ export function buildWaitingListQuery(filter: WaitingListFilter): {
   priority?: string;
 } {
   switch (filter) {
-    case "visit":
-      return { type: "visit" };
-    case "follow_up":
-      return { type: "follow_up" };
-    case "medical_rep":
-      return { type: "medical_rep" };
-    case "emergency":
-      return { priority: "emergency" };
+    case "VISIT":
+      return { type: "VISIT" };
+    case "FOLLOW_UP":
+      return { type: "FOLLOW_UP" };
+    case "MEDICAL_REP":
+      return { type: "MEDICAL_REP" };
+    case "EMERGENCY":
+      return { priority: "EMERGENCY" };
     default:
       return {};
   }

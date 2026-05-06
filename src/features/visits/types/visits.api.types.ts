@@ -1,44 +1,54 @@
-// Wire shapes (snake_case) for the proposed visits/schedule API.
-// When the backend lands, these stay; only the lib/visits.api.ts dispatch flips.
+// Wire shapes (snake_case) for the visits API.
 
 export type ApiVisitStatus =
-  | "pending"
-  | "waiting"
-  | "in_progress"
-  | "completed"
-  | "cancelled";
+  | "SCHEDULED"
+  | "CHECKED_IN"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "NO_SHOW";
 
-export type ApiVisitType = "visit" | "follow_up" | "medical_rep";
+export type ApiVisitType = "VISIT" | "FOLLOW_UP" | "MEDICAL_REP";
 
-export type ApiVisitPriority = "normal" | "emergency";
+export type ApiVisitPriority = "NORMAL" | "EMERGENCY";
 
 export type ApiScheduleEventKind = "visit" | "appointment" | "meeting" | "break";
 
-export type ApiVisitPatient = {
+export type ApiPatient = {
   id: string;
-  first_name: string;
-  last_name: string;
-  code?: string;
-  phone?: string;
+  full_name: string;
+  national_id?: string;
+  date_of_birth?: string;
+  phone_number?: string;
   address?: string;
+  husband_name?: string;
+  is_married?: boolean;
+  active_episodes?: { id: string; name: string; order: number }[];
 };
 
 export type ApiVisit = {
   id: string;
-  branch_id: string;
-  queue_number?: number;
-  patient: ApiVisitPatient;
-  type: ApiVisitType;
-  status: ApiVisitStatus;
+  visit_type: ApiVisitType;
   priority: ApiVisitPriority;
-  assigned_doctor_id?: string;
-  assigned_doctor_name?: string;
-  complaint?: string;
-  notes?: string;
-  created_at: string;
+  status: ApiVisitStatus;
   scheduled_at?: string;
+  notes?: string;
+  queue_number?: number;
+  branch_id?: string;
+  created_at?: string;
   started_at?: string;
   completed_at?: string;
+  assigned_doctor?: {
+    id: string;
+    specialty?: string;
+    user: { id: string; first_name: string; last_name: string };
+  };
+  episode?: {
+    id: string;
+    journey: {
+      patient: { id: string; full_name: string };
+    };
+  };
 };
 
 export type ApiVisitStats = {
@@ -62,7 +72,6 @@ export type ApiVisitListResponse = {
 
 export type ApiVisitResponse = { data: ApiVisit };
 export type ApiVisitStatsResponse = { data: ApiVisitStats };
-export type ApiCurrentVisitResponse = { data: ApiVisit | null };
 
 export type ApiScheduleEvent = {
   id: string;
@@ -72,26 +81,57 @@ export type ApiScheduleEvent = {
   patient_name?: string;
   doctor_ids?: string[];
   doctor_names?: string[];
-  start_time: string; // ISO datetime
-  end_time: string; // ISO datetime
+  start_time: string;
+  end_time: string;
   notes?: string;
 };
 
 export type ApiScheduleResponse = { data: ApiScheduleEvent[] };
 
-export type CreateVisitRequest = {
-  patient_id?: string;
-  new_patient?: {
-    first_name: string;
-    last_name: string;
-    phone?: string;
-    code?: string;
-  };
-  type: ApiVisitType;
+export type ApiPatientSearchResponse = {
+  data: ApiPatient[];
+  meta: ApiPaginationMeta;
+};
+
+// Existing patient booking
+export type BookVisitExistingPatientRequest = {
+  patient_id: string;
+  assigned_doctor_id: string;
+  visit_type: ApiVisitType;
   priority: ApiVisitPriority;
-  assigned_doctor_id?: string;
-  complaint?: string;
-  scheduled_at?: string;
+  scheduled_at: string;
+  notes?: string;
+  branch_id?: string;
+};
+
+// New patient booking
+export type BookVisitNewPatientRequest = {
+  national_id: string;
+  full_name: string;
+  date_of_birth: string;
+  phone_number: string;
+  address?: string;
+  is_married: boolean;
+  husband_name?: string;
+  assigned_doctor_id: string;
+  visit_type: ApiVisitType;
+  priority: ApiVisitPriority;
+  scheduled_at: string;
+  notes?: string;
+  branch_id?: string;
+};
+
+export type BookVisitRequest =
+  | BookVisitExistingPatientRequest
+  | BookVisitNewPatientRequest;
+
+export type BookVisitResponse = {
+  data: {
+    visit: ApiVisit;
+    patient: ApiPatient;
+    episode: { id: string; name: string } | null;
+    journey: { id: string; status: string } | null;
+  };
 };
 
 export type UpdateVisitStatusRequest = {

@@ -722,11 +722,10 @@
       "columns": {
         "queue": "الرقم",
         "patient": "الاسم",
-        "address": "العنوان",
-        "phone": "الهاتف",
+        "doctor": "الطبيب",
+        "notes": "ملاحظات",
         "type": "النوع",
         "priority": "الأولوية",
-        "doctor": "الطبيب",
         "waitTime": "الانتظار",
         "status": "الحالة"
       }

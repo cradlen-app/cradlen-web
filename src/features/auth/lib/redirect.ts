@@ -16,9 +16,9 @@ export function getDefaultRouteForRole(
 ): string {
   switch (role) {
     case "doctor":
-      return buildDashboardUrl(orgId, branchId, "/calendar");
+      return buildDashboardUrl(orgId, branchId, "/dashboard");
     case "reception":
-      return buildDashboardUrl(orgId, branchId, "/patients");
+      return buildDashboardUrl(orgId, branchId, "/visits");
     case "patient":
       return "/patient/dashboard";
     default:

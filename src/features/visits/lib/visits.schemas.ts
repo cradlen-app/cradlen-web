@@ -3,16 +3,17 @@ import { z } from "zod";
 // ── enums ─────────────────────────────────────────────────────────────────────
 
 export const visitStatusSchema = z.enum([
-  "pending",
-  "waiting",
-  "in_progress",
-  "completed",
-  "cancelled",
+  "SCHEDULED",
+  "CHECKED_IN",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "CANCELLED",
+  "NO_SHOW",
 ]);
 
-export const visitTypeSchema = z.enum(["visit", "follow_up", "medical_rep"]);
+export const visitTypeSchema = z.enum(["VISIT", "FOLLOW_UP", "MEDICAL_REP"]);
 
-export const visitPrioritySchema = z.enum(["normal", "emergency"]);
+export const visitPrioritySchema = z.enum(["NORMAL", "EMERGENCY"]);
 
 export const scheduleEventKindSchema = z.enum([
   "visit",
@@ -23,35 +24,43 @@ export const scheduleEventKindSchema = z.enum([
 
 export const waitingListFilterSchema = z.enum([
   "all",
-  "visit",
-  "follow_up",
-  "medical_rep",
-  "emergency",
+  "VISIT",
+  "FOLLOW_UP",
+  "MEDICAL_REP",
+  "EMERGENCY",
 ]);
 
-// ── form: create-visit ────────────────────────────────────────────────────────
+// ── form: book-visit ──────────────────────────────────────────────────────────
 
-const newPatientSchema = z.object({
-  firstName: z.string().trim().min(1, "First name is required"),
-  lastName: z.string().trim().min(1, "Last name is required"),
-  phone: z
-    .string()
-    .trim()
-    .min(1, "Phone is required")
-    .regex(/^\+?[0-9 ()-]{6,}$/, "Enter a valid phone number"),
-  code: z.string().trim().optional(),
-});
+const phoneRegex = /^\+?[0-9 ()-]{6,}$/;
 
-export const createVisitSchema = z
+export const bookVisitSchema = z
   .object({
     patientMode: z.enum(["existing", "new"]),
+
+    // existing patient
     patientId: z.string().trim().optional(),
-    newPatient: newPatientSchema.optional(),
-    type: visitTypeSchema,
+
+    // new patient fields
+    fullName: z.string().trim().optional(),
+    nationalId: z.string().trim().optional(),
+    dateOfBirth: z.string().trim().optional(),
+    phoneNumber: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => !v || phoneRegex.test(v), "Enter a valid phone number"),
+    address: z.string().trim().optional(),
+    isMarried: z.boolean().optional(),
+    husbandName: z.string().trim().optional(),
+    company: z.string().trim().optional(),
+
+    // visit fields
+    visitType: visitTypeSchema,
     priority: visitPrioritySchema,
-    assignedDoctorId: z.string().trim().optional(),
-    complaint: z.string().trim().max(500).optional(),
+    assignedDoctorId: z.string().trim().min(1, "Select a doctor"),
     scheduledAt: z.string().trim().optional(),
+    notes: z.string().trim().max(500).optional(),
   })
   .superRefine((value, ctx) => {
     if (value.patientMode === "existing") {
@@ -63,39 +72,44 @@ export const createVisitSchema = z
         });
       }
     } else {
-      if (!value.newPatient) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["newPatient"],
-          message: "Patient details are required",
-        });
+      if (!value.fullName?.trim()) {
+        ctx.addIssue({ code: "custom", path: ["fullName"], message: "Name is required" });
       }
-    }
-    if (value.type === "visit" && !value.assignedDoctorId) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["assignedDoctorId"],
-        message: "Select a doctor for this visit",
-      });
+      if (!value.phoneNumber?.trim()) {
+        ctx.addIssue({ code: "custom", path: ["phoneNumber"], message: "Phone is required" });
+      }
+      if (value.visitType !== "MEDICAL_REP") {
+        if (!value.nationalId?.trim()) {
+          ctx.addIssue({ code: "custom", path: ["nationalId"], message: "National ID is required" });
+        }
+        if (!value.dateOfBirth?.trim()) {
+          ctx.addIssue({ code: "custom", path: ["dateOfBirth"], message: "Date of birth is required" });
+        }
+        if (value.isMarried && !value.husbandName?.trim()) {
+          ctx.addIssue({ code: "custom", path: ["husbandName"], message: "Husband name is required" });
+        }
+      }
     }
   });
 
-export type CreateVisitFormValues = z.infer<typeof createVisitSchema>;
+export type BookVisitFormValues = z.infer<typeof bookVisitSchema>;
 
-export function getDefaultCreateVisitValues(): CreateVisitFormValues {
+export function getDefaultBookVisitValues(): BookVisitFormValues {
   return {
     patientMode: "new",
     patientId: "",
-    newPatient: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      code: "",
-    },
-    type: "visit",
-    priority: "normal",
+    fullName: "",
+    nationalId: "",
+    dateOfBirth: "",
+    phoneNumber: "",
+    address: "",
+    isMarried: false,
+    husbandName: "",
+    company: "",
+    visitType: "VISIT",
+    priority: "NORMAL",
     assignedDoctorId: "",
-    complaint: "",
     scheduledAt: "",
+    notes: "",
   };
 }

@@ -6,8 +6,9 @@
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { ApiError } from "@/lib/api";
 import type {
-  ApiCurrentVisitResponse,
   ApiPaginationMeta,
+  ApiPatient,
+  ApiPatientSearchResponse,
   ApiScheduleEvent,
   ApiScheduleResponse,
   ApiVisit,
@@ -15,7 +16,9 @@ import type {
   ApiVisitResponse,
   ApiVisitStats,
   ApiVisitStatsResponse,
-  CreateVisitRequest,
+  BookVisitNewPatientRequest,
+  BookVisitRequest,
+  BookVisitResponse,
   UpdateVisitStatusRequest,
 } from "../types/visits.api.types";
 
@@ -36,25 +39,71 @@ function todayAt(hours: number, minutes = 0) {
   return d.toISOString();
 }
 
+const MOCK_DOCTOR = {
+  id: "doctor-mock",
+  specialty: "Gynecology",
+  user: { id: "user-mock", first_name: "Ahmed", last_name: "Mohamed" },
+};
+
+const MOCK_DOCTOR_OTHER = {
+  id: "doctor-other",
+  specialty: "Gynecology",
+  user: { id: "user-other", first_name: "Rania", last_name: "Ahmed" },
+};
+
+const mockPatients: ApiPatient[] = [
+  {
+    id: "p-1",
+    full_name: "Asmaa Mohamed Ali",
+    national_id: "28901010001",
+    date_of_birth: "1989-01-01",
+    phone_number: "01145047307",
+    address: "Al Maraghah",
+    is_married: true,
+    husband_name: "Ahmed Ali",
+    active_episodes: [],
+  },
+  {
+    id: "p-2",
+    full_name: "Manar Ahmed",
+    national_id: "29503150002",
+    date_of_birth: "1995-03-15",
+    phone_number: "01148360307",
+    address: "Bany Helal",
+    is_married: false,
+    active_episodes: [{ id: "ep-1", name: "First Trimester", order: 1 }],
+  },
+  {
+    id: "p-3",
+    full_name: "Fayza Mahmoud",
+    national_id: "29210200003",
+    date_of_birth: "1992-10-20",
+    phone_number: "01148377905",
+    address: "Hareedah",
+    is_married: true,
+    husband_name: "Mahmoud Hassan",
+    active_episodes: [],
+  },
+];
+
+function makeEpisode(patientId: string, fullName: string) {
+  return {
+    id: `ep-${patientId}`,
+    journey: { patient: { id: patientId, full_name: fullName } },
+  };
+}
+
 let visits: ApiVisit[] = [
   {
     id: "v-1",
     branch_id: "*",
     queue_number: 1,
-    patient: {
-      id: "p-1",
-      first_name: "Asmaa",
-      last_name: "Mohamed Ali",
-      code: "P-0001",
-      phone: "01145047307",
-      address: "Al Maraghah",
-    },
-    type: "visit",
-    status: "in_progress",
-    priority: "emergency",
-    assigned_doctor_id: "doctor-mock",
-    assigned_doctor_name: "Dr. Ahmed Mohamed",
-    complaint: "Severe abdominal pain",
+    visit_type: "VISIT",
+    status: "IN_PROGRESS",
+    priority: "EMERGENCY",
+    assigned_doctor: MOCK_DOCTOR,
+    episode: makeEpisode("p-1", "Asmaa Mohamed Ali"),
+    notes: "Severe abdominal pain",
     created_at: isoMinutesAgo(45),
     started_at: isoMinutesAgo(12),
   },
@@ -62,110 +111,65 @@ let visits: ApiVisit[] = [
     id: "v-2",
     branch_id: "*",
     queue_number: 2,
-    patient: {
-      id: "p-2",
-      first_name: "Manar",
-      last_name: "Ahmed",
-      code: "P-0002",
-      phone: "01148360307",
-      address: "Bany Helal",
-    },
-    type: "follow_up",
-    status: "waiting",
-    priority: "normal",
-    assigned_doctor_id: "doctor-mock",
-    assigned_doctor_name: "Dr. Ahmed Mohamed",
+    visit_type: "FOLLOW_UP",
+    status: "SCHEDULED",
+    priority: "NORMAL",
+    assigned_doctor: MOCK_DOCTOR,
+    episode: makeEpisode("p-2", "Manar Ahmed"),
     created_at: isoMinutesAgo(30),
   },
   {
     id: "v-3",
     branch_id: "*",
     queue_number: 3,
-    patient: {
-      id: "p-3",
-      first_name: "Fayza",
-      last_name: "Mahmoud",
-      code: "P-0003",
-      phone: "01148377905",
-      address: "Hareedah",
-    },
-    type: "medical_rep",
-    status: "waiting",
-    priority: "normal",
+    visit_type: "MEDICAL_REP",
+    status: "SCHEDULED",
+    priority: "NORMAL",
+    episode: makeEpisode("p-3", "Fayza Mahmoud"),
     created_at: isoMinutesAgo(22),
   },
   {
     id: "v-4",
     branch_id: "*",
     queue_number: 4,
-    patient: {
-      id: "p-4",
-      first_name: "Walaa",
-      last_name: "Ali ElSayed",
-      code: "P-0004",
-      phone: "01548377307",
-      address: "Nag El-Maaskar",
-    },
-    type: "visit",
-    status: "cancelled",
-    priority: "normal",
+    visit_type: "VISIT",
+    status: "CANCELLED",
+    priority: "NORMAL",
+    episode: makeEpisode("p-4", "Walaa Ali ElSayed"),
     created_at: isoMinutesAgo(120),
   },
   {
     id: "v-5",
     branch_id: "*",
     queue_number: 5,
-    patient: {
-      id: "p-5",
-      first_name: "Safaa",
-      last_name: "Gaber Ahmed",
-      code: "P-0005",
-      phone: "01148677307",
-      address: "Al Maraghah",
-    },
-    type: "follow_up",
-    status: "waiting",
-    priority: "normal",
-    assigned_doctor_id: "doctor-other",
-    assigned_doctor_name: "Dr. Rania Ahmed",
+    visit_type: "FOLLOW_UP",
+    status: "CHECKED_IN",
+    priority: "NORMAL",
+    assigned_doctor: MOCK_DOCTOR_OTHER,
+    episode: makeEpisode("p-5", "Safaa Gaber Ahmed"),
     created_at: isoMinutesAgo(15),
   },
   {
     id: "v-6",
     branch_id: "*",
     queue_number: 6,
-    patient: {
-      id: "p-6",
-      first_name: "Khayria",
-      last_name: "Ahmed",
-      code: "P-0006",
-      phone: "01148357307",
-      address: "Al Maraghah",
-    },
-    type: "visit",
-    status: "waiting",
-    priority: "emergency",
-    assigned_doctor_id: "doctor-mock",
-    assigned_doctor_name: "Dr. Ahmed Mohamed",
-    complaint: "High fever",
+    visit_type: "VISIT",
+    status: "SCHEDULED",
+    priority: "EMERGENCY",
+    assigned_doctor: MOCK_DOCTOR,
+    episode: makeEpisode("p-6", "Khayria Ahmed"),
+    notes: "High fever",
     created_at: isoMinutesAgo(8),
   },
   {
     id: "v-7",
     branch_id: "*",
     queue_number: 7,
-    patient: {
-      id: "p-7",
-      first_name: "Hany",
-      last_name: "Saad",
-      code: "P-0007",
-      phone: "01045009922",
-    },
-    type: "visit",
-    status: "completed",
-    priority: "normal",
-    assigned_doctor_id: "doctor-mock",
-    assigned_doctor_name: "Dr. Ahmed Mohamed",
+    visit_type: "VISIT",
+    status: "COMPLETED",
+    priority: "NORMAL",
+    assigned_doctor: MOCK_DOCTOR,
+    episode: makeEpisode("p-7", "Hany Saad"),
     created_at: isoMinutesAgo(180),
     started_at: isoMinutesAgo(170),
     completed_at: isoMinutesAgo(140),
@@ -220,9 +224,6 @@ function fail(status: number, message: string): never {
   throw new ApiError(status, message);
 }
 
-// In mock mode the seeded "assigned_doctor_id" is the sentinel "doctor-mock".
-// We treat that as the current user so `assignedToMe` returns sensible
-// results regardless of the real profile id stored in the auth context.
 const MOCK_DOCTOR_ID = "doctor-mock";
 
 function getCurrentProfileId() {
@@ -264,13 +265,13 @@ export function fetchVisitStats({
   assignedToMe?: boolean;
 }): Promise<ApiVisitStatsResponse> {
   const scope = assignedToMe
-    ? visits.filter((v) => isMine(v.assigned_doctor_id))
+    ? visits.filter((v) => isMine(v.assigned_doctor?.id))
     : visits;
   const stats: ApiVisitStats = {
     total_visits: scope.length,
-    visits: scope.filter((v) => v.type === "visit").length,
-    follow_ups: scope.filter((v) => v.type === "follow_up").length,
-    medical_reps: scope.filter((v) => v.type === "medical_rep").length,
+    visits: scope.filter((v) => v.visit_type === "VISIT").length,
+    follow_ups: scope.filter((v) => v.visit_type === "FOLLOW_UP").length,
+    medical_reps: scope.filter((v) => v.visit_type === "MEDICAL_REP").length,
   };
   return delay({ data: stats });
 }
@@ -278,7 +279,7 @@ export function fetchVisitStats({
 export function fetchWaitingList({
   type,
   priority,
-  status = "waiting,pending",
+  status = "SCHEDULED,CHECKED_IN,IN_PROGRESS",
   assignedToMe,
   q,
   page = 1,
@@ -287,15 +288,13 @@ export function fetchWaitingList({
   const wantedStatuses = status.split(",").map((s) => s.trim()).filter(Boolean);
 
   let rows = visits.filter((v) => wantedStatuses.includes(v.status));
-  if (type) rows = rows.filter((v) => v.type === type);
+  if (type) rows = rows.filter((v) => v.visit_type === type);
   if (priority) rows = rows.filter((v) => v.priority === priority);
-  if (assignedToMe) rows = rows.filter((v) => isMine(v.assigned_doctor_id));
+  if (assignedToMe) rows = rows.filter((v) => isMine(v.assigned_doctor?.id));
   if (q) {
     const needle = q.toLowerCase();
     rows = rows.filter((v) =>
-      `${v.patient.first_name} ${v.patient.last_name} ${v.patient.code ?? ""}`
-        .toLowerCase()
-        .includes(needle),
+      (v.episode?.journey?.patient?.full_name ?? "").toLowerCase().includes(needle),
     );
   }
 
@@ -306,13 +305,7 @@ export function fetchWaitingList({
   const start = (page - 1) * limit;
   const slice = rows.slice(start, start + limit);
 
-  const meta: ApiPaginationMeta = {
-    page,
-    limit,
-    total,
-    total_pages: totalPages,
-  };
-
+  const meta: ApiPaginationMeta = { page, limit, total, total_pages: totalPages };
   return delay({ data: slice, meta });
 }
 
@@ -321,13 +314,15 @@ export function fetchCurrentVisit({
 }: {
   branchId: string;
   assignedToMe?: boolean;
-}): Promise<ApiCurrentVisitResponse> {
+}): Promise<ApiVisitListResponse> {
   const candidate = visits.find(
     (v) =>
-      v.status === "in_progress" &&
-      (!assignedToMe || isMine(v.assigned_doctor_id)),
+      v.status === "IN_PROGRESS" &&
+      (!assignedToMe || isMine(v.assigned_doctor?.id)),
   );
-  return delay({ data: candidate ?? null });
+  const data = candidate ? [candidate] : [];
+  const meta: ApiPaginationMeta = { page: 1, limit: 1, total: data.length, total_pages: data.length > 0 ? 1 : 0 };
+  return delay({ data, meta });
 }
 
 export function fetchTodaysSchedule({
@@ -339,58 +334,88 @@ export function fetchTodaysSchedule({
 }): Promise<ApiScheduleResponse> {
   const data = assignedToMe
     ? scheduleEvents.filter(
-        (e) =>
-          !e.doctor_ids?.length || e.doctor_ids.some((id) => isMine(id)),
+        (e) => !e.doctor_ids?.length || e.doctor_ids.some((id) => isMine(id)),
       )
     : scheduleEvents;
   return delay({ data });
 }
 
+export function searchPatients(
+  search: string,
+): Promise<ApiPatientSearchResponse> {
+  const needle = search.toLowerCase();
+  const matched = mockPatients.filter(
+    (p) =>
+      p.full_name.toLowerCase().includes(needle) ||
+      (p.national_id ?? "").includes(needle) ||
+      (p.phone_number ?? "").includes(needle),
+  );
+  const meta: ApiPaginationMeta = {
+    page: 1,
+    limit: 20,
+    total: matched.length,
+    total_pages: 1,
+  };
+  return delay({ data: matched, meta });
+}
+
 // ── writes ────────────────────────────────────────────────────────────────────
 
-export function createVisit({
-  branchId,
-  body,
-}: {
-  branchId: string;
-  body: CreateVisitRequest;
-}): Promise<ApiVisitResponse> {
+export function bookVisit(body: BookVisitRequest): Promise<BookVisitResponse> {
   const newQueueNumber =
     Math.max(0, ...visits.map((v) => v.queue_number ?? 0)) + 1;
-  const patient =
-    body.patient_id && !body.new_patient
-      ? visits.find((v) => v.patient.id === body.patient_id)?.patient ?? {
-          id: body.patient_id,
-          first_name: "Unknown",
-          last_name: "Patient",
-        }
-      : {
-          id: `p-${nextPatientId++}`,
-          first_name: body.new_patient!.first_name,
-          last_name: body.new_patient!.last_name,
-          phone: body.new_patient!.phone,
-          code: body.new_patient!.code,
-        };
+
+  let patientRecord: ApiPatient;
+
+  if ("patient_id" in body && body.patient_id) {
+    const existing = mockPatients.find((p) => p.id === body.patient_id);
+    if (!existing) fail(404, "Patient not found");
+    patientRecord = existing;
+  } else {
+    const np = body as BookVisitNewPatientRequest;
+    if (np.national_id && mockPatients.find((p) => p.national_id === np.national_id)) {
+      fail(409, "national_id already exists");
+    }
+    patientRecord = {
+      id: `p-${nextPatientId++}`,
+      full_name: np.full_name,
+      national_id: np.national_id,
+      date_of_birth: np.date_of_birth,
+      phone_number: np.phone_number,
+      address: np.address,
+      is_married: np.is_married,
+      husband_name: np.husband_name,
+      active_episodes: [],
+    };
+    mockPatients.push(patientRecord);
+  }
 
   const visit: ApiVisit = {
     id: `v-${nextVisitId++}`,
-    branch_id: branchId,
+    branch_id: body.branch_id ?? "*",
     queue_number: newQueueNumber,
-    patient,
-    type: body.type,
-    status: "waiting",
+    visit_type: body.visit_type,
+    status: "SCHEDULED",
     priority: body.priority,
-    assigned_doctor_id: body.assigned_doctor_id,
-    assigned_doctor_name: body.assigned_doctor_id
-      ? "Dr. Ahmed Mohamed"
-      : undefined,
-    complaint: body.complaint,
+    assigned_doctor: body.assigned_doctor_id ? {
+      id: body.assigned_doctor_id,
+      user: { id: body.assigned_doctor_id, first_name: "Dr.", last_name: "Doctor" },
+    } : undefined,
+    episode: makeEpisode(patientRecord.id, patientRecord.full_name),
+    notes: body.notes,
     created_at: new Date().toISOString(),
     scheduled_at: body.scheduled_at,
   };
 
   visits = [...visits, visit];
-  return delay({ data: visit });
+  return delay({
+    data: {
+      visit,
+      patient: patientRecord,
+      episode: null,
+      journey: null,
+    },
+  });
 }
 
 export function startVisit({
@@ -400,10 +425,10 @@ export function startVisit({
   visitId: string;
 }): Promise<ApiVisitResponse> {
   const visit = findVisit(visitId);
-  if (visit.status !== "waiting" && visit.status !== "pending") {
+  if (visit.status !== "CHECKED_IN" && visit.status !== "SCHEDULED") {
     fail(409, "Visit cannot be started in its current state");
   }
-  visit.status = "in_progress";
+  visit.status = "IN_PROGRESS";
   visit.started_at = new Date().toISOString();
   return delay({ data: visit });
 }
@@ -415,7 +440,7 @@ export function cancelVisit({
   visitId: string;
 }): Promise<ApiVisitResponse> {
   const visit = findVisit(visitId);
-  visit.status = "cancelled";
+  visit.status = "CANCELLED";
   return delay({ data: visit });
 }
 
@@ -423,16 +448,15 @@ export function updateVisitStatus({
   visitId,
   body,
 }: {
-  branchId: string;
   visitId: string;
   body: UpdateVisitStatusRequest;
 }): Promise<ApiVisitResponse> {
   const visit = findVisit(visitId);
   visit.status = body.status;
-  if (body.status === "in_progress" && !visit.started_at) {
+  if (body.status === "IN_PROGRESS" && !visit.started_at) {
     visit.started_at = new Date().toISOString();
   }
-  if (body.status === "completed" && !visit.completed_at) {
+  if (body.status === "COMPLETED" && !visit.completed_at) {
     visit.completed_at = new Date().toISOString();
   }
   return delay({ data: visit });

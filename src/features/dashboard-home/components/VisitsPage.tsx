@@ -12,6 +12,7 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
 import { WaitingListSection } from "@/features/visits/components/WaitingListSection";
+import { useVisitSocket } from "@/features/visits/hooks/useVisitSocket";
 import { getTodayIso } from "@/features/visits/lib/visits.utils";
 
 export function VisitsPage() {
@@ -23,7 +24,10 @@ export function VisitsPage() {
   const profile = getActiveProfile(user);
   const branch = getDefaultBranch(profile, branchId ?? undefined);
 
+  const profileId = useAuthContextStore((s) => s.profileId);
   const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
+
+  useVisitSocket(profileId);
 
   if (!role || role === "patient" || role === "unknown") return null;
 
