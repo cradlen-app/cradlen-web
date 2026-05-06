@@ -1,11 +1,13 @@
 import { apiAuthFetch } from "@/lib/api";
 import type {
-  ApiCurrentVisitResponse,
+  ApiPatientSearchResponse,
   ApiScheduleResponse,
   ApiVisitListResponse,
   ApiVisitResponse,
   ApiVisitStatsResponse,
-  CreateVisitRequest,
+  ApiVisitStatus,
+  BookVisitRequest,
+  BookVisitResponse,
   UpdateVisitStatusRequest,
 } from "../types/visits.api.types";
 import type { FetchWaitingListParams } from "./visits.mock";
@@ -54,15 +56,14 @@ function realFetchCurrentVisit({
   branchId: string;
   assignedToMe?: boolean;
 }) {
-  const search = new URLSearchParams();
+  const search = new URLSearchParams({ status: "IN_PROGRESS", limit: "1" });
   if (assignedToMe) search.set("assigned_to_me", "true");
-  const qs = search.toString();
-  return apiAuthFetch<ApiCurrentVisitResponse>(
-    `/branches/${branchId}/visits/current${qs ? `?${qs}` : ""}`,
+  return apiAuthFetch<ApiVisitListResponse>(
+    `/branches/${branchId}/visits?${search.toString()}`,
   );
 }
 
-function realFetchTodaysSchedule({
+async function realFetchTodaysSchedule({
   branchId,
   date,
   assignedToMe,
@@ -70,26 +71,29 @@ function realFetchTodaysSchedule({
   branchId: string;
   date?: string;
   assignedToMe?: boolean;
-}) {
-  const search = new URLSearchParams();
-  if (date) search.set("date", date);
-  if (assignedToMe) search.set("assigned_to_me", "true");
-  const qs = search.toString();
-  return apiAuthFetch<ApiScheduleResponse>(
-    `/branches/${branchId}/schedule${qs ? `?${qs}` : ""}`,
-  );
+}): Promise<ApiScheduleResponse> {
+  try {
+    const search = new URLSearchParams();
+    if (date) search.set("date", date);
+    if (assignedToMe) search.set("assigned_to_me", "true");
+    const qs = search.toString();
+    return await apiAuthFetch<ApiScheduleResponse>(
+      `/branches/${branchId}/schedule${qs ? `?${qs}` : ""}`,
+    );
+  } catch {
+    return { data: [] };
+  }
+}
+
+function realSearchPatients(search: string) {
+  const params = new URLSearchParams({ search, limit: "20" });
+  return apiAuthFetch<ApiPatientSearchResponse>(`/patients?${params.toString()}`);
 }
 
 // ── writes ────────────────────────────────────────────────────────────────────
 
-function realCreateVisit({
-  branchId,
-  body,
-}: {
-  branchId: string;
-  body: CreateVisitRequest;
-}) {
-  return apiAuthFetch<ApiVisitResponse>(`/branches/${branchId}/visits`, {
+function realBookVisit(body: BookVisitRequest) {
+  return apiAuthFetch<BookVisitResponse>("/visits/book", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -122,18 +126,16 @@ function realCancelVisit({
 }
 
 function realUpdateVisitStatus({
-  branchId,
   visitId,
   body,
 }: {
-  branchId: string;
   visitId: string;
   body: UpdateVisitStatusRequest;
 }) {
-  return apiAuthFetch<ApiVisitResponse>(
-    `/branches/${branchId}/visits/${visitId}/status`,
-    { method: "PATCH", body: JSON.stringify(body) },
-  );
+  return apiAuthFetch<ApiVisitResponse>(`/visits/${visitId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
 }
 
 // ── public surface (single switch on env flag) ────────────────────────────────
@@ -142,7 +144,10 @@ export const fetchVisitStats = useMock ? mock.fetchVisitStats : realFetchVisitSt
 export const fetchWaitingList = useMock ? mock.fetchWaitingList : realFetchWaitingList;
 export const fetchCurrentVisit = useMock ? mock.fetchCurrentVisit : realFetchCurrentVisit;
 export const fetchTodaysSchedule = useMock ? mock.fetchTodaysSchedule : realFetchTodaysSchedule;
-export const createVisit = useMock ? mock.createVisit : realCreateVisit;
+export const searchPatients = useMock ? mock.searchPatients : realSearchPatients;
+export const bookVisit = useMock ? mock.bookVisit : realBookVisit;
 export const startVisit = useMock ? mock.startVisit : realStartVisit;
 export const cancelVisit = useMock ? mock.cancelVisit : realCancelVisit;
 export const updateVisitStatus = useMock ? mock.updateVisitStatus : realUpdateVisitStatus;
+
+export type { ApiVisitStatus };

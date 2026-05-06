@@ -14,19 +14,36 @@ export type ScheduleEventKind = ApiScheduleEventKind;
 
 export type WaitingListFilter =
   | "all"
-  | "visit"
-  | "follow_up"
-  | "medical_rep"
-  | "emergency";
+  | "VISIT"
+  | "FOLLOW_UP"
+  | "MEDICAL_REP"
+  | "EMERGENCY";
 
 export type VisitPatient = {
   id: string;
   firstName: string;
   lastName: string;
   fullName: string;
-  code?: string;
+  nationalId?: string;
+  dateOfBirth?: string;
   phone?: string;
   address?: string;
+  isMarried?: boolean;
+  husbandName?: string;
+  activeEpisodes?: { id: string; name: string; order: number }[];
+  code?: string;
+};
+
+export type Patient = {
+  id: string;
+  fullName: string;
+  nationalId?: string;
+  dateOfBirth?: string;
+  phoneNumber?: string;
+  address?: string;
+  isMarried?: boolean;
+  husbandName?: string;
+  activeEpisodes?: { id: string; name: string; order: number }[];
 };
 
 export type Visit = {
@@ -39,7 +56,6 @@ export type Visit = {
   priority: VisitPriority;
   assignedDoctorId?: string;
   assignedDoctorName?: string;
-  complaint?: string;
   notes?: string;
   createdAt: string;
   scheduledAt?: string;

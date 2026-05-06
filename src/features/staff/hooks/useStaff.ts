@@ -8,17 +8,19 @@ import type { ApiStaffMember, StaffMemberResponse } from "../types/staff.api.typ
 type UseStaffOptions = {
   q?: string;
   roleId?: string;
+  branchId?: string;
+  role?: string;
 };
 
 export function useStaff(
   organizationId: string | undefined,
-  _branchId: string | undefined,
-  { q, roleId }: UseStaffOptions = {},
+  _legacyBranchId: string | undefined,
+  { q, roleId, branchId, role }: UseStaffOptions = {},
 ) {
   return useQuery({
-    queryKey: ["staff", organizationId, q, roleId],
+    queryKey: ["staff", organizationId, q, roleId, branchId, role],
     queryFn: async () => {
-      const staff = await fetchAllStaff(organizationId!, { q, roleId });
+      const staff = await fetchAllStaff(organizationId!, { q, roleId, branchId, role });
       return staff.map(mapApiStaffToMember);
     },
     enabled: !!organizationId,

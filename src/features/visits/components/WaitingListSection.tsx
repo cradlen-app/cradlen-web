@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useWaitingList } from "../hooks/useWaitingList";
 import type { WaitingListFilter } from "../types/visits.types";
-import { NewVisitDrawer } from "./NewVisitDrawer";
+import { BookVisitDrawer } from "./BookVisitDrawer";
 import { WaitingListFilters } from "./WaitingListFilters";
 import { WaitingListTable } from "./WaitingListTable";
 
@@ -99,7 +99,6 @@ export function WaitingListSection({
 
       <WaitingListTable
         rows={rows}
-        branchId={branchId ?? ""}
         isLoading={query.isLoading}
         isError={query.isError}
         canManageStatus={canManageStatus}
@@ -134,7 +133,7 @@ export function WaitingListSection({
       )}
 
       {canCreateVisit && (
-        <NewVisitDrawer
+        <BookVisitDrawer
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
           branchId={branchId}

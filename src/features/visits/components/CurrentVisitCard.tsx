@@ -33,7 +33,7 @@ function CurrentVisitRow({
   const t = useTranslations("visits.currentVisit");
   const startVisit = useStartVisit();
   const canActuallyStart =
-    canStartVisit && (visit.status === "waiting" || visit.status === "pending");
+    canStartVisit && (visit.status === "CHECKED_IN" || visit.status === "SCHEDULED");
 
   async function handleStart() {
     try {
@@ -49,7 +49,7 @@ function CurrentVisitRow({
   return (
     <li className="grid grid-cols-[40px_minmax(0,1.5fr)_88px_84px_minmax(0,1fr)] items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40">
       <span className="text-xs font-medium text-gray-500 tabular-nums">
-        {visit.queueNumber ?? "—"}
+        {visit.queueNumber ?? 1}
       </span>
       <p className="truncate text-xs font-medium text-brand-black">
         {visit.patient.fullName}

@@ -17,64 +17,56 @@ import {
 
 type Props = {
   rows: Visit[];
-  branchId: string;
   isLoading: boolean;
   isError: boolean;
   canManageStatus: boolean;
   onRetry: () => void;
 };
 
-const SELECTABLE_STATUSES: VisitStatus[] = [
-  "waiting",
-  "pending",
-  "in_progress",
-  "completed",
-  "cancelled",
-];
+const TERMINAL_STATUSES: VisitStatus[] = ["COMPLETED", "CANCELLED", "NO_SHOW"];
 
-function StatusSelect({
-  visit,
-  branchId,
-}: {
-  visit: Visit;
-  branchId: string;
-}) {
-  const tStatus = useTranslations("visits.status");
-  const tCancel = useTranslations("visits.create");
+const NEXT_STATUSES: Partial<Record<VisitStatus, VisitStatus[]>> = {
+  SCHEDULED: ["CHECKED_IN", "CANCELLED"],
+  CHECKED_IN: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
+  IN_PROGRESS: ["COMPLETED"],
+};
+
+const STATUS_LABEL: Record<VisitStatus, string> = {
+  SCHEDULED: "Scheduled",
+  CHECKED_IN: "Checked In",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+  NO_SHOW: "No Show",
+};
+
+function StatusSelect({ visit }: { visit: Visit }) {
   const updateStatus = useUpdateVisitStatus();
-  const [pendingCancel, setPendingCancel] = useState<{
-    visit: Visit;
-  } | null>(null);
+  const [pendingCancel, setPendingCancel] = useState(false);
+
+  const isTerminal = TERMINAL_STATUSES.includes(visit.status);
+  const nextOptions = NEXT_STATUSES[visit.status] ?? [];
 
   async function commit(status: VisitStatus) {
     try {
-      await updateStatus.mutateAsync({
-        branchId,
-        visitId: visit.id,
-        status,
-      });
+      await updateStatus.mutateAsync({ visitId: visit.id, status });
     } catch (error) {
-      const message =
-        error instanceof ApiError ? error.messages[0] : "Update failed";
+      const message = error instanceof ApiError ? error.messages[0] : "Update failed";
       toast.error(message);
     }
   }
 
   function handleChange(next: VisitStatus) {
-    if (next === "cancelled") {
-      setPendingCancel({ visit });
+    if (next === "CANCELLED") {
+      setPendingCancel(true);
       return;
     }
     void commit(next);
   }
 
-  const labelKey: Record<VisitStatus, string> = {
-    pending: "pending",
-    waiting: "waiting",
-    in_progress: "inProgress",
-    completed: "completed",
-    cancelled: "cancelled",
-  };
+  if (isTerminal) {
+    return <VisitStatusBadge status={visit.status} />;
+  }
 
   return (
     <>
@@ -90,11 +82,14 @@ function StatusSelect({
           )}
           aria-label="Change status"
         >
-          {SELECTABLE_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {tStatus(labelKey[status])}
-            </option>
-          ))}
+          <option value={visit.status}>{STATUS_LABEL[visit.status]}</option>
+          {nextOptions
+            .filter((s) => s !== visit.status)
+            .map((status) => (
+              <option key={status} value={status}>
+                {STATUS_LABEL[status]}
+              </option>
+            ))}
         </select>
         <ChevronDown
           className="pointer-events-none absolute end-1.5 size-3.5 text-gray-400"
@@ -102,37 +97,32 @@ function StatusSelect({
         />
       </div>
 
-      <Dialog.Root
-        open={!!pendingCancel}
-        onOpenChange={(open) => !open && setPendingCancel(null)}
-      >
+      <Dialog.Root open={pendingCancel} onOpenChange={(open) => !open && setPendingCancel(false)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
             <Dialog.Title className="text-base font-semibold text-brand-black">
-              {tCancel("cancelConfirmTitle")}
+              Cancel this visit?
             </Dialog.Title>
             <Dialog.Description className="mt-2 text-xs text-gray-500">
-              {tCancel("cancelConfirmDescription", {
-                patient: visit.patient.fullName,
-              })}
+              {visit.patient.fullName} will be marked as cancelled. This cannot be undone.
             </Dialog.Description>
             <div className="mt-5 flex items-center justify-end gap-2">
               <Dialog.Close className="inline-flex h-8 items-center rounded-full border border-gray-200 px-3 text-xs font-medium text-gray-600 hover:bg-gray-50">
-                {tCancel("close")}
+                Close
               </Dialog.Close>
               <button
                 type="button"
                 onClick={async () => {
-                  setPendingCancel(null);
-                  await commit("cancelled");
+                  setPendingCancel(false);
+                  await commit("CANCELLED");
                 }}
                 className="inline-flex h-8 items-center gap-1.5 rounded-full bg-red-500 px-3 text-xs font-semibold text-white hover:bg-red-500/90"
               >
                 {updateStatus.isPending && (
                   <Loader2 className="size-3 animate-spin" aria-hidden="true" />
                 )}
-                {tCancel("cancelConfirmCta")}
+                Yes, cancel
               </button>
             </div>
           </Dialog.Content>
@@ -143,11 +133,10 @@ function StatusSelect({
 }
 
 const GRID =
-  "grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_88px_84px_124px]";
+  "grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.5fr)_88px_84px_124px]";
 
 export function WaitingListTable({
   rows,
-  branchId,
   isLoading,
   isError,
   canManageStatus,
@@ -180,8 +169,8 @@ export function WaitingListTable({
       >
         <span>{t("columns.queue")}</span>
         <span>{t("columns.patient")}</span>
-        <span>{t("columns.address")}</span>
-        <span>{t("columns.phone")}</span>
+        <span>{t("columns.doctor")}</span>
+        <span>{t("columns.notes")}</span>
         <span>{t("columns.type")}</span>
         <span>{t("columns.priority")}</span>
         <span className="text-end">{t("columns.status")}</span>
@@ -199,7 +188,7 @@ export function WaitingListTable({
         </p>
       ) : (
         <ul>
-          {rows.map((visit) => (
+          {rows.map((visit, index) => (
             <li
               key={visit.id}
               className={cn(
@@ -208,22 +197,22 @@ export function WaitingListTable({
               )}
             >
               <span className="text-xs font-medium text-gray-500 tabular-nums">
-                {visit.queueNumber ?? "—"}
+                {visit.queueNumber ?? index + 1}
               </span>
               <p className="truncate text-xs font-medium text-brand-black">
                 {visit.patient.fullName}
               </p>
               <span className="truncate text-xs text-gray-500">
-                {visit.patient.address ?? "—"}
+                {visit.assignedDoctorName ?? "—"}
               </span>
-              <span className="truncate text-xs text-gray-500 tabular-nums">
-                {visit.patient.phone ?? "—"}
+              <span className="truncate text-xs text-gray-400 italic">
+                {visit.notes ?? "—"}
               </span>
               <VisitTypeBadge type={visit.type} />
               <VisitPriorityBadge priority={visit.priority} />
               <div className="flex items-center justify-end">
                 {canManageStatus ? (
-                  <StatusSelect visit={visit} branchId={branchId} />
+                  <StatusSelect visit={visit} />
                 ) : (
                   <VisitStatusBadge status={visit.status} />
                 )}

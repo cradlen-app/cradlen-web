@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { WaitingListFilter } from "../types/visits.types";
 
@@ -9,16 +8,15 @@ type Props = {
   onChange: (next: WaitingListFilter) => void;
 };
 
-const OPTIONS: Array<{ value: WaitingListFilter; key: string }> = [
-  { value: "all", key: "all" },
-  { value: "visit", key: "visit" },
-  { value: "follow_up", key: "followUp" },
-  { value: "medical_rep", key: "medicalRep" },
-  { value: "emergency", key: "emergency" },
+const OPTIONS: Array<{ value: WaitingListFilter; label: string }> = [
+  { value: "all", label: "All Visits" },
+  { value: "VISIT", label: "Visit" },
+  { value: "FOLLOW_UP", label: "Follow up" },
+  { value: "MEDICAL_REP", label: "Medical Rep" },
+  { value: "EMERGENCY", label: "Emergency" },
 ];
 
 export function WaitingListFilters({ value, onChange }: Props) {
-  const t = useTranslations("visits.waitingList.filters");
   return (
     <div className="flex flex-wrap items-center gap-2">
       {OPTIONS.map((option) => {
@@ -37,7 +35,7 @@ export function WaitingListFilters({ value, onChange }: Props) {
                 : "border-gray-100 bg-white text-gray-500 hover:border-brand-primary/40 hover:text-brand-black",
             )}
           >
-            {t(option.key)}
+            {option.label}
           </button>
         );
       })}

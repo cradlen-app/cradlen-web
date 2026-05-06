@@ -17,7 +17,7 @@ export function useCurrentVisit({ branchId, assignedToMe }: Params) {
         branchId: branchId!,
         assignedToMe,
       });
-      return res.data ? mapApiVisitToVisit(res.data) : null;
+      return res.data[0] ? mapApiVisitToVisit(res.data[0]) : null;
     },
     enabled: !!branchId,
     staleTime: 15_000,

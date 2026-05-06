@@ -31,20 +31,32 @@ export function useWaitingList({
       { filter, q, assignedToMe: assignedToMe ?? false, page, limit },
     ],
     queryFn: async (): Promise<WaitingListPage> => {
-      const res = await fetchWaitingList({
+      const base = {
         branchId: branchId!,
         ...queryParams,
-        status: "waiting,pending",
         assignedToMe,
         q,
-        page,
-        limit,
-      });
+        page: 1,
+        limit: 100,
+      };
+      const [inProgress, checkedIn, scheduled] = await Promise.all([
+        fetchWaitingList({ ...base, status: "IN_PROGRESS" }),
+        fetchWaitingList({ ...base, status: "CHECKED_IN" }),
+        fetchWaitingList({ ...base, status: "SCHEDULED" }),
+      ]);
+      const allRows = [
+        ...inProgress.data,
+        ...checkedIn.data,
+        ...scheduled.data,
+      ].map(mapApiVisitToVisit);
+      const total = allRows.length;
+      const totalPages = Math.max(1, Math.ceil(total / limit));
+      const start = (page - 1) * limit;
       return {
-        rows: res.data.map(mapApiVisitToVisit),
-        page: res.meta.page,
-        totalPages: res.meta.total_pages,
-        total: res.meta.total,
+        rows: allRows.slice(start, start + limit),
+        page,
+        totalPages,
+        total,
       };
     },
     enabled: !!branchId,

@@ -722,11 +722,10 @@
       "columns": {
         "queue": "ID",
         "patient": "Name",
-        "address": "Address",
-        "phone": "Phone",
+        "doctor": "Doctor",
+        "notes": "Notes",
         "type": "Type",
         "priority": "Priority",
-        "doctor": "Doctor",
         "waitTime": "Wait",
         "status": "Status"
       }

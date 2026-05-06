@@ -24,6 +24,8 @@ type FetchStaffOptions = {
   page?: number;
   q?: string;
   roleId?: string;
+  branchId?: string;
+  role?: string;
 };
 
 export type FetchStaffInvitationsOptions = {
@@ -45,7 +47,7 @@ export async function fetchRoles(organizationId: string) {
 
 export function fetchStaff(
   organizationId: string,
-  { page = 1, limit = 100, q, roleId }: FetchStaffOptions,
+  { page = 1, limit = 100, q, roleId, branchId, role }: FetchStaffOptions,
 ) {
   const params = new URLSearchParams({
     page: String(page),
@@ -53,28 +55,25 @@ export function fetchStaff(
   });
 
   const search = q?.trim();
-  if (search) {
-    params.set("q", search);
-  }
-
-  if (roleId) {
-    params.set("role_id", roleId);
-  }
+  if (search) params.set("q", search);
+  if (roleId) params.set("role_id", roleId);
+  if (branchId) params.set("branch_id", branchId);
+  if (role) params.set("role", role);
 
   return apiAuthFetch<ApiStaffListResponse>(`/organizations/${organizationId}/staff?${params}`);
 }
 
 export async function fetchAllStaff(
   organizationId: string,
-  { q, roleId }: Pick<FetchStaffOptions, "q" | "roleId">,
+  { q, roleId, branchId, role }: Pick<FetchStaffOptions, "q" | "roleId" | "branchId" | "role">,
   limit = 100,
 ) {
-  const firstPage = await fetchStaff(organizationId, { page: 1, limit, q, roleId });
+  const firstPage = await fetchStaff(organizationId, { page: 1, limit, q, roleId, branchId, role });
   const staff: NewApiStaffMember[] = [...firstPage.data];
   const totalPages = firstPage.meta.totalPages;
 
   for (let page = 2; page <= totalPages; page += 1) {
-    const res = await fetchStaff(organizationId, { page, limit, q, roleId });
+    const res = await fetchStaff(organizationId, { page, limit, q, roleId, branchId, role });
     staff.push(...res.data);
   }
 
