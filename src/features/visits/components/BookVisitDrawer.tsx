@@ -99,6 +99,9 @@ export function BookVisitDrawer({
   const priority = useWatch({ control, name: "priority" });
   const isMarried = useWatch({ control, name: "isMarried" });
   const patientMode = useWatch({ control, name: "patientMode" });
+  const assignedDoctorId = useWatch({ control, name: "assignedDoctorId" });
+  const selectedDoctor = doctors.find((d) => d.id === assignedDoctorId);
+  const doctorHint = selectedDoctor?.specialty || selectedDoctor?.jobTitle || null;
 
   useEffect(() => {
     if (open) {
@@ -200,14 +203,6 @@ export function BookVisitDrawer({
         toast.error(message);
       }
     }
-  });
-
-  const addedOn = new Date().toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   });
 
   return (
@@ -312,7 +307,7 @@ export function BookVisitDrawer({
                     <span className="text-xs font-medium text-brand-black">Doctor</span>
                     <div className="relative">
                       <Stethoscope
-                        className="pointer-events-none absolute start-0 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
+                        className="pointer-events-none absolute inset-s-0 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
                         aria-hidden="true"
                       />
                       <select
@@ -328,12 +323,19 @@ export function BookVisitDrawer({
                       </select>
                     </div>
                     <FieldError message={errors.assignedDoctorId?.message} />
+                    {doctorHint && (
+                      <p className="pt-1 text-[11px] text-gray-400">{doctorHint}</p>
+                    )}
                   </label>
 
-                  <div className="block">
-                    <span className="text-xs font-medium text-brand-black">Added on</span>
-                    <p className={cn(fieldClass, "flex items-center text-gray-500")}>{addedOn}</p>
-                  </div>
+                  <label className="block">
+                    <span className="text-xs font-medium text-brand-black">Scheduled At</span>
+                    <input
+                      {...register("scheduledAt")}
+                      type="datetime-local"
+                      className={fieldClass}
+                    />
+                  </label>
 
                   <div className="col-span-2">
                     <span className="text-xs font-medium text-brand-black">Visit Type</span>
