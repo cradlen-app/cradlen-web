@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Play, UserRound } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,6 @@ import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useCurrentVisit } from "../hooks/useCurrentVisit";
 import { useStartVisit } from "../hooks/useStartVisit";
-import { formatWaitTime } from "../lib/visits.utils";
 import type { Visit } from "../types/visits.types";
 import {
   VisitPriorityBadge,
@@ -48,46 +47,39 @@ function CurrentVisitRow({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
-        <UserRound className="size-4" aria-hidden="true" />
+    <li className="grid grid-cols-[40px_minmax(0,1.5fr)_88px_84px_minmax(0,1fr)] items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40">
+      <span className="text-xs font-medium text-gray-500 tabular-nums">
+        {visit.queueNumber ?? "—"}
+      </span>
+      <p className="truncate text-xs font-medium text-brand-black">
+        {visit.patient.fullName}
+      </p>
+      <VisitTypeBadge type={visit.type} />
+      <VisitPriorityBadge priority={visit.priority} />
+      <div className="flex items-center justify-end gap-2">
+        {canStartVisit ? (
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleStart}
+            disabled={!canActuallyStart || startVisit.isPending}
+            className={cn(
+              "rounded-full bg-brand-primary text-white hover:bg-brand-primary/90",
+              "disabled:bg-brand-primary/40",
+            )}
+          >
+            {startVisit.isPending ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+            ) : (
+              <Play className="size-3.5" aria-hidden="true" />
+            )}
+            <span>{t("startVisit")}</span>
+          </Button>
+        ) : (
+          <VisitStatusBadge status={visit.status} />
+        )}
       </div>
-
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-brand-black truncate">
-          {visit.patient.fullName}
-        </p>
-        <p className="mt-0.5 text-[11px] text-gray-500 tabular-nums">
-          #{visit.queueNumber ?? "—"} · {t("elapsed", { value: formatWaitTime(visit.startedAt ?? visit.createdAt) })}
-        </p>
-      </div>
-
-      <div className="flex items-center gap-1.5">
-        <VisitTypeBadge type={visit.type} />
-        <VisitPriorityBadge priority={visit.priority} />
-        <VisitStatusBadge status={visit.status} />
-      </div>
-
-      {canStartVisit && (
-        <Button
-          type="button"
-          size="sm"
-          onClick={handleStart}
-          disabled={!canActuallyStart || startVisit.isPending}
-          className={cn(
-            "ms-auto rounded-full bg-brand-primary text-white hover:bg-brand-primary/90",
-            "disabled:bg-brand-primary/40",
-          )}
-        >
-          {startVisit.isPending ? (
-            <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-          ) : (
-            <Play className="size-3.5" aria-hidden="true" />
-          )}
-          <span>{t("startVisit")}</span>
-        </Button>
-      )}
-    </div>
+    </li>
   );
 }
 
@@ -104,19 +96,33 @@ export function CurrentVisitCard({ branchId, canStartVisit, assignedToMe }: Prop
         <h2 className="text-sm font-semibold text-brand-black">{t("title")}</h2>
       </header>
 
-      {isLoading ? (
-        <div className="h-12 animate-pulse rounded-xl bg-gray-50" />
-      ) : visit && branchId ? (
-        <CurrentVisitRow
-          visit={visit}
-          canStartVisit={canStartVisit}
-          branchId={branchId}
-        />
-      ) : (
-        <p className="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 px-3 py-6 text-center text-xs text-gray-400">
-          {t("empty")}
-        </p>
-      )}
+      <div className="overflow-hidden rounded-xl border border-gray-100">
+        <div className="grid grid-cols-[40px_minmax(0,1.5fr)_88px_84px_minmax(0,1fr)] gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+          <span>{t("columns.id")}</span>
+          <span>{t("columns.name")}</span>
+          <span>{t("columns.type")}</span>
+          <span>{t("columns.priority")}</span>
+          <span className="text-end">{t("columns.status")}</span>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-1 p-3">
+            <div className="h-10 animate-pulse rounded-lg bg-gray-50" />
+          </div>
+        ) : visit && branchId ? (
+          <ul>
+            <CurrentVisitRow
+              visit={visit}
+              canStartVisit={canStartVisit}
+              branchId={branchId}
+            />
+          </ul>
+        ) : (
+          <p className="px-4 py-8 text-center text-xs text-gray-400">
+            {t("empty")}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

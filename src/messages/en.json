@@ -689,6 +689,7 @@
   "visits": {
     "pageTitle": "Visits",
     "breadcrumb": "Dashboard / Visits",
+    "overviewTitle": "Overview",
     "currentVisit": {
       "title": "Current Visit",
       "empty": "No visit in progress.",
@@ -696,7 +697,14 @@
       "elapsed": "{value} elapsed",
       "queueNumber": "#{value}",
       "startedToast": "Visit started.",
-      "startedError": "Could not start the visit. Please try again."
+      "startedError": "Could not start the visit. Please try again.",
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "type": "Type",
+        "priority": "Priority",
+        "status": "Status"
+      }
     },
     "waitingList": {
       "title": "Waiting List",
@@ -713,7 +721,9 @@
       },
       "columns": {
         "queue": "ID",
-        "patient": "Patient",
+        "patient": "Name",
+        "address": "Address",
+        "phone": "Phone",
         "type": "Type",
         "priority": "Priority",
         "doctor": "Doctor",

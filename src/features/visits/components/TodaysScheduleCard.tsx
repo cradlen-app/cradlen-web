@@ -10,6 +10,7 @@ type Props = {
   branchId: string | null | undefined;
   date: string;
   assignedToMe?: boolean;
+  bare?: boolean;
 };
 
 const KIND_BAR: Record<ScheduleEventKind, string> = {
@@ -66,15 +67,12 @@ function ScheduleEntry({ event }: { event: ScheduleEvent }) {
   );
 }
 
-export function TodaysScheduleCard({ branchId, date, assignedToMe }: Props) {
+export function TodaysScheduleCard({ branchId, date, assignedToMe, bare }: Props) {
   const t = useTranslations("dashboardHome.schedule");
   const { data, isLoading } = useTodaysSchedule({ branchId, date, assignedToMe });
 
-  return (
-    <section
-      aria-label={t("title")}
-      className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
-    >
+  const inner = (
+    <>
       <header className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-brand-black">{t("title")}</h2>
       </header>
@@ -94,6 +92,17 @@ export function TodaysScheduleCard({ branchId, date, assignedToMe }: Props) {
           </p>
         )}
       </div>
+    </>
+  );
+
+  if (bare) return inner;
+
+  return (
+    <section
+      aria-label={t("title")}
+      className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+    >
+      {inner}
     </section>
   );
 }
