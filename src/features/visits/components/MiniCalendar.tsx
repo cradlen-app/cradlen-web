@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   selectedDate: string; // YYYY-MM-DD
   onSelect: (date: string) => void;
+  bare?: boolean;
 };
 
 function toIsoDate(year: number, month: number, day: number) {
@@ -57,7 +58,7 @@ function buildMonthGrid(year: number, month: number, weekStartsOn: 0 | 6) {
   return cells;
 }
 
-export function MiniCalendar({ selectedDate, onSelect }: Props) {
+export function MiniCalendar({ selectedDate, onSelect, bare }: Props) {
   const locale = useLocale();
   const t = useTranslations("dashboardHome.calendar");
   const weekStartsOn: 0 | 6 = locale === "ar" ? 6 : 0;
@@ -114,11 +115,8 @@ export function MiniCalendar({ selectedDate, onSelect }: Props) {
     }
   }
 
-  return (
-    <section
-      aria-label={t("title")}
-      className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
-    >
+  const inner = (
+    <>
       <header className="mb-3 flex items-center justify-between">
         <button
           type="button"
@@ -171,6 +169,17 @@ export function MiniCalendar({ selectedDate, onSelect }: Props) {
           );
         })}
       </div>
+    </>
+  );
+
+  if (bare) return inner;
+
+  return (
+    <section
+      aria-label={t("title")}
+      className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+    >
+      {inner}
     </section>
   );
 }

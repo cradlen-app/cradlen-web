@@ -10,8 +10,7 @@ import {
 } from "@/features/auth/lib/current-user";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
-import { MiniCalendar } from "@/features/visits/components/MiniCalendar";
-import { TodaysScheduleCard } from "@/features/visits/components/TodaysScheduleCard";
+import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
 import { WaitingListSection } from "@/features/visits/components/WaitingListSection";
 import { getTodayIso } from "@/features/visits/lib/visits.utils";
 
@@ -30,7 +29,8 @@ export function VisitsPage() {
 
   const canCreateVisit = role === "reception";
   const canStartVisit = role === "doctor";
-  const canManageStatus = role === "reception" || role === "owner";
+  const canManageStatus =
+    role === "reception" || role === "owner" || role === "doctor";
   const assignedToMe = role === "doctor";
 
   return (
@@ -44,8 +44,8 @@ export function VisitsPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <section className="space-y-6 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <section className="space-y-6 lg:col-span-3">
           <CurrentVisitCard
             branchId={branchId}
             canStartVisit={canStartVisit}
@@ -60,14 +60,11 @@ export function VisitsPage() {
             assignedToMe={assignedToMe}
           />
         </section>
-        <aside className="hidden space-y-6 lg:block">
-          <MiniCalendar
+        <aside className="hidden lg:block">
+          <VisitsOverviewPanel
+            branchId={branchId}
             selectedDate={selectedDate}
             onSelect={setSelectedDate}
-          />
-          <TodaysScheduleCard
-            branchId={branchId}
-            date={selectedDate}
             assignedToMe={assignedToMe}
           />
         </aside>

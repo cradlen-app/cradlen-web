@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
-import { formatWaitTime } from "../lib/visits.utils";
 import type { Visit, VisitStatus } from "../types/visits.types";
 import {
   VisitPriorityBadge,
@@ -143,6 +142,9 @@ function StatusSelect({
   );
 }
 
+const GRID =
+  "grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_88px_84px_124px]";
+
 export function WaitingListTable({
   rows,
   branchId,
@@ -170,11 +172,16 @@ export function WaitingListTable({
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-100">
-      <div className="grid grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_88px_84px_124px] gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+      <div
+        className={cn(
+          "grid gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400",
+          GRID,
+        )}
+      >
         <span>{t("columns.queue")}</span>
         <span>{t("columns.patient")}</span>
-        <span>{t("columns.doctor")}</span>
-        <span>{t("columns.waitTime")}</span>
+        <span>{t("columns.address")}</span>
+        <span>{t("columns.phone")}</span>
         <span>{t("columns.type")}</span>
         <span>{t("columns.priority")}</span>
         <span className="text-end">{t("columns.status")}</span>
@@ -183,10 +190,7 @@ export function WaitingListTable({
       {isLoading ? (
         <div className="space-y-1 p-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-10 animate-pulse rounded-lg bg-gray-50"
-            />
+            <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-50" />
           ))}
         </div>
       ) : rows.length === 0 ? (
@@ -198,24 +202,22 @@ export function WaitingListTable({
           {rows.map((visit) => (
             <li
               key={visit.id}
-              className="grid grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_88px_84px_124px] items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40"
+              className={cn(
+                "grid items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40",
+                GRID,
+              )}
             >
               <span className="text-xs font-medium text-gray-500 tabular-nums">
                 {visit.queueNumber ?? "—"}
               </span>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-brand-black truncate">
-                  {visit.patient.fullName}
-                </p>
-                <p className="mt-0.5 text-[10px] text-gray-400 truncate">
-                  {visit.patient.code ?? visit.patient.phone ?? ""}
-                </p>
-              </div>
+              <p className="truncate text-xs font-medium text-brand-black">
+                {visit.patient.fullName}
+              </p>
               <span className="truncate text-xs text-gray-500">
-                {visit.assignedDoctorName ?? "—"}
+                {visit.patient.address ?? "—"}
               </span>
-              <span className="text-xs text-gray-500 tabular-nums">
-                {formatWaitTime(visit.createdAt)}
+              <span className="truncate text-xs text-gray-500 tabular-nums">
+                {visit.patient.phone ?? "—"}
               </span>
               <VisitTypeBadge type={visit.type} />
               <VisitPriorityBadge priority={visit.priority} />
