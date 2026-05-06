@@ -20,6 +20,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "visits": "Visits",
     "calendar": "Calendar",
     "patients": "Patients",
     "staff": "Staff",
@@ -660,6 +661,117 @@
       "patient": "Patients",
       "report": "Reports",
       "system": "System"
+    }
+  },
+  "dashboardHome": {
+    "title": "Dashboard",
+    "titleWithName": "Welcome back, {name}",
+    "todayBadge": "{date}",
+    "stats": {
+      "totalVisits": "Total visits",
+      "visits": "Visits",
+      "followUps": "Follow-ups",
+      "medicalReps": "Medical reps"
+    },
+    "upNext": {
+      "title": "Up next",
+      "empty": "Nothing in the queue right now.",
+      "viewAll": "View all"
+    },
+    "schedule": {
+      "title": "Today's Schedule",
+      "empty": "No events today."
+    },
+    "calendar": {
+      "title": "Calendar"
+    }
+  },
+  "visits": {
+    "pageTitle": "Visits",
+    "breadcrumb": "Dashboard / Visits",
+    "currentVisit": {
+      "title": "Current Visit",
+      "empty": "No visit in progress.",
+      "startVisit": "Start Visit",
+      "elapsed": "{value} elapsed",
+      "queueNumber": "#{value}",
+      "startedToast": "Visit started.",
+      "startedError": "Could not start the visit. Please try again."
+    },
+    "waitingList": {
+      "title": "Waiting List",
+      "searchPlaceholder": "Search patient....",
+      "newVisit": "New Visit",
+      "empty": "No visits match the current filters.",
+      "loadError": "Failed to load the waiting list.",
+      "filters": {
+        "all": "All Visits",
+        "visit": "Visit",
+        "followUp": "Follow up",
+        "medicalRep": "Medical rep",
+        "emergency": "Emergency"
+      },
+      "columns": {
+        "queue": "ID",
+        "patient": "Patient",
+        "type": "Type",
+        "priority": "Priority",
+        "doctor": "Doctor",
+        "waitTime": "Wait",
+        "status": "Status"
+      }
+    },
+    "type": {
+      "visit": "Visit",
+      "followUp": "Follow-up",
+      "medicalRep": "Medical rep"
+    },
+    "status": {
+      "pending": "Pending",
+      "waiting": "Waiting",
+      "inProgress": "In-progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "priority": {
+      "normal": "Normal",
+      "emergency": "Emergency"
+    },
+    "create": {
+      "title": "New Visit",
+      "description": "Add a patient to the waiting list and assign a doctor.",
+      "close": "Close",
+      "branchLabel": "Branch: {branch}",
+      "missingBranch": "No branch is linked to this session.",
+      "patientSection": "Patient",
+      "existingPatient": "Existing patient",
+      "newPatient": "New patient",
+      "patientId": "Patient ID",
+      "patientIdPlaceholder": "Enter or paste a patient ID",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "code": "Patient code",
+      "detailsSection": "Visit details",
+      "type": "Type",
+      "priority": "Priority",
+      "assignedDoctor": "Assigned doctor",
+      "noDoctor": "Unassigned",
+      "complaint": "Complaint",
+      "complaintPlaceholder": "Brief reason for the visit",
+      "scheduledAt": "Scheduled time (optional)",
+      "submit": "Add to waiting list",
+      "submitting": "Adding…",
+      "success": "Visit added to the waiting list.",
+      "error": "Failed to create the visit. Please try again.",
+      "cancelConfirmTitle": "Cancel this visit?",
+      "cancelConfirmDescription": "{patient} will be marked as cancelled. This cannot be undone.",
+      "cancelConfirmCta": "Yes, cancel"
+    },
+    "actions": {
+      "start": "Start",
+      "cancel": "Cancel",
+      "changeStatus": "Change status"
     }
   }
 }
