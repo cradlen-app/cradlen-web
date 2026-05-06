@@ -11,6 +11,7 @@ import {
   getDefaultBranch,
   getProfileOrganization,
   getProfileOrganizationId,
+  getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { ApiError } from "@/lib/api";
@@ -74,6 +75,8 @@ export function StaffPage() {
   const selectedBranchId = useAuthContextStore((state) => state.branchId);
   const primaryProfile = getActiveProfile(currentUser);
   const currentUserStaffId = primaryProfile?.staff_id;
+  const currentUserRole = getProfilePrimaryRole(primaryProfile);
+  const canManage = currentUserRole === "owner";
   const organization = getProfileOrganization(primaryProfile);
   const activeBranch = getDefaultBranch(primaryProfile, selectedBranchId);
   const organizationId = getProfileOrganizationId(primaryProfile);
@@ -159,6 +162,7 @@ export function StaffPage() {
       <div className="flex h-full flex-col gap-4 p-4 lg:flex-row lg:p-6">
         <section className="flex min-w-0 flex-1 flex-col gap-4">
           <StaffHeader
+            canManage={canManage}
             onInviteStaff={() => setCreateMethod("invite")}
             onCreateDirectStaff={() => setCreateMethod("direct")}
           />
@@ -201,6 +205,7 @@ export function StaffPage() {
         </section>
 
         <StaffOverview
+          canManage={canManage}
           currentUserStaffId={currentUserStaffId}
           member={selectedMember}
           onDeactivate={setDeactivatingMember}

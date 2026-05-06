@@ -26,13 +26,14 @@ function DetailRow({ label, value }: RowProps) {
 }
 
 type Props = {
+  canManage?: boolean;
   currentUserStaffId?: string;
   member: StaffMember | null;
   onDeactivate?: (member: StaffMember) => void;
   onEdit?: (member: StaffMember) => void;
 };
 
-export function StaffOverview({ currentUserStaffId, member, onDeactivate, onEdit }: Props) {
+export function StaffOverview({ canManage, currentUserStaffId, member, onDeactivate, onEdit }: Props) {
   const t = useTranslations("staff.overview");
   const staffT = useTranslations("staff");
 
@@ -74,26 +75,28 @@ export function StaffOverview({ currentUserStaffId, member, onDeactivate, onEdit
       </div>
 
       <div className="px-4 py-1 flex-1">
-        <div className="flex items-center justify-center gap-2 border-b border-gray-100 py-3">
-          <button
-            type="button"
-            onClick={() => onEdit?.(member)}
-            className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-brand-primary/8 hover:text-brand-primary"
-            aria-label={t("actions.edit")}
-          >
-            <Pencil className="size-4" aria-hidden="true" />
-          </button>
-          {!isSelf && (
+        {canManage && (
+          <div className="flex items-center justify-center gap-2 border-b border-gray-100 py-3">
             <button
               type="button"
-              onClick={() => onDeactivate?.(member)}
-              className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-              aria-label={t("actions.deactivate")}
+              onClick={() => onEdit?.(member)}
+              className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-brand-primary/8 hover:text-brand-primary"
+              aria-label={t("actions.edit")}
             >
-              <UserX className="size-4" aria-hidden="true" />
+              <Pencil className="size-4" aria-hidden="true" />
             </button>
-          )}
-        </div>
+            {!isSelf && (
+              <button
+                type="button"
+                onClick={() => onDeactivate?.(member)}
+                className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                aria-label={t("actions.deactivate")}
+              >
+                <UserX className="size-4" aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        )}
         <DetailRow
           label={t("role")}
           value={staffT(getRoleTranslationKey(member.role))}

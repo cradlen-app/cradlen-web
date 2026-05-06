@@ -4,9 +4,16 @@ type StaffRole = "owner" | "doctor" | "reception";
 
 const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
   owner: ["/dashboard"],
-  reception: ["/dashboard", "/dashboard/calendar", "/dashboard/patients", "/dashboard/staff"],
+  reception: [
+    "/dashboard",
+    "/dashboard/visits",
+    "/dashboard/calendar",
+    "/dashboard/patients",
+    "/dashboard/staff",
+  ],
   doctor: [
     "/dashboard",
+    "/dashboard/visits",
     "/dashboard/calendar",
     "/dashboard/patients",
     "/dashboard/medicine",
