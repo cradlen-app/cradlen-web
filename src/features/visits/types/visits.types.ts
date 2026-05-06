@@ -44,6 +44,12 @@ export type Patient = {
   isMarried?: boolean;
   husbandName?: string;
   activeEpisodes?: { id: string; name: string; order: number }[];
+  lastVisitDate?: string;
+  nextVisitDate?: string;
+  activeJourneyName?: string;
+  journeyId?: string;
+  journeyType?: string;
+  journeyStatus?: string;
 };
 
 export type Visit = {

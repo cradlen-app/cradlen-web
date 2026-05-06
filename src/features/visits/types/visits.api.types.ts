@@ -24,6 +24,10 @@ export type ApiPatient = {
   husband_name?: string;
   is_married?: boolean;
   active_episodes?: { id: string; name: string; order: number }[];
+  last_visit_date?: string;
+  next_visit_date?: string;
+  active_journey_name?: string;
+  journey_status?: string;
 };
 
 export type ApiVisit = {
@@ -90,6 +94,33 @@ export type ApiScheduleResponse = { data: ApiScheduleEvent[] };
 
 export type ApiPatientSearchResponse = {
   data: ApiPatient[];
+  meta: ApiPaginationMeta;
+};
+
+export type ApiJourneyStatus = "ACTIVE" | "COMPLETED" | "CANCELLED";
+
+export type ApiJourneyType =
+  | "PREGNANCY"
+  | "GENERAL_GYN"
+  | "SURGICAL"
+  | "CHRONIC_CONDITION";
+
+export type ApiPatientListItem = {
+  id: string;
+  full_name: string;
+  national_id?: string;
+  date_of_birth?: string;
+  phone_number?: string;
+  address?: string;
+  husband_name?: string;
+  last_visit_date?: string | null;
+  created_at: string;
+  updated_at: string;
+  journey: { id: string; type: ApiJourneyType; status: ApiJourneyStatus } | null;
+};
+
+export type ApiPatientListResponse = {
+  data: ApiPatientListItem[];
   meta: ApiPaginationMeta;
 };
 

@@ -278,6 +278,38 @@
       "cancel": "Cancel"
     }
   },
+  "patients": {
+    "title": "Patients",
+    "allPatients": "All",
+    "filtersLabel": "Patient filters",
+    "search": "Search patients...",
+    "loadError": "Failed to load patients",
+    "noPatients": "No patients found",
+    "noBranch": "No branch selected. Please select a branch to view patients.",
+    "noResults": "No patients match the current filter.",
+    "showResults": "show {count} of {total} results",
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "address": "Address",
+      "lastVisit": "Last Visit",
+      "nextVisit": "Next Visit",
+      "journey": "Journey",
+      "journeyStatus": "Status"
+    },
+    "journeyStatus": {
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed",
+      "PAUSED": "Paused",
+      "CANCELLED": "Cancelled"
+    },
+    "journeyType": {
+      "PREGNANCY": "Pregnancy",
+      "GENERAL_GYN": "General GYN",
+      "SURGICAL": "Surgical",
+      "CHRONIC_CONDITION": "Chronic Condition"
+    }
+  },
   "patientNav": {
     "home": "Home",
     "medicines": "Medicines",

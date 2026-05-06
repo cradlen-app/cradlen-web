@@ -1,5 +1,6 @@
 import type {
   ApiPatient,
+  ApiPatientListItem,
   ApiScheduleEvent,
   ApiVisit,
   ApiVisitStats,
@@ -47,12 +48,31 @@ export function mapApiPatientToPatient(api: ApiPatient): Patient {
     id: api.id,
     fullName: api.full_name,
     nationalId: api.national_id,
-    dateOfBirth: api.date_of_birth,
+    dateOfBirth: api.date_of_birth?.slice(0, 10),
     phoneNumber: api.phone_number,
     address: api.address,
     isMarried: api.is_married,
     husbandName: api.husband_name,
     activeEpisodes: api.active_episodes,
+    lastVisitDate: api.last_visit_date?.slice(0, 10),
+    nextVisitDate: api.next_visit_date?.slice(0, 10),
+    activeJourneyName: api.active_journey_name,
+    journeyStatus: api.journey_status,
+  };
+}
+
+export function mapApiPatientListItemToPatient(api: ApiPatientListItem): Patient {
+  return {
+    id: api.id,
+    fullName: api.full_name,
+    nationalId: api.national_id,
+    dateOfBirth: api.date_of_birth?.slice(0, 10),
+    phoneNumber: api.phone_number,
+    address: api.address,
+    lastVisitDate: api.last_visit_date?.slice(0, 10) ?? undefined,
+    journeyId: api.journey?.id,
+    journeyType: api.journey?.type,
+    journeyStatus: api.journey?.status,
   };
 }
 

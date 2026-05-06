@@ -278,6 +278,38 @@
       "cancel": "إلغاء"
     }
   },
+  "patients": {
+    "title": "المرضى",
+    "allPatients": "الكل",
+    "filtersLabel": "تصفية المرضى",
+    "search": "بحث عن مريض...",
+    "loadError": "فشل تحميل المرضى",
+    "noPatients": "لا يوجد مرضى",
+    "noBranch": "لم يتم تحديد فرع. يرجى اختيار فرع لعرض المرضى.",
+    "noResults": "لا يوجد مرضى يطابقون التصفية الحالية.",
+    "showResults": "عرض {count} من {total} نتيجة",
+    "columns": {
+      "name": "الاسم",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "lastVisit": "آخر زيارة",
+      "nextVisit": "الزيارة القادمة",
+      "journey": "الرحلة العلاجية",
+      "journeyStatus": "الحالة"
+    },
+    "journeyStatus": {
+      "ACTIVE": "نشط",
+      "COMPLETED": "مكتمل",
+      "PAUSED": "متوقف",
+      "CANCELLED": "ملغي"
+    },
+    "journeyType": {
+      "PREGNANCY": "حمل",
+      "GENERAL_GYN": "نساء عام",
+      "SURGICAL": "جراحي",
+      "CHRONIC_CONDITION": "حالة مزمنة"
+    }
+  },
   "patientNav": {
     "home": "الرئيسية",
     "medicines": "الأدوية",
