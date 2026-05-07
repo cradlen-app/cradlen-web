@@ -49,7 +49,7 @@ const OWNER_NAV: SidebarNavItem[] = [
   { path: "/analytics", key: "analytics", icon: BarChart2 },
 ];
 
-type StaffRole = "owner" | "doctor" | "reception";
+type StaffRole = typeof STAFF_ROLE.OWNER | typeof STAFF_ROLE.DOCTOR | typeof STAFF_ROLE.RECEPTION;
 
 const NAV_BY_ROLE: Record<StaffRole, SidebarNavItem[]> = {
   owner: OWNER_NAV,
