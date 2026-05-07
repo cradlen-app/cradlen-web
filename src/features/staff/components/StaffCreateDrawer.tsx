@@ -2,19 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  BriefcaseBusiness,
-  Copy,
-  Eye,
-  EyeOff,
-  Stethoscope,
-  UserRoundCog,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
-import { type FieldErrors, useForm, useWatch } from "react-hook-form";
+import {
+  type Control,
+  type FieldErrors,
+  useForm,
+  type UseFormRegister,
+  useWatch,
+} from "react-hook-form";
 import { toast } from "sonner";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { ApiError } from "@/lib/api";
@@ -26,7 +23,6 @@ import { useStaffRoles } from "../hooks/useStaffRoles";
 import {
   getDefaultStaffCreateDirectValues,
   getDefaultStaffInviteValues,
-  STAFF_INVITE_DAY_LABELS,
   staffCreateDirectSchema,
   staffEditSchema,
   staffInviteSchema,
@@ -35,6 +31,11 @@ import {
   type StaffInviteFormValues,
 } from "../lib/staff-invite.schemas";
 import type { StaffMember } from "../types/staff.types";
+import DirectCreationSuccessModal from "./DirectCreationSuccessModal";
+import ScheduleShiftsSection from "./ScheduleShiftsSection";
+import StaffFormFields from "./StaffFormFields";
+
+type AnyFormValues = StaffInviteFormValues | StaffCreateDirectFormValues;
 
 type StaffCreateDrawerProps = {
   branchId?: string;
@@ -48,43 +49,32 @@ type StaffCreateDrawerProps = {
   organizationName?: string;
 };
 
-function SectionTitle({ title }: { title: string }) {
-  return (
-    <div className="flex items-center gap-4">
-      <p className="shrink-0 text-xs font-medium text-gray-400">{title}</p>
-      <span className="h-px flex-1 bg-gray-300" />
-    </div>
-  );
+type InviteFieldName =
+  | "email"
+  | "jobTitle"
+  | "name"
+  | "phone"
+  | "roleId"
+  | "shifts"
+  | "specialty";
+
+function getInviteErrorField(message: string): InviteFieldName | null {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("email")) return "email";
+  if (normalized.includes("first_name") || normalized.includes("last_name"))
+    return "name";
+  if (normalized.includes("role_id")) return "roleId";
+  if (normalized.includes("job_title")) return "jobTitle";
+  if (normalized.includes("specialty")) return "specialty";
+  if (normalized.includes("phone")) return "phone";
+  if (
+    normalized.includes("branch") ||
+    normalized.includes("schedule") ||
+    normalized.includes("shift")
+  )
+    return "shifts";
+  return null;
 }
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="pt-1 text-[11px] text-red-500">{message}</p>;
-}
-
-type ShiftSectionError = {
-  message?: string;
-  root?: { message?: string };
-};
-
-function getShiftSectionError(
-  errors: FieldErrors<StaffInviteFormValues | StaffCreateDirectFormValues>,
-) {
-  const shiftErrors = errors.shifts as
-    | (typeof errors.shifts & ShiftSectionError)
-    | undefined;
-  return shiftErrors?.root?.message ?? shiftErrors?.message;
-}
-
-const fieldClass =
-  "h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-brand-black outline-none transition-colors placeholder:text-gray-300 focus:border-brand-primary focus:ring-0";
-
-const roleIcons = {
-  [STAFF_ROLE.DOCTOR]: Stethoscope,
-  [STAFF_ROLE.OWNER]: UserRoundCog,
-  [STAFF_ROLE.RECEPTION]: BriefcaseBusiness,
-  [STAFF_ROLE.UNKNOWN]: BriefcaseBusiness,
-} as Record<string, LucideIcon>;
 
 function getStaffFormValues(
   member: StaffMember | null | undefined,
@@ -118,118 +108,6 @@ function getStaffFormValues(
     }),
   };
 }
-
-type InviteFieldName =
-  | "email"
-  | "jobTitle"
-  | "name"
-  | "phone"
-  | "roleId"
-  | "shifts"
-  | "specialty";
-
-function getInviteErrorField(message: string): InviteFieldName | null {
-  const normalized = message.toLowerCase();
-  if (normalized.includes("email")) return "email";
-  if (normalized.includes("first_name") || normalized.includes("last_name"))
-    return "name";
-  if (normalized.includes("role_id")) return "roleId";
-  if (normalized.includes("job_title")) return "jobTitle";
-  if (normalized.includes("specialty")) return "specialty";
-  if (normalized.includes("phone")) return "phone";
-  if (
-    normalized.includes("branch") ||
-    normalized.includes("schedule") ||
-    normalized.includes("shift")
-  )
-    return "shifts";
-  return null;
-}
-
-// ─── Success modal shown after direct creation ───────────────────────────────
-
-function DirectCreationSuccessModal({
-  email,
-  onClose,
-}: {
-  email: string;
-  onClose: () => void;
-}) {
-  const t = useTranslations("staff.create");
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(email);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // clipboard not available
-    }
-  }
-
-  return (
-    <Dialog.Root
-      open
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
-          <div className="mb-4 flex size-11 items-center justify-center rounded-full bg-brand-primary/10">
-            <UserRoundCog
-              className="size-5 text-brand-primary"
-              aria-hidden="true"
-            />
-          </div>
-
-          <Dialog.Title className="text-base font-semibold text-brand-black">
-            {t("directSuccess.title")}
-          </Dialog.Title>
-          <Dialog.Description className="mt-1 text-xs text-gray-500">
-            {t("directSuccess.hint")}
-          </Dialog.Description>
-
-          <div className="mt-4">
-            <p className="mb-1.5 text-xs font-medium text-gray-500">
-              {t("directSuccess.emailLabel")}
-            </p>
-            <div className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5">
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-brand-black">
-                {email}
-              </span>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="shrink-0 text-gray-400 transition-colors hover:text-brand-primary"
-                aria-label="Copy email"
-              >
-                <Copy className="size-4" aria-hidden="true" />
-              </button>
-            </div>
-            {copied && (
-              <p className="mt-1 text-[11px] text-brand-primary">
-                {t("directSuccess.copied")}
-              </p>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="mt-5 w-full rounded-full bg-brand-primary py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-primary/90"
-          >
-            {t("directSuccess.done")}
-          </button>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function StaffCreateDrawer({
   branchId,
@@ -286,7 +164,6 @@ export function StaffCreateDrawer({
   const showSpecialty =
     selectedRole === STAFF_ROLE.DOCTOR ||
     (selectedRole === STAFF_ROLE.OWNER && isClinical);
-  const shiftSectionError = getShiftSectionError(errors);
 
   useEffect(() => {
     if (isEditMode) {
@@ -521,14 +398,19 @@ export function StaffCreateDrawer({
 
                 {/* Organization & Branch */}
                 <section className="space-y-3">
-                  <SectionTitle title={t("organizationAndBranch")} />
+                  <div className="flex items-center gap-4">
+                    <p className="shrink-0 text-xs font-medium text-gray-400">
+                      {t("organizationAndBranch")}
+                    </p>
+                    <span className="h-px flex-1 bg-gray-300" />
+                  </div>
                   <div className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
                     <label className="block">
                       <span className="text-xs font-medium text-brand-black">
                         {t("organization")}
                       </span>
                       <input
-                        className={cn(fieldClass, "text-gray-500")}
+                        className="h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-gray-500 outline-none"
                         readOnly
                         value={organizationName ?? ""}
                       />
@@ -538,7 +420,7 @@ export function StaffCreateDrawer({
                         {t("branch")}
                       </span>
                       <input
-                        className={cn(fieldClass, "text-gray-500")}
+                        className="h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-gray-500 outline-none"
                         readOnly
                         value={branchName ?? ""}
                       />
@@ -546,297 +428,28 @@ export function StaffCreateDrawer({
                   </div>
                 </section>
 
-                {/* Login credentials section */}
-                {!isEditMode && (
-                  <section className="space-y-3">
-                    <SectionTitle title={t("account")} />
-                    <div className="grid grid-cols-1 gap-x-8 gap-y-2">
-                      {isDirectMode ? (
-                        <>
-                          <label className="block">
-                            <span className="text-xs font-medium text-brand-black">
-                              {t("phone")}
-                            </span>
-                            <input
-                              {...register("phone")}
-                              className={fieldClass}
-                              type="tel"
-                              placeholder="+201001234567"
-                            />
-                            <FieldError message={errors.phone?.message} />
-                          </label>
-                          <label className="block">
-                            <span className="text-xs font-medium text-brand-black">
-                              {t("password")}
-                            </span>
-                            <div className="relative">
-                              <input
-                                {...register("password" as never)}
-                                className={cn(fieldClass, "pe-8")}
-                                type={showPassword ? "text" : "password"}
-                                autoComplete="new-password"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword((v) => !v)}
-                                className="absolute inset-y-0 inset-e-0 flex items-center text-gray-400 hover:text-brand-black"
-                                aria-label={
-                                  showPassword
-                                    ? t("hidePassword")
-                                    : t("showPassword")
-                                }
-                              >
-                                {showPassword ? (
-                                  <EyeOff
-                                    className="size-3.5"
-                                    aria-hidden="true"
-                                  />
-                                ) : (
-                                  <Eye
-                                    className="size-3.5"
-                                    aria-hidden="true"
-                                  />
-                                )}
-                              </button>
-                            </div>
-                            <p className="pt-1 text-[11px] text-gray-400">
-                              {t("passwordHint")}
-                            </p>
-                            <FieldError
-                              message={
-                                (
-                                  errors as FieldErrors<StaffCreateDirectFormValues>
-                                ).password?.message
-                              }
-                            />
-                          </label>
-                        </>
-                      ) : (
-                        <>
-                          {(!isEditMode || member?.email) && (
-                            <label className="block">
-                              <span className="text-xs font-medium text-brand-black">
-                                {t("email")}
-                              </span>
-                              {isEditMode ? (
-                                <input
-                                  className={cn(fieldClass, "text-gray-500")}
-                                  readOnly
-                                  value={member?.email ?? ""}
-                                />
-                              ) : (
-                                <>
-                                  <input
-                                    {...register("email" as never)}
-                                    className={fieldClass}
-                                    type="email"
-                                  />
-                                  <FieldError
-                                    message={
-                                      (
-                                        errors as FieldErrors<StaffInviteFormValues>
-                                      ).email?.message
-                                    }
-                                  />
-                                </>
-                              )}
-                            </label>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </section>
-                )}
+                <StaffFormFields
+                  errors={errors as FieldErrors<AnyFormValues>}
+                  isDirectMode={isDirectMode}
+                  isEditMode={isEditMode}
+                  member={member}
+                  register={register as UseFormRegister<AnyFormValues>}
+                  roles={roleFilters}
+                  selectedRole={selectedRole}
+                  showOwnerClinical={showOwnerClinical}
+                  showPassword={showPassword}
+                  showSpecialty={showSpecialty}
+                  onRoleChange={handleRoleChange}
+                  onTogglePassword={() => setShowPassword((v) => !v)}
+                />
 
-                {/* Edit mode email display */}
-                {isEditMode && member?.email && (
-                  <section className="space-y-3">
-                    <SectionTitle title={t("account")} />
-                    <label className="block">
-                      <span className="text-xs font-medium text-brand-black">
-                        {t("email")}
-                      </span>
-                      <input
-                        className={cn(fieldClass, "text-gray-500")}
-                        readOnly
-                        value={member.email}
-                      />
-                    </label>
-                  </section>
-                )}
-
-                {/* Personal information */}
-                <section className="space-y-3">
-                  <SectionTitle title={t("personalInformation")} />
-                  <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
-                    <label className="block">
-                      <span className="text-xs font-medium text-brand-black">
-                        {t("name")}
-                      </span>
-                      <input {...register("name")} className={fieldClass} />
-                      <FieldError message={errors.name?.message} />
-                    </label>
-
-                    <label className="block">
-                      <span className="text-xs font-medium text-brand-black">
-                        {t("jobTitle")}
-                      </span>
-                      <input {...register("jobTitle")} className={fieldClass} />
-                      <FieldError message={errors.jobTitle?.message} />
-                    </label>
-
-                    {/* Phone shown in personal section for invite/edit modes (optional) */}
-                    {!isDirectMode && (
-                      <label className="block">
-                        <span className="text-xs font-medium text-brand-black">
-                          {t("phone")}
-                        </span>
-                        <input
-                          {...register("phone")}
-                          className={fieldClass}
-                          type="tel"
-                        />
-                        <FieldError message={errors.phone?.message} />
-                      </label>
-                    )}
-
-                    <div className="sm:col-span-2">
-                      <span className="text-xs font-medium text-brand-black">
-                        {t("role")}
-                      </span>
-                      <input {...register("roleId")} type="hidden" />
-                      <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                        {roleFilters
-                          .filter((role) => role.role !== "unknown")
-                          .map((role) => {
-                            const Icon = roleIcons[role.role];
-                            const isSelected = selectedRole === role.role;
-                            return (
-                              <button
-                                key={role.id}
-                                type="button"
-                                onClick={() => handleRoleChange(role.id)}
-                                aria-pressed={isSelected}
-                                className={cn(
-                                  "flex h-14 items-center gap-2 rounded-lg border px-3 text-start transition-all",
-                                  "focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:outline-none",
-                                  isSelected
-                                    ? "border-brand-primary bg-brand-primary/8 text-brand-primary shadow-sm"
-                                    : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",
-                                )}
-                              >
-                                <span
-                                  className={cn(
-                                    "inline-flex size-8 shrink-0 items-center justify-center rounded-full",
-                                    isSelected
-                                      ? "bg-brand-primary text-white"
-                                      : "bg-white text-gray-400",
-                                  )}
-                                >
-                                  <Icon className="size-4" aria-hidden="true" />
-                                </span>
-                                <span className="min-w-0 text-xs font-semibold">
-                                  {t(`roles.${role.role}`)}
-                                </span>
-                              </button>
-                            );
-                          })}
-                      </div>
-                      <FieldError message={errors.roleId?.message} />
-                    </div>
-
-                    {showOwnerClinical && (
-                      <label className="flex items-center gap-2 pt-3">
-                        <input
-                          {...register("isClinical")}
-                          type="checkbox"
-                          className="size-4 rounded border-gray-300 accent-brand-primary"
-                        />
-                        <span className="text-xs font-medium text-brand-black">
-                          {t("isClinical")}
-                        </span>
-                      </label>
-                    )}
-
-                    {showSpecialty && (
-                      <label className="block">
-                        <span className="text-xs font-medium text-brand-black">
-                          {t("specialty")}
-                        </span>
-                        <input
-                          {...register("specialty")}
-                          className={fieldClass}
-                        />
-                        <FieldError message={errors.specialty?.message} />
-                      </label>
-                    )}
-                  </div>
-                </section>
-
-                {/* Working schedule — shown for edit and direct modes; hidden for invite */}
                 {(isEditMode || isDirectMode) && (
-                  <section className="space-y-3">
-                    <SectionTitle title={t("workingInformation")} />
-                    {isDirectMode && (
-                      <p className="text-xs text-gray-400">
-                        {t("scheduleOptional")}
-                      </p>
-                    )}
-                    <div className="space-y-2">
-                      {(shifts ?? []).map((shift, index) => (
-                        <div
-                          key={shift.day}
-                          className="grid grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)] items-start gap-3"
-                        >
-                          <label className="flex h-9 items-center gap-2">
-                            <input
-                              {...register(`shifts.${index}.enabled`)}
-                              type="checkbox"
-                              className="size-4 rounded border-gray-300 accent-brand-primary"
-                            />
-                            <span className="text-xs font-medium text-brand-black">
-                              {STAFF_INVITE_DAY_LABELS[shift.day]}
-                            </span>
-                          </label>
-                          <label>
-                            <span className="sr-only">
-                              {t("startTime", {
-                                day: STAFF_INVITE_DAY_LABELS[shift.day],
-                              })}
-                            </span>
-                            <input
-                              {...register(`shifts.${index}.startTime`)}
-                              type="time"
-                              className={fieldClass}
-                              disabled={!shift.enabled}
-                            />
-                            <FieldError
-                              message={
-                                errors.shifts?.[index]?.startTime?.message
-                              }
-                            />
-                          </label>
-                          <label>
-                            <span className="sr-only">
-                              {t("endTime", {
-                                day: STAFF_INVITE_DAY_LABELS[shift.day],
-                              })}
-                            </span>
-                            <input
-                              {...register(`shifts.${index}.endTime`)}
-                              type="time"
-                              className={fieldClass}
-                              disabled={!shift.enabled}
-                            />
-                            <FieldError
-                              message={errors.shifts?.[index]?.endTime?.message}
-                            />
-                          </label>
-                        </div>
-                      ))}
-                      <FieldError message={shiftSectionError} />
-                    </div>
-                  </section>
+                  <ScheduleShiftsSection
+                    control={control as Control<AnyFormValues>}
+                    errors={errors as FieldErrors<AnyFormValues>}
+                    isDirectMode={isDirectMode}
+                    register={register as UseFormRegister<AnyFormValues>}
+                  />
                 )}
               </div>
 
@@ -864,12 +477,10 @@ export function StaffCreateDrawer({
         </Dialog.Portal>
       </Dialog.Root>
 
-      {generatedEmail && (
-        <DirectCreationSuccessModal
-          email={generatedEmail}
-          onClose={() => setGeneratedEmail(null)}
-        />
-      )}
+      <DirectCreationSuccessModal
+        email={generatedEmail}
+        onClose={() => setGeneratedEmail(null)}
+      />
     </>
   );
 }
