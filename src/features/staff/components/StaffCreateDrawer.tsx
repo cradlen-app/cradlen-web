@@ -261,7 +261,7 @@ export function StaffCreateDrawer({
     setValue("roleId", roleId, { shouldDirty: true, shouldValidate: true });
     setValue("role", selectedRoleValue, { shouldDirty: true, shouldValidate: true });
 
-    if (selectedRoleValue !== "owner") {
+    if (selectedRoleValue !== STAFF_ROLE.OWNER) {
       setValue("isClinical", false, { shouldDirty: true, shouldValidate: true });
     }
     if (selectedRoleValue === STAFF_ROLE.RECEPTION) {
