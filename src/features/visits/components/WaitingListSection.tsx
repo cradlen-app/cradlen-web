@@ -35,13 +35,12 @@ export function WaitingListSection({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const handle = setTimeout(() => setDebouncedQ(searchInput.trim()), 250);
+    const handle = setTimeout(() => {
+      setDebouncedQ(searchInput.trim());
+      setPage(1);
+    }, 250);
     return () => clearTimeout(handle);
   }, [searchInput]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [filter, debouncedQ]);
 
   const query = useWaitingList({
     branchId,
@@ -67,7 +66,7 @@ export function WaitingListSection({
 
         <div className="relative">
           <Search
-            className="pointer-events-none absolute start-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
+            className="pointer-events-none absolute inset-s-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
             aria-hidden="true"
           />
           <input
@@ -94,7 +93,10 @@ export function WaitingListSection({
       </header>
 
       <div className="mb-3">
-        <WaitingListFilters value={filter} onChange={setFilter} />
+        <WaitingListFilters
+          value={filter}
+          onChange={(f) => { setFilter(f); setPage(1); }}
+        />
       </div>
 
       <WaitingListTable
