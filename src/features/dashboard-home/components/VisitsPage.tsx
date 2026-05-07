@@ -28,7 +28,7 @@ export function VisitsPage() {
   const profileId = useAuthContextStore((s) => s.profileId);
   const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
 
-  useVisitSocket(profileId);
+  useVisitSocket(profileId, branchId);
 
   if (!role || role === "patient" || role === STAFF_ROLE.UNKNOWN) return null;
 

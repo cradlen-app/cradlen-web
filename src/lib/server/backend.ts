@@ -367,5 +367,27 @@ async function forwardBackendResponse(
     clearAuthCookies(response);
   }
 
+  // Pass through cache signals from the backend when present.
+  // Fall back to a short private cache for successful GET responses so the
+  // browser can serve repeated identical calls (e.g. after a soft-refresh)
+  // without a round-trip to the proxy.
+  if (backendResponse.ok) {
+    const backendCacheControl = backendResponse.headers.get("cache-control");
+    const backendEtag = backendResponse.headers.get("etag");
+    const backendLastModified = backendResponse.headers.get("last-modified");
+
+    if (backendCacheControl) {
+      response.headers.set("cache-control", backendCacheControl);
+    } else if (status !== 204) {
+      response.headers.set(
+        "cache-control",
+        "private, max-age=30, stale-while-revalidate=60",
+      );
+    }
+
+    if (backendEtag) response.headers.set("etag", backendEtag);
+    if (backendLastModified) response.headers.set("last-modified", backendLastModified);
+  }
+
   return response;
 }

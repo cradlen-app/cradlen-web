@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { getCurrentUser } from "@/features/auth/lib/getCurrentUser.server";
 
 type Props = {
   children: React.ReactNode;
@@ -13,5 +14,7 @@ export default async function DashboardGroupLayout({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <DashboardLayout>{children}</DashboardLayout>;
+  const initialUser = await getCurrentUser();
+
+  return <DashboardLayout initialUser={initialUser}>{children}</DashboardLayout>;
 }

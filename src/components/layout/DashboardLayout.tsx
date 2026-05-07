@@ -7,19 +7,21 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { getActiveRole } from "@/features/auth/lib/current-user";
 import { buildDashboardUrl } from "@/lib/routes";
+import type { CurrentUser } from "@/types/user.types";
 import { Navbar } from "../common/Navbar";
 import { Sidebar } from "../common/Sidebar";
 import { canAccessRoute, getCanonicalDashboardPath } from "./dashboard-access";
 
 type Props = {
   children: React.ReactNode;
+  initialUser?: CurrentUser | null;
 };
 
-export function DashboardLayout({ children }: Props) {
+export function DashboardLayout({ children, initialUser }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { orgId, branchId } = useParams<{ orgId: string; branchId: string }>();
-  const { data: user, isLoading } = useCurrentUser();
+  const { data: user, isLoading } = useCurrentUser(initialUser ?? undefined);
   const role = getActiveRole(user);
 
   useEffect(() => {
