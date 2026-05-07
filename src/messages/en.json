@@ -712,7 +712,8 @@
     },
     "schedule": {
       "title": "Today's Schedule",
-      "empty": "No events today."
+      "empty": "No events today.",
+      "loadError": "Failed to load schedule"
     },
     "calendar": {
       "title": "Calendar"
