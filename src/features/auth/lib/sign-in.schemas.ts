@@ -8,7 +8,7 @@ export const createSignInSchema = (
     email: z
       .string()
       .min(1, t("errors.emailRequired"))
-      .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, t("errors.emailInvalid")),
+      .email(t("errors.emailInvalid")),
     password: z
       .string()
       .min(1, t("errors.passwordRequired"))
