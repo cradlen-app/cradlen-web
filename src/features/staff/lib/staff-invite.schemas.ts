@@ -33,7 +33,7 @@ const shiftSchema = z.object({
 const staffBaseSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   roleId: z.string().min(1, "Role is required"),
-  role: z.enum(["owner", "doctor", "reception"]),
+  role: z.enum([STAFF_ROLE.OWNER, STAFF_ROLE.DOCTOR, STAFF_ROLE.RECEPTION] as [string, ...string[]]),
   jobTitle: z.string().trim().min(1, "Job title is required"),
   phone: z.string().trim().optional(),
   isClinical: z.boolean(),

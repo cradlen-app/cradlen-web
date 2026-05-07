@@ -1,7 +1,7 @@
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import type { UserRole } from "@/types/user.types";
 
-type StaffRole = "owner" | "doctor" | "reception";
+type StaffRole = typeof STAFF_ROLE.OWNER | typeof STAFF_ROLE.DOCTOR | typeof STAFF_ROLE.RECEPTION;
 
 const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
   owner: ["/dashboard"],

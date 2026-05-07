@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BriefcaseBusiness, Copy, Eye, EyeOff, Stethoscope, UserRoundCog, X } from "lucide-react";
+import { BriefcaseBusiness, Copy, Eye, EyeOff, Stethoscope, UserRoundCog, X, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { type FieldErrors, useForm, useWatch } from "react-hook-form";
@@ -67,11 +67,11 @@ const fieldClass =
   "h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-brand-black outline-none transition-colors placeholder:text-gray-300 focus:border-brand-primary focus:ring-0";
 
 const roleIcons = {
-  doctor: Stethoscope,
-  owner: UserRoundCog,
-  reception: BriefcaseBusiness,
-  unknown: BriefcaseBusiness,
-};
+  [STAFF_ROLE.DOCTOR]: Stethoscope,
+  [STAFF_ROLE.OWNER]: UserRoundCog,
+  [STAFF_ROLE.RECEPTION]: BriefcaseBusiness,
+  [STAFF_ROLE.UNKNOWN]: BriefcaseBusiness,
+} as Record<string, LucideIcon>;
 
 function getStaffFormValues(member: StaffMember | null | undefined): StaffInviteFormValues {
   const defaults = getDefaultStaffInviteValues();
