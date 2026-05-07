@@ -35,7 +35,8 @@
     "messages": "Messages",
     "profileSwitcher": "Switch profile",
     "switchBranch": "Switch branch",
-    "switchBranchError": "Failed to switch branch"
+    "switchBranchError": "Failed to switch branch",
+    "branchLabel": "{city} branch"
   },
   "staff": {
     "title": "Staff",
