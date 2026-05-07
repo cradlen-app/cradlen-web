@@ -126,14 +126,6 @@ export async function signupCompleteResponse(request: Request) {
   return frontendResponse;
 }
 
-function getCookieValue(cookieHeader: string | null, name: string) {
-  return cookieHeader
-    ?.split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith(`${name}=`))
-    ?.slice(name.length + 1);
-}
-
 export async function switchBranchSession(request: Request) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(AUTH_TOKEN_COOKIE)?.value;
@@ -167,7 +159,7 @@ export async function switchBranchSession(request: Request) {
 export async function selectProfileSession(request: Request) {
   const cookieStore = await cookies();
   const selectionToken = cookieStore.get(AUTH_SELECTION_TOKEN_COOKIE)?.value;
-  const accessToken = getCookieValue(request.headers.get("cookie"), AUTH_TOKEN_COOKIE);
+  const accessToken = cookieStore.get(AUTH_TOKEN_COOKIE)?.value;
   const body = (await request.json()) as Record<string, unknown>;
   const { organization_id: bodyOrganizationId, ...bodyWithoutOrganization } = body;
   const payload = {
