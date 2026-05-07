@@ -33,6 +33,7 @@ export function WaitingListSection({
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerKey, setDrawerKey] = useState(0);
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -83,7 +84,7 @@ export function WaitingListSection({
         {canCreateVisit && (
           <button
             type="button"
-            onClick={() => setDrawerOpen(true)}
+            onClick={() => { setDrawerOpen(true); setDrawerKey((k) => k + 1); }}
             className="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-primary px-3 text-xs font-semibold text-white transition-colors hover:bg-brand-primary/90"
           >
             <Plus className="size-3.5" aria-hidden="true" />
@@ -136,6 +137,7 @@ export function WaitingListSection({
 
       {canCreateVisit && (
         <BookVisitDrawer
+          key={drawerKey}
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
           branchId={branchId}
