@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import LogoIcon from "@/public/Logo-icon.png";
 import {
@@ -20,6 +19,7 @@ import {
   Pill,
   Briefcase,
   BarChart2,
+  X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -33,6 +33,7 @@ import {
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/layout/SidebarContext";
 import { canUseSettings } from "./sidebar-access";
 import { SidebarNav, type SidebarNavItem } from "./SidebarNav";
 import { useSidebarBranchSwitch } from "./hooks/useSidebarBranchSwitch";
@@ -73,7 +74,8 @@ const NAV_BY_ROLE: Record<StaffRole, SidebarNavItem[]> = {
 };
 
 export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed, mobileOpen, closeMobile } = useSidebar();
+  const effectiveCollapsed = collapsed && !mobileOpen;
   const t = useTranslations("nav");
   const pathname = usePathname();
   const dashboardPath = useDashboardPath();
@@ -110,21 +112,31 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex flex-col h-full bg-white border-e border-gray-100 rounded-2xl  transition-[width] duration-200 ease-in-out shrink-0",
-        collapsed ? "w-15" : "w-55",
+        "relative flex flex-col h-full bg-white border-e border-gray-100 rounded-2xl transition-[width] duration-200 ease-in-out shrink-0",
+        effectiveCollapsed ? "w-15" : "w-55",
       )}
     >
-      {/* Collapsed button */}
+      {/* Mobile close button */}
       <button
         type="button"
-        onClick={() => setCollapsed((c) => !c)}
-        className={cn(
-          "text-gray-400 hover:text-brand-primary transition-colors shrink-0 rounded-md p-0.5 mr-2 mt-2",
-          collapsed ? "mx-auto" : "ms-auto",
-        )}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        onClick={closeMobile}
+        aria-label={t("closeMenu")}
+        className="absolute top-2 inset-e-2 size-7 flex items-center justify-center rounded-md text-gray-400 hover:text-brand-primary hover:bg-gray-100 transition-colors lg:hidden"
       >
-        {collapsed ? (
+        <X className="size-4" />
+      </button>
+
+      {/* Desktop collapse button */}
+      <button
+        type="button"
+        onClick={() => setCollapsed(!collapsed)}
+        className={cn(
+          "text-gray-400 hover:text-brand-primary transition-colors shrink-0 rounded-md p-0.5 mr-2 mt-2 hidden lg:block",
+          effectiveCollapsed ? "mx-auto" : "ms-auto",
+        )}
+        aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {effectiveCollapsed ? (
           <PanelLeftOpen className="size-4" />
         ) : (
           <PanelLeftClose className="size-4" />
@@ -146,7 +158,7 @@ export function Sidebar() {
             />
           </div>
 
-          {!collapsed &&
+          {!effectiveCollapsed &&
             (hasMultipleBranches ? (
               <button
                 type="button"
@@ -186,7 +198,7 @@ export function Sidebar() {
             ))}
         </div>
 
-        {branchMenuOpen && !collapsed && (
+        {branchMenuOpen && !effectiveCollapsed && (
           <div className="absolute top-full inset-s-0 inset-e-0 z-50 bg-white border border-gray-100 rounded-xl shadow-lg mt-1 mx-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
             {/* Header */}
             <div className="px-3 pt-2.5 pb-1.5">
@@ -258,7 +270,7 @@ export function Sidebar() {
       {/* Main nav */}
       <SidebarNav
         items={navItems}
-        collapsed={collapsed}
+        collapsed={effectiveCollapsed}
         dashboardPath={dashboardPath}
       />
 
@@ -269,10 +281,10 @@ export function Sidebar() {
             href={
               dashboardPath("/settings") as Parameters<typeof Link>[0]["href"]
             }
-            title={collapsed ? t("settings") : undefined}
+            title={effectiveCollapsed ? t("settings") : undefined}
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
-              collapsed && "justify-center px-0",
+              effectiveCollapsed && "justify-center px-0",
               pathname === dashboardPath("/settings") ||
                 pathname.startsWith(dashboardPath("/settings") + "/")
                 ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
@@ -280,21 +292,21 @@ export function Sidebar() {
             )}
           >
             <Settings className="size-4.5 shrink-0" />
-            {!collapsed && <span>{t("settings")}</span>}
+            {!effectiveCollapsed && <span>{t("settings")}</span>}
           </Link>
         )}
 
         <button
           type="button"
           onClick={() => void handleLogout()}
-          title={collapsed ? t("logout") : undefined}
+          title={effectiveCollapsed ? t("logout") : undefined}
           className={cn(
             "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150",
-            collapsed && "justify-center px-0",
+            effectiveCollapsed && "justify-center px-0",
           )}
         >
           <LogOut className="size-4.5 shrink-0" />
-          {!collapsed && <span>{t("logout")}</span>}
+          {!effectiveCollapsed && <span>{t("logout")}</span>}
         </button>
       </div>
     </aside>

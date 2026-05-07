@@ -41,7 +41,9 @@
     "profileSwitcher": "Switch profile",
     "switchBranch": "Switch branch",
     "switchBranchError": "Failed to switch branch",
-    "branchLabel": "{city} branch"
+    "branchLabel": "{city} branch",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu"
   },
   "staff": {
     "title": "Staff",

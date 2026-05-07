@@ -38,7 +38,11 @@ function StatusSelect({ visit }: { visit: Visit }) {
   const nextOptions = NEXT_STATUSES[visit.status] ?? [];
 
   async function commit(status: VisitStatus) {
-    await updateStatus.mutateAsync({ visitId: visit.id, status, branchId: visit.branchId });
+    await updateStatus.mutateAsync({
+      visitId: visit.id,
+      status,
+      branchId: visit.branchId,
+    });
   }
 
   function handleChange(next: VisitStatus) {
@@ -150,67 +154,72 @@ export function WaitingListTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-100">
-      <div
-        className={cn(
-          "grid gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400",
-          GRID,
-        )}
-      >
-        <span>{t("columns.queue")}</span>
-        <span>{t("columns.patient")}</span>
-        <span>{t("columns.doctor")}</span>
-        <span>{t("columns.notes")}</span>
-        <span>{t("columns.type")}</span>
-        <span>{t("columns.priority")}</span>
-        <span className="text-end">{t("columns.status")}</span>
-      </div>
-
-      {isLoading ? (
-        <div className="space-y-1 p-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-50" />
-          ))}
+    <div className="overflow-x-auto">
+      <div className="overflow-hidden rounded-xl border border-gray-100 min-w-155">
+        <div
+          className={cn(
+            "grid gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400",
+            GRID,
+          )}
+        >
+          <span>{t("columns.queue")}</span>
+          <span>{t("columns.patient")}</span>
+          <span>{t("columns.doctor")}</span>
+          <span>{t("columns.notes")}</span>
+          <span>{t("columns.type")}</span>
+          <span>{t("columns.priority")}</span>
+          <span className="text-end">{t("columns.status")}</span>
         </div>
-      ) : rows.length === 0 ? (
-        <p className="px-4 py-10 text-center text-xs text-gray-400">
-          {t("empty")}
-        </p>
-      ) : (
-        <ul>
-          {rows.map((visit, index) => (
-            <li
-              key={visit.id}
-              className={cn(
-                "grid items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40",
-                GRID,
-              )}
-            >
-              <span className="text-xs font-medium text-gray-500 tabular-nums">
-                {visit.queueNumber ?? index + 1}
-              </span>
-              <p className="truncate text-xs font-medium text-brand-black">
-                {visit.patient.fullName}
-              </p>
-              <span className="truncate text-xs text-gray-500">
-                {visit.assignedDoctorName ?? "—"}
-              </span>
-              <span className="truncate text-xs text-gray-400 italic">
-                {visit.notes ?? "—"}
-              </span>
-              <VisitTypeBadge type={visit.type} />
-              <VisitPriorityBadge priority={visit.priority} />
-              <div className="flex items-center justify-end">
-                {canManageStatus ? (
-                  <StatusSelect visit={visit} />
-                ) : (
-                  <VisitStatusBadge status={visit.status} />
+
+        {isLoading ? (
+          <div className="space-y-1 p-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-10 animate-pulse rounded-lg bg-gray-50"
+              />
+            ))}
+          </div>
+        ) : rows.length === 0 ? (
+          <p className="px-4 py-10 text-center text-xs text-gray-400">
+            {t("empty")}
+          </p>
+        ) : (
+          <ul>
+            {rows.map((visit, index) => (
+              <li
+                key={visit.id}
+                className={cn(
+                  "grid items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40",
+                  GRID,
                 )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+              >
+                <span className="text-xs font-medium text-gray-500 tabular-nums">
+                  {visit.queueNumber ?? index + 1}
+                </span>
+                <p className="truncate text-xs font-medium text-brand-black">
+                  {visit.patient.fullName}
+                </p>
+                <span className="truncate text-xs text-gray-500">
+                  {visit.assignedDoctorName ?? "—"}
+                </span>
+                <span className="truncate text-xs text-gray-400 italic">
+                  {visit.notes ?? "—"}
+                </span>
+                <VisitTypeBadge type={visit.type} />
+                <VisitPriorityBadge priority={visit.priority} />
+                <div className="flex items-center justify-end">
+                  {canManageStatus ? (
+                    <StatusSelect visit={visit} />
+                  ) : (
+                    <VisitStatusBadge status={visit.status} />
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
