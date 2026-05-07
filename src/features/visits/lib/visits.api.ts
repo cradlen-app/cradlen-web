@@ -1,4 +1,5 @@
 import { apiAuthFetch } from "@/lib/api";
+import { mapApiVisitToScheduleEvent } from "./visits.utils";
 import type {
   ApiPatientSearchResponse,
   ApiScheduleResponse,
@@ -66,19 +67,19 @@ function realFetchCurrentVisit({
 function realFetchTodaysSchedule({
   branchId,
   date,
-  assignedToMe,
 }: {
   branchId: string;
   date?: string;
   assignedToMe?: boolean;
 }): Promise<ApiScheduleResponse> {
-  const search = new URLSearchParams();
-  if (date) search.set("date", date);
-  if (assignedToMe) search.set("assigned_to_me", "true");
-  const qs = search.toString();
-  return apiAuthFetch<ApiScheduleResponse>(
-    `/branches/${branchId}/schedule${qs ? `?${qs}` : ""}`,
-  );
+  const search = new URLSearchParams({ status: "SCHEDULED" });
+  if (date) {
+    search.set("from", `${date}T00:00:00Z`);
+    search.set("to", `${date}T23:59:59Z`);
+  }
+  return apiAuthFetch<ApiVisitListResponse>(
+    `/branches/${branchId}/visits?${search.toString()}`,
+  ).then((res) => ({ data: res.data.map(mapApiVisitToScheduleEvent) }));
 }
 
 function realSearchPatients(search: string) {

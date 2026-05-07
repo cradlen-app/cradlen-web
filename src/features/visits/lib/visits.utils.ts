@@ -3,8 +3,10 @@ import type {
   ApiPatient,
   ApiPatientListItem,
   ApiScheduleEvent,
+  ApiScheduleEventKind,
   ApiVisit,
   ApiVisitStats,
+  ApiVisitType,
 } from "../types/visits.api.types";
 import type {
   Patient,
@@ -83,6 +85,32 @@ export function mapApiStatsToStats(api: ApiVisitStats): VisitStats {
     visits: api.visits,
     followUps: api.follow_ups,
     medicalReps: api.medical_reps,
+  };
+}
+
+const VISIT_KIND_MAP: Record<ApiVisitType, ApiScheduleEventKind> = {
+  VISIT: "visit",
+  FOLLOW_UP: "appointment",
+  MEDICAL_REP: "meeting",
+};
+
+export function mapApiVisitToScheduleEvent(api: ApiVisit): ApiScheduleEvent {
+  const startTime = api.scheduled_at ?? api.created_at ?? new Date().toISOString();
+  const endTime = new Date(new Date(startTime).getTime() + 30 * 60_000).toISOString();
+  const doctorUser = api.assigned_doctor?.user;
+  return {
+    id: api.id,
+    branch_id: api.branch_id ?? "",
+    title: api.episode?.journey?.patient?.full_name ?? api.visit_type,
+    kind: VISIT_KIND_MAP[api.visit_type] ?? "visit",
+    patient_name: api.episode?.journey?.patient?.full_name,
+    doctor_ids: api.assigned_doctor?.id ? [api.assigned_doctor.id] : undefined,
+    doctor_names: doctorUser
+      ? [`${doctorUser.first_name} ${doctorUser.last_name}`.trim()]
+      : undefined,
+    start_time: startTime,
+    end_time: endTime,
+    notes: api.notes,
   };
 }
 
