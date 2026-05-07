@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
@@ -20,6 +20,8 @@ export function useSidebarBranchSwitch(profile: UserProfile | undefined) {
     string | null
   >(null);
 
+  const branchMenuRef = useRef<HTMLDivElement>(null);
+
   const t = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
@@ -27,6 +29,17 @@ export function useSidebarBranchSwitch(profile: UserProfile | undefined) {
   const profileId = useAuthContextStore((s) => s.profileId);
   const setContext = useAuthContextStore((s) => s.setContext);
   const switchBranch = useSwitchBranch();
+  const isSwitching = switchBranch.isPending;
+
+  useEffect(() => {
+    if (!branchMenuOpen) return;
+    function handler(e: MouseEvent) {
+      if (!branchMenuRef.current?.contains(e.target as Node))
+        setBranchMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [branchMenuOpen]);
 
   const branch = getDefaultBranch(profile, branchId);
   const branches = getProfileBranches(profile);
@@ -62,8 +75,9 @@ export function useSidebarBranchSwitch(profile: UserProfile | undefined) {
   return {
     branchMenuOpen,
     setBranchMenuOpen,
+    branchMenuRef,
     switchingToBranchId,
-    switchBranch,
+    isSwitching,
     branch,
     branches,
     branchId,

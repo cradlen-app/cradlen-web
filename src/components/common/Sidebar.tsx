@@ -20,10 +20,9 @@ import {
   Pill,
   Briefcase,
   BarChart2,
-  type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
@@ -34,17 +33,11 @@ import {
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/lib/utils";
 import { canUseSettings } from "./sidebar-access";
-import { SidebarNav } from "./SidebarNav";
+import { SidebarNav, type SidebarNavItem } from "./SidebarNav";
 import { useSidebarBranchSwitch } from "./hooks/useSidebarBranchSwitch";
-import { useSidebarActions } from "./hooks/useSidebarActions";
+import { useLogout } from "./hooks/useLogout";
 
-type NavItem = {
-  path: string;
-  key: string;
-  icon: LucideIcon;
-};
-
-const OWNER_NAV: NavItem[] = [
+const OWNER_NAV: SidebarNavItem[] = [
   { path: "", key: "dashboard", icon: LayoutDashboard },
   { path: "/visits", key: "visits", icon: ClipboardList },
   { path: "/calendar", key: "calendar", icon: Calendar },
@@ -57,7 +50,7 @@ const OWNER_NAV: NavItem[] = [
 
 type StaffRole = "owner" | "doctor" | "reception";
 
-const NAV_BY_ROLE: Record<StaffRole, NavItem[]> = {
+const NAV_BY_ROLE: Record<StaffRole, SidebarNavItem[]> = {
   owner: OWNER_NAV,
   doctor: [
     { path: "", key: "dashboard", icon: LayoutDashboard },
@@ -78,6 +71,7 @@ const NAV_BY_ROLE: Record<StaffRole, NavItem[]> = {
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const t = useTranslations("nav");
+  const pathname = usePathname();
   const dashboardPath = useDashboardPath();
   const { data: user } = useCurrentUser();
 
@@ -87,8 +81,9 @@ export function Sidebar() {
   const {
     branchMenuOpen,
     setBranchMenuOpen,
+    branchMenuRef,
     switchingToBranchId,
-    switchBranch,
+    isSwitching,
     branch,
     branches,
     branchId,
@@ -96,10 +91,7 @@ export function Sidebar() {
     handleBranchSwitch,
   } = useSidebarBranchSwitch(profile);
 
-  const { branchMenuRef, handleLogout } = useSidebarActions(
-    branchMenuOpen,
-    setBranchMenuOpen,
-  );
+  const { handleLogout } = useLogout();
 
   if (rawRole === "patient" || rawRole === "unknown") return null;
 
@@ -155,7 +147,7 @@ export function Sidebar() {
               <button
                 type="button"
                 onClick={() => setBranchMenuOpen((o) => !o)}
-                disabled={switchBranch.isPending}
+                disabled={isSwitching}
                 className="flex items-center gap-1 flex-1 min-w-0 text-start hover:opacity-70 transition-opacity"
                 aria-label={t("switchBranch")}
               >
@@ -167,7 +159,7 @@ export function Sidebar() {
                     {clinicBranch}
                   </span>
                 </div>
-                {switchBranch.isPending ? (
+                {isSwitching ? (
                   <Loader2 className="size-3.5 shrink-0 text-gray-400 animate-spin" />
                 ) : (
                   <ChevronDown
@@ -211,14 +203,14 @@ export function Sidebar() {
                   <button
                     key={bId}
                     type="button"
-                    disabled={switchBranch.isPending}
+                    disabled={isSwitching}
                     onClick={() => void handleBranchSwitch(bId)}
                     className={cn(
                       "w-full flex items-start gap-2 rounded-lg px-2.5 py-2 text-start transition-colors",
                       isActive
                         ? "bg-brand-primary/10 text-brand-primary"
                         : "text-gray-600 hover:bg-gray-50",
-                      switchBranch.isPending && !isLoading && "opacity-40 cursor-not-allowed",
+                      isSwitching && !isLoading && "opacity-40 cursor-not-allowed",
                     )}
                   >
                     <MapPin
@@ -275,7 +267,10 @@ export function Sidebar() {
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
               collapsed && "justify-center px-0",
-              "text-gray-400 hover:bg-gray-50 hover:text-brand-black",
+              pathname === dashboardPath("/settings") ||
+              pathname.startsWith(dashboardPath("/settings") + "/")
+                ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
+                : "text-gray-400 hover:bg-gray-50 hover:text-brand-black",
             )}
           >
             <Settings className="size-4.5 shrink-0" />
