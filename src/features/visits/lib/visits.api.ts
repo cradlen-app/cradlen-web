@@ -63,7 +63,7 @@ function realFetchCurrentVisit({
   );
 }
 
-async function realFetchTodaysSchedule({
+function realFetchTodaysSchedule({
   branchId,
   date,
   assignedToMe,
@@ -72,17 +72,13 @@ async function realFetchTodaysSchedule({
   date?: string;
   assignedToMe?: boolean;
 }): Promise<ApiScheduleResponse> {
-  try {
-    const search = new URLSearchParams();
-    if (date) search.set("date", date);
-    if (assignedToMe) search.set("assigned_to_me", "true");
-    const qs = search.toString();
-    return await apiAuthFetch<ApiScheduleResponse>(
-      `/branches/${branchId}/schedule${qs ? `?${qs}` : ""}`,
-    );
-  } catch {
-    return { data: [] };
-  }
+  const search = new URLSearchParams();
+  if (date) search.set("date", date);
+  if (assignedToMe) search.set("assigned_to_me", "true");
+  const qs = search.toString();
+  return apiAuthFetch<ApiScheduleResponse>(
+    `/branches/${branchId}/schedule${qs ? `?${qs}` : ""}`,
+  );
 }
 
 function realSearchPatients(search: string) {

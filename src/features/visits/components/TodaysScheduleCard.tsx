@@ -69,7 +69,7 @@ function ScheduleEntry({ event }: { event: ScheduleEvent }) {
 
 export function TodaysScheduleCard({ branchId, date, assignedToMe, bare }: Props) {
   const t = useTranslations("dashboardHome.schedule");
-  const { data, isLoading } = useTodaysSchedule({ branchId, date, assignedToMe });
+  const { data, isLoading, isError } = useTodaysSchedule({ branchId, date, assignedToMe });
 
   const inner = (
     <>
@@ -84,6 +84,8 @@ export function TodaysScheduleCard({ branchId, date, assignedToMe, bare }: Props
             <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
             <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
           </>
+        ) : isError ? (
+          <p className="text-sm text-red-500">{t("loadError")}</p>
         ) : data && data.length > 0 ? (
           data.map((event) => <ScheduleEntry key={event.id} event={event} />)
         ) : (
