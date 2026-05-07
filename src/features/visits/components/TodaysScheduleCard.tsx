@@ -27,7 +27,12 @@ const KIND_BG: Record<ScheduleEventKind, string> = {
   break: "bg-gray-50",
 };
 
-function ScheduleEntry({ event }: { event: ScheduleEvent }) {
+type ScheduleEntryProps = {
+  event: ScheduleEvent;
+  t: ReturnType<typeof useTranslations>;
+};
+
+function ScheduleEntry({ event, t }: ScheduleEntryProps) {
   return (
     <article
       className={cn(
@@ -50,13 +55,13 @@ function ScheduleEntry({ event }: { event: ScheduleEvent }) {
       </p>
       {event.patientName && (
         <p className="mt-1.5 text-[11px] text-gray-500 truncate">
-          <span className="text-gray-400">Patient: </span>
+          <span className="text-gray-400">{t("patientLabel")}: </span>
           <span className="text-brand-black">{event.patientName}</span>
         </p>
       )}
       {event.doctorNames?.length ? (
         <p className="mt-0.5 text-[11px] text-gray-500 truncate">
-          <span className="text-gray-400">Assigned: </span>
+          <span className="text-gray-400">{t("assignedLabel")}: </span>
           <span className="text-brand-black">{event.doctorNames.join(", ")}</span>
         </p>
       ) : null}
@@ -87,7 +92,7 @@ export function TodaysScheduleCard({ branchId, date, assignedToMe, bare }: Props
         ) : isError ? (
           <p className="text-sm text-red-500">{t("loadError")}</p>
         ) : data && data.length > 0 ? (
-          data.map((event) => <ScheduleEntry key={event.id} event={event} />)
+          data.map((event) => <ScheduleEntry key={event.id} event={event} t={t} />)
         ) : (
           <p className="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 px-3 py-6 text-center text-xs text-gray-400">
             {t("empty")}
