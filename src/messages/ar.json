@@ -41,7 +41,9 @@
     "profileSwitcher": "تبديل الملف",
     "switchBranch": "تبديل الفرع",
     "switchBranchError": "فشل تبديل الفرع",
-    "branchLabel": "فرع {city}"
+    "branchLabel": "فرع {city}",
+    "openMenu": "فتح قائمة التنقل",
+    "closeMenu": "إغلاق قائمة التنقل"
   },
   "staff": {
     "title": "الموظفون",

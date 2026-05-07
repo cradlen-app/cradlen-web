@@ -37,20 +37,28 @@ export function NotificationDropdown() {
   function handleItemClick(notification: Notification) {
     markAsRead(notification.id);
     if (notification.navigate_to) {
-      router.push(notification.navigate_to as Parameters<typeof router.push>[0]);
+      router.push(
+        notification.navigate_to as Parameters<typeof router.push>[0],
+      );
     }
   }
 
   function handleViewAll() {
     if (organizationId && branchId) {
       router.push(
-        `/${organizationId}/${branchId}/dashboard/notifications` as Parameters<typeof router.push>[0],
+        `/${organizationId}/${branchId}/dashboard/notifications` as Parameters<
+          typeof router.push
+        >[0],
       );
     }
   }
 
   const badgeLabel =
-    unreadCount === 0 ? undefined : unreadCount > 99 ? "99+" : String(unreadCount);
+    unreadCount === 0
+      ? undefined
+      : unreadCount > 99
+        ? "99+"
+        : String(unreadCount);
 
   return (
     <Popover.Root>
@@ -67,7 +75,7 @@ export function NotificationDropdown() {
         >
           <Bell className="size-5" />
           {badgeLabel && (
-            <span className="absolute top-0.5 inset-e-0.5 min-w-[17px] h-[17px] rounded-full bg-brand-primary border-[1.5px] border-white text-white text-[9px] font-bold flex items-center justify-center px-1 leading-none">
+            <span className="absolute top-0.5 inset-e-0.5 min-w-4.25 h-4.25 rounded-full bg-brand-primary border-[1.5px] border-white text-white text-[9px] font-bold flex items-center justify-center px-1 leading-none">
               {badgeLabel}
             </span>
           )}
@@ -79,7 +87,7 @@ export function NotificationDropdown() {
           align="end"
           sideOffset={8}
           className={cn(
-            "z-50 w-[352px] rounded-2xl bg-white border border-gray-100",
+            "z-50 w-88 rounded-2xl bg-white border border-gray-100",
             "shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]",
             "outline-none",
             "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
@@ -89,7 +97,9 @@ export function NotificationDropdown() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-900">{t("title")}</span>
+              <span className="text-sm font-bold text-gray-900">
+                {t("title")}
+              </span>
               {unreadCount > 0 && (
                 <span className="text-xs text-gray-400">
                   {t("unreadCount", { count: unreadCount })}
@@ -118,8 +128,10 @@ export function NotificationDropdown() {
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
                 <Bell className="size-9 text-gray-200" />
-                <p className="text-sm font-semibold text-gray-600">{t("allCaughtUp")}</p>
-                <p className="text-xs text-gray-400 text-center max-w-[200px] leading-relaxed">
+                <p className="text-sm font-semibold text-gray-600">
+                  {t("allCaughtUp")}
+                </p>
+                <p className="text-xs text-gray-400 text-center max-w-50 leading-relaxed">
                   {t("allCaughtUpSub")}
                 </p>
               </div>
