@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import LogoIcon from "@/public/Logo-icon.png";
 import {
@@ -23,7 +23,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
@@ -31,14 +31,12 @@ import {
   getProfilePrimaryRole,
   getBranchId,
 } from "@/features/auth/lib/current-user";
-import { useUserStore } from "@/features/auth/store/userStore";
-import { useAuthStore } from "@/features/auth/store/authStore";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/lib/utils";
 import { canUseSettings } from "./sidebar-access";
 import { SidebarNav } from "./SidebarNav";
 import { useSidebarBranchSwitch } from "./hooks/useSidebarBranchSwitch";
+import { useSidebarActions } from "./hooks/useSidebarActions";
 
 type NavItem = {
   path: string;
@@ -79,14 +77,9 @@ const NAV_BY_ROLE: Record<StaffRole, NavItem[]> = {
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const branchMenuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("nav");
-  const router = useRouter();
   const dashboardPath = useDashboardPath();
   const { data: user } = useCurrentUser();
-  const clearUser = useUserStore((s) => s.clearUser);
-  const clearSession = useAuthStore((s) => s.clearSession);
-  const clearContext = useAuthContextStore((s) => s.clearContext);
 
   const profile = getActiveProfile(user);
   const rawRole = getProfilePrimaryRole(profile);
@@ -103,15 +96,10 @@ export function Sidebar() {
     handleBranchSwitch,
   } = useSidebarBranchSwitch(profile);
 
-  useEffect(() => {
-    if (!branchMenuOpen) return;
-    function handler(e: MouseEvent) {
-      if (!branchMenuRef.current?.contains(e.target as Node))
-        setBranchMenuOpen(false);
-    }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [branchMenuOpen, setBranchMenuOpen]);
+  const { branchMenuRef, handleLogout } = useSidebarActions(
+    branchMenuOpen,
+    setBranchMenuOpen,
+  );
 
   if (rawRole === "patient" || rawRole === "unknown") return null;
 
@@ -122,18 +110,6 @@ export function Sidebar() {
   const clinicBranch = branch?.city
     ? t("branchLabel", { city: branch.city })
     : "-";
-
-  async function handleLogout() {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {
-      // proceed with local logout even if the API call fails
-    }
-    clearSession();
-    clearContext();
-    clearUser();
-    router.replace("/sign-in");
-  }
 
   return (
     <aside
