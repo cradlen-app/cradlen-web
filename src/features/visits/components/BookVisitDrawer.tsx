@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Search, Stethoscope, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useForm, useWatch } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useStaff } from "@/features/staff/hooks/useStaff";
 import { ApiError } from "@/lib/api";
@@ -34,17 +35,6 @@ type Props = {
 const fieldClass =
   "h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-brand-black outline-none transition-colors placeholder:text-gray-300 focus:border-brand-primary focus:ring-0";
 
-const TYPE_OPTIONS: Array<{ value: ApiVisitType; label: string }> = [
-  { value: "VISIT", label: "Visit" },
-  { value: "FOLLOW_UP", label: "Follow-up" },
-  { value: "MEDICAL_REP", label: "Medical Rep" },
-];
-
-const PRIORITY_OPTIONS: Array<{ value: ApiVisitPriority; label: string }> = [
-  { value: "NORMAL", label: "Normal" },
-  { value: "EMERGENCY", label: "Emergency" },
-];
-
 function SectionTitle({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-4">
@@ -66,6 +56,19 @@ export function BookVisitDrawer({
   organizationId,
   branchName,
 }: Props) {
+  const t = useTranslations("visits");
+
+  const typeOptions: Array<{ value: ApiVisitType; label: string }> = [
+    { value: "VISIT", label: t("type.visit") },
+    { value: "FOLLOW_UP", label: t("type.followUp") },
+    { value: "MEDICAL_REP", label: t("type.medicalRep") },
+  ];
+
+  const priorityOptions: Array<{ value: ApiVisitPriority; label: string }> = [
+    { value: "NORMAL", label: t("priority.normal") },
+    { value: "EMERGENCY", label: t("priority.emergency") },
+  ];
+
   const bookVisit = useBookVisit();
   const { data: doctors = [] } = useStaff(
     organizationId ?? undefined,
@@ -154,7 +157,7 @@ export function BookVisitDrawer({
 
   const onSubmit = handleSubmit(async (values) => {
     if (!branchId) {
-      toast.error("No branch is linked to this session.");
+      toast.error(t("create.errorNoBranch"));
       return;
     }
 
@@ -193,13 +196,13 @@ export function BookVisitDrawer({
 
     try {
       await bookVisit.mutateAsync(body);
-      toast.success("Visit booked successfully.");
+      toast.success(t("create.successMessage"));
       onOpenChange(false);
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        toast.error("Patient already registered with this national ID.");
+        toast.error(t("create.errorDuplicatePatient"));
       } else {
-        const message = error instanceof ApiError ? error.messages[0] : "Failed to book the visit.";
+        const message = error instanceof ApiError ? error.messages[0] : t("create.errorGeneric");
         toast.error(message);
       }
     }
@@ -219,10 +222,10 @@ export function BookVisitDrawer({
           {/* Header */}
           <div className="flex items-center justify-between gap-4">
             <Dialog.Title className="text-lg font-medium text-brand-black">
-              New Visit
+              {t("create.title")}
             </Dialog.Title>
             <Dialog.Description className="sr-only">
-              Book a new visit for an existing or new patient.
+              {t("create.description")}
             </Dialog.Description>
             <Dialog.Close
               className="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-black"
@@ -251,7 +254,7 @@ export function BookVisitDrawer({
                   setDropdownOpen(true);
                 }}
                 onFocus={() => searchInput.length >= 2 && setDropdownOpen(true)}
-                placeholder="Search patient by name, national ID or phone…"
+                placeholder={t("create.searchPlaceholder")}
                 className="flex-1 bg-transparent text-xs text-brand-black outline-none placeholder:text-gray-300"
               />
               {searchInput && (
@@ -288,7 +291,7 @@ export function BookVisitDrawer({
                   </ul>
                 ) : !isSearching ? (
                   <p className="px-3 py-3 text-xs text-gray-400">
-                    Not found — enter details below to register a new patient.
+                    {t("create.patientNotFound")}
                   </p>
                 ) : null}
               </div>
@@ -300,11 +303,11 @@ export function BookVisitDrawer({
 
               {/* Visit Meta */}
               <section className="space-y-3">
-                <SectionTitle title="Visit Meta" />
+                <SectionTitle title={t("create.sectionVisitMeta")} />
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-3">
                   <label className="block">
-                    <span className="text-xs font-medium text-brand-black">Doctor</span>
+                    <span className="text-xs font-medium text-brand-black">{t("create.fields.doctor")}</span>
                     <div className="relative">
                       <Stethoscope
                         className="pointer-events-none absolute inset-s-0 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
@@ -314,7 +317,7 @@ export function BookVisitDrawer({
                         {...register("assignedDoctorId")}
                         className={cn(fieldClass, "ps-5")}
                       >
-                        <option value="">Select doctor</option>
+                        <option value="">{t("create.fields.selectDoctor")}</option>
                         {doctors.map((d) => (
                           <option key={d.id} value={d.id}>
                             {`${d.firstName} ${d.lastName}`.trim() || d.email}
@@ -329,7 +332,7 @@ export function BookVisitDrawer({
                   </label>
 
                   <label className="block">
-                    <span className="text-xs font-medium text-brand-black">Scheduled At</span>
+                    <span className="text-xs font-medium text-brand-black">{t("create.fields.scheduledAt")}</span>
                     <input
                       {...register("scheduledAt")}
                       type="datetime-local"
@@ -338,9 +341,9 @@ export function BookVisitDrawer({
                   </label>
 
                   <div className="col-span-2">
-                    <span className="text-xs font-medium text-brand-black">Visit Type</span>
+                    <span className="text-xs font-medium text-brand-black">{t("create.fields.visitType")}</span>
                     <div className="mt-2 grid grid-cols-3 gap-2">
-                      {TYPE_OPTIONS.map((option) => {
+                      {typeOptions.map((option) => {
                         const isActive = visitType === option.value;
                         return (
                           <button
@@ -363,9 +366,9 @@ export function BookVisitDrawer({
                   </div>
 
                   <div className="col-span-2">
-                    <span className="text-xs font-medium text-brand-black">Visit Priority</span>
+                    <span className="text-xs font-medium text-brand-black">{t("create.fields.visitPriority")}</span>
                     <div className="mt-2 grid grid-cols-2 gap-2">
-                      {PRIORITY_OPTIONS.map((option) => {
+                      {priorityOptions.map((option) => {
                         const isActive = priority === option.value;
                         return (
                           <button
@@ -394,22 +397,22 @@ export function BookVisitDrawer({
 
               {/* Personal Information */}
               <section className="space-y-3">
-                <SectionTitle title="Personal Information" />
+                <SectionTitle title={t("create.sectionPersonalInfo")} />
 
                 <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                   <label className="col-span-2 block">
-                    <span className="text-xs font-medium text-brand-black">Name</span>
+                    <span className="text-xs font-medium text-brand-black">{t("create.fields.name")}</span>
                     <input
                       {...register("fullName")}
                       readOnly={patientMode === "existing"}
                       className={cn(fieldClass, patientMode === "existing" && "text-gray-500")}
-                      placeholder="Full name"
+                      placeholder={t("create.fields.namePlaceholder")}
                     />
                     <FieldError message={errors.fullName?.message} />
                   </label>
 
                   <label className="col-span-2 block">
-                    <span className="text-xs font-medium text-brand-black">Phone</span>
+                    <span className="text-xs font-medium text-brand-black">{t("create.fields.phone")}</span>
                     <input
                       {...register("phoneNumber")}
                       readOnly={patientMode === "existing"}
@@ -422,11 +425,11 @@ export function BookVisitDrawer({
 
                   {visitType === "MEDICAL_REP" && (
                     <label className="col-span-2 block">
-                      <span className="text-xs font-medium text-brand-black">Company</span>
+                      <span className="text-xs font-medium text-brand-black">{t("create.fields.company")}</span>
                       <input
                         {...register("company")}
                         className={fieldClass}
-                        placeholder="Company name"
+                        placeholder={t("create.fields.companyPlaceholder")}
                       />
                     </label>
                   )}
@@ -434,7 +437,7 @@ export function BookVisitDrawer({
                   {visitType !== "MEDICAL_REP" && (
                     <>
                       <label className="block">
-                        <span className="text-xs font-medium text-brand-black">National ID</span>
+                        <span className="text-xs font-medium text-brand-black">{t("create.fields.nationalId")}</span>
                         <input
                           {...register("nationalId")}
                           readOnly={patientMode === "existing"}
@@ -445,7 +448,7 @@ export function BookVisitDrawer({
                       </label>
 
                       <label className="block">
-                        <span className="text-xs font-medium text-brand-black">Date of Birth</span>
+                        <span className="text-xs font-medium text-brand-black">{t("create.fields.dateOfBirth")}</span>
                         <input
                           {...register("dateOfBirth")}
                           readOnly={patientMode === "existing"}
@@ -456,12 +459,12 @@ export function BookVisitDrawer({
                       </label>
 
                       <label className="col-span-2 block">
-                        <span className="text-xs font-medium text-brand-black">Address</span>
+                        <span className="text-xs font-medium text-brand-black">{t("create.fields.address")}</span>
                         <input
                           {...register("address")}
                           readOnly={patientMode === "existing"}
                           className={cn(fieldClass, patientMode === "existing" && "text-gray-500")}
-                          placeholder="City, district"
+                          placeholder={t("create.fields.addressPlaceholder")}
                         />
                       </label>
 
@@ -472,17 +475,17 @@ export function BookVisitDrawer({
                             {...register("isMarried")}
                             className="size-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
                           />
-                          <span className="text-xs font-medium text-brand-black">Married</span>
+                          <span className="text-xs font-medium text-brand-black">{t("create.fields.married")}</span>
                         </label>
                       )}
 
                       {isMarried && patientMode !== "existing" && (
                         <label className="col-span-2 block">
-                          <span className="text-xs font-medium text-brand-black">Husband Name</span>
+                          <span className="text-xs font-medium text-brand-black">{t("create.fields.husbandName")}</span>
                           <input
                             {...register("husbandName")}
                             className={fieldClass}
-                            placeholder="Husband's full name"
+                            placeholder={t("create.fields.husbandNamePlaceholder")}
                           />
                           <FieldError message={errors.husbandName?.message} />
                         </label>
@@ -494,13 +497,13 @@ export function BookVisitDrawer({
 
               {/* Notes */}
               <section className="space-y-3">
-                <SectionTitle title="Notes" />
+                <SectionTitle title={t("create.sectionNotes")} />
                 <label className="block">
                   <textarea
                     {...register("notes")}
                     rows={3}
                     className={cn(fieldClass, "h-auto resize-none border-b py-2")}
-                    placeholder="Optional notes about the visit"
+                    placeholder={t("create.fields.notesPlaceholder")}
                   />
                   <FieldError message={errors.notes?.message} />
                 </label>
@@ -511,11 +514,11 @@ export function BookVisitDrawer({
             <div className="mt-4 flex items-center justify-end gap-2 border-t border-gray-100 pt-4">
               {branchName && (
                 <span className="me-auto text-[11px] text-gray-400">
-                  Branch: {branchName}
+                  {t("create.branchLabel", { branch: branchName })}
                 </span>
               )}
               <Dialog.Close className="inline-flex h-9 items-center rounded-full border border-gray-200 px-4 text-xs font-medium text-gray-600 hover:bg-gray-50">
-                Cancel
+                {t("create.cancelButton")}
               </Dialog.Close>
               <button
                 type="submit"
@@ -528,10 +531,10 @@ export function BookVisitDrawer({
                 {bookVisit.isPending ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-                    Adding…
+                    {t("create.submitting")}
                   </>
                 ) : (
-                  "Add to waiting list"
+                  t("create.submitButton")
                 )}
               </button>
             </div>
