@@ -43,7 +43,8 @@ function StatusSelect({ visit }: { visit: Visit }) {
     try {
       await updateStatus.mutateAsync({ visitId: visit.id, status });
     } catch (error) {
-      const message = error instanceof ApiError ? error.messages[0] : "Update failed";
+      const message =
+        error instanceof ApiError ? error.messages[0] : "Update failed";
       toast.error(message);
     }
   }
@@ -84,12 +85,15 @@ function StatusSelect({ visit }: { visit: Visit }) {
             ))}
         </select>
         <ChevronDown
-          className="pointer-events-none absolute end-1.5 size-3.5 text-gray-400"
+          className="pointer-events-none absolute inset-e-1.5 size-3.5 text-gray-400"
           aria-hidden="true"
         />
       </div>
 
-      <Dialog.Root open={pendingCancel} onOpenChange={(open) => !open && setPendingCancel(false)}>
+      <Dialog.Root
+        open={pendingCancel}
+        onOpenChange={(open) => !open && setPendingCancel(false)}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
@@ -97,7 +101,8 @@ function StatusSelect({ visit }: { visit: Visit }) {
               {t("actions.cancelVisitTitle")}
             </Dialog.Title>
             <Dialog.Description className="mt-2 text-xs text-gray-500">
-              {visit.patient.fullName} will be marked as cancelled. This cannot be undone.
+              {visit.patient.fullName} will be marked as cancelled. This cannot
+              be undone.
             </Dialog.Description>
             <div className="mt-5 flex items-center justify-end gap-2">
               <Dialog.Close className="inline-flex h-8 items-center rounded-full border border-gray-200 px-3 text-xs font-medium text-gray-600 hover:bg-gray-50">
