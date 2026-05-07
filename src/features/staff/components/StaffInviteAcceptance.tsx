@@ -17,6 +17,7 @@ import {
   getDefaultBranch,
 } from "@/features/auth/lib/current-user";
 import type { CurrentUser } from "@/types/user.types";
+import type { ApiResponse } from "@/types/api.types";
 import type { InvitationPreview } from "../types/staff.api.types";
 import {
   getInvitationPreview,
@@ -253,7 +254,7 @@ function AcceptStep({ preview, token, invitationId, onBack }: AcceptStepProps) {
       if (response.data.authenticated) {
         setAuthenticated();
         try {
-          const me = await apiAuthFetch<{ data: CurrentUser }>("/auth/me");
+          const me = await apiAuthFetch<ApiResponse<CurrentUser>>("/auth/me");
           const profile = getActiveProfile(me.data);
           const branch = getDefaultBranch(profile);
           const branchId = getBranchId(branch);

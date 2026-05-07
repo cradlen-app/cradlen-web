@@ -1,4 +1,5 @@
 import { apiAuthFetch, apiFetch } from "@/lib/api";
+import type { ApiResponse } from "@/types/api.types";
 import type {
   ApiRolesResponse,
   AcceptStaffInviteRequest,
@@ -169,7 +170,7 @@ export function resendStaffInvitation(organizationId: string, invitationId: stri
 }
 
 export function getInvitationPreview(invitation: string, token: string) {
-  return apiFetch<{ data: InvitationPreview }>(
+  return apiFetch<ApiResponse<InvitationPreview>>(
     `/api/staff/invite/preview?invitation=${encodeURIComponent(invitation)}&token=${encodeURIComponent(token)}`,
   );
 }
