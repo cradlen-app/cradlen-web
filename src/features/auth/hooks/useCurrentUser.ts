@@ -1,14 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiAuthFetch } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import type { CurrentUser } from "@/types/user.types";
+import type { ApiResponse } from "@/types/api.types";
 
-export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
+/** @deprecated Import `queryKeys.currentUser()` directly instead. */
+export const CURRENT_USER_QUERY_KEY = queryKeys.currentUser();
 
 export function useCurrentUser() {
   return useQuery({
-    queryKey: CURRENT_USER_QUERY_KEY,
+    queryKey: queryKeys.currentUser(),
     queryFn: () =>
-      apiAuthFetch<{ data: CurrentUser }>("/auth/me").then((r) => r.data),
+      apiAuthFetch<ApiResponse<CurrentUser>>("/auth/me").then((r) => r.data),
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

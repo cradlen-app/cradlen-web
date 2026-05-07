@@ -24,7 +24,10 @@ export function SpecialtiesSelect({
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -51,7 +54,7 @@ export function SpecialtiesSelect({
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "w-full min-h-[46px] rounded-xl border bg-white px-3 py-2 text-sm text-start",
+          "w-full min-h-11.5 rounded-xl border bg-white px-3 py-2 text-sm text-start",
           "flex flex-wrap items-center gap-1.5 outline-none transition-colors",
           "focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20",
           hasError
@@ -112,7 +115,14 @@ export function SpecialtiesSelect({
                 >
                   {checked && (
                     <svg viewBox="0 0 10 8" className="size-2.5 fill-current">
-                      <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M1 4l3 3 5-6"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   )}
                 </span>

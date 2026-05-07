@@ -1,3 +1,4 @@
+import { VISIT_PRIORITY, VISIT_TYPE } from "./visits.constants";
 import type {
   ApiPatient,
   ApiPatientListItem,
@@ -105,14 +106,14 @@ export function buildWaitingListQuery(filter: WaitingListFilter): {
   priority?: string;
 } {
   switch (filter) {
-    case "VISIT":
-      return { type: "VISIT" };
-    case "FOLLOW_UP":
-      return { type: "FOLLOW_UP" };
-    case "MEDICAL_REP":
-      return { type: "MEDICAL_REP" };
-    case "EMERGENCY":
-      return { priority: "EMERGENCY" };
+    case VISIT_TYPE.VISIT:
+      return { type: VISIT_TYPE.VISIT };
+    case VISIT_TYPE.FOLLOW_UP:
+      return { type: VISIT_TYPE.FOLLOW_UP };
+    case VISIT_TYPE.MEDICAL_REP:
+      return { type: VISIT_TYPE.MEDICAL_REP };
+    case VISIT_PRIORITY.EMERGENCY:
+      return { priority: VISIT_PRIORITY.EMERGENCY };
     default:
       return {};
   }

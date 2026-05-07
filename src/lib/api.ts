@@ -77,21 +77,28 @@ async function parseResponseBody(res: Response) {
 function extractApiErrorMessage(body: unknown, fallback: string) {
   if (!body || typeof body !== "object") return fallback;
 
-  const root = body as {
-    message?: unknown;
-    error?: { message?: unknown } | unknown;
-  };
-  const nestedError =
-    root.error && typeof root.error === "object"
-      ? (root.error as { message?: unknown })
-      : null;
-  const message = root.message ?? nestedError?.message;
+  const b = body as Record<string, unknown>;
 
-  if (Array.isArray(message) && message.every((item) => typeof item === "string")) {
-    return message;
+  // Single string message
+  if (typeof b.message === "string") return b.message;
+
+  // Nested { error: { message } }
+  if (b.error && typeof (b.error as Record<string, unknown>).message === "string") {
+    return (b.error as Record<string, unknown>).message as string;
   }
 
-  return typeof message === "string" ? message : fallback;
+  // Array of validation errors: { errors: [{ message }] }
+  if (Array.isArray(b.errors) && b.errors.length > 0) {
+    const first = b.errors[0];
+    if (first && typeof (first as Record<string, unknown>).message === "string") {
+      return (first as Record<string, unknown>).message as string;
+    }
+  }
+
+  // { detail: "..." } (common in some backends)
+  if (typeof b.detail === "string") return b.detail;
+
+  return fallback;
 }
 
 export async function apiFetch<T>(

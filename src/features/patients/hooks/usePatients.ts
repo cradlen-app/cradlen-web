@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { mapApiPatientListItemToPatient } from "@/features/visits/lib/visits.utils";
 import type { ApiJourneyStatus } from "@/features/visits/types/visits.api.types";
 import { fetchBranchPatients } from "../lib/patients.api";
+import { queryKeys } from "@/lib/queryKeys";
 
 type UsePatientsParams = {
   search?: string;
@@ -12,7 +13,10 @@ type UsePatientsParams = {
 
 export function usePatients(branchId: string | undefined, params: UsePatientsParams = {}) {
   return useQuery({
-    queryKey: ["patients", branchId, params.search, params.journeyStatus],
+    queryKey: queryKeys.patients.list(branchId ?? "", {
+      search: params.search,
+      journeyStatus: params.journeyStatus,
+    }),
     queryFn: async () => {
       const res = await fetchBranchPatients(branchId!, {
         search: params.search || undefined,

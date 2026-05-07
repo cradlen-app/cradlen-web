@@ -1,3 +1,4 @@
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import type {
   ApiStaffBranchSchedule,
   ApiStaffDay,
@@ -109,10 +110,10 @@ function formatLegacySchedule(schedule?: ApiStaffSchedule): string | undefined {
 
 export function normalizeApiRoleName(name?: string): StaffRole {
   const normalized = name?.toLowerCase();
-  if (normalized === "owner") return "owner";
-  if (normalized === "receptionist" || normalized === "reception") return "reception";
-  if (normalized === "doctor") return "doctor";
-  return "unknown";
+  if (normalized === STAFF_ROLE.OWNER) return STAFF_ROLE.OWNER;
+  if (normalized === "receptionist" || normalized === STAFF_ROLE.RECEPTION) return STAFF_ROLE.RECEPTION;
+  if (normalized === STAFF_ROLE.DOCTOR) return STAFF_ROLE.DOCTOR;
+  return STAFF_ROLE.UNKNOWN;
 }
 
 // Maps the /organizations/:organizationId/staff response shape

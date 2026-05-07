@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchWaitingList } from "../lib/visits.api";
 import { buildWaitingListQuery, mapApiVisitToVisit } from "../lib/visits.utils";
 import type { WaitingListFilter, WaitingListPage } from "../types/visits.types";
+import { queryKeys } from "@/lib/queryKeys";
 
 type Params = {
   branchId: string | null | undefined;
@@ -24,12 +25,13 @@ export function useWaitingList({
 }: Params) {
   const queryParams = buildWaitingListQuery(filter);
   return useQuery({
-    queryKey: [
-      "visits",
-      branchId,
-      "list",
-      { filter, q, assignedToMe: assignedToMe ?? false, page, limit },
-    ],
+    queryKey: queryKeys.visits.waitingList(branchId ?? "", {
+      filter,
+      q,
+      assignedToMe: assignedToMe ?? false,
+      page,
+      limit,
+    }),
     queryFn: async (): Promise<WaitingListPage> => {
       const base = {
         branchId: branchId!,

@@ -1,5 +1,7 @@
 import { apiAuthFetch, apiFetch } from "@/lib/api";
+import type { ApiResponse } from "@/types/api.types";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { queryKeys } from "@/lib/queryKeys";
 
 export type OrganizationBranch = {
   id: string;
@@ -12,7 +14,9 @@ export type OrganizationBranch = {
   status: string;
 };
 
-export const branchesQueryKey = (organizationId: string) => ["branches", organizationId];
+/** @deprecated Use `queryKeys.settings.branches(organizationId)` directly instead. */
+export const branchesQueryKey = (organizationId: string) =>
+  queryKeys.settings.branches(organizationId);
 
 export type UpdateProfileRequest = {
   first_name?: string;
@@ -133,7 +137,7 @@ export function deleteBranch(organizationId: string, branchId: string) {
 }
 
 export function listBranches(organizationId: string) {
-  return apiAuthFetch<{ data: OrganizationBranch[] }>(
+  return apiAuthFetch<ApiResponse<OrganizationBranch[]>>(
     `/organizations/${organizationId}/branches`,
   );
 }

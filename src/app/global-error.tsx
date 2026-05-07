@@ -1,3 +1,4 @@
+// Root error boundary — no i18n provider available
 "use client";
 
 import { useEffect } from "react";

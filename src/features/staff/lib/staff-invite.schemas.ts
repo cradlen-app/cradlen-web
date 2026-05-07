@@ -1,6 +1,6 @@
 import { z } from "zod";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import type { ApiStaffDay } from "../types/staff.api.types";
-import type { StaffRole } from "../types/staff.types";
 
 export const STAFF_INVITE_DAYS = [
   "MON",
@@ -29,10 +29,12 @@ const shiftSchema = z.object({
   endTime: z.string(),
 });
 
+const STAFF_ASSIGNABLE_ROLES = [STAFF_ROLE.OWNER, STAFF_ROLE.DOCTOR, STAFF_ROLE.RECEPTION] as const;
+
 const staffBaseSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   roleId: z.string().min(1, "Role is required"),
-  role: z.enum(["owner", "doctor", "reception"]),
+  role: z.enum(STAFF_ASSIGNABLE_ROLES),
   jobTitle: z.string().trim().min(1, "Job title is required"),
   phone: z.string().trim().optional(),
   isClinical: z.boolean(),
@@ -55,7 +57,7 @@ function validateNameAndSpecialty(
   }
 
   const needsSpecialty =
-    value.role === "doctor" || (value.role === "owner" && value.isClinical);
+    value.role === STAFF_ROLE.DOCTOR || (value.role === STAFF_ROLE.OWNER && value.isClinical);
 
   if (needsSpecialty && !value.specialty) {
     ctx.addIssue({
@@ -151,7 +153,7 @@ export function getDefaultStaffInviteValues(): StaffInviteFormValues {
   return {
     name: "",
     roleId: "",
-    role: "doctor" satisfies StaffRole,
+    role: STAFF_ROLE.DOCTOR,
     jobTitle: "",
     phone: "",
     isClinical: false,
@@ -170,7 +172,7 @@ export function getDefaultStaffCreateDirectValues(): StaffCreateDirectFormValues
   return {
     name: "",
     roleId: "",
-    role: "doctor" satisfies StaffRole,
+    role: STAFF_ROLE.DOCTOR,
     jobTitle: "",
     phone: "",
     password: "",

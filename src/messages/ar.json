@@ -4,6 +4,11 @@
     "error": "حدث خطأ",
     "back": "رجوع"
   },
+  "error": {
+    "title": "حدث خطأ ما",
+    "description": "تعذّر تحميل هذه الصفحة. حاول مجدداً وسنبذل قصارى جهدنا لاستعادتها.",
+    "retry": "حاول مجدداً"
+  },
   "home": {
     "eyebrowStart": "من أول لحظة",
     "eyebrowEnd": "حتى النهاية",
@@ -35,7 +40,8 @@
     "messages": "الرسائل",
     "profileSwitcher": "تبديل الملف",
     "switchBranch": "تبديل الفرع",
-    "switchBranchError": "فشل تبديل الفرع"
+    "switchBranchError": "فشل تبديل الفرع",
+    "branchLabel": "فرع {city}"
   },
   "staff": {
     "title": "الموظفون",
@@ -712,7 +718,10 @@
     },
     "schedule": {
       "title": "جدول اليوم",
-      "empty": "لا توجد فعاليات اليوم."
+      "empty": "لا توجد فعاليات اليوم.",
+      "loadError": "فشل تحميل الجدول الزمني",
+      "patientLabel": "المريض",
+      "assignedLabel": "الطبيب المعين"
     },
     "calendar": {
       "title": "التقويم"
@@ -762,6 +771,9 @@
         "status": "الحالة"
       }
     },
+    "filter": {
+      "all": "جميع الزيارات"
+    },
     "type": {
       "visit": "زيارة",
       "followUp": "متابعة",
@@ -772,7 +784,16 @@
       "waiting": "في الانتظار",
       "inProgress": "قيد التنفيذ",
       "completed": "مكتملة",
-      "cancelled": "ملغاة"
+      "cancelled": "ملغاة",
+      "scheduled": "مجدولة",
+      "checkedIn": "تم التسجيل",
+      "noShow": "لم يحضر",
+      "SCHEDULED": "مجدولة",
+      "CHECKED_IN": "تم التسجيل",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "COMPLETED": "مكتملة",
+      "CANCELLED": "ملغاة",
+      "NO_SHOW": "لم يحضر"
     },
     "priority": {
       "normal": "عادية",
@@ -780,7 +801,7 @@
     },
     "create": {
       "title": "زيارة جديدة",
-      "description": "أضِف مريضاً إلى قائمة الانتظار وعيّن طبيباً.",
+      "description": "احجز زيارة جديدة لمريض موجود أو جديد.",
       "close": "إغلاق",
       "branchLabel": "الفرع: {branch}",
       "missingBranch": "لا يوجد فرع مرتبط بهذه الجلسة.",
@@ -807,12 +828,48 @@
       "error": "فشل إنشاء الزيارة. حاول مرة أخرى.",
       "cancelConfirmTitle": "هل تريد إلغاء هذه الزيارة؟",
       "cancelConfirmDescription": "ستتم تعليم زيارة {patient} كملغاة. لا يمكن التراجع.",
-      "cancelConfirmCta": "نعم، إلغاء"
+      "cancelConfirmCta": "نعم، إلغاء",
+      "sectionVisitMeta": "بيانات الزيارة",
+      "sectionPersonalInfo": "المعلومات الشخصية",
+      "sectionNotes": "الملاحظات",
+      "searchPlaceholder": "ابحث عن مريض بالاسم أو الرقم القومي أو الهاتف…",
+      "patientNotFound": "غير موجود — أدخل البيانات أدناه لتسجيل مريض جديد.",
+      "errorNoBranch": "لا يوجد فرع مرتبط بهذه الجلسة.",
+      "successMessage": "تم حجز الزيارة بنجاح.",
+      "errorDuplicatePatient": "المريض مسجل بالفعل بهذا الرقم القومي.",
+      "errorGeneric": "فشل حجز الزيارة.",
+      "cancelButton": "إلغاء",
+      "submitButton": "إضافة إلى قائمة الانتظار",
+      "fields": {
+        "doctor": "الطبيب",
+        "selectDoctor": "اختر طبيباً",
+        "scheduledAt": "موعد الزيارة",
+        "visitType": "نوع الزيارة",
+        "visitPriority": "أولوية الزيارة",
+        "name": "الاسم",
+        "namePlaceholder": "الاسم الكامل",
+        "phone": "الهاتف",
+        "company": "الشركة",
+        "companyPlaceholder": "اسم الشركة",
+        "nationalId": "الرقم القومي",
+        "dateOfBirth": "تاريخ الميلاد",
+        "address": "العنوان",
+        "addressPlaceholder": "المدينة، الحي",
+        "married": "متزوج/ة",
+        "husbandName": "اسم الزوج",
+        "husbandNamePlaceholder": "الاسم الكامل للزوج",
+        "notes": "الملاحظات (اختياري)",
+        "notesPlaceholder": "ملاحظات اختيارية حول الزيارة"
+      }
     },
     "actions": {
       "start": "بدء",
       "cancel": "إلغاء",
-      "changeStatus": "تغيير الحالة"
+      "changeStatus": "تغيير الحالة",
+      "retry": "إعادة المحاولة",
+      "close": "إغلاق",
+      "cancelVisitTitle": "إلغاء هذه الزيارة؟",
+      "confirmCancel": "نعم، إلغاء"
     }
   }
 }

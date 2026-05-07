@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VISIT_PRIORITY, VISIT_TYPE } from "./visits.constants";
 
 // ── enums ─────────────────────────────────────────────────────────────────────
 
@@ -11,9 +12,11 @@ export const visitStatusSchema = z.enum([
   "NO_SHOW",
 ]);
 
-export const visitTypeSchema = z.enum(["VISIT", "FOLLOW_UP", "MEDICAL_REP"]);
+const VISIT_TYPE_VALUES = [VISIT_TYPE.VISIT, VISIT_TYPE.FOLLOW_UP, VISIT_TYPE.MEDICAL_REP] as const;
+export const visitTypeSchema = z.enum(VISIT_TYPE_VALUES);
 
-export const visitPrioritySchema = z.enum(["NORMAL", "EMERGENCY"]);
+const VISIT_PRIORITY_VALUES = [VISIT_PRIORITY.NORMAL, VISIT_PRIORITY.EMERGENCY] as const;
+export const visitPrioritySchema = z.enum(VISIT_PRIORITY_VALUES);
 
 export const scheduleEventKindSchema = z.enum([
   "visit",
@@ -24,10 +27,10 @@ export const scheduleEventKindSchema = z.enum([
 
 export const waitingListFilterSchema = z.enum([
   "all",
-  "VISIT",
-  "FOLLOW_UP",
-  "MEDICAL_REP",
-  "EMERGENCY",
+  VISIT_TYPE.VISIT,
+  VISIT_TYPE.FOLLOW_UP,
+  VISIT_TYPE.MEDICAL_REP,
+  VISIT_PRIORITY.EMERGENCY,
 ]);
 
 // ── form: book-visit ──────────────────────────────────────────────────────────
@@ -78,7 +81,7 @@ export const bookVisitSchema = z
       if (!value.phoneNumber?.trim()) {
         ctx.addIssue({ code: "custom", path: ["phoneNumber"], message: "Phone is required" });
       }
-      if (value.visitType !== "MEDICAL_REP") {
+      if (value.visitType !== VISIT_TYPE.MEDICAL_REP) {
         if (!value.nationalId?.trim()) {
           ctx.addIssue({ code: "custom", path: ["nationalId"], message: "National ID is required" });
         }
@@ -106,8 +109,8 @@ export function getDefaultBookVisitValues(): BookVisitFormValues {
     isMarried: false,
     husbandName: "",
     company: "",
-    visitType: "VISIT",
-    priority: "NORMAL",
+    visitType: VISIT_TYPE.VISIT,
+    priority: VISIT_PRIORITY.NORMAL,
     assignedDoctorId: "",
     scheduledAt: "",
     notes: "",

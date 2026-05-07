@@ -1,9 +1,10 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { cn } from "@/lib/utils";
 import type { StaffFilter } from "../types/staff.types";
 
-const STAFF_FILTERS: StaffFilter[] = ["all", "doctor", "reception", "owner"];
+const STAFF_FILTERS = ["all", STAFF_ROLE.DOCTOR, STAFF_ROLE.RECEPTION, STAFF_ROLE.OWNER] as const satisfies readonly StaffFilter[];
 
 type StaffToolbarProps = {
   activeFilter: StaffFilter;
