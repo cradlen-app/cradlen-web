@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { searchPatients } from "../lib/visits.api";
 import { mapApiPatientToPatient } from "../lib/visits.utils";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function usePatientSearch(rawSearch: string) {
   const [debouncedSearch, setDebouncedSearch] = useState(rawSearch);
@@ -14,7 +15,7 @@ export function usePatientSearch(rawSearch: string) {
   }, [rawSearch]);
 
   return useQuery({
-    queryKey: ["patients", "search", debouncedSearch],
+    queryKey: queryKeys.patients.search(debouncedSearch),
     queryFn: async () => {
       const res = await searchPatients(debouncedSearch);
       return res.data.map(mapApiPatientToPatient);

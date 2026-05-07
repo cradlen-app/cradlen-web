@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllStaff, fetchStaffMember } from "../lib/staff.api";
 import { mapApiStaffToMember, mapLegacyApiStaffToMember } from "../lib/staff.utils";
 import type { ApiStaffMember, StaffMemberResponse } from "../types/staff.api.types";
+import { queryKeys } from "@/lib/queryKeys";
 
 type UseStaffOptions = {
   q?: string;
@@ -18,7 +19,7 @@ export function useStaff(
   { q, roleId, branchId, role }: UseStaffOptions = {},
 ) {
   return useQuery({
-    queryKey: ["staff", organizationId, q, roleId, branchId, role],
+    queryKey: queryKeys.staff.list(organizationId ?? "", { q, roleId, branchId, role }),
     queryFn: async () => {
       const staff = await fetchAllStaff(organizationId!, { q, roleId, branchId, role });
       return staff.map(mapApiStaffToMember);
@@ -38,7 +39,7 @@ export function useStaffMember(
   staffId: string | null,
 ) {
   return useQuery({
-    queryKey: ["staff", "detail", organizationId, branchId, staffId],
+    queryKey: queryKeys.staff.detail(organizationId ?? "", branchId ?? "", staffId ?? ""),
     queryFn: async () =>
       mapLegacyApiStaffToMember(
         unwrapStaffMember(
