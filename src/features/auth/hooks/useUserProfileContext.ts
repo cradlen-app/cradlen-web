@@ -11,6 +11,7 @@ import {
 } from "@/features/auth/lib/current-user";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { formatBranchLocation } from "@/lib/branch.utils";
 
 /**
  * Centralises the extraction of user profile context used across dashboard
@@ -37,11 +38,7 @@ export function useUserProfileContext() {
 
   const activeBranch = getDefaultBranch(activeProfile, selectedBranchId);
   const branchId = getBranchId(activeBranch);
-  const branchName = activeBranch
-    ? [activeBranch.address, activeBranch.city, activeBranch.governorate]
-        .filter(Boolean)
-        .join(", ")
-    : undefined;
+  const branchName = formatBranchLocation(activeBranch);
 
   return {
     currentUser,
