@@ -35,7 +35,8 @@
     "messages": "الرسائل",
     "profileSwitcher": "تبديل الملف",
     "switchBranch": "تبديل الفرع",
-    "switchBranchError": "فشل تبديل الفرع"
+    "switchBranchError": "فشل تبديل الفرع",
+    "branchLabel": "فرع {city}"
   },
   "staff": {
     "title": "الموظفون",
