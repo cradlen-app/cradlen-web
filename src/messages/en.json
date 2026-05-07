@@ -830,6 +830,7 @@
       "changeStatus": "Change status",
       "retry": "Retry",
       "close": "Close",
+      "cancelVisitTitle": "Cancel this visit?",
       "confirmCancel": "Yes, cancel"
     }
   }
