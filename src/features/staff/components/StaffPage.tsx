@@ -13,7 +13,12 @@ import { useStaffDirectory } from "../hooks/useStaffDirectory";
 import { useStaffRoles } from "../hooks/useStaffRoles";
 import { getStaffFullName } from "../lib/staff.utils";
 import type { StaffFilter, StaffMember } from "../types/staff.types";
-import { StaffCreateDrawer } from "./StaffCreateDrawer";
+import dynamic from "next/dynamic";
+
+const StaffCreateDrawer = dynamic(
+  () => import("./StaffCreateDrawer").then((m) => m.StaffCreateDrawer),
+  { loading: () => null },
+);
 import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
 import { StaffTable } from "./StaffTable";

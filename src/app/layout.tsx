@@ -11,7 +11,12 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const cairo = Cairo({ variable: "--font-cairo", subsets: ["arabic", "latin"] });
+const cairo = Cairo({
+  variable: "--font-cairo",
+  subsets: ["arabic", "latin"],
+  preload: false,
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Cradlen",

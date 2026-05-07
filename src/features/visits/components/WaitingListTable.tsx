@@ -4,8 +4,6 @@ import { useState } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
-import { toast } from "sonner";
-import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import type { Visit, VisitStatus } from "../types/visits.types";
@@ -40,13 +38,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
   const nextOptions = NEXT_STATUSES[visit.status] ?? [];
 
   async function commit(status: VisitStatus) {
-    try {
-      await updateStatus.mutateAsync({ visitId: visit.id, status });
-    } catch (error) {
-      const message =
-        error instanceof ApiError ? error.messages[0] : "Update failed";
-      toast.error(message);
-    }
+    await updateStatus.mutateAsync({ visitId: visit.id, status, branchId: visit.branchId });
   }
 
   function handleChange(next: VisitStatus) {

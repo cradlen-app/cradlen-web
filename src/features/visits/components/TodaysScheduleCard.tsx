@@ -7,7 +7,7 @@ import { formatTimeRange } from "../lib/visits.utils";
 import type { ScheduleEvent, ScheduleEventKind } from "../types/visits.types";
 
 type Props = {
-  branchId: string | null | undefined;
+  branchId: string;
   date: string;
   assignedToMe?: boolean;
   bare?: boolean;
@@ -76,6 +76,27 @@ function ScheduleEntry({ event, t }: ScheduleEntryProps) {
   );
 }
 
+export function TodaysScheduleCardSkeleton({ bare }: { bare?: boolean }) {
+  const inner = (
+    <>
+      <div className="mb-3 h-4 w-28 animate-pulse rounded bg-gray-200" />
+      <div className="space-y-2.5">
+        <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
+        <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
+        <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
+      </div>
+    </>
+  );
+
+  if (bare) return inner;
+
+  return (
+    <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      {inner}
+    </section>
+  );
+}
+
 export function TodaysScheduleCard({
   branchId,
   date,
@@ -83,11 +104,7 @@ export function TodaysScheduleCard({
   bare,
 }: Props) {
   const t = useTranslations("dashboardHome.schedule");
-  const { data, isLoading, isError } = useTodaysSchedule({
-    branchId,
-    date,
-    assignedToMe,
-  });
+  const { data } = useTodaysSchedule({ branchId, date, assignedToMe });
 
   const inner = (
     <>
@@ -96,15 +113,7 @@ export function TodaysScheduleCard({
       </header>
 
       <div className="space-y-2.5">
-        {isLoading ? (
-          <>
-            <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
-            <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
-            <div className="h-20 animate-pulse rounded-xl bg-gray-50" />
-          </>
-        ) : isError ? (
-          <p className="text-sm text-red-500">{t("loadError")}</p>
-        ) : data && data.length > 0 ? (
+        {data.length > 0 ? (
           data.map((event) => (
             <ScheduleEntry key={event.id} event={event} t={t} />
           ))

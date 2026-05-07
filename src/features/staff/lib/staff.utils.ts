@@ -56,24 +56,24 @@ export function computeStaffStatus(
   return inShift ? "available" : "notAvailable";
 }
 
-const DAY_NAMES: Record<string, string> = {
-  MON: "Mon",
-  TUE: "Tue",
-  WED: "Wed",
-  THU: "Thu",
-  FRI: "Fri",
-  SAT: "Sat",
-  SUN: "Sun",
-};
-
-function formatTime(time: string) {
-  const [h, m] = time.split(":").map(Number);
-  const suffix = h >= 12 ? "PM" : "AM";
-  const hour = h % 12 || 12;
-  return `${hour}:${String(m).padStart(2, "0")}${suffix}`;
+function getDayName(dayCode: string, locale: string): string {
+  // Jan 4 2026 is a Sunday; offset by dayIndex gives the correct weekday date.
+  const dayIndex = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].indexOf(dayCode);
+  const date = new Date(2026, 0, 4 + dayIndex);
+  return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
 }
 
-function formatBranchSchedule(schedule: ApiStaffBranchSchedule[]): string | undefined {
+function formatTime(time: string, locale: string): string {
+  const [h, m] = time.split(":").map(Number);
+  const date = new Date(2000, 0, 1, h, m);
+  return new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+}
+
+function formatBranchSchedule(schedule: ApiStaffBranchSchedule[], locale: string): string | undefined {
   const days = schedule.flatMap((b) => b.days);
   if (!days.length) return undefined;
   const sorted = [...days].sort(
@@ -84,14 +84,14 @@ function formatBranchSchedule(schedule: ApiStaffBranchSchedule[]): string | unde
   return sorted
     .map((day) => {
       const shifts = day.shifts
-        .map((s) => `${formatTime(s.start_time)} - ${formatTime(s.end_time)}`)
+        .map((s) => `${formatTime(s.start_time, locale)} - ${formatTime(s.end_time, locale)}`)
         .join(", ");
-      return `${DAY_NAMES[day.day_of_week]}: ${shifts}`;
+      return `${getDayName(day.day_of_week, locale)}: ${shifts}`;
     })
     .join("\n");
 }
 
-function formatLegacySchedule(schedule?: ApiStaffSchedule): string | undefined {
+function formatLegacySchedule(schedule: ApiStaffSchedule | undefined, locale: string): string | undefined {
   if (!schedule?.days?.length) return undefined;
   const sorted = [...schedule.days].sort(
     (a: ApiStaffDay, b: ApiStaffDay) =>
@@ -101,9 +101,9 @@ function formatLegacySchedule(schedule?: ApiStaffSchedule): string | undefined {
   return sorted
     .map((day) => {
       const shifts = day.shifts
-        .map((s) => `${formatTime(s.start_time)} - ${formatTime(s.end_time)}`)
+        .map((s) => `${formatTime(s.start_time, locale)} - ${formatTime(s.end_time, locale)}`)
         .join(", ");
-      return `${DAY_NAMES[day.day_of_week]}: ${shifts}`;
+      return `${getDayName(day.day_of_week, locale)}: ${shifts}`;
     })
     .join("\n");
 }
@@ -117,7 +117,7 @@ export function normalizeApiRoleName(name?: string): StaffRole {
 }
 
 // Maps the /organizations/:organizationId/staff response shape
-export function mapApiStaffToMember(api: NewApiStaffMember): StaffMember {
+export function mapApiStaffToMember(api: NewApiStaffMember, locale: string): StaffMember {
   const primaryRole = api.roles?.[0];
   const role = normalizeApiRoleName(primaryRole?.name);
 
@@ -139,12 +139,12 @@ export function mapApiStaffToMember(api: NewApiStaffMember): StaffMember {
     schedule: api.schedule?.length
       ? { days: api.schedule.flatMap((b) => b.days) as ApiStaffDay[] }
       : undefined,
-    workSchedule: api.schedule?.length ? formatBranchSchedule(api.schedule) : undefined,
+    workSchedule: api.schedule?.length ? formatBranchSchedule(api.schedule, locale) : undefined,
   };
 }
 
 // Legacy mapper for old /staff/:id response shape (used by updateStaff/deactivateStaff)
-export function mapLegacyApiStaffToMember(api: ApiStaffMember): StaffMember {
+export function mapLegacyApiStaffToMember(api: ApiStaffMember, locale: string): StaffMember {
   const legacySchedule = Array.isArray(api.schedule) ? undefined : (api.schedule as ApiStaffSchedule | undefined);
   return {
     id: api.id ?? api.profile_id,
@@ -161,7 +161,7 @@ export function mapLegacyApiStaffToMember(api: ApiStaffMember): StaffMember {
     phone: api.user?.phone_number ?? api.user?.phone ?? api.phone_number ?? "-",
     status: computeStaffStatus(legacySchedule),
     schedule: legacySchedule,
-    workSchedule: formatLegacySchedule(legacySchedule),
+    workSchedule: formatLegacySchedule(legacySchedule, locale),
   };
 }
 

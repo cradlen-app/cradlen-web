@@ -1,8 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { MiniCalendar } from "./MiniCalendar";
-import { TodaysScheduleCard } from "./TodaysScheduleCard";
+import { TodaysScheduleCard, TodaysScheduleCardSkeleton } from "./TodaysScheduleCard";
 
 type Props = {
   branchId: string | null | undefined;
@@ -30,12 +31,18 @@ export function VisitsOverviewPanel({
       </div>
 
       <div className="p-4">
-        <TodaysScheduleCard
-          branchId={branchId}
-          date={selectedDate}
-          assignedToMe={assignedToMe}
-          bare
-        />
+        {branchId ? (
+          <Suspense fallback={<TodaysScheduleCardSkeleton bare />}>
+            <TodaysScheduleCard
+              branchId={branchId}
+              date={selectedDate}
+              assignedToMe={assignedToMe}
+              bare
+            />
+          </Suspense>
+        ) : (
+          <TodaysScheduleCardSkeleton bare />
+        )}
       </div>
     </aside>
   );
