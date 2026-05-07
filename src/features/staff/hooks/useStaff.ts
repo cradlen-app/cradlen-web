@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useLocale } from "next-intl";
 import { fetchAllStaff, fetchStaffMember } from "../lib/staff.api";
 import { mapApiStaffToMember, mapLegacyApiStaffToMember } from "../lib/staff.utils";
 import type { ApiStaffMember, StaffMemberResponse } from "../types/staff.api.types";
@@ -18,11 +19,12 @@ export function useStaff(
   _legacyBranchId: string | undefined,
   { q, roleId, branchId, role }: UseStaffOptions = {},
 ) {
+  const locale = useLocale();
   return useQuery({
     queryKey: queryKeys.staff.list(organizationId ?? "", { q, roleId, branchId, role }),
     queryFn: async () => {
       const staff = await fetchAllStaff(organizationId!, { q, roleId, branchId, role });
-      return staff.map(mapApiStaffToMember);
+      return staff.map((member) => mapApiStaffToMember(member, locale));
     },
     enabled: !!organizationId,
     staleTime: 2 * 60 * 1000,
@@ -38,6 +40,7 @@ export function useStaffMember(
   branchId: string | undefined,
   staffId: string | null,
 ) {
+  const locale = useLocale();
   return useQuery({
     queryKey: queryKeys.staff.detail(organizationId ?? "", branchId ?? "", staffId ?? ""),
     queryFn: async () =>
@@ -48,6 +51,7 @@ export function useStaffMember(
             organizationId: organizationId!,
           }),
         ),
+        locale,
       ),
     enabled: !!organizationId && !!branchId && !!staffId,
     staleTime: 60 * 1000,
