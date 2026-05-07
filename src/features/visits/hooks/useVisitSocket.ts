@@ -15,39 +15,51 @@ export function useVisitSocket(profileId?: string | null, branchId?: string | nu
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_VISITS_MOCK === "true") return;
 
-    let cleanup: (() => void) | undefined;
+    // cancelled guards against the race where cleanup runs before the
+    // dynamic import resolves, which would leave the socket connected.
+    let cancelled = false;
+    let disconnect: (() => void) | undefined;
 
     import("socket.io-client").then(({ io }) => {
+      if (cancelled) return;
+
       const socket = io(`${getWsBaseUrl()}/visits`, {
         transports: ["websocket"],
         withCredentials: true,
       });
 
       socket.on("connect", () => {
-        if (profileId) {
-          socket.emit("join", { doctorId: profileId });
+        if (profileId) socket.emit("join", { doctorId: profileId });
+      });
+
+      socket.on("connect_error", (err) => {
+        console.error("[visit-socket] connection error:", err.message);
+      });
+
+      socket.on("disconnect", (reason) => {
+        // Server-initiated disconnects need an explicit reconnect.
+        if (reason === "io server disconnect") {
+          socket.connect();
         }
       });
 
-      socket.on("visit.booked", () => {
+      const invalidate = () => {
         if (branchId) {
           queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(branchId) });
         } else {
           queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
         }
-      });
+      };
 
-      socket.on("visit.status_updated", () => {
-        if (branchId) {
-          queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(branchId) });
-        } else {
-          queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
-        }
-      });
+      socket.on("visit.booked", invalidate);
+      socket.on("visit.status_updated", invalidate);
 
-      cleanup = () => socket.disconnect();
+      disconnect = () => socket.disconnect();
     });
 
-    return () => cleanup?.();
+    return () => {
+      cancelled = true;
+      disconnect?.();
+    };
   }, [profileId, branchId, queryClient]);
 }
