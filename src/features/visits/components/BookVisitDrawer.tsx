@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
@@ -82,7 +82,6 @@ export function BookVisitDrawer({
     register,
     setValue,
     control,
-    reset,
   } = form;
 
   const visitType = useWatch({ control, name: "visitType" });
@@ -92,15 +91,6 @@ export function BookVisitDrawer({
   const assignedDoctorId = useWatch({ control, name: "assignedDoctorId" });
   const selectedDoctor = doctors.find((d) => d.id === assignedDoctorId);
   const doctorHint = selectedDoctor?.specialty || selectedDoctor?.jobTitle || null;
-
-  useEffect(() => {
-    if (open) {
-      reset(getDefaultBookVisitValues());
-      setSearchInput("");
-      setSelectedPatient(null);
-      setDropdownOpen(false);
-    }
-  }, [open, reset]);
 
   function handleSelectPatient(patient: Patient) {
     setSelectedPatient(patient);
