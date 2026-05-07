@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
+import { toast } from "sonner";
 import type {
   SelectProfileRequest,
   SelectProfileResponse,
@@ -12,5 +13,12 @@ export function useSelectProfile() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { apiAuthFetch } from "@/lib/api";
+import { apiAuthFetch, ApiError } from "@/lib/api";
+import { toast } from "sonner";
 import type {
   NotificationsResponse,
   NotificationCategory,
@@ -40,12 +41,26 @@ export function useNotifications({
     mutationFn: (id: string) =>
       apiAuthFetch(`/notifications/${id}/read`, { method: "PATCH" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 
   const markAllAsReadMutation = useMutation({
     mutationFn: () =>
       apiAuthFetch("/notifications/read-all", { method: "PATCH" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 
   return {
