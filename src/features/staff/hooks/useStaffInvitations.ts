@@ -118,10 +118,9 @@ export function useDeleteStaffInvitation() {
     mutationFn: ({ organizationId, invitationId }: DeleteVariables) =>
       deleteStaffInvitation(organizationId, invitationId),
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.invitations.all() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
-      ]);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.staff.invitations.all(),
+      });
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, "Failed to delete invitation"));

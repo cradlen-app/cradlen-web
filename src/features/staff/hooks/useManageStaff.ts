@@ -36,7 +36,9 @@ export function useUpdateStaff() {
       }),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        }),
         queryClient.invalidateQueries({
           queryKey: queryKeys.staff.detail(
             variables.organizationId,
@@ -64,7 +66,9 @@ export function useDeactivateStaff() {
       deactivateStaff(staffId, { branchId, organizationId }),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        }),
         queryClient.invalidateQueries({
           queryKey: queryKeys.staff.detail(
             variables.organizationId,
