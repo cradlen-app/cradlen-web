@@ -2,7 +2,6 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { io } from "socket.io-client";
 import { queryKeys } from "@/lib/queryKeys";
 
 function getWsBaseUrl() {
@@ -10,33 +9,57 @@ function getWsBaseUrl() {
   return url.replace(/\/v1\/?$/, "");
 }
 
-export function useVisitSocket(profileId?: string | null) {
+export function useVisitSocket(profileId?: string | null, branchId?: string | null) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_VISITS_MOCK === "true") return;
 
-    const socket = io(`${getWsBaseUrl()}/visits`, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    // cancelled guards against the race where cleanup runs before the
+    // dynamic import resolves, which would leave the socket connected.
+    let cancelled = false;
+    let disconnect: (() => void) | undefined;
 
-    socket.on("connect", () => {
-      if (profileId) {
-        socket.emit("join", { doctorId: profileId });
-      }
-    });
+    import("socket.io-client").then(({ io }) => {
+      if (cancelled) return;
 
-    socket.on("visit.booked", () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
-    });
+      const socket = io(`${getWsBaseUrl()}/visits`, {
+        transports: ["websocket"],
+        withCredentials: true,
+      });
 
-    socket.on("visit.status_updated", () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
+      socket.on("connect", () => {
+        if (profileId) socket.emit("join", { doctorId: profileId });
+      });
+
+      socket.on("connect_error", (err) => {
+        console.error("[visit-socket] connection error:", err.message);
+      });
+
+      socket.on("disconnect", (reason) => {
+        // Server-initiated disconnects need an explicit reconnect.
+        if (reason === "io server disconnect") {
+          socket.connect();
+        }
+      });
+
+      const invalidate = () => {
+        if (branchId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(branchId) });
+        } else {
+          queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
+        }
+      };
+
+      socket.on("visit.booked", invalidate);
+      socket.on("visit.status_updated", invalidate);
+
+      disconnect = () => socket.disconnect();
     });
 
     return () => {
-      socket.disconnect();
+      cancelled = true;
+      disconnect?.();
     };
-  }, [profileId, queryClient]);
+  }, [profileId, branchId, queryClient]);
 }

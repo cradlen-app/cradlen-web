@@ -1,6 +1,7 @@
 // src/features/notifications/components/NotificationItem.tsx
 "use client";
 
+import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "../lib/utils";
 import type { Notification, NotificationCategory } from "../types/notification.types";
@@ -40,6 +41,7 @@ type Props = {
 };
 
 export function NotificationItem({ notification, variant, categoryLabel, onClick }: Props) {
+  const locale = useLocale();
   const { category, title, description, is_read, created_at } = notification;
 
   if (variant === "compact") {
@@ -65,7 +67,7 @@ export function NotificationItem({ notification, variant, categoryLabel, onClick
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-gray-900 truncate">{title}</p>
           <p className="text-[11px] text-gray-500 leading-snug line-clamp-2">{description}</p>
-          <p className="text-[10px] text-gray-400 mt-0.5">{formatRelativeTime(created_at)}</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">{formatRelativeTime(created_at, locale)}</p>
         </div>
         {!is_read && (
           <span className="size-2 rounded-full bg-brand-primary shrink-0 mt-1.5" />
@@ -97,7 +99,7 @@ export function NotificationItem({ notification, variant, categoryLabel, onClick
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-gray-900">{title}</p>
         <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 mt-0.5">{description}</p>
-        <p className="text-[11px] text-gray-400 mt-1">{formatRelativeTime(created_at)}</p>
+        <p className="text-[11px] text-gray-400 mt-1">{formatRelativeTime(created_at, locale)}</p>
       </div>
       <div className="flex flex-col items-end gap-2 shrink-0">
         {!is_read && <span className="size-2 rounded-full bg-brand-primary mt-1" />}

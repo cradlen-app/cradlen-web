@@ -7,8 +7,8 @@ import {
   fetchStaffInvitations,
   resendStaffInvitation,
 } from "../lib/staff.api";
-import { ApiError } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/lib/error";
 import { toast } from "sonner";
 import type {
   ApiStaffInvitation,
@@ -101,11 +101,7 @@ export function useResendStaffInvitation() {
       ]);
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.messages[0] ?? "Failed to resend invitation")
-          : "Failed to resend invitation";
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, "Failed to resend invitation"));
     },
   });
 }
@@ -122,17 +118,12 @@ export function useDeleteStaffInvitation() {
     mutationFn: ({ organizationId, invitationId }: DeleteVariables) =>
       deleteStaffInvitation(organizationId, invitationId),
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.invitations.all() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
-      ]);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.staff.invitations.all(),
+      });
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.messages[0] ?? "Failed to delete invitation")
-          : "Failed to delete invitation";
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, "Failed to delete invitation"));
     },
   });
 }

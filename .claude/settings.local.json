@@ -45,7 +45,10 @@
       "Bash(cat src/features/auth/hooks/useCurrentUser.ts)",
       "Bash(cat src/features/auth/hooks/useCurrentUser.tsx)",
       "Bash(cat src/hooks/useAuthRedirect.ts)",
-      "Bash(cat src/hooks/useAuthRedirect.tsx)"
+      "Bash(cat src/hooks/useAuthRedirect.tsx)",
+      "Bash(xargs cat *)",
+      "Bash(xargs -I{} bash -c 'echo \"=== {} ===\" && head -40 \"{}\"')",
+      "Bash(xargs -I{} bash -c 'echo \"=== {} ===\" && head -50 \"{}\"')"
     ]
   }
 }

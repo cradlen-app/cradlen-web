@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cancelVisit } from "../lib/visits.api";
-import { ApiError } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/lib/error";
 import { toast } from "sonner";
 
 export function useCancelVisit() {
@@ -15,11 +15,7 @@ export function useCancelVisit() {
       queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(variables.branchId) });
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.messages[0] ?? "Failed to cancel visit")
-          : "Failed to cancel visit";
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, "Failed to cancel visit"));
     },
   });
 }

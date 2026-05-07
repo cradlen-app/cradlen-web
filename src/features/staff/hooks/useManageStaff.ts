@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deactivateStaff, updateStaff } from "../lib/staff.api";
-import { ApiError } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/lib/error";
 import { toast } from "sonner";
 import type { UpdateStaffRequest } from "../types/staff.api.types";
 
@@ -36,7 +36,9 @@ export function useUpdateStaff() {
       }),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        }),
         queryClient.invalidateQueries({
           queryKey: queryKeys.staff.detail(
             variables.organizationId,
@@ -47,11 +49,7 @@ export function useUpdateStaff() {
       ]);
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.messages[0] ?? "Failed to update staff member")
-          : "Failed to update staff member";
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, "Failed to update staff member"));
     },
   });
 }
@@ -68,7 +66,9 @@ export function useDeactivateStaff() {
       deactivateStaff(staffId, { branchId, organizationId }),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        }),
         queryClient.invalidateQueries({
           queryKey: queryKeys.staff.detail(
             variables.organizationId,
@@ -79,11 +79,7 @@ export function useDeactivateStaff() {
       ]);
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.messages[0] ?? "Failed to deactivate staff member")
-          : "Failed to deactivate staff member";
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, "Failed to deactivate staff member"));
     },
   });
 }
