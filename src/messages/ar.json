@@ -765,6 +765,9 @@
         "status": "الحالة"
       }
     },
+    "filter": {
+      "all": "جميع الزيارات"
+    },
     "type": {
       "visit": "زيارة",
       "followUp": "متابعة",
@@ -778,7 +781,13 @@
       "cancelled": "ملغاة",
       "scheduled": "مجدولة",
       "checkedIn": "تم التسجيل",
-      "noShow": "لم يحضر"
+      "noShow": "لم يحضر",
+      "SCHEDULED": "مجدولة",
+      "CHECKED_IN": "تم التسجيل",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "COMPLETED": "مكتملة",
+      "CANCELLED": "ملغاة",
+      "NO_SHOW": "لم يحضر"
     },
     "priority": {
       "normal": "عادية",
@@ -818,7 +827,10 @@
     "actions": {
       "start": "بدء",
       "cancel": "إلغاء",
-      "changeStatus": "تغيير الحالة"
+      "changeStatus": "تغيير الحالة",
+      "retry": "إعادة المحاولة",
+      "close": "إغلاق",
+      "confirmCancel": "نعم، إلغاء"
     }
   }
 }

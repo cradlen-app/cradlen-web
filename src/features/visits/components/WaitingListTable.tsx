@@ -31,16 +31,8 @@ const NEXT_STATUSES: Partial<Record<VisitStatus, VisitStatus[]>> = {
   IN_PROGRESS: ["COMPLETED"],
 };
 
-const STATUS_LABEL: Record<VisitStatus, string> = {
-  SCHEDULED: "Scheduled",
-  CHECKED_IN: "Checked In",
-  IN_PROGRESS: "In Progress",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-  NO_SHOW: "No Show",
-};
-
 function StatusSelect({ visit }: { visit: Visit }) {
+  const t = useTranslations("visits");
   const updateStatus = useUpdateVisitStatus();
   const [pendingCancel, setPendingCancel] = useState(false);
 
@@ -82,12 +74,12 @@ function StatusSelect({ visit }: { visit: Visit }) {
           )}
           aria-label="Change status"
         >
-          <option value={visit.status}>{STATUS_LABEL[visit.status]}</option>
+          <option value={visit.status}>{t(`status.${visit.status}`)}</option>
           {nextOptions
             .filter((s) => s !== visit.status)
             .map((status) => (
               <option key={status} value={status}>
-                {STATUS_LABEL[status]}
+                {t(`status.${status}`)}
               </option>
             ))}
         </select>
@@ -109,7 +101,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
             </Dialog.Description>
             <div className="mt-5 flex items-center justify-end gap-2">
               <Dialog.Close className="inline-flex h-8 items-center rounded-full border border-gray-200 px-3 text-xs font-medium text-gray-600 hover:bg-gray-50">
-                Close
+                {t("actions.close")}
               </Dialog.Close>
               <button
                 type="button"
@@ -122,7 +114,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
                 {updateStatus.isPending && (
                   <Loader2 className="size-3 animate-spin" aria-hidden="true" />
                 )}
-                Yes, cancel
+                {t("actions.confirmCancel")}
               </button>
             </div>
           </Dialog.Content>
@@ -143,6 +135,7 @@ export function WaitingListTable({
   onRetry,
 }: Props) {
   const t = useTranslations("visits.waitingList");
+  const tVisits = useTranslations("visits");
 
   if (isError) {
     return (
@@ -153,7 +146,7 @@ export function WaitingListTable({
           onClick={onRetry}
           className="rounded-full border border-red-200 bg-white px-3 py-1 font-medium text-red-600 hover:bg-red-50"
         >
-          Retry
+          {tVisits("actions.retry")}
         </button>
       </div>
     );

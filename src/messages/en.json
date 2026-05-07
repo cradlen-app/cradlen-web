@@ -765,6 +765,9 @@
         "status": "Status"
       }
     },
+    "filter": {
+      "all": "All Visits"
+    },
     "type": {
       "visit": "Visit",
       "followUp": "Follow-up",
@@ -778,7 +781,13 @@
       "cancelled": "Cancelled",
       "scheduled": "Scheduled",
       "checkedIn": "Checked In",
-      "noShow": "No Show"
+      "noShow": "No Show",
+      "SCHEDULED": "Scheduled",
+      "CHECKED_IN": "Checked In",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "No Show"
     },
     "priority": {
       "normal": "Normal",
@@ -818,7 +827,10 @@
     "actions": {
       "start": "Start",
       "cancel": "Cancel",
-      "changeStatus": "Change status"
+      "changeStatus": "Change status",
+      "retry": "Retry",
+      "close": "Close",
+      "confirmCancel": "Yes, cancel"
     }
   }
 }
