@@ -12,9 +12,11 @@ export const visitStatusSchema = z.enum([
   "NO_SHOW",
 ]);
 
-export const visitTypeSchema = z.enum(["VISIT", "FOLLOW_UP", "MEDICAL_REP"]);
+const VISIT_TYPE_VALUES = [VISIT_TYPE.VISIT, VISIT_TYPE.FOLLOW_UP, VISIT_TYPE.MEDICAL_REP] as const;
+export const visitTypeSchema = z.enum(VISIT_TYPE_VALUES);
 
-export const visitPrioritySchema = z.enum(["NORMAL", "EMERGENCY"]);
+const VISIT_PRIORITY_VALUES = [VISIT_PRIORITY.NORMAL, VISIT_PRIORITY.EMERGENCY] as const;
+export const visitPrioritySchema = z.enum(VISIT_PRIORITY_VALUES);
 
 export const scheduleEventKindSchema = z.enum([
   "visit",
@@ -25,10 +27,10 @@ export const scheduleEventKindSchema = z.enum([
 
 export const waitingListFilterSchema = z.enum([
   "all",
-  "VISIT",
-  "FOLLOW_UP",
-  "MEDICAL_REP",
-  "EMERGENCY",
+  VISIT_TYPE.VISIT,
+  VISIT_TYPE.FOLLOW_UP,
+  VISIT_TYPE.MEDICAL_REP,
+  VISIT_PRIORITY.EMERGENCY,
 ]);
 
 // ── form: book-visit ──────────────────────────────────────────────────────────

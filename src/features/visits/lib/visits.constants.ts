@@ -6,6 +6,5 @@ export const VISIT_TYPE = {
 
 export const VISIT_PRIORITY = {
   NORMAL: "NORMAL",
-  URGENT: "URGENT",
   EMERGENCY: "EMERGENCY",
 } as const;

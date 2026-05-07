@@ -1,6 +1,7 @@
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import type { ApiStaffSchedule } from "./staff.api.types";
 
-export type StaffRole = "owner" | "doctor" | "reception" | "unknown";
+export type StaffRole = (typeof STAFF_ROLE)[keyof typeof STAFF_ROLE];
 
 export type StaffStatus = "available" | "notAvailable";
 
