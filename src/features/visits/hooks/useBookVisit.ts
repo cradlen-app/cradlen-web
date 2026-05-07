@@ -11,8 +11,13 @@ export function useBookVisit() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: BookVisitRequest) => bookVisit(body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
+    onSuccess: (_, variables) => {
+      const branchId = variables.branch_id;
+      if (branchId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(branchId) });
+      } else {
+        queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
+      }
     },
     onError: (error) => {
       const message =

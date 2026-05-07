@@ -1,5 +1,10 @@
+import dynamic from "next/dynamic";
 import { setRequestLocale } from "next-intl/server";
-import { SettingsPage } from "@/features/settings/components/SettingsPage";
+
+const SettingsPage = dynamic(
+  () => import("@/features/settings/components/SettingsPage").then((m) => m.SettingsPage),
+  { loading: () => null },
+);
 
 type Props = {
   params: Promise<{ locale: string; orgId: string; branchId: string }>;

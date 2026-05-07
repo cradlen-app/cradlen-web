@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
@@ -12,8 +12,8 @@ import {
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { MiniCalendar } from "@/features/visits/components/MiniCalendar";
-import { StatCards } from "@/features/visits/components/StatCards";
-import { TodaysScheduleCard } from "@/features/visits/components/TodaysScheduleCard";
+import { StatCards, StatCardsSkeleton } from "@/features/visits/components/StatCards";
+import { TodaysScheduleCard, TodaysScheduleCardSkeleton } from "@/features/visits/components/TodaysScheduleCard";
 import { UpNextPreview } from "@/features/visits/components/UpNextPreview";
 import { getTodayIso } from "@/features/visits/lib/visits.utils";
 
@@ -59,15 +59,27 @@ export function DashboardHome() {
         </span>
       </header>
 
-      <StatCards branchId={branchId} date={selectedDate} assignedToMe={assignedToMe} />
+      {branchId ? (
+        <Suspense fallback={<StatCardsSkeleton />}>
+          <StatCards branchId={branchId} date={selectedDate} assignedToMe={assignedToMe} />
+        </Suspense>
+      ) : (
+        <StatCardsSkeleton />
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <section className="space-y-6 lg:col-span-2">
-          <TodaysScheduleCard
-            branchId={branchId}
-            date={selectedDate}
-            assignedToMe={assignedToMe}
-          />
+          {branchId ? (
+            <Suspense fallback={<TodaysScheduleCardSkeleton />}>
+              <TodaysScheduleCard
+                branchId={branchId}
+                date={selectedDate}
+                assignedToMe={assignedToMe}
+              />
+            </Suspense>
+          ) : (
+            <TodaysScheduleCardSkeleton />
+          )}
           <UpNextPreview branchId={branchId} assignedToMe={assignedToMe} />
         </section>
         <aside className="space-y-6">
