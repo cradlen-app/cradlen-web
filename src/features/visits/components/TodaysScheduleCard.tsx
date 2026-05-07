@@ -42,7 +42,7 @@ function ScheduleEntry({ event, t }: ScheduleEntryProps) {
     >
       <span
         className={cn(
-          "absolute inset-y-2 start-1.5 w-1 rounded-full",
+          "absolute inset-y-2 inset-s-1.5 w-1 rounded-full",
           KIND_BAR[event.kind],
         )}
         aria-hidden="true"
@@ -62,19 +62,32 @@ function ScheduleEntry({ event, t }: ScheduleEntryProps) {
       {event.doctorNames?.length ? (
         <p className="mt-0.5 text-[11px] text-gray-500 truncate">
           <span className="text-gray-400">{t("assignedLabel")}: </span>
-          <span className="text-brand-black">{event.doctorNames.join(", ")}</span>
+          <span className="text-brand-black">
+            {event.doctorNames.join(", ")}
+          </span>
         </p>
       ) : null}
       {event.notes && (
-        <p className="mt-1.5 text-[11px] text-gray-500 truncate">{event.notes}</p>
+        <p className="mt-1.5 text-[11px] text-gray-500 truncate">
+          {event.notes}
+        </p>
       )}
     </article>
   );
 }
 
-export function TodaysScheduleCard({ branchId, date, assignedToMe, bare }: Props) {
+export function TodaysScheduleCard({
+  branchId,
+  date,
+  assignedToMe,
+  bare,
+}: Props) {
   const t = useTranslations("dashboardHome.schedule");
-  const { data, isLoading, isError } = useTodaysSchedule({ branchId, date, assignedToMe });
+  const { data, isLoading, isError } = useTodaysSchedule({
+    branchId,
+    date,
+    assignedToMe,
+  });
 
   const inner = (
     <>
@@ -92,7 +105,9 @@ export function TodaysScheduleCard({ branchId, date, assignedToMe, bare }: Props
         ) : isError ? (
           <p className="text-sm text-red-500">{t("loadError")}</p>
         ) : data && data.length > 0 ? (
-          data.map((event) => <ScheduleEntry key={event.id} event={event} t={t} />)
+          data.map((event) => (
+            <ScheduleEntry key={event.id} event={event} t={t} />
+          ))
         ) : (
           <p className="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 px-3 py-6 text-center text-xs text-gray-400">
             {t("empty")}
