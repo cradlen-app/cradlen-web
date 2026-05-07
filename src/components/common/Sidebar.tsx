@@ -280,7 +280,7 @@ export function Sidebar() {
 
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={() => void handleLogout()}
           title={collapsed ? t("logout") : undefined}
           className={cn(
             "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150",

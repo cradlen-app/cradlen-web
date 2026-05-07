@@ -39,7 +39,7 @@ export function useSidebarBranchSwitch(profile: UserProfile | undefined) {
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [branchMenuOpen]);
+  }, [branchMenuOpen, setBranchMenuOpen]);
 
   const branch = getDefaultBranch(profile, branchId);
   const branches = getProfileBranches(profile);
