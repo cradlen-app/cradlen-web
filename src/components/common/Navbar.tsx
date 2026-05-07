@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Search, Upload, Mail } from "lucide-react";
+import { Search, Upload, Mail, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
@@ -18,6 +18,7 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { queryClient } from "@/lib/queryClient";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/layout/SidebarContext";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
 import { NotificationDropdown } from "@/features/notifications/components/NotificationDropdown";
@@ -84,6 +85,7 @@ export function Navbar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
+  const { openMobile } = useSidebar();
   const { data: user } = useCurrentUser();
   const selectProfile = useSelectProfile();
   const setContext = useAuthContextStore((state) => state.setContext);
@@ -127,13 +129,23 @@ export function Navbar() {
 
   return (
     <header className="h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0 ">
+      {/* Hamburger — mobile only */}
+      <button
+        type="button"
+        onClick={openMobile}
+        aria-label={t("openMenu")}
+        className="size-9 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150 lg:hidden shrink-0"
+      >
+        <Menu className="size-5" />
+      </button>
+
       {/* Logo */}
       <div className="w-30 shrink-0">
         <Image src={Logo} alt="CRADLEN" height={30} className="w-auto" />
       </div>
 
       {/* Search */}
-      <div className="flex-1 min-w-sm max-w-md relative ms-2">
+      <div className="hidden sm:flex flex-1 min-w-sm max-w-md relative ms-2">
         <input
           type="text"
           placeholder={t("searchPlaceholder")}
@@ -144,16 +156,16 @@ export function Navbar() {
 
       {/* Right section */}
       <div className="flex items-center gap-1">
-        {/* Upload */}
+        {/* Upload — hidden on small screens */}
         <button
           type="button"
-          className="flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium text-gray-500 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150"
+          className="hidden sm:flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium text-gray-500 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150"
         >
           <Upload className="size-4" />
           <span>{t("upload")}</span>
         </button>
 
-        <div className="w-px h-5 bg-gray-200 mx-1.5" />
+        <div className="hidden sm:block w-px h-5 bg-gray-200 mx-1.5" />
 
         {/* Notification */}
         <NotificationDropdown />
@@ -171,7 +183,7 @@ export function Navbar() {
             avatarUrl={undefined}
             className="size-8"
           />
-          <div className="flex flex-col items-start leading-none gap-0.5">
+          <div className="hidden sm:flex flex-col items-start leading-none gap-0.5">
             <span className="text-sm text-brand-black group-hover:text-brand-primary transition-colors duration-150 whitespace-nowrap">
               {displayName}
             </span>

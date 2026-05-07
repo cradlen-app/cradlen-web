@@ -43,7 +43,7 @@ export function PatientsTable({
 
   return (
     <div className="overflow-x-auto bg-white px-4">
-      <table className="w-full min-w-[860px] text-sm">
+      <table className="w-full min-w-215 text-sm">
         <thead>
           <tr className="border-b border-gray-100">
             {COLUMNS.map((col) => (
@@ -80,7 +80,7 @@ export function PatientsTable({
               <td className="py-3 pe-4 text-brand-black">
                 {patient.phoneNumber ?? "—"}
               </td>
-              <td className="max-w-[160px] py-3 pe-4">
+              <td className="max-w-40 py-3 pe-4">
                 <span
                   className="block truncate text-brand-black"
                   title={patient.address}

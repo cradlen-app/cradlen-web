@@ -70,7 +70,7 @@ export function PatientsPage() {
           onSearchChange={setSearch}
         />
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-auto">
           {isLoading ? (
             <PatientsTableSkeleton />
           ) : noBranch ? (
