@@ -2,6 +2,7 @@
 
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { apiAuthFetch, ApiError } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import type {
   NotificationsResponse,
@@ -22,7 +23,7 @@ export function useNotifications({
 }: UseNotificationsParams = {}): UseNotificationsReturn {
   const queryClient = useQueryClient();
 
-  const queryKey = ["notifications", { page, limit, category }] as const;
+  const queryKey = queryKeys.notifications.list({ page, limit, category });
 
   const searchParams = new URLSearchParams();
   searchParams.set("page", String(page));
@@ -40,7 +41,7 @@ export function useNotifications({
   const markAsReadMutation = useMutation({
     mutationFn: (id: string) =>
       apiAuthFetch(`/notifications/${id}/read`, { method: "PATCH" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() }),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -53,7 +54,7 @@ export function useNotifications({
   const markAllAsReadMutation = useMutation({
     mutationFn: () =>
       apiAuthFetch("/notifications/read-all", { method: "PATCH" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() }),
     onError: (error) => {
       const message =
         error instanceof ApiError

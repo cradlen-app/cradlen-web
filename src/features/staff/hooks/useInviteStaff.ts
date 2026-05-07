@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { inviteStaff } from "../lib/staff.api";
 import { ApiError } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import type { InviteStaffRequest } from "../types/staff.api.types";
 
@@ -19,7 +20,7 @@ export function useInviteStaff() {
     }) => inviteStaff(organizationId, data),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: ["staff", variables.organizationId],
+        queryKey: queryKeys.staff.byOrg(variables.organizationId),
       });
     },
     onError: (error) => {

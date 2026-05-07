@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deactivateStaff, updateStaff } from "../lib/staff.api";
 import { ApiError } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import type { UpdateStaffRequest } from "../types/staff.api.types";
 
@@ -35,15 +36,13 @@ export function useUpdateStaff() {
       }),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["staff"] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "staff",
-            "detail",
+          queryKey: queryKeys.staff.detail(
             variables.organizationId,
             variables.branchId,
             variables.staffId,
-          ],
+          ),
         }),
       ]);
     },
@@ -69,15 +68,13 @@ export function useDeactivateStaff() {
       deactivateStaff(staffId, { branchId, organizationId }),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["staff"] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "staff",
-            "detail",
+          queryKey: queryKeys.staff.detail(
             variables.organizationId,
             variables.branchId,
             variables.staffId,
-          ],
+          ),
         }),
       ]);
     },

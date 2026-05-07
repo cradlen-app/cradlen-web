@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
+import { queryKeys } from "@/lib/queryKeys";
 
 function getWsBaseUrl() {
   const url = process.env.NEXT_PUBLIC_API_URL ?? "https://api.cradlen.com/v1";
@@ -27,11 +28,11 @@ export function useVisitSocket(profileId?: string | null) {
     });
 
     socket.on("visit.booked", () => {
-      queryClient.invalidateQueries({ queryKey: ["visits"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
     });
 
     socket.on("visit.status_updated", () => {
-      queryClient.invalidateQueries({ queryKey: ["visits"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
     });
 
     return () => {
