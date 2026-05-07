@@ -17,6 +17,7 @@ import {
   getDefaultBookVisitValues,
   type BookVisitFormValues,
 } from "../lib/visits.schemas";
+import { VISIT_TYPE, VISIT_PRIORITY } from "../lib/visits.constants";
 import type {
   ApiVisitType,
   ApiVisitPriority,
@@ -46,14 +47,14 @@ export function BookVisitDrawer({
   const t = useTranslations("visits");
 
   const typeOptions: Array<{ value: ApiVisitType; label: string }> = [
-    { value: "VISIT", label: t("type.visit") },
-    { value: "FOLLOW_UP", label: t("type.followUp") },
-    { value: "MEDICAL_REP", label: t("type.medicalRep") },
+    { value: VISIT_TYPE.VISIT, label: t("type.visit") },
+    { value: VISIT_TYPE.FOLLOW_UP, label: t("type.followUp") },
+    { value: VISIT_TYPE.MEDICAL_REP, label: t("type.medicalRep") },
   ];
 
   const priorityOptions: Array<{ value: ApiVisitPriority; label: string }> = [
-    { value: "NORMAL", label: t("priority.normal") },
-    { value: "EMERGENCY", label: t("priority.emergency") },
+    { value: VISIT_PRIORITY.NORMAL, label: t("priority.normal") },
+    { value: VISIT_PRIORITY.EMERGENCY, label: t("priority.emergency") },
   ];
 
   const bookVisit = useBookVisit();
@@ -139,7 +140,7 @@ export function BookVisitDrawer({
     let body: BookVisitRequest;
 
     const scheduledAt = values.scheduledAt?.trim() || new Date().toISOString();
-    const isMedicalRep = values.visitType === "MEDICAL_REP";
+    const isMedicalRep = values.visitType === VISIT_TYPE.MEDICAL_REP;
 
     if (values.patientMode === "existing" && values.patientId) {
       body = {

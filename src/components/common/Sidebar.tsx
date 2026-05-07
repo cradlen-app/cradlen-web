@@ -30,6 +30,7 @@ import {
   getProfilePrimaryRole,
   getBranchId,
 } from "@/features/auth/lib/current-user";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/lib/utils";
 import { canUseSettings } from "./sidebar-access";
@@ -93,7 +94,7 @@ export function Sidebar() {
 
   const { handleLogout } = useLogout();
 
-  if (rawRole === "patient" || rawRole === "unknown") return null;
+  if (rawRole === "patient" || rawRole === STAFF_ROLE.UNKNOWN) return null;
 
   const role = rawRole as StaffRole;
   const navItems = NAV_BY_ROLE[role];

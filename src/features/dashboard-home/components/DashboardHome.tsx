@@ -9,6 +9,7 @@ import {
   getDefaultBranch,
   getProfileOrganization,
 } from "@/features/auth/lib/current-user";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { MiniCalendar } from "@/features/visits/components/MiniCalendar";
 import { StatCards } from "@/features/visits/components/StatCards";
@@ -28,9 +29,9 @@ export function DashboardHome() {
 
   const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
 
-  if (!role || role === "patient" || role === "unknown") return null;
+  if (!role || role === "patient" || role === STAFF_ROLE.UNKNOWN) return null;
 
-  const assignedToMe = role === "doctor";
+  const assignedToMe = role === STAFF_ROLE.DOCTOR;
   const todayLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "short",
     month: "short",

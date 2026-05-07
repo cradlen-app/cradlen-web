@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { UseFormRegister, UseFormSetValue, FieldErrors } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import type { StaffMember } from "@/features/staff/types/staff.types";
+import { VISIT_PRIORITY } from "../lib/visits.constants";
 import type { BookVisitFormValues } from "../lib/visits.schemas";
 import type { ApiVisitType, ApiVisitPriority } from "../types/visits.api.types";
 import { fieldClass, SectionTitle, FieldError } from "./book-visit-shared";
@@ -112,7 +113,7 @@ export function BookVisitMetaSection({
                   className={cn(
                     "h-9 rounded-lg border px-3 text-xs font-medium transition-colors",
                     isActive
-                      ? option.value === "EMERGENCY"
+                      ? option.value === VISIT_PRIORITY.EMERGENCY
                         ? "border-red-500 bg-red-50 text-red-600"
                         : "border-brand-primary bg-brand-primary/10 text-brand-primary"
                       : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",

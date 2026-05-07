@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { VISIT_PRIORITY, VISIT_TYPE } from "../lib/visits.constants";
 import type { WaitingListFilter } from "../types/visits.types";
 
 type Props = {
@@ -13,10 +14,10 @@ export function WaitingListFilters({ value, onChange }: Props) {
   const t = useTranslations("visits");
   const options: Array<{ value: WaitingListFilter; label: string }> = [
     { value: "all", label: t("filter.all") },
-    { value: "VISIT", label: t("type.visit") },
-    { value: "FOLLOW_UP", label: t("type.followUp") },
-    { value: "MEDICAL_REP", label: t("type.medicalRep") },
-    { value: "EMERGENCY", label: t("priority.emergency") },
+    { value: VISIT_TYPE.VISIT, label: t("type.visit") },
+    { value: VISIT_TYPE.FOLLOW_UP, label: t("type.followUp") },
+    { value: VISIT_TYPE.MEDICAL_REP, label: t("type.medicalRep") },
+    { value: VISIT_PRIORITY.EMERGENCY, label: t("priority.emergency") },
   ];
 
   return (

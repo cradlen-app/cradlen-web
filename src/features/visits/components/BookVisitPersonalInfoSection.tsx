@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { cn } from "@/lib/utils";
+import { VISIT_TYPE } from "../lib/visits.constants";
 import type { BookVisitFormValues } from "../lib/visits.schemas";
 import type { ApiVisitType } from "../types/visits.api.types";
 import { fieldClass, SectionTitle, FieldError } from "./book-visit-shared";
@@ -52,7 +53,7 @@ export function BookVisitPersonalInfoSection({
           <FieldError message={errors.phoneNumber?.message} />
         </label>
 
-        {visitType === "MEDICAL_REP" && (
+        {visitType === VISIT_TYPE.MEDICAL_REP && (
           <label className="col-span-2 block">
             <span className="text-xs font-medium text-brand-black">{t("create.fields.company")}</span>
             <input
@@ -63,7 +64,7 @@ export function BookVisitPersonalInfoSection({
           </label>
         )}
 
-        {visitType !== "MEDICAL_REP" && (
+        {visitType !== VISIT_TYPE.MEDICAL_REP && (
           <>
             <label className="block">
               <span className="text-xs font-medium text-brand-black">{t("create.fields.nationalId")}</span>
