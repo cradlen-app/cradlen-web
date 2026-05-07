@@ -1,3 +1,4 @@
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import type { StaffMember } from "../types/staff.types";
 
 export const mockStaff: StaffMember[] = [
@@ -6,7 +7,7 @@ export const mockStaff: StaffMember[] = [
     firstName: "Hamza",
     lastName: "Ibrahem",
     handle: "@smila_owner19",
-    role: "owner",
+    role: STAFF_ROLE.OWNER,
     jobTitle: "Doctor",
     specialty: "Obstetrician & Gynecologist",
     phone: "01148377307",
@@ -19,7 +20,7 @@ export const mockStaff: StaffMember[] = [
     firstName: "Ibrahem",
     lastName: "Mohamed",
     handle: "@smila_recep19",
-    role: "reception",
+    role: STAFF_ROLE.RECEPTION,
     jobTitle: "Receptionist",
     specialty: "",
     phone: "01149377307",
@@ -30,7 +31,7 @@ export const mockStaff: StaffMember[] = [
     firstName: "Mohamed",
     lastName: "Elsayed",
     handle: "@smila_doc19",
-    role: "doctor",
+    role: STAFF_ROLE.DOCTOR,
     jobTitle: "Pediatrician",
     specialty: "Pediatrics",
     phone: "01115687307",
@@ -41,7 +42,7 @@ export const mockStaff: StaffMember[] = [
     firstName: "Ahmed",
     lastName: "Mohamed",
     handle: "@smila_recep8",
-    role: "reception",
+    role: STAFF_ROLE.RECEPTION,
     jobTitle: "Receptionist",
     specialty: "",
     phone: "01100577307",
@@ -52,7 +53,7 @@ export const mockStaff: StaffMember[] = [
     firstName: "Hassan",
     lastName: "Mohamed",
     handle: "@smila_anes",
-    role: "doctor",
+    role: STAFF_ROLE.DOCTOR,
     jobTitle: "Anesthesiologist",
     specialty: "Anesthesiology",
     phone: "01152377307",

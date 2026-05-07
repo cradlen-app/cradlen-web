@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { getProfilePrimaryRole } from "@/features/auth/lib/current-user";
 import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
@@ -106,7 +107,7 @@ export function ProfileSection({
               label={t("fields.jobTitle")}
               value={profile.job_title}
             />
-            {(getProfilePrimaryRole(profile) === "doctor" ||
+            {(getProfilePrimaryRole(profile) === STAFF_ROLE.DOCTOR ||
               (profile.organization?.specialities?.length ?? 0) > 0) && (
               <>
                 <DetailRow

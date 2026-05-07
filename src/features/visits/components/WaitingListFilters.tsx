@@ -1,6 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { VISIT_PRIORITY, VISIT_TYPE } from "../lib/visits.constants";
 import type { WaitingListFilter } from "../types/visits.types";
 
 type Props = {
@@ -8,18 +10,19 @@ type Props = {
   onChange: (next: WaitingListFilter) => void;
 };
 
-const OPTIONS: Array<{ value: WaitingListFilter; label: string }> = [
-  { value: "all", label: "All Visits" },
-  { value: "VISIT", label: "Visit" },
-  { value: "FOLLOW_UP", label: "Follow up" },
-  { value: "MEDICAL_REP", label: "Medical Rep" },
-  { value: "EMERGENCY", label: "Emergency" },
-];
-
 export function WaitingListFilters({ value, onChange }: Props) {
+  const t = useTranslations("visits");
+  const options: Array<{ value: WaitingListFilter; label: string }> = [
+    { value: "all", label: t("filter.all") },
+    { value: VISIT_TYPE.VISIT, label: t("type.visit") },
+    { value: VISIT_TYPE.FOLLOW_UP, label: t("type.followUp") },
+    { value: VISIT_TYPE.MEDICAL_REP, label: t("type.medicalRep") },
+    { value: VISIT_PRIORITY.EMERGENCY, label: t("priority.emergency") },
+  ];
+
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {OPTIONS.map((option) => {
+      {options.map((option) => {
         const isActive = option.value === value;
         return (
           <button

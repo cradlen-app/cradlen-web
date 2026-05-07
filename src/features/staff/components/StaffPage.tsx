@@ -5,15 +5,7 @@ import { useTranslations } from "next-intl";
 import { AlertDialog } from "radix-ui";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import {
-  getActiveProfile,
-  getDefaultBranch,
-  getProfileOrganization,
-  getProfileOrganizationId,
-  getProfilePrimaryRole,
-} from "@/features/auth/lib/current-user";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 import { ApiError } from "@/lib/api";
 import { useDeactivateStaff } from "../hooks/useManageStaff";
 import { useStaff, useStaffMember } from "../hooks/useStaff";
@@ -68,29 +60,16 @@ export function StaffPage() {
     useState<StaffMember | null>(null);
   const deactivateStaff = useDeactivateStaff();
   const {
-    data: currentUser,
-    isLoading: isCurrentUserLoading,
-    isError: isCurrentUserError,
-  } = useCurrentUser();
-  const selectedBranchId = useAuthContextStore((state) => state.branchId);
-  const primaryProfile = getActiveProfile(currentUser);
-  const currentUserStaffId = primaryProfile?.staff_id;
-  const currentUserRole = getProfilePrimaryRole(primaryProfile);
-  const canManage = currentUserRole === "owner";
-  const organization = getProfileOrganization(primaryProfile);
-  const activeBranch = getDefaultBranch(primaryProfile, selectedBranchId);
-  const organizationId = getProfileOrganizationId(primaryProfile);
-  const organizationName = organization?.name;
-  const branchId = activeBranch?.id;
-  const branchName = activeBranch
-    ? [
-        activeBranch.address,
-        activeBranch.city,
-        activeBranch.governorate,
-      ]
-        .filter(Boolean)
-        .join(", ")
-    : undefined;
+    currentUser,
+    isCurrentUserLoading,
+    isCurrentUserError,
+    currentUserStaffId,
+    canManage,
+    organizationId,
+    organizationName,
+    branchId,
+    branchName,
+  } = useUserProfileContext();
   const { data: roleFilters = [] } = useStaffRoles(organizationId);
   const selectedRoleId = useMemo(
     () =>

@@ -4,6 +4,11 @@
     "error": "An error occurred",
     "back": "Back"
   },
+  "error": {
+    "title": "Something went wrong",
+    "description": "We could not load this page. Try again and we will attempt to recover it.",
+    "retry": "Try again"
+  },
   "home": {
     "eyebrowStart": "From the first moment",
     "eyebrowEnd": "To the last",
@@ -35,7 +40,8 @@
     "messages": "Messages",
     "profileSwitcher": "Switch profile",
     "switchBranch": "Switch branch",
-    "switchBranchError": "Failed to switch branch"
+    "switchBranchError": "Failed to switch branch",
+    "branchLabel": "{city} branch"
   },
   "staff": {
     "title": "Staff",
@@ -712,7 +718,10 @@
     },
     "schedule": {
       "title": "Today's Schedule",
-      "empty": "No events today."
+      "empty": "No events today.",
+      "loadError": "Failed to load schedule",
+      "patientLabel": "Patient",
+      "assignedLabel": "Assigned"
     },
     "calendar": {
       "title": "Calendar"
@@ -762,6 +771,9 @@
         "status": "Status"
       }
     },
+    "filter": {
+      "all": "All Visits"
+    },
     "type": {
       "visit": "Visit",
       "followUp": "Follow-up",
@@ -772,7 +784,16 @@
       "waiting": "Waiting",
       "inProgress": "In-progress",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "scheduled": "Scheduled",
+      "checkedIn": "Checked In",
+      "noShow": "No Show",
+      "SCHEDULED": "Scheduled",
+      "CHECKED_IN": "Checked In",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "No Show"
     },
     "priority": {
       "normal": "Normal",
@@ -780,7 +801,7 @@
     },
     "create": {
       "title": "New Visit",
-      "description": "Add a patient to the waiting list and assign a doctor.",
+      "description": "Book a new visit for an existing or new patient.",
       "close": "Close",
       "branchLabel": "Branch: {branch}",
       "missingBranch": "No branch is linked to this session.",
@@ -807,12 +828,48 @@
       "error": "Failed to create the visit. Please try again.",
       "cancelConfirmTitle": "Cancel this visit?",
       "cancelConfirmDescription": "{patient} will be marked as cancelled. This cannot be undone.",
-      "cancelConfirmCta": "Yes, cancel"
+      "cancelConfirmCta": "Yes, cancel",
+      "sectionVisitMeta": "Visit Meta",
+      "sectionPersonalInfo": "Personal Information",
+      "sectionNotes": "Notes",
+      "searchPlaceholder": "Search patient by name, national ID or phone…",
+      "patientNotFound": "Not found — enter details below to register a new patient.",
+      "errorNoBranch": "No branch is linked to this session.",
+      "successMessage": "Visit booked successfully.",
+      "errorDuplicatePatient": "Patient already registered with this national ID.",
+      "errorGeneric": "Failed to book the visit.",
+      "cancelButton": "Cancel",
+      "submitButton": "Add to waiting list",
+      "fields": {
+        "doctor": "Doctor",
+        "selectDoctor": "Select doctor",
+        "scheduledAt": "Scheduled At",
+        "visitType": "Visit Type",
+        "visitPriority": "Visit Priority",
+        "name": "Name",
+        "namePlaceholder": "Full name",
+        "phone": "Phone",
+        "company": "Company",
+        "companyPlaceholder": "Company name",
+        "nationalId": "National ID",
+        "dateOfBirth": "Date of Birth",
+        "address": "Address",
+        "addressPlaceholder": "City, district",
+        "married": "Married",
+        "husbandName": "Husband Name",
+        "husbandNamePlaceholder": "Husband's full name",
+        "notes": "Notes (optional)",
+        "notesPlaceholder": "Optional notes about the visit"
+      }
     },
     "actions": {
       "start": "Start",
       "cancel": "Cancel",
-      "changeStatus": "Change status"
+      "changeStatus": "Change status",
+      "retry": "Retry",
+      "close": "Close",
+      "cancelVisitTitle": "Cancel this visit?",
+      "confirmCancel": "Yes, cancel"
     }
   }
 }

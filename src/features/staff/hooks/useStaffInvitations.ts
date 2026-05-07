@@ -7,6 +7,9 @@ import {
   fetchStaffInvitations,
   resendStaffInvitation,
 } from "../lib/staff.api";
+import { ApiError } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
+import { toast } from "sonner";
 import type {
   ApiStaffInvitation,
   StaffInvitationResponse,
@@ -38,7 +41,8 @@ function unwrapInvitation(response: StaffInvitationResponse): ApiStaffInvitation
   return "data" in response ? response.data : response;
 }
 
-export const STAFF_INVITATIONS_QUERY_KEY = "staff-invitations";
+/** @deprecated Use `queryKeys.staff.invitations.all()` directly instead. */
+export const STAFF_INVITATIONS_QUERY_KEY = queryKeys.staff.invitations.all();
 
 export function useStaffInvitations(
   organizationId: string | undefined,
@@ -46,7 +50,7 @@ export function useStaffInvitations(
   { page = 1, limit = 100, status = "all" }: UseStaffInvitationsOptions = {},
 ) {
   return useQuery<{ data: ApiStaffInvitation[]; meta?: StaffInvitationsMeta }>({
-    queryKey: [STAFF_INVITATIONS_QUERY_KEY, organizationId, page, limit, status],
+    queryKey: queryKeys.staff.invitations.list(organizationId ?? "", { page, limit, status }),
     queryFn: async () =>
       unwrapInvitations(
         await fetchStaffInvitations({
@@ -66,7 +70,7 @@ export function useStaffInvitation(
   invitationId: string | null,
 ) {
   return useQuery({
-    queryKey: [STAFF_INVITATIONS_QUERY_KEY, "detail", organizationId, invitationId],
+    queryKey: queryKeys.staff.invitations.detail(organizationId ?? "", invitationId ?? ""),
     queryFn: async () =>
       unwrapInvitation(await fetchStaffInvitation(organizationId!, invitationId!)),
     enabled: !!organizationId && !!invitationId,
@@ -87,16 +91,21 @@ export function useResendStaffInvitation() {
       resendStaffInvitation(organizationId, invitationId),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: [STAFF_INVITATIONS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.staff.invitations.all() }),
         queryClient.invalidateQueries({
-          queryKey: [
-            STAFF_INVITATIONS_QUERY_KEY,
-            "detail",
+          queryKey: queryKeys.staff.invitations.detail(
             variables.organizationId,
             variables.invitationId,
-          ],
+          ),
         }),
       ]);
+    },
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "Failed to resend invitation")
+          : "Failed to resend invitation";
+      toast.error(message);
     },
   });
 }
@@ -114,9 +123,16 @@ export function useDeleteStaffInvitation() {
       deleteStaffInvitation(organizationId, invitationId),
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: [STAFF_INVITATIONS_QUERY_KEY] }),
-        queryClient.invalidateQueries({ queryKey: ["staff"] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.staff.invitations.all() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.staff.all() }),
       ]);
+    },
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "Failed to delete invitation")
+          : "Failed to delete invitation";
+      toast.error(message);
     },
   });
 }

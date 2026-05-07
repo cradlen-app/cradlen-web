@@ -33,15 +33,15 @@ export function WaitingListSection({
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerKey, setDrawerKey] = useState(0);
 
   useEffect(() => {
-    const handle = setTimeout(() => setDebouncedQ(searchInput.trim()), 250);
+    const handle = setTimeout(() => {
+      setDebouncedQ(searchInput.trim());
+      setPage(1);
+    }, 250);
     return () => clearTimeout(handle);
   }, [searchInput]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [filter, debouncedQ]);
 
   const query = useWaitingList({
     branchId,
@@ -67,7 +67,7 @@ export function WaitingListSection({
 
         <div className="relative">
           <Search
-            className="pointer-events-none absolute start-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
+            className="pointer-events-none absolute inset-s-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
             aria-hidden="true"
           />
           <input
@@ -84,7 +84,7 @@ export function WaitingListSection({
         {canCreateVisit && (
           <button
             type="button"
-            onClick={() => setDrawerOpen(true)}
+            onClick={() => { setDrawerOpen(true); setDrawerKey((k) => k + 1); }}
             className="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-primary px-3 text-xs font-semibold text-white transition-colors hover:bg-brand-primary/90"
           >
             <Plus className="size-3.5" aria-hidden="true" />
@@ -94,7 +94,10 @@ export function WaitingListSection({
       </header>
 
       <div className="mb-3">
-        <WaitingListFilters value={filter} onChange={setFilter} />
+        <WaitingListFilters
+          value={filter}
+          onChange={(f) => { setFilter(f); setPage(1); }}
+        />
       </div>
 
       <WaitingListTable
@@ -134,6 +137,7 @@ export function WaitingListSection({
 
       {canCreateVisit && (
         <BookVisitDrawer
+          key={drawerKey}
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
           branchId={branchId}

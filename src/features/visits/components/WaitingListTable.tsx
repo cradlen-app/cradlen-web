@@ -31,16 +31,8 @@ const NEXT_STATUSES: Partial<Record<VisitStatus, VisitStatus[]>> = {
   IN_PROGRESS: ["COMPLETED"],
 };
 
-const STATUS_LABEL: Record<VisitStatus, string> = {
-  SCHEDULED: "Scheduled",
-  CHECKED_IN: "Checked In",
-  IN_PROGRESS: "In Progress",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-  NO_SHOW: "No Show",
-};
-
 function StatusSelect({ visit }: { visit: Visit }) {
+  const t = useTranslations("visits");
   const updateStatus = useUpdateVisitStatus();
   const [pendingCancel, setPendingCancel] = useState(false);
 
@@ -51,7 +43,8 @@ function StatusSelect({ visit }: { visit: Visit }) {
     try {
       await updateStatus.mutateAsync({ visitId: visit.id, status });
     } catch (error) {
-      const message = error instanceof ApiError ? error.messages[0] : "Update failed";
+      const message =
+        error instanceof ApiError ? error.messages[0] : "Update failed";
       toast.error(message);
     }
   }
@@ -82,34 +75,38 @@ function StatusSelect({ visit }: { visit: Visit }) {
           )}
           aria-label="Change status"
         >
-          <option value={visit.status}>{STATUS_LABEL[visit.status]}</option>
+          <option value={visit.status}>{t(`status.${visit.status}`)}</option>
           {nextOptions
             .filter((s) => s !== visit.status)
             .map((status) => (
               <option key={status} value={status}>
-                {STATUS_LABEL[status]}
+                {t(`status.${status}`)}
               </option>
             ))}
         </select>
         <ChevronDown
-          className="pointer-events-none absolute end-1.5 size-3.5 text-gray-400"
+          className="pointer-events-none absolute inset-e-1.5 size-3.5 text-gray-400"
           aria-hidden="true"
         />
       </div>
 
-      <Dialog.Root open={pendingCancel} onOpenChange={(open) => !open && setPendingCancel(false)}>
+      <Dialog.Root
+        open={pendingCancel}
+        onOpenChange={(open) => !open && setPendingCancel(false)}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
             <Dialog.Title className="text-base font-semibold text-brand-black">
-              Cancel this visit?
+              {t("actions.cancelVisitTitle")}
             </Dialog.Title>
             <Dialog.Description className="mt-2 text-xs text-gray-500">
-              {visit.patient.fullName} will be marked as cancelled. This cannot be undone.
+              {visit.patient.fullName} will be marked as cancelled. This cannot
+              be undone.
             </Dialog.Description>
             <div className="mt-5 flex items-center justify-end gap-2">
               <Dialog.Close className="inline-flex h-8 items-center rounded-full border border-gray-200 px-3 text-xs font-medium text-gray-600 hover:bg-gray-50">
-                Close
+                {t("actions.close")}
               </Dialog.Close>
               <button
                 type="button"
@@ -122,7 +119,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
                 {updateStatus.isPending && (
                   <Loader2 className="size-3 animate-spin" aria-hidden="true" />
                 )}
-                Yes, cancel
+                {t("actions.confirmCancel")}
               </button>
             </div>
           </Dialog.Content>
@@ -143,6 +140,7 @@ export function WaitingListTable({
   onRetry,
 }: Props) {
   const t = useTranslations("visits.waitingList");
+  const tVisits = useTranslations("visits");
 
   if (isError) {
     return (
@@ -153,7 +151,7 @@ export function WaitingListTable({
           onClick={onRetry}
           className="rounded-full border border-red-200 bg-white px-3 py-1 font-medium text-red-600 hover:bg-red-50"
         >
-          Retry
+          {tVisits("actions.retry")}
         </button>
       </div>
     );

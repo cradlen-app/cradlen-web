@@ -1,6 +1,7 @@
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import type { UserRole } from "@/types/user.types";
 
-type StaffRole = "owner" | "doctor" | "reception";
+type StaffRole = typeof STAFF_ROLE.OWNER | typeof STAFF_ROLE.DOCTOR | typeof STAFF_ROLE.RECEPTION;
 
 const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
   owner: ["/dashboard"],
@@ -32,8 +33,8 @@ export function getCanonicalDashboardPath(pathname: string): string {
 }
 
 export function canAccessRoute(role: UserRole, canonicalPathname: string) {
-  if (role === "patient" || role === "unknown") return false;
-  if (role === "owner") return true;
+  if (role === "patient" || role === STAFF_ROLE.UNKNOWN) return false;
+  if (role === STAFF_ROLE.OWNER) return true;
 
   return ALLOWED_DASHBOARD_ROUTES[role as StaffRole].some(
     (route) =>

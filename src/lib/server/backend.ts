@@ -321,7 +321,17 @@ export async function proxyAuthenticatedRequest(
       return unauthorized;
     }
 
-    refreshedTokens = await refreshAuthTokens(refreshToken);
+    let newTokens: AuthTokens | null = null;
+    try {
+      newTokens = await refreshAuthTokens(refreshToken);
+    } catch {
+      // Network failure or backend error during refresh → treat as expired session
+      return new NextResponse(null, { status: 401 });
+    }
+    if (!newTokens) {
+      return new NextResponse(null, { status: 401 });
+    }
+    refreshedTokens = newTokens;
     const retryResponse = await fetch(backendUrl(backendPath), {
       method: request.method,
       headers: copyRequestHeaders(request, refreshedTokens.access_token),
