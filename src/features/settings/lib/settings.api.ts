@@ -1,4 +1,5 @@
 import { apiAuthFetch, apiFetch } from "@/lib/api";
+import type { ApiResponse } from "@/types/api.types";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 
 export type OrganizationBranch = {
@@ -133,7 +134,7 @@ export function deleteBranch(organizationId: string, branchId: string) {
 }
 
 export function listBranches(organizationId: string) {
-  return apiAuthFetch<{ data: OrganizationBranch[] }>(
+  return apiAuthFetch<ApiResponse<OrganizationBranch[]>>(
     `/organizations/${organizationId}/branches`,
   );
 }
