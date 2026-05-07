@@ -94,7 +94,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
             <Dialog.Title className="text-base font-semibold text-brand-black">
-              Cancel this visit?
+              {t("actions.cancelVisitTitle")}
             </Dialog.Title>
             <Dialog.Description className="mt-2 text-xs text-gray-500">
               {visit.patient.fullName} will be marked as cancelled. This cannot be undone.
