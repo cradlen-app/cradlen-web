@@ -7,6 +7,7 @@
 export const queryKeys = {
   // ── Auth ──────────────────────────────────────────────────────────────────
   currentUser: () => ["currentUser"] as const,
+  registrationStatus: (email: string) => ["auth", "registration-status", email] as const,
 
   // ── Visits ────────────────────────────────────────────────────────────────
   visits: {
@@ -47,6 +48,8 @@ export const queryKeys = {
     detail: (organizationId: string, branchId: string, staffId: string) =>
       ["staff", "detail", organizationId, branchId, staffId] as const,
     roles: (organizationId: string) => ["staff-roles", organizationId] as const,
+    invitationPreview: (invitationId: string, token: string) =>
+      ["staff", "invitation-preview", invitationId, token] as const,
     invitations: {
       /** Broad key — matches all invitation queries. */
       all: () => ["staff-invitations"] as const,

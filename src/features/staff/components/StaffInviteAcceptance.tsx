@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiAuthFetch } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { setPendingProfileSelection } from "@/features/auth/lib/profile-selection-session";
@@ -509,7 +510,7 @@ export function StaffInviteAcceptance() {
   const [step, setStep] = useState<"preview" | "accept">("preview");
 
   const previewQuery = useQuery({
-    queryKey: ["invitation-preview", invitationId, token],
+    queryKey: queryKeys.staff.invitationPreview(invitationId, token),
     queryFn: () => getInvitationPreview(invitationId, token),
     enabled: hasParams,
     retry: false,

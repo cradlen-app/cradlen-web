@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiFetch, ApiError } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import type {
   RegisterPersonalRequest,
@@ -81,7 +82,7 @@ export function useResendOtp() {
 
 export function useRegistrationStatus(email: string | null) {
   return useQuery({
-    queryKey: ["registration-status", email],
+    queryKey: queryKeys.registrationStatus(email ?? ""),
     enabled: !!email,
     retry: false,
     queryFn: () =>
