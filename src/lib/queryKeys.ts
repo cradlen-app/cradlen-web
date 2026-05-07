@@ -7,7 +7,7 @@
 export const queryKeys = {
   // ── Auth ──────────────────────────────────────────────────────────────────
   currentUser: () => ["currentUser"] as const,
-  registrationStatus: (email: string) => ["auth", "registration-status", email] as const,
+  registrationStatus: (email: string) => ["registration-status", email] as const,
 
   // ── Visits ────────────────────────────────────────────────────────────────
   visits: {
