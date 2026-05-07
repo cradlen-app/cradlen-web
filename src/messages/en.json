@@ -4,6 +4,11 @@
     "error": "An error occurred",
     "back": "Back"
   },
+  "error": {
+    "title": "Something went wrong",
+    "description": "We could not load this page. Try again and we will attempt to recover it.",
+    "retry": "Try again"
+  },
   "home": {
     "eyebrowStart": "From the first moment",
     "eyebrowEnd": "To the last",
