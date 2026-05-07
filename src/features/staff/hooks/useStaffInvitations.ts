@@ -42,7 +42,7 @@ function unwrapInvitation(response: StaffInvitationResponse): ApiStaffInvitation
 }
 
 /** @deprecated Use `queryKeys.staff.invitations.all()` directly instead. */
-export const STAFF_INVITATIONS_QUERY_KEY = queryKeys.staff.invitations.all;
+export const STAFF_INVITATIONS_QUERY_KEY = queryKeys.staff.invitations.all();
 
 export function useStaffInvitations(
   organizationId: string | undefined,
