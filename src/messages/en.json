@@ -713,7 +713,9 @@
     "schedule": {
       "title": "Today's Schedule",
       "empty": "No events today.",
-      "loadError": "Failed to load schedule"
+      "loadError": "Failed to load schedule",
+      "patientLabel": "Patient",
+      "assignedLabel": "Assigned"
     },
     "calendar": {
       "title": "Calendar"
@@ -773,7 +775,10 @@
       "waiting": "Waiting",
       "inProgress": "In-progress",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "scheduled": "Scheduled",
+      "checkedIn": "Checked In",
+      "noShow": "No Show"
     },
     "priority": {
       "normal": "Normal",

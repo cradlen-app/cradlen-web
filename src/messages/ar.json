@@ -713,7 +713,9 @@
     "schedule": {
       "title": "جدول اليوم",
       "empty": "لا توجد فعاليات اليوم.",
-      "loadError": "فشل تحميل الجدول الزمني"
+      "loadError": "فشل تحميل الجدول الزمني",
+      "patientLabel": "المريض",
+      "assignedLabel": "الطبيب المعين"
     },
     "calendar": {
       "title": "التقويم"
@@ -773,7 +775,10 @@
       "waiting": "في الانتظار",
       "inProgress": "قيد التنفيذ",
       "completed": "مكتملة",
-      "cancelled": "ملغاة"
+      "cancelled": "ملغاة",
+      "scheduled": "مجدولة",
+      "checkedIn": "تم التسجيل",
+      "noShow": "لم يحضر"
     },
     "priority": {
       "normal": "عادية",
