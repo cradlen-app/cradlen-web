@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 import type { CurrentUser } from "@/types/user.types";
 import { Navbar } from "../common/Navbar";
 import { Sidebar } from "../common/Sidebar";
+import Footer from "../common/Footer";
 import { canAccessRoute, getCanonicalDashboardPath } from "./dashboard-access";
 import { SidebarProvider, useSidebar } from "./SidebarContext";
-import Footer from "../common/Footer";
 
 type Props = {
   children: React.ReactNode;
@@ -72,10 +72,8 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
           <Sidebar />
         </div>
         <main className="flex-1 overflow-y-auto">{children}</main>
-        <footer>
-          <Footer />
-        </footer>
       </div>
+      <Footer />
     </div>
   );
 }

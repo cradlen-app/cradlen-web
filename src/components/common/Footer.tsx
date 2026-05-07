@@ -1,10 +1,12 @@
-import { getLocale, getTranslations } from "next-intl/server";
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "@/i18n/routing";
 import LanguageSelect from "./LanguageSelect";
 
-export default async function Footer() {
-  const locale = await getLocale();
-  const t = await getTranslations("auth.signUp");
+export default function Footer() {
+  const locale = useLocale();
+  const t = useTranslations("auth.signUp");
 
   return (
     <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 px-8 py-4">
