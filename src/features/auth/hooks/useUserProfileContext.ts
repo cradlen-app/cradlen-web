@@ -3,6 +3,7 @@
 import { useCurrentUser } from "./useCurrentUser";
 import {
   getActiveProfile,
+  getBranchId,
   getDefaultBranch,
   getProfileOrganization,
   getProfileOrganizationId,
@@ -35,7 +36,7 @@ export function useUserProfileContext() {
   const organizationName = organization?.name;
 
   const activeBranch = getDefaultBranch(activeProfile, selectedBranchId);
-  const branchId = activeBranch?.id;
+  const branchId = getBranchId(activeBranch);
   const branchName = activeBranch
     ? [activeBranch.address, activeBranch.city, activeBranch.governorate]
         .filter(Boolean)
