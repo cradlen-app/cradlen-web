@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import type { ApiStaffDay } from "../types/staff.api.types";
 import type { StaffRole } from "../types/staff.types";
 
@@ -55,7 +56,7 @@ function validateNameAndSpecialty(
   }
 
   const needsSpecialty =
-    value.role === "doctor" || (value.role === "owner" && value.isClinical);
+    value.role === STAFF_ROLE.DOCTOR || (value.role === STAFF_ROLE.OWNER && value.isClinical);
 
   if (needsSpecialty && !value.specialty) {
     ctx.addIssue({

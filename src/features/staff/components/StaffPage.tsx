@@ -13,6 +13,7 @@ import {
   getProfileOrganizationId,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { ApiError } from "@/lib/api";
 import { useDeactivateStaff } from "../hooks/useManageStaff";
@@ -76,7 +77,7 @@ export function StaffPage() {
   const primaryProfile = getActiveProfile(currentUser);
   const currentUserStaffId = primaryProfile?.staff_id;
   const currentUserRole = getProfilePrimaryRole(primaryProfile);
-  const canManage = currentUserRole === "owner";
+  const canManage = currentUserRole === STAFF_ROLE.OWNER;
   const organization = getProfileOrganization(primaryProfile);
   const activeBranch = getDefaultBranch(primaryProfile, selectedBranchId);
   const organizationId = getProfileOrganizationId(primaryProfile);

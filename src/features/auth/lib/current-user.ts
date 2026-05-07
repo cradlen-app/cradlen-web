@@ -1,16 +1,17 @@
+import { STAFF_ROLE } from "./auth.constants";
 import type { CurrentUser, UserProfile, UserRole } from "@/types/user.types";
 import { useAuthContextStore } from "../store/authContextStore";
 
 export function normalizeRoleName(name?: string | null): UserRole {
   const normalized = name?.toLowerCase();
 
-  if (normalized === "owner") return "owner";
-  if (normalized === "doctor") return "doctor";
-  if (normalized === "reception" || normalized === "receptionist") {
-    return "reception";
+  if (normalized === STAFF_ROLE.OWNER) return STAFF_ROLE.OWNER;
+  if (normalized === STAFF_ROLE.DOCTOR) return STAFF_ROLE.DOCTOR;
+  if (normalized === STAFF_ROLE.RECEPTION || normalized === "receptionist") {
+    return STAFF_ROLE.RECEPTION;
   }
   if (normalized === "patient") return "patient";
-  return "unknown";
+  return STAFF_ROLE.UNKNOWN;
 }
 
 export function getProfileId(profile: UserProfile) {
@@ -56,7 +57,7 @@ export function getProfileRoles(profile?: UserProfile): UserRole[] {
       : [];
 
   const normalizedRoles = rawNames.map((name) => normalizeRoleName(name));
-  return normalizedRoles.length ? normalizedRoles : ["unknown"];
+  return normalizedRoles.length ? normalizedRoles : [STAFF_ROLE.UNKNOWN];
 }
 
 export function getProfilePrimaryRole(profile?: UserProfile): UserRole {

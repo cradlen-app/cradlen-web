@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { type FieldErrors, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useCreateStaffDirect } from "../hooks/useCreateStaffDirect";
@@ -79,11 +80,11 @@ function getStaffFormValues(member: StaffMember | null | undefined): StaffInvite
   return {
     ...defaults,
     email: member.email ?? "",
-    isClinical: member.roles?.includes("doctor") ?? member.role === "doctor",
+    isClinical: member.roles?.includes(STAFF_ROLE.DOCTOR) ?? member.role === STAFF_ROLE.DOCTOR,
     jobTitle: member.jobTitle,
     name: [member.firstName, member.lastName].filter(Boolean).join(" "),
     phone: member.phone === "-" ? "" : member.phone,
-    role: member.role === "unknown" ? "doctor" : member.role,
+    role: member.role === STAFF_ROLE.UNKNOWN ? STAFF_ROLE.DOCTOR : member.role,
     roleId: member.roleId ?? "",
     specialty: member.specialty,
     shifts: defaults.shifts.map((shift) => {
@@ -231,8 +232,8 @@ export function StaffCreateDrawer({
   const selectedRole = useWatch({ control, name: "role" });
   const isClinical = useWatch({ control, name: "isClinical" });
   const shifts = useWatch({ control, name: "shifts" });
-  const showOwnerClinical = selectedRole === "owner";
-  const showSpecialty = selectedRole === "doctor" || (selectedRole === "owner" && isClinical);
+  const showOwnerClinical = selectedRole === STAFF_ROLE.OWNER;
+  const showSpecialty = selectedRole === STAFF_ROLE.DOCTOR || (selectedRole === STAFF_ROLE.OWNER && isClinical);
   const shiftSectionError = getShiftSectionError(errors);
 
   useEffect(() => {
@@ -255,7 +256,7 @@ export function StaffCreateDrawer({
 
   const handleRoleChange = (roleId: string) => {
     const selected = roleFilters.find((role) => role.id === roleId);
-    const selectedRoleValue = !selected || selected.role === "unknown" ? "doctor" : selected.role;
+    const selectedRoleValue = !selected || selected.role === STAFF_ROLE.UNKNOWN ? STAFF_ROLE.DOCTOR : selected.role;
 
     setValue("roleId", roleId, { shouldDirty: true, shouldValidate: true });
     setValue("role", selectedRoleValue, { shouldDirty: true, shouldValidate: true });
@@ -263,7 +264,7 @@ export function StaffCreateDrawer({
     if (selectedRoleValue !== "owner") {
       setValue("isClinical", false, { shouldDirty: true, shouldValidate: true });
     }
-    if (selectedRoleValue === "reception") {
+    if (selectedRoleValue === STAFF_ROLE.RECEPTION) {
       setValue("specialty", "", { shouldDirty: true, shouldValidate: true });
     }
   };

@@ -4,6 +4,7 @@
 // `visits.api.ts`, and remove the env flag from `.env.example`.
 
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { VISIT_TYPE } from "./visits.constants";
 import { ApiError } from "@/lib/api";
 import type {
   ApiPaginationMeta,
@@ -269,9 +270,9 @@ export function fetchVisitStats({
     : visits;
   const stats: ApiVisitStats = {
     total_visits: scope.length,
-    visits: scope.filter((v) => v.visit_type === "VISIT").length,
-    follow_ups: scope.filter((v) => v.visit_type === "FOLLOW_UP").length,
-    medical_reps: scope.filter((v) => v.visit_type === "MEDICAL_REP").length,
+    visits: scope.filter((v) => v.visit_type === VISIT_TYPE.VISIT).length,
+    follow_ups: scope.filter((v) => v.visit_type === VISIT_TYPE.FOLLOW_UP).length,
+    medical_reps: scope.filter((v) => v.visit_type === VISIT_TYPE.MEDICAL_REP).length,
   };
   return delay({ data: stats });
 }

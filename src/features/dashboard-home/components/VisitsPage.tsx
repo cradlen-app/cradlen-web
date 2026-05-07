@@ -8,6 +8,7 @@ import {
   getActiveRole,
   getDefaultBranch,
 } from "@/features/auth/lib/current-user";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
@@ -29,13 +30,13 @@ export function VisitsPage() {
 
   useVisitSocket(profileId);
 
-  if (!role || role === "patient" || role === "unknown") return null;
+  if (!role || role === "patient" || role === STAFF_ROLE.UNKNOWN) return null;
 
-  const canCreateVisit = role === "reception";
-  const canStartVisit = role === "doctor";
+  const canCreateVisit = role === STAFF_ROLE.RECEPTION;
+  const canStartVisit = role === STAFF_ROLE.DOCTOR;
   const canManageStatus =
-    role === "reception" || role === "owner" || role === "doctor";
-  const assignedToMe = role === "doctor";
+    role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER || role === STAFF_ROLE.DOCTOR;
+  const assignedToMe = role === STAFF_ROLE.DOCTOR;
 
   return (
     <main className="space-y-6 p-6">

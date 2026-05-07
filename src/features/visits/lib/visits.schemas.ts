@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VISIT_PRIORITY, VISIT_TYPE } from "./visits.constants";
 
 // ── enums ─────────────────────────────────────────────────────────────────────
 
@@ -78,7 +79,7 @@ export const bookVisitSchema = z
       if (!value.phoneNumber?.trim()) {
         ctx.addIssue({ code: "custom", path: ["phoneNumber"], message: "Phone is required" });
       }
-      if (value.visitType !== "MEDICAL_REP") {
+      if (value.visitType !== VISIT_TYPE.MEDICAL_REP) {
         if (!value.nationalId?.trim()) {
           ctx.addIssue({ code: "custom", path: ["nationalId"], message: "National ID is required" });
         }
@@ -106,8 +107,8 @@ export function getDefaultBookVisitValues(): BookVisitFormValues {
     isMarried: false,
     husbandName: "",
     company: "",
-    visitType: "VISIT",
-    priority: "NORMAL",
+    visitType: VISIT_TYPE.VISIT,
+    priority: VISIT_PRIORITY.NORMAL,
     assignedDoctorId: "",
     scheduledAt: "",
     notes: "",
