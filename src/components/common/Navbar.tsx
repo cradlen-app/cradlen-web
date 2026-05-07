@@ -139,9 +139,10 @@ export function Navbar() {
         <Menu className="size-5" />
       </button>
 
-      {/* Logo */}
-      <div className="w-30 shrink-0">
-        <Image src={Logo} alt="CRADLEN" height={30} className="w-auto" />
+      {/* Logo — icon on mobile, full logo on desktop */}
+      <div className="flex shrink-0 items-center">
+        <Image src={LogoIcon} alt="CRADLEN" height={30} className="w-auto lg:hidden" />
+        <Image src={Logo} alt="CRADLEN" height={30} className="hidden w-auto lg:block" />
       </div>
 
       {/* Search */}

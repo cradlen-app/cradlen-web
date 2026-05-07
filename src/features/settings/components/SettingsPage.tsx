@@ -191,7 +191,7 @@ export function SettingsPage() {
         t={t}
       />
 
-      <div className="grid min-h-0 gap-4 lg:grid-cols-[16rem_1fr]">
+      <div className="grid min-h-0 gap-4 md:grid-cols-[14rem_1fr]">
         <SettingsNav
           activeSection={activeSection}
           onSectionChange={setActiveSection}
@@ -283,9 +283,9 @@ function SettingsNav({
   t: ReturnType<typeof useTranslations>;
 }) {
   return (
-    <aside className="h-fit rounded-2xl border border-gray-100 bg-white p-2 shadow-sm shadow-gray-100/60 lg:sticky lg:top-0">
+    <aside className="h-fit rounded-2xl border border-gray-100 bg-white p-2 shadow-sm shadow-gray-100/60 md:sticky md:top-0">
       <nav
-        className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible"
+        className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden md:flex-col md:overflow-visible"
         aria-label={t("navLabel")}
       >
         {SETTINGS_SECTIONS.map((section) => {
@@ -298,7 +298,7 @@ function SettingsNav({
               type="button"
               onClick={() => onSectionChange(section.key)}
               className={cn(
-                "flex h-10 min-w-36 items-center gap-2 rounded-lg px-3 text-start text-sm font-medium transition lg:min-w-0",
+                "flex h-10 min-w-36 items-center gap-2 rounded-lg px-3 text-start text-sm font-medium transition md:min-w-0",
                 isActive
                   ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
                   : "text-gray-400 hover:bg-gray-50 hover:text-brand-black",
