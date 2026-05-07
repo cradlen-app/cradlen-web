@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
+import { toast } from "sonner";
 import type {
   RegisterPersonalRequest,
   RegistrationStatusResponse,
@@ -17,6 +18,13 @@ export function useRegisterPersonal() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 }
 
@@ -27,6 +35,13 @@ export function useVerifyEmail() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 }
 
@@ -37,6 +52,13 @@ export function useRegisterOrganization() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 }
 
@@ -47,6 +69,13 @@ export function useResendOtp() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 }
 

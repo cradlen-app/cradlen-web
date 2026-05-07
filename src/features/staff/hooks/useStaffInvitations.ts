@@ -7,6 +7,8 @@ import {
   fetchStaffInvitations,
   resendStaffInvitation,
 } from "../lib/staff.api";
+import { ApiError } from "@/lib/api";
+import { toast } from "sonner";
 import type {
   ApiStaffInvitation,
   StaffInvitationResponse,
@@ -98,6 +100,13 @@ export function useResendStaffInvitation() {
         }),
       ]);
     },
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "Failed to resend invitation")
+          : "Failed to resend invitation";
+      toast.error(message);
+    },
   });
 }
 
@@ -117,6 +126,13 @@ export function useDeleteStaffInvitation() {
         queryClient.invalidateQueries({ queryKey: [STAFF_INVITATIONS_QUERY_KEY] }),
         queryClient.invalidateQueries({ queryKey: ["staff"] }),
       ]);
+    },
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "Failed to delete invitation")
+          : "Failed to delete invitation";
+      toast.error(message);
     },
   });
 }

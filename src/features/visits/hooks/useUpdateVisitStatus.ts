@@ -2,6 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateVisitStatus } from "../lib/visits.api";
+import { ApiError } from "@/lib/api";
+import { toast } from "sonner";
 import type { VisitStatus } from "../types/visits.types";
 
 export function useUpdateVisitStatus() {
@@ -11,6 +13,13 @@ export function useUpdateVisitStatus() {
       updateVisitStatus({ visitId, body: { status } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["visits"] });
+    },
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "Failed to update visit status")
+          : "Failed to update visit status";
+      toast.error(message);
     },
   });
 }

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
+import { toast } from "sonner";
 
 type SwitchBranchRequest = { branch_id: string };
 type SwitchBranchResponse = {
@@ -14,5 +15,12 @@ export function useSwitchBranch() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (error.messages[0] ?? "An error occurred")
+          : "An error occurred";
+      toast.error(message);
+    },
   });
 }
