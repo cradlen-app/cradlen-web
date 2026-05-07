@@ -49,7 +49,10 @@ const OWNER_NAV: SidebarNavItem[] = [
   { path: "/analytics", key: "analytics", icon: BarChart2 },
 ];
 
-type StaffRole = typeof STAFF_ROLE.OWNER | typeof STAFF_ROLE.DOCTOR | typeof STAFF_ROLE.RECEPTION;
+type StaffRole =
+  | typeof STAFF_ROLE.OWNER
+  | typeof STAFF_ROLE.DOCTOR
+  | typeof STAFF_ROLE.RECEPTION;
 
 const NAV_BY_ROLE: Record<StaffRole, SidebarNavItem[]> = {
   owner: OWNER_NAV,
@@ -184,7 +187,7 @@ export function Sidebar() {
         </div>
 
         {branchMenuOpen && !collapsed && (
-          <div className="absolute top-full start-0 end-0 z-50 bg-white border border-gray-100 rounded-xl shadow-lg mt-1 mx-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="absolute top-full inset-s-0 inset-e-0 z-50 bg-white border border-gray-100 rounded-xl shadow-lg mt-1 mx-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
             {/* Header */}
             <div className="px-3 pt-2.5 pb-1.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
@@ -211,7 +214,9 @@ export function Sidebar() {
                       isActive
                         ? "bg-brand-primary/10 text-brand-primary"
                         : "text-gray-600 hover:bg-gray-50",
-                      isSwitching && !isLoading && "opacity-40 cursor-not-allowed",
+                      isSwitching &&
+                        !isLoading &&
+                        "opacity-40 cursor-not-allowed",
                     )}
                   >
                     <MapPin
@@ -269,7 +274,7 @@ export function Sidebar() {
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
               collapsed && "justify-center px-0",
               pathname === dashboardPath("/settings") ||
-              pathname.startsWith(dashboardPath("/settings") + "/")
+                pathname.startsWith(dashboardPath("/settings") + "/")
                 ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
                 : "text-gray-400 hover:bg-gray-50 hover:text-brand-black",
             )}
