@@ -737,6 +737,7 @@
       "title": "الزيارة الحالية",
       "empty": "لا توجد زيارة قيد التنفيذ.",
       "startVisit": "بدء الزيارة",
+      "openVisit": "فتح الزيارة",
       "elapsed": "منذ {value}",
       "queueNumber": "#{value}",
       "startedToast": "تم بدء الزيارة.",
@@ -748,6 +749,42 @@
         "priority": "الأولوية",
         "status": "الحالة"
       }
+    },
+    "inProgress": {
+      "title": "الزيارات الجارية مع الأطباء",
+      "empty": "لا توجد زيارات قيد التنفيذ حالياً.",
+      "count": "{count} نشطة",
+      "startedAt": "وقت البدء",
+      "action": "إجراء",
+      "active": "نشطة",
+      "markComplete": "إنهاء",
+      "openVisit": "فتح الزيارة"
+    },
+    "editVisit": {
+      "title": "تعديل الزيارة",
+      "description": "تحديث تفاصيل الزيارة وإعادة التعيين.",
+      "submit": "حفظ التغييرات",
+      "cancel": "إلغاء",
+      "savedToast": "تم تحديث الزيارة."
+    },
+    "detail": {
+      "back": "العودة إلى الزيارات",
+      "loadError": "تعذّر تحميل هذه الزيارة.",
+      "unknownPatient": "مريض غير معروف",
+      "timeline": "الجدول الزمني",
+      "scheduledAt": "موعد محدد",
+      "startedAt": "بدأت في",
+      "completedAt": "اكتملت في",
+      "createdAt": "أُنشئت في",
+      "doctor": "الطبيب",
+      "unassigned": "غير معيّن",
+      "notes": "الملاحظات",
+      "noNotes": "لا توجد ملاحظات.",
+      "complete": "إنهاء الزيارة",
+      "cancelVisit": "إلغاء الزيارة",
+      "completedToast": "تم إنهاء الزيارة.",
+      "cancelledToast": "تم إلغاء الزيارة.",
+      "actionError": "تعذّر تحديث الزيارة."
     },
     "waitingList": {
       "title": "قائمة الانتظار",
@@ -862,6 +899,18 @@
         "husbandNamePlaceholder": "الاسم الكامل للزوج",
         "notes": "الملاحظات (اختياري)",
         "notesPlaceholder": "ملاحظات اختيارية حول الزيارة"
+      },
+      "errors": {
+        "invalidPhone": "أدخل رقم هاتف صحيحاً",
+        "invalidNationalId": "أدخل رقماً قومياً مصرياً صحيحاً مكوناً من 14 رقماً",
+        "phoneRequired": "رقم الهاتف مطلوب",
+        "nationalIdRequired": "الرقم القومي مطلوب",
+        "fullNameRequired": "الاسم مطلوب",
+        "dobRequired": "تاريخ الميلاد مطلوب",
+        "husbandNameRequired": "اسم الزوج مطلوب",
+        "patientRequired": "اختر مريضاً",
+        "doctorRequired": "اختر طبيباً",
+        "notesTooLong": "يجب ألا تتجاوز الملاحظات 500 حرف"
       }
     },
     "actions": {

@@ -1,26 +1,21 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchCurrentVisit } from "../lib/visits.api";
+import { fetchMyCurrentVisit } from "../lib/visits.api";
 import { mapApiVisitToVisit } from "../lib/visits.utils";
 import { queryKeys } from "@/lib/queryKeys";
 
-type Params = {
-  branchId: string | null | undefined;
-  assignedToMe?: boolean;
-};
-
-export function useCurrentVisit({ branchId, assignedToMe }: Params) {
+export function useMyCurrentVisit(enabled = true) {
   return useQuery({
-    queryKey: queryKeys.visits.current(branchId ?? "", assignedToMe ?? false),
+    queryKey: queryKeys.visits.myCurrent(),
     queryFn: async () => {
-      const res = await fetchCurrentVisit({
-        branchId: branchId!,
-        assignedToMe,
-      });
-      return res.data[0] ? mapApiVisitToVisit(res.data[0]) : null;
+      const res = await fetchMyCurrentVisit();
+      return res.data ? mapApiVisitToVisit(res.data) : null;
     },
-    enabled: !!branchId,
-    staleTime: 15_000,
+    enabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }

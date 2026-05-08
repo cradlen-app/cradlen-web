@@ -11,8 +11,11 @@ export function useStartVisit() {
   return useMutation({
     mutationFn: ({ branchId, visitId }: { branchId: string; visitId: string }) =>
       startVisit({ branchId, visitId }),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(variables.branchId) });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.visits.all(),
+        refetchType: "all",
+      });
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, "Failed to start visit"));

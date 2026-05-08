@@ -1,13 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { useState } from "react";
+import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
 import { useWaitingList } from "../hooks/useWaitingList";
-import type { WaitingListFilter } from "../types/visits.types";
 import { BookVisitDrawer } from "./BookVisitDrawer";
-import { WaitingListFilters } from "./WaitingListFilters";
 import { WaitingListTable } from "./WaitingListTable";
 
 type Props = {
@@ -28,25 +25,12 @@ export function WaitingListSection({
   assignedToMe,
 }: Props) {
   const t = useTranslations("visits.waitingList");
-  const [filter, setFilter] = useState<WaitingListFilter>("all");
-  const [searchInput, setSearchInput] = useState("");
-  const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerKey, setDrawerKey] = useState(0);
 
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      setDebouncedQ(searchInput.trim());
-      setPage(1);
-    }, 250);
-    return () => clearTimeout(handle);
-  }, [searchInput]);
-
   const query = useWaitingList({
     branchId,
-    filter,
-    q: debouncedQ,
     assignedToMe,
     page,
     limit: 10,
@@ -65,26 +49,13 @@ export function WaitingListSection({
           {t("title")}
         </h2>
 
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute inset-s-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400"
-            aria-hidden="true"
-          />
-          <input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder={t("searchPlaceholder")}
-            className={cn(
-              "h-8 w-56 rounded-full border border-gray-200 bg-white ps-7 pe-3 text-xs text-brand-black outline-none placeholder:text-gray-300",
-              "focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/20",
-            )}
-          />
-        </div>
-
         {canCreateVisit && (
           <button
             type="button"
-            onClick={() => { setDrawerOpen(true); setDrawerKey((k) => k + 1); }}
+            onClick={() => {
+              setDrawerOpen(true);
+              setDrawerKey((k) => k + 1);
+            }}
             className="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-primary px-3 text-xs font-semibold text-white transition-colors hover:bg-brand-primary/90"
           >
             <Plus className="size-3.5" aria-hidden="true" />
@@ -92,13 +63,6 @@ export function WaitingListSection({
           </button>
         )}
       </header>
-
-      <div className="mb-3">
-        <WaitingListFilters
-          value={filter}
-          onChange={(f) => { setFilter(f); setPage(1); }}
-        />
-      </div>
 
       <WaitingListTable
         rows={rows}

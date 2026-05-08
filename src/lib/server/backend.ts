@@ -379,10 +379,7 @@ async function forwardBackendResponse(
     if (backendCacheControl) {
       response.headers.set("cache-control", backendCacheControl);
     } else if (status !== 204) {
-      response.headers.set(
-        "cache-control",
-        "private, max-age=30, stale-while-revalidate=60",
-      );
+      response.headers.set("cache-control", "no-store");
     }
 
     if (backendEtag) response.headers.set("etag", backendEtag);

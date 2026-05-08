@@ -19,12 +19,16 @@ export const queryKeys = {
       ["visits", branchId, "schedule", date, assignedToMe] as const,
     stats: (branchId: string, date: string, assignedToMe: boolean) =>
       ["visits", branchId, "stats", date, assignedToMe] as const,
-    waitingList: (
+    branchWaitingList: (
       branchId: string,
-      opts: { filter: string; q: string; assignedToMe: boolean; page: number; limit: number },
-    ) => ["visits", branchId, "list", opts] as const,
-    current: (branchId: string, assignedToMe: boolean) =>
-      ["visits", branchId, "current", assignedToMe] as const,
+      opts: { page: number; limit: number },
+    ) => ["visits", branchId, "waiting-list", opts] as const,
+    branchInProgress: (branchId: string) =>
+      ["visits", branchId, "in-progress"] as const,
+    myWaitingList: (opts: { page: number; limit: number }) =>
+      ["visits", "my-waiting-list", opts] as const,
+    myCurrent: () => ["visits", "my-current"] as const,
+    byId: (visitId: string) => ["visits", "detail", visitId] as const,
   },
 
   // ── Staff ─────────────────────────────────────────────────────────────────

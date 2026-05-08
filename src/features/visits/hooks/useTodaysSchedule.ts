@@ -18,6 +18,6 @@ export function useTodaysSchedule({ branchId, date, assignedToMe }: Params) {
       const res = await fetchTodaysSchedule({ branchId, date, assignedToMe });
       return res.data.map(mapApiScheduleEvent);
     },
-    staleTime: 60_000,
+    staleTime: 0,
   });
 }

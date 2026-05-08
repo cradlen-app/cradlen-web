@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { cn } from "@/lib/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import type { Visit, VisitStatus } from "../types/visits.types";
+import { EditVisitDrawer } from "./EditVisitDrawer";
 import {
   VisitPriorityBadge,
   VisitStatusBadge,
@@ -126,7 +128,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
 }
 
 const GRID =
-  "grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.5fr)_88px_84px_124px]";
+  "grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.5fr)_88px_84px_124px_32px]";
 
 export function WaitingListTable({
   rows,
@@ -137,6 +139,9 @@ export function WaitingListTable({
 }: Props) {
   const t = useTranslations("visits.waitingList");
   const tVisits = useTranslations("visits");
+  const branchId = useAuthContextStore((s) => s.branchId);
+  const organizationId = useAuthContextStore((s) => s.organizationId);
+  const [editVisit, setEditVisit] = useState<Visit | null>(null);
 
   if (isError) {
     return (
@@ -169,6 +174,7 @@ export function WaitingListTable({
           <span>{t("columns.type")}</span>
           <span>{t("columns.priority")}</span>
           <span className="text-end">{t("columns.status")}</span>
+          <span />
         </div>
 
         {isLoading ? (
@@ -215,11 +221,31 @@ export function WaitingListTable({
                     <VisitStatusBadge status={visit.status} />
                   )}
                 </div>
+                {canManageStatus &&
+                !TERMINAL_STATUSES.includes(visit.status) ? (
+                  <button
+                    type="button"
+                    onClick={() => setEditVisit(visit)}
+                    aria-label={tVisits("editVisit.title")}
+                    className="inline-flex size-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-brand-black"
+                  >
+                    <Pencil className="size-3.5" aria-hidden="true" />
+                  </button>
+                ) : (
+                  <span />
+                )}
               </li>
             ))}
           </ul>
         )}
       </div>
+      <EditVisitDrawer
+        open={!!editVisit}
+        onOpenChange={(open) => !open && setEditVisit(null)}
+        visit={editVisit}
+        organizationId={organizationId}
+        branchId={branchId}
+      />
     </div>
   );
 }
