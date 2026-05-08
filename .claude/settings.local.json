@@ -48,7 +48,12 @@
       "Bash(cat src/hooks/useAuthRedirect.tsx)",
       "Bash(xargs cat *)",
       "Bash(xargs -I{} bash -c 'echo \"=== {} ===\" && head -40 \"{}\"')",
-      "Bash(xargs -I{} bash -c 'echo \"=== {} ===\" && head -50 \"{}\"')"
+      "Bash(xargs -I{} bash -c 'echo \"=== {} ===\" && head -50 \"{}\"')",
+      "Bash(mkdir -p \"f:/Cradlen/cradlen-web/src/app/[locale]/[orgId]/[branchId]/dashboard/visits/[visitId]\")",
+      "Bash(echo \"EXIT=$?\")"
+    ],
+    "additionalDirectories": [
+      "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard\\visits"
     ]
   }
 }

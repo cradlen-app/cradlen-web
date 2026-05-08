@@ -737,6 +737,7 @@
       "title": "Current Visit",
       "empty": "No visit in progress.",
       "startVisit": "Start Visit",
+      "openVisit": "Open visit",
       "elapsed": "{value} elapsed",
       "queueNumber": "#{value}",
       "startedToast": "Visit started.",
@@ -748,6 +749,42 @@
         "priority": "Priority",
         "status": "Status"
       }
+    },
+    "inProgress": {
+      "title": "Currently with Doctors",
+      "empty": "No visits in progress right now.",
+      "count": "{count} active",
+      "startedAt": "Started",
+      "action": "Action",
+      "active": "Active",
+      "markComplete": "Complete",
+      "openVisit": "Open visit"
+    },
+    "editVisit": {
+      "title": "Edit Visit",
+      "description": "Update visit details and reassignment.",
+      "submit": "Save changes",
+      "cancel": "Cancel",
+      "savedToast": "Visit updated."
+    },
+    "detail": {
+      "back": "Back to visits",
+      "loadError": "Could not load this visit.",
+      "unknownPatient": "Unknown patient",
+      "timeline": "Timeline",
+      "scheduledAt": "Scheduled",
+      "startedAt": "Started",
+      "completedAt": "Completed",
+      "createdAt": "Created",
+      "doctor": "Doctor",
+      "unassigned": "Unassigned",
+      "notes": "Notes",
+      "noNotes": "No notes recorded.",
+      "complete": "Mark complete",
+      "cancelVisit": "Cancel visit",
+      "completedToast": "Visit completed.",
+      "cancelledToast": "Visit cancelled.",
+      "actionError": "Could not update the visit."
     },
     "waitingList": {
       "title": "Waiting List",
@@ -862,6 +899,18 @@
         "husbandNamePlaceholder": "Husband's full name",
         "notes": "Notes (optional)",
         "notesPlaceholder": "Optional notes about the visit"
+      },
+      "errors": {
+        "invalidPhone": "Enter a valid phone number",
+        "invalidNationalId": "Enter a valid 14-digit Egyptian National ID",
+        "phoneRequired": "Phone is required",
+        "nationalIdRequired": "National ID is required",
+        "fullNameRequired": "Name is required",
+        "dobRequired": "Date of birth is required",
+        "husbandNameRequired": "Husband name is required",
+        "patientRequired": "Select a patient",
+        "doctorRequired": "Select a doctor",
+        "notesTooLong": "Notes must be 500 characters or fewer"
       }
     },
     "actions": {

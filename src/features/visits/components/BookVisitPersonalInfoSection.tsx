@@ -48,6 +48,9 @@ export function BookVisitPersonalInfoSection({
             readOnly={patientMode === "existing"}
             className={cn(fieldClass, patientMode === "existing" && "text-gray-500")}
             type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            maxLength={20}
             placeholder="01012345678"
           />
           <FieldError message={errors.phoneNumber?.message} />
@@ -72,6 +75,10 @@ export function BookVisitPersonalInfoSection({
                 {...register("nationalId")}
                 readOnly={patientMode === "existing"}
                 className={cn(fieldClass, patientMode === "existing" && "text-gray-500")}
+                inputMode="numeric"
+                pattern="\d{14}"
+                maxLength={14}
+                autoComplete="off"
                 placeholder="12345678901234"
               />
               <FieldError message={errors.nationalId?.message} />

@@ -22,6 +22,7 @@ import { useSidebar } from "@/components/layout/SidebarContext";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
 import { NotificationDropdown } from "@/features/notifications/components/NotificationDropdown";
+import { Link } from "@/i18n/navigation";
 
 function UserAvatar({
   name,
@@ -140,10 +141,20 @@ export function Navbar() {
       </button>
 
       {/* Logo — icon on mobile, full logo on desktop */}
-      <div className="flex shrink-0 items-center">
-        <Image src={LogoIcon} alt="CRADLEN" height={30} className="w-auto lg:hidden" />
-        <Image src={Logo} alt="CRADLEN" height={30} className="hidden w-auto lg:block" />
-      </div>
+      <Link
+        href="/"
+        aria-label="Cradlen home"
+        className="w-30 shrink-0 inline-flex"
+      >
+        {" "}
+        <Image
+          src={LogoIcon}
+          alt="CRADLEN"
+          height={30}
+          className="w-auto lg:hidden"
+        />
+        <Image src={Logo} alt="CRADLEN" className="hidden w-auto lg:block" />
+      </Link>
 
       {/* Search */}
       <div className="hidden sm:flex flex-1 min-w-sm max-w-md relative ms-2">
@@ -209,7 +220,9 @@ export function Navbar() {
                 const branch = getDefaultBranch(item);
                 return (
                   <option key={getProfileId(item)} value={getProfileId(item)}>
-                    {[organization?.name, branch?.city].filter(Boolean).join(" / ")}
+                    {[organization?.name, branch?.city]
+                      .filter(Boolean)
+                      .join(" / ")}
                   </option>
                 );
               })}

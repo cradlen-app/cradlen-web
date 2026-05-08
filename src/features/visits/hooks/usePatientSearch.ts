@@ -21,6 +21,6 @@ export function usePatientSearch(rawSearch: string) {
       return res.data.map(mapApiPatientToPatient);
     },
     enabled: debouncedSearch.trim().length >= 2,
-    staleTime: 30_000,
+    staleTime: 0,
   });
 }

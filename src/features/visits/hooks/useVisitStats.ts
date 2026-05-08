@@ -18,6 +18,6 @@ export function useVisitStats({ branchId, date, assignedToMe }: Params) {
       const res = await fetchVisitStats({ branchId, date, assignedToMe });
       return mapApiStatsToStats(res.data);
     },
-    staleTime: 60_000,
+    staleTime: 0,
   });
 }

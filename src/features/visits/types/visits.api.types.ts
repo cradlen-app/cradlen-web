@@ -66,7 +66,8 @@ export type ApiPaginationMeta = {
   page: number;
   limit: number;
   total: number;
-  total_pages: number;
+  total_pages?: number;
+  totalPages?: number;
 };
 
 export type ApiVisitListResponse = {
