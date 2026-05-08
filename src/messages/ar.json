@@ -729,6 +729,78 @@
       "title": "التقويم"
     }
   },
+  "calendar": {
+    "title": "التقويم",
+    "newEvent": "+ حدث جديد",
+    "overview": "نظرة عامة",
+    "todaysSchedule": "جدول اليوم",
+    "empty": "لا توجد أحداث مجدولة",
+    "allDay": "طوال اليوم",
+    "more": "المزيد",
+    "types": {
+      "SURGERY": "عملية جراحية",
+      "MEETING": "اجتماع",
+      "PERSONAL": "شخصي",
+      "LEAVE": "إجازة"
+    },
+    "status": {
+      "SCHEDULED": "مجدول",
+      "CANCELLED": "ملغى",
+      "COMPLETED": "مكتمل"
+    },
+    "roles": {
+      "primaryDoctor": "الطبيب الرئيسي",
+      "assistant": "مساعد",
+      "attendee": "حاضر"
+    },
+    "primaryDoctor": "الطبيب الرئيسي",
+    "assistants": "المساعدون",
+    "attendees": "الحاضرون",
+    "patientLabel": "المريض",
+    "notes": "ملاحظات",
+    "form": {
+      "title": "التقويم / حدث جديد",
+      "chooseType": "اختر نوع الحدث",
+      "eventType": "نوع الحدث",
+      "startsAt": "البداية",
+      "endsAt": "النهاية",
+      "allDay": "طوال اليوم",
+      "name": "الاسم",
+      "description": "الوصف",
+      "branch": "الفرع",
+      "patient": "المريض",
+      "surgeryName": "اسم العملية",
+      "surgeryType": "نوع العملية",
+      "operatingRoom": "غرفة العمليات",
+      "preOpNotes": "ملاحظات ما قبل الجراحة",
+      "location": "الموقع",
+      "virtualLink": "رابط الاجتماع",
+      "agenda": "جدول الأعمال",
+      "reason": "السبب",
+      "primaryDoctor": "الطبيب الرئيسي",
+      "selectBranch": "اختر الفرع",
+      "selectDoctor": "اختر طبيباً",
+      "patientPlaceholder": "ابحث بالاسم أو الرقم القومي أو الهاتف...",
+      "patientNotFound": "لم يُعثر على مريض — تحقق من التهجئة أو جرب مصطلحاً آخر.",
+      "attendees": "الحاضرون",
+      "addParticipant": "إضافة مشارك",
+      "addAttendee": "إضافة حاضر",
+      "noParticipants": "لم يتم إضافة مشاركين بعد",
+      "save": "حفظ",
+      "saving": "جاري الحفظ...",
+      "next": "التالي",
+      "back": "رجوع",
+      "close": "إغلاق نموذج الحدث الجديد",
+      "success": "تم إنشاء الحدث.",
+      "error": "فشل إنشاء الحدث. يرجى المحاولة مجدداً."
+    },
+    "conflict": {
+      "title": "تعارض في الجدول",
+      "description": "تم العثور على التعارضات التالية. تم حفظ الحدث — هل تريد الاحتفاظ به؟",
+      "confirm": "الإبقاء على الحدث",
+      "cancel": "مراجعة"
+    }
+  },
   "visits": {
     "pageTitle": "الزيارات",
     "breadcrumb": "لوحة التحكم / الزيارات",

@@ -14,6 +14,7 @@ type Props = {
   canCreateVisit: boolean;
   canManageStatus: boolean;
   assignedToMe?: boolean;
+  isDoctor?: boolean;
 };
 
 export function WaitingListSection({
@@ -23,6 +24,7 @@ export function WaitingListSection({
   canCreateVisit,
   canManageStatus,
   assignedToMe,
+  isDoctor,
 }: Props) {
   const t = useTranslations("visits.waitingList");
   const [page, setPage] = useState(1);
@@ -69,6 +71,7 @@ export function WaitingListSection({
         isLoading={query.isLoading}
         isError={query.isError}
         canManageStatus={canManageStatus}
+        isDoctor={isDoctor}
         onRetry={() => query.refetch()}
       />
 

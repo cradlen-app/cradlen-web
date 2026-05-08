@@ -36,6 +36,8 @@ export function VisitsPage() {
   const isDoctor = role === STAFF_ROLE.DOCTOR;
   const isReceptionOrOwner =
     role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER;
+  const isClinical =
+    isDoctor || (role === STAFF_ROLE.OWNER && !!profile?.is_clinical);
 
   const canCreateVisit = role === STAFF_ROLE.RECEPTION;
   const canManageStatus =
@@ -66,6 +68,7 @@ export function VisitsPage() {
             <InProgressByDoctorPanel
               branchId={branchId}
               organizationId={organizationId}
+              filterDoctorId={isClinical ? (profile?.staff_id ?? undefined) : undefined}
             />
           )}
           <WaitingListSection
@@ -75,6 +78,7 @@ export function VisitsPage() {
             canCreateVisit={canCreateVisit}
             canManageStatus={canManageStatus}
             assignedToMe={isDoctor}
+            isDoctor={isDoctor}
           />
         </section>
         <aside>

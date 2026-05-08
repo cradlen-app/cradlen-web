@@ -729,6 +729,78 @@
       "title": "Calendar"
     }
   },
+  "calendar": {
+    "title": "Calendar",
+    "newEvent": "+ New Event",
+    "overview": "Overview",
+    "todaysSchedule": "Today's Schedule",
+    "empty": "No events scheduled",
+    "allDay": "All day",
+    "more": "more",
+    "types": {
+      "SURGERY": "Surgery",
+      "MEETING": "Meeting",
+      "PERSONAL": "Personal",
+      "LEAVE": "Leave"
+    },
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "CANCELLED": "Cancelled",
+      "COMPLETED": "Completed"
+    },
+    "roles": {
+      "primaryDoctor": "Primary Doctor",
+      "assistant": "Assistant",
+      "attendee": "Attendee"
+    },
+    "primaryDoctor": "Primary Doctor",
+    "assistants": "Assistants",
+    "attendees": "Attendees",
+    "patientLabel": "Patient",
+    "notes": "Notes",
+    "form": {
+      "title": "Calendar / New event",
+      "chooseType": "Choose event type",
+      "eventType": "Event Type",
+      "startsAt": "Start",
+      "endsAt": "End",
+      "allDay": "All day",
+      "name": "Name",
+      "description": "Description",
+      "branch": "Branch",
+      "patient": "Patient",
+      "surgeryName": "Surgery Name",
+      "surgeryType": "Surgery Type",
+      "operatingRoom": "Operating Room",
+      "preOpNotes": "Pre-op Notes",
+      "location": "Location",
+      "virtualLink": "Virtual Link",
+      "agenda": "Agenda",
+      "reason": "Reason",
+      "primaryDoctor": "Primary Doctor",
+      "selectBranch": "Select branch",
+      "selectDoctor": "Select doctor",
+      "patientPlaceholder": "Search by name, national ID or phone...",
+      "patientNotFound": "No patient found — check spelling or try a different term.",
+      "attendees": "Attendees",
+      "addParticipant": "Add participant",
+      "addAttendee": "Add attendee",
+      "noParticipants": "No participants added yet",
+      "save": "Save",
+      "saving": "Saving...",
+      "next": "Next",
+      "back": "Back",
+      "close": "Close new event form",
+      "success": "Event created.",
+      "error": "Failed to create event. Please try again."
+    },
+    "conflict": {
+      "title": "Schedule Conflicts",
+      "description": "The following conflicts were found. The event was saved — do you want to keep it?",
+      "confirm": "Keep Event",
+      "cancel": "Review"
+    }
+  },
   "visits": {
     "pageTitle": "Visits",
     "breadcrumb": "Dashboard / Visits",
