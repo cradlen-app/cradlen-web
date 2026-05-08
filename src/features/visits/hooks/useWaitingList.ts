@@ -1,15 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchWaitingList } from "../lib/visits.api";
-import { buildWaitingListQuery, mapApiVisitToVisit } from "../lib/visits.utils";
-import type { WaitingListFilter, WaitingListPage } from "../types/visits.types";
+import { fetchBranchWaitingList, fetchMyWaitingList } from "../lib/visits.api";
+import { mapApiVisitToVisit } from "../lib/visits.utils";
+import type { WaitingListPage } from "../types/visits.types";
 import { queryKeys } from "@/lib/queryKeys";
 
 type Params = {
   branchId: string | null | undefined;
-  filter: WaitingListFilter;
-  q: string;
   assignedToMe?: boolean;
   page: number;
   limit?: number;
@@ -17,51 +15,33 @@ type Params = {
 
 export function useWaitingList({
   branchId,
-  filter,
-  q,
   assignedToMe,
   page,
   limit = 10,
 }: Params) {
-  const queryParams = buildWaitingListQuery(filter);
+  const enabled = assignedToMe ? true : !!branchId;
+  const queryKey = assignedToMe
+    ? queryKeys.visits.myWaitingList({ page, limit })
+    : queryKeys.visits.branchWaitingList(branchId ?? "", { page, limit });
+
   return useQuery({
-    queryKey: queryKeys.visits.waitingList(branchId ?? "", {
-      filter,
-      q,
-      assignedToMe: assignedToMe ?? false,
-      page,
-      limit,
-    }),
+    queryKey,
     queryFn: async (): Promise<WaitingListPage> => {
-      const base = {
-        branchId: branchId!,
-        ...queryParams,
-        assignedToMe,
-        q,
-        page: 1,
-        limit: 100,
-      };
-      const [inProgress, checkedIn, scheduled] = await Promise.all([
-        fetchWaitingList({ ...base, status: "IN_PROGRESS" }),
-        fetchWaitingList({ ...base, status: "CHECKED_IN" }),
-        fetchWaitingList({ ...base, status: "SCHEDULED" }),
-      ]);
-      const allRows = [
-        ...inProgress.data,
-        ...checkedIn.data,
-        ...scheduled.data,
-      ].map(mapApiVisitToVisit);
-      const total = allRows.length;
-      const totalPages = Math.max(1, Math.ceil(total / limit));
-      const start = (page - 1) * limit;
+      const res = assignedToMe
+        ? await fetchMyWaitingList({ page, limit })
+        : await fetchBranchWaitingList({ branchId: branchId!, page, limit });
+      const meta = res.meta;
       return {
-        rows: allRows.slice(start, start + limit),
-        page,
-        totalPages,
-        total,
+        rows: res.data.map(mapApiVisitToVisit),
+        page: meta?.page ?? page,
+        totalPages: meta?.totalPages ?? meta?.total_pages ?? 1,
+        total: meta?.total ?? res.data.length,
       };
     },
-    enabled: !!branchId,
-    staleTime: 30_000,
+    enabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }

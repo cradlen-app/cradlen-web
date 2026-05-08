@@ -11,6 +11,7 @@ import {
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
+import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
 import { WaitingListSection } from "@/features/visits/components/WaitingListSection";
 import { useVisitSocket } from "@/features/visits/hooks/useVisitSocket";
@@ -32,11 +33,15 @@ export function VisitsPage() {
 
   if (!role || role === "patient" || role === STAFF_ROLE.UNKNOWN) return null;
 
+  const isDoctor = role === STAFF_ROLE.DOCTOR;
+  const isReceptionOrOwner =
+    role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER;
+
   const canCreateVisit = role === STAFF_ROLE.RECEPTION;
-  const canStartVisit = role === STAFF_ROLE.DOCTOR;
   const canManageStatus =
-    role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER || role === STAFF_ROLE.DOCTOR;
-  const assignedToMe = role === STAFF_ROLE.DOCTOR;
+    role === STAFF_ROLE.RECEPTION ||
+    role === STAFF_ROLE.OWNER ||
+    role === STAFF_ROLE.DOCTOR;
 
   return (
     <main className="space-y-6 p-6">
@@ -51,18 +56,25 @@ export function VisitsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <section className="space-y-6 lg:col-span-3">
-          <CurrentVisitCard
-            branchId={branchId}
-            canStartVisit={canStartVisit}
-            assignedToMe={assignedToMe}
-          />
+          {isDoctor && (
+            <CurrentVisitCard
+              branchId={branchId}
+              organizationId={organizationId}
+            />
+          )}
+          {isReceptionOrOwner && (
+            <InProgressByDoctorPanel
+              branchId={branchId}
+              organizationId={organizationId}
+            />
+          )}
           <WaitingListSection
             branchId={branchId}
             organizationId={organizationId}
             branchName={branch?.name ?? branch?.city}
             canCreateVisit={canCreateVisit}
             canManageStatus={canManageStatus}
-            assignedToMe={assignedToMe}
+            assignedToMe={isDoctor}
           />
         </section>
         <aside>
@@ -70,7 +82,7 @@ export function VisitsPage() {
             branchId={branchId}
             selectedDate={selectedDate}
             onSelect={setSelectedDate}
-            assignedToMe={assignedToMe}
+            assignedToMe={isDoctor}
           />
         </aside>
       </div>

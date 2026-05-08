@@ -19,8 +19,6 @@ export function UpNextPreview({ branchId, assignedToMe }: Props) {
   const dashboardPath = useDashboardPath();
   const { data, isLoading } = useWaitingList({
     branchId,
-    filter: "all",
-    q: "",
     assignedToMe,
     page: 1,
     limit: 3,
