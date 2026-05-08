@@ -88,6 +88,14 @@ export const queryKeys = {
       ["notifications", opts] as const,
   },
 
+  // ── Calendar ──────────────────────────────────────────────────────────────
+  calendar: {
+    /** Broad key — matches all calendar queries. */
+    all: () => ["calendar"] as const,
+    events: (branchId: string | undefined, from: string, to: string) =>
+      ["calendar", "events", branchId, from, to] as const,
+  },
+
   // ── Settings ──────────────────────────────────────────────────────────────
   settings: {
     branches: (organizationId: string) => ["branches", organizationId] as const,
