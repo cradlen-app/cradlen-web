@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { usePatientSearch } from "../hooks/usePatientSearch";
 import {
-  bookVisitSchema,
+  makeBookVisitSchema,
   getDefaultBookVisitValues,
   type BookVisitFormValues,
 } from "../lib/visits.schemas";
@@ -70,9 +70,11 @@ export function BookVisitDrawer({
 
   const { data: searchResults = [], isFetching: isSearching } = usePatientSearch(searchInput);
 
+  const schema = useMemo(() => makeBookVisitSchema(t), [t]);
+
   const form = useForm<BookVisitFormValues>({
     defaultValues: getDefaultBookVisitValues(),
-    resolver: zodResolver(bookVisitSchema),
+    resolver: zodResolver(schema),
     mode: "onSubmit",
   });
 

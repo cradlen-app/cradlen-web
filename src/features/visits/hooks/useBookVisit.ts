@@ -11,13 +11,11 @@ export function useBookVisit() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: BookVisitRequest) => bookVisit(body),
-    onSuccess: (_, variables) => {
-      const branchId = variables.branch_id;
-      if (branchId) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(branchId) });
-      } else {
-        queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
-      }
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.visits.all(),
+        refetchType: "all",
+      });
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, "Failed to book visit"));

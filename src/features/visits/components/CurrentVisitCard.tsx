@@ -3,10 +3,11 @@
 import { Loader2, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useCurrentVisit } from "../hooks/useCurrentVisit";
+import { useMyCurrentVisit } from "../hooks/useCurrentVisit";
 import { useStartVisit } from "../hooks/useStartVisit";
 import type { Visit } from "../types/visits.types";
 import {
@@ -17,33 +18,41 @@ import {
 
 type Props = {
   branchId: string | null | undefined;
-  canStartVisit: boolean;
-  assignedToMe?: boolean;
+  organizationId: string | null | undefined;
 };
 
 function CurrentVisitRow({
   visit,
-  canStartVisit,
   branchId,
+  organizationId,
 }: {
   visit: Visit;
-  canStartVisit: boolean;
   branchId: string;
+  organizationId: string;
 }) {
   const t = useTranslations("visits.currentVisit");
   const startVisit = useStartVisit();
-  const canActuallyStart =
-    canStartVisit && (visit.status === "CHECKED_IN" || visit.status === "SCHEDULED");
+  const router = useRouter();
+
+  const isInProgress = visit.status === "IN_PROGRESS";
+  const canStart = visit.status === "CHECKED_IN" || visit.status === "SCHEDULED";
 
   async function handleStart() {
     try {
-      await startVisit.mutateAsync({ branchId, visitId: visit.id });
+      await startVisit.mutateAsync({
+        branchId: visit.branchId || branchId,
+        visitId: visit.id,
+      });
       toast.success(t("startedToast"));
     } catch (error) {
       const message =
         error instanceof ApiError ? error.messages[0] : t("startedError");
       toast.error(message);
     }
+  }
+
+  function handleOpen() {
+    router.push(`/${organizationId}/${branchId}/dashboard/visits/${visit.id}`);
   }
 
   return (
@@ -57,12 +66,23 @@ function CurrentVisitRow({
       <VisitTypeBadge type={visit.type} />
       <VisitPriorityBadge priority={visit.priority} />
       <div className="flex items-center justify-end gap-2">
-        {canStartVisit ? (
+        <VisitStatusBadge status={visit.status} />
+        {isInProgress ? (
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleOpen}
+            className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+          >
+            <Play className="size-3.5" aria-hidden="true" />
+            <span>{t("startVisit")}</span>
+          </Button>
+        ) : canStart ? (
           <Button
             type="button"
             size="sm"
             onClick={handleStart}
-            disabled={!canActuallyStart || startVisit.isPending}
+            disabled={startVisit.isPending}
             className={cn(
               "rounded-full bg-brand-primary text-white hover:bg-brand-primary/90",
               "disabled:bg-brand-primary/40",
@@ -75,17 +95,15 @@ function CurrentVisitRow({
             )}
             <span>{t("startVisit")}</span>
           </Button>
-        ) : (
-          <VisitStatusBadge status={visit.status} />
-        )}
+        ) : null}
       </div>
     </li>
   );
 }
 
-export function CurrentVisitCard({ branchId, canStartVisit, assignedToMe }: Props) {
+export function CurrentVisitCard({ branchId, organizationId }: Props) {
   const t = useTranslations("visits.currentVisit");
-  const { data: visit, isLoading } = useCurrentVisit({ branchId, assignedToMe });
+  const { data: visit, isLoading } = useMyCurrentVisit();
 
   return (
     <section
@@ -109,12 +127,12 @@ export function CurrentVisitCard({ branchId, canStartVisit, assignedToMe }: Prop
           <div className="space-y-1 p-3">
             <div className="h-10 animate-pulse rounded-lg bg-gray-50" />
           </div>
-        ) : visit && branchId ? (
+        ) : visit && branchId && organizationId ? (
           <ul>
             <CurrentVisitRow
               visit={visit}
-              canStartVisit={canStartVisit}
               branchId={branchId}
+              organizationId={organizationId}
             />
           </ul>
         ) : (

@@ -18,9 +18,10 @@ export function useUpdateVisitStatus() {
       status: VisitStatus;
       branchId: string;
     }) => updateVisitStatus({ visitId, body: { status } }),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.visits.branch(variables.branchId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.visits.all(),
+        refetchType: "all",
       });
     },
     onError: (error) => {

@@ -3,6 +3,7 @@ import { mapApiVisitToScheduleEvent } from "./visits.utils";
 import type {
   ApiPatientSearchResponse,
   ApiScheduleResponse,
+  ApiVisit,
   ApiVisitListResponse,
   ApiVisitResponse,
   ApiVisitStatsResponse,
@@ -11,14 +12,26 @@ import type {
   BookVisitResponse,
   UpdateVisitStatusRequest,
 } from "../types/visits.api.types";
-import type { FetchWaitingListParams } from "./visits.mock";
-import * as mock from "./visits.mock";
 
-const useMock = process.env.NEXT_PUBLIC_VISITS_MOCK === "true";
+export type PaginationParams = { page?: number; limit?: number };
+
+export type UpdateVisitRequest = {
+  assigned_doctor_id?: string;
+  branch_id?: string;
+  visit_type?: ApiVisit["visit_type"];
+  priority?: ApiVisit["priority"];
+  scheduled_at?: string;
+  notes?: string;
+};
+
+function appendPagination(search: URLSearchParams, params: PaginationParams) {
+  if (params.page) search.set("page", String(params.page));
+  if (params.limit) search.set("limit", String(params.limit));
+}
 
 // ── reads ─────────────────────────────────────────────────────────────────────
 
-function realFetchVisitStats({
+export function fetchVisitStats({
   branchId,
   date,
   assignedToMe,
@@ -36,35 +49,50 @@ function realFetchVisitStats({
   );
 }
 
-function realFetchWaitingList(params: FetchWaitingListParams) {
-  const search = new URLSearchParams();
-  if (params.type) search.set("type", params.type);
-  if (params.priority) search.set("priority", params.priority);
-  if (params.status) search.set("status", params.status);
-  if (params.assignedToMe) search.set("assigned_to_me", "true");
-  if (params.q) search.set("q", params.q);
-  if (params.page) search.set("page", String(params.page));
-  if (params.limit) search.set("limit", String(params.limit));
-  return apiAuthFetch<ApiVisitListResponse>(
-    `/branches/${params.branchId}/visits?${search.toString()}`,
-  );
-}
-
-function realFetchCurrentVisit({
+export function fetchBranchWaitingList({
   branchId,
-  assignedToMe,
-}: {
-  branchId: string;
-  assignedToMe?: boolean;
-}) {
-  const search = new URLSearchParams({ status: "IN_PROGRESS", limit: "1" });
-  if (assignedToMe) search.set("assigned_to_me", "true");
+  page,
+  limit,
+}: { branchId: string } & PaginationParams) {
+  const search = new URLSearchParams();
+  appendPagination(search, { page, limit });
+  const qs = search.toString();
   return apiAuthFetch<ApiVisitListResponse>(
-    `/branches/${branchId}/visits?${search.toString()}`,
+    `/branches/${branchId}/visits/waiting-list${qs ? `?${qs}` : ""}`,
   );
 }
 
-function realFetchTodaysSchedule({
+export function fetchBranchInProgress({
+  branchId,
+  page,
+  limit,
+}: { branchId: string } & PaginationParams) {
+  const search = new URLSearchParams();
+  appendPagination(search, { page, limit });
+  const qs = search.toString();
+  return apiAuthFetch<ApiVisitListResponse>(
+    `/branches/${branchId}/visits/in-progress${qs ? `?${qs}` : ""}`,
+  );
+}
+
+export function fetchMyWaitingList({ page, limit }: PaginationParams = {}) {
+  const search = new URLSearchParams();
+  appendPagination(search, { page, limit });
+  const qs = search.toString();
+  return apiAuthFetch<ApiVisitListResponse>(
+    `/visits/my-waiting-list${qs ? `?${qs}` : ""}`,
+  );
+}
+
+export function fetchMyCurrentVisit() {
+  return apiAuthFetch<{ data: ApiVisit | null }>(`/visits/my-current`);
+}
+
+export function fetchVisit({ visitId }: { visitId: string }) {
+  return apiAuthFetch<ApiVisitResponse>(`/visits/${visitId}`);
+}
+
+export function fetchTodaysSchedule({
   branchId,
   date,
 }: {
@@ -82,21 +110,21 @@ function realFetchTodaysSchedule({
   ).then((res) => ({ data: res.data.map(mapApiVisitToScheduleEvent) }));
 }
 
-function realSearchPatients(search: string) {
+export function searchPatients(search: string) {
   const params = new URLSearchParams({ search, limit: "20" });
   return apiAuthFetch<ApiPatientSearchResponse>(`/patients?${params.toString()}`);
 }
 
 // ── writes ────────────────────────────────────────────────────────────────────
 
-function realBookVisit(body: BookVisitRequest) {
+export function bookVisit(body: BookVisitRequest) {
   return apiAuthFetch<BookVisitResponse>("/visits/book", {
     method: "POST",
     body: JSON.stringify(body),
   });
 }
 
-function realStartVisit({
+export function startVisit({
   branchId,
   visitId,
 }: {
@@ -109,7 +137,7 @@ function realStartVisit({
   );
 }
 
-function realCancelVisit({
+export function cancelVisit({
   branchId,
   visitId,
 }: {
@@ -122,7 +150,7 @@ function realCancelVisit({
   );
 }
 
-function realUpdateVisitStatus({
+export function updateVisitStatus({
   visitId,
   body,
 }: {
@@ -135,16 +163,17 @@ function realUpdateVisitStatus({
   });
 }
 
-// ── public surface (single switch on env flag) ────────────────────────────────
-
-export const fetchVisitStats = useMock ? mock.fetchVisitStats : realFetchVisitStats;
-export const fetchWaitingList = useMock ? mock.fetchWaitingList : realFetchWaitingList;
-export const fetchCurrentVisit = useMock ? mock.fetchCurrentVisit : realFetchCurrentVisit;
-export const fetchTodaysSchedule = useMock ? mock.fetchTodaysSchedule : realFetchTodaysSchedule;
-export const searchPatients = useMock ? mock.searchPatients : realSearchPatients;
-export const bookVisit = useMock ? mock.bookVisit : realBookVisit;
-export const startVisit = useMock ? mock.startVisit : realStartVisit;
-export const cancelVisit = useMock ? mock.cancelVisit : realCancelVisit;
-export const updateVisitStatus = useMock ? mock.updateVisitStatus : realUpdateVisitStatus;
+export function updateVisit({
+  visitId,
+  body,
+}: {
+  visitId: string;
+  body: UpdateVisitRequest;
+}) {
+  return apiAuthFetch<ApiVisitResponse>(`/visits/${visitId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
 
 export type { ApiVisitStatus };

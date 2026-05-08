@@ -29,7 +29,11 @@ export function useVisitSocket(profileId?: string | null, branchId?: string | nu
       });
 
       socket.on("connect", () => {
-        if (profileId) socket.emit("join", { doctorId: profileId });
+        if (!profileId && !branchId) return;
+        socket.emit("join", {
+          ...(profileId ? { doctorId: profileId } : {}),
+          ...(branchId ? { branchId } : {}),
+        });
       });
 
       socket.on("connect_error", (err) => {
@@ -44,15 +48,12 @@ export function useVisitSocket(profileId?: string | null, branchId?: string | nu
       });
 
       const invalidate = () => {
-        if (branchId) {
-          queryClient.invalidateQueries({ queryKey: queryKeys.visits.branch(branchId) });
-        } else {
-          queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
-        }
+        queryClient.invalidateQueries({ queryKey: queryKeys.visits.all() });
       };
 
       socket.on("visit.booked", invalidate);
       socket.on("visit.status_updated", invalidate);
+      socket.on("visit.updated", invalidate);
 
       disconnect = () => socket.disconnect();
     });
