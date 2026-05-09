@@ -91,10 +91,12 @@ export function Sidebar() {
     switchingToBranchId,
     isSwitching,
     branch,
-    branches,
     branchId,
-    hasMultipleBranches,
-    handleBranchSwitch,
+    activeProfileId,
+    groups,
+    hasMultipleProfiles,
+    hasMultipleOptions,
+    handleSelect,
   } = useSidebarBranchSwitch(profile);
 
   const { handleLogout } = useLogout();
@@ -159,13 +161,17 @@ export function Sidebar() {
           </div>
 
           {!effectiveCollapsed &&
-            (hasMultipleBranches ? (
+            (hasMultipleOptions ? (
               <button
                 type="button"
                 onClick={() => setBranchMenuOpen((o) => !o)}
                 disabled={isSwitching}
                 className="flex items-center gap-1 flex-1 min-w-0 text-start hover:opacity-70 transition-opacity"
-                aria-label={t("switchBranch")}
+                aria-label={
+                  hasMultipleProfiles
+                    ? t("switchWorkspace")
+                    : t("switchBranch")
+                }
               >
                 <div className="flex flex-col leading-tight overflow-hidden flex-1 min-w-0">
                   <span className="text-sm text-gray-500 truncate">
@@ -199,69 +205,102 @@ export function Sidebar() {
         </div>
 
         {branchMenuOpen && !effectiveCollapsed && (
-          <div className="absolute top-full inset-s-0 inset-e-0 z-50 bg-white border border-gray-100 rounded-xl shadow-lg mt-1 mx-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="absolute top-full inset-s-0 inset-e-0 z-50 bg-white border border-gray-100 rounded-xl shadow-lg mt-1 mx-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 max-h-[60vh] overflow-y-auto">
             {/* Header */}
-            <div className="px-3 pt-2.5 pb-1.5">
+            <div className="px-3 pt-2.5 pb-1.5 sticky top-0 bg-white">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                {t("switchBranch")}
+                {hasMultipleProfiles
+                  ? t("switchWorkspace")
+                  : t("switchBranch")}
               </span>
             </div>
             <div className="border-t border-gray-100 mb-1" />
-            {/* Branch items */}
-            <div className="px-1 pb-1 space-y-0.5">
-              {branches.map((b) => {
-                const bId = getBranchId(b) ?? b.id;
-                const isActive = bId === (branchId ?? getBranchId(branch));
-                const isLoading = switchingToBranchId === bId;
-                const label = b.name || b.city;
-                const sublabel = b.name ? b.city : null;
-                return (
-                  <button
-                    key={bId}
-                    type="button"
-                    disabled={isSwitching}
-                    onClick={() => void handleBranchSwitch(bId)}
-                    className={cn(
-                      "w-full flex items-start gap-2 rounded-lg px-2.5 py-2 text-start transition-colors",
-                      isActive
-                        ? "bg-brand-primary/10 text-brand-primary"
-                        : "text-gray-600 hover:bg-gray-50",
-                      isSwitching &&
-                        !isLoading &&
-                        "opacity-40 cursor-not-allowed",
-                    )}
-                  >
-                    <MapPin
+            {/* Grouped items */}
+            <div className="pb-1 space-y-1">
+              {groups.map((group, groupIndex) => (
+                <div key={group.profileId}>
+                  {hasMultipleProfiles && (
+                    <div
                       className={cn(
-                        "size-3.5 shrink-0 mt-0.5",
-                        isActive ? "text-brand-primary" : "text-gray-400",
+                        "px-3 pt-1.5 pb-1",
+                        groupIndex > 0 && "border-t border-gray-100 mt-1",
                       )}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="truncate text-[13px] font-medium leading-tight">
-                          {label}
-                        </span>
-                        {b.is_main && (
-                          <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-secondary/20 text-brand-secondary leading-none">
-                            main
-                          </span>
-                        )}
-                      </div>
-                      {sublabel && (
-                        <span className="block truncate text-[11px] text-gray-400 leading-tight mt-0.5">
-                          {sublabel}
-                        </span>
-                      )}
+                    >
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 truncate block">
+                        {group.organizationName}
+                      </span>
                     </div>
-                    {isLoading ? (
-                      <Loader2 className="size-3.5 shrink-0 text-brand-primary animate-spin mt-0.5" />
-                    ) : isActive ? (
-                      <Check className="size-3.5 shrink-0 text-brand-primary mt-0.5" />
-                    ) : null}
-                  </button>
-                );
-              })}
+                  )}
+                  <div className="px-1 space-y-0.5">
+                    {group.branches.map((b) => {
+                      const bId = getBranchId(b) ?? b.id;
+                      const activeBranchId = branchId ?? getBranchId(branch);
+                      const isActive =
+                        group.profileId === activeProfileId &&
+                        bId === activeBranchId;
+                      const isLoading =
+                        isSwitching && switchingToBranchId === bId;
+                      const hasName = Boolean(b.name);
+                      const hasCity = Boolean(b.city);
+                      const label = hasName ? b.name! : b.city || "—";
+                      const sublabel =
+                        hasName && hasCity && b.name !== b.city
+                          ? `(${b.city})`
+                          : null;
+                      return (
+                        <button
+                          key={`${group.profileId}-${bId}`}
+                          type="button"
+                          disabled={isSwitching}
+                          onClick={() =>
+                            void handleSelect(group.profileId, bId)
+                          }
+                          className={cn(
+                            "w-full flex items-start gap-2 rounded-lg px-2.5 py-2 text-start transition-colors",
+                            isActive
+                              ? "bg-brand-primary/10 text-brand-primary"
+                              : "text-gray-600 hover:bg-gray-50",
+                            isSwitching &&
+                              !isLoading &&
+                              "opacity-40 cursor-not-allowed",
+                          )}
+                        >
+                          <MapPin
+                            className={cn(
+                              "size-3.5 shrink-0 mt-0.5",
+                              isActive
+                                ? "text-brand-primary"
+                                : "text-gray-400",
+                            )}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="truncate text-[13px] font-medium leading-tight">
+                                {label}
+                              </span>
+                              {b.is_main && (
+                                <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-secondary/20 text-brand-secondary leading-none">
+                                  main
+                                </span>
+                              )}
+                            </div>
+                            {sublabel && (
+                              <span className="block truncate text-[11px] text-gray-400 leading-tight mt-0.5">
+                                {sublabel}
+                              </span>
+                            )}
+                          </div>
+                          {isLoading ? (
+                            <Loader2 className="size-3.5 shrink-0 text-brand-primary animate-spin mt-0.5" />
+                          ) : isActive ? (
+                            <Check className="size-3.5 shrink-0 text-brand-primary mt-0.5" />
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
