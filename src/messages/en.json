@@ -40,6 +40,7 @@
     "messages": "Messages",
     "profileSwitcher": "Switch profile",
     "switchBranch": "Switch branch",
+    "switchWorkspace": "Switch workspace",
     "switchBranchError": "Failed to switch branch",
     "branchLabel": "{city} branch",
     "openMenu": "Open navigation menu",
