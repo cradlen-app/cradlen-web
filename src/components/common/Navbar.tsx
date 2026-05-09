@@ -3,26 +3,11 @@
 import Image from "next/image";
 import { Search, Upload, Mail, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { useSelectProfile } from "@/features/auth/hooks/useSelectProfile";
 import {
   getActiveProfile,
-  getBranchId,
-  getDefaultBranch,
-  getProfileBranches,
-  getProfileOrganization,
-  getProfileOrganizationId,
-  getProfileId,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import {
-  getValidAvailableProfiles,
-  useAvailableProfilesStore,
-} from "@/features/auth/store/availableProfilesStore";
-import { queryClient } from "@/lib/queryClient";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import Logo from "@/public/Logo.png";
@@ -90,57 +75,12 @@ function IconButton({
 
 export function Navbar() {
   const t = useTranslations("nav");
-  const pathname = usePathname();
-  const router = useRouter();
   const { openMobile } = useSidebar();
   const { data: user } = useCurrentUser();
-  const selectProfile = useSelectProfile();
-  const setContext = useAuthContextStore((state) => state.setContext);
-  const branchId = useAuthContextStore((state) => state.branchId);
-  // /auth/me only returns the active profile, so the multi-org list lives here.
-  // It expires alongside the selection_token cookie's 30-min TTL.
-  const availableProfiles = useAvailableProfilesStore((state) =>
-    getValidAvailableProfiles(state),
-  );
 
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
-  const activeBranch = getDefaultBranch(profile, branchId);
   const subLabel = profile?.job_title || getProfilePrimaryRole(profile) || "";
-
-  async function handleProfileChange(profileId: string) {
-    const nextProfile = availableProfiles.find(
-      (item) => getProfileId(item) === profileId,
-    );
-    const organizationId = getProfileOrganizationId(nextProfile);
-    const branch = getDefaultBranch(nextProfile);
-    const nextBranchId = getBranchId(branch);
-    const multiBranch = getProfileBranches(nextProfile).length > 1;
-
-    if (!nextProfile || !organizationId || !nextBranchId) return;
-
-    try {
-      const response = await selectProfile.mutateAsync({
-        profile_id: profileId,
-        organization_id: organizationId,
-        ...(multiBranch ? { branch_id: nextBranchId } : {}),
-      });
-      const newOrgId = response.data.organization_id || organizationId;
-      const newBranchId = response.data.branch_id ?? nextBranchId;
-      setContext({
-        organizationId: newOrgId,
-        branchId: newBranchId,
-        profileId: response.data.profile_id || profileId,
-      });
-      queryClient.clear();
-      // Keep the user on the same dashboard section in the new org/branch context.
-      // pathname is locale-stripped: /oldOrgId/oldBranchId/dashboard/calendar
-      const dashboardSegment = pathname.split("/").slice(3).join("/");
-      router.replace(`/${newOrgId}/${newBranchId ?? ""}/${dashboardSegment}`);
-    } catch {
-      toast.error(t("profileSwitcher"));
-    }
-  }
 
   return (
     <header className="h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0 ">
@@ -222,28 +162,6 @@ export function Navbar() {
               {subLabel}
             </span>
           </div>
-          {availableProfiles.length > 1 && (
-            <select
-              aria-label={t("profileSwitcher")}
-              value={profile ? (getProfileId(profile) ?? "") : ""}
-              onChange={(event) => void handleProfileChange(event.target.value)}
-              disabled={selectProfile.isPending}
-              className="max-w-36 rounded-full border border-gray-100 bg-white px-2 py-1 text-xs text-gray-500 outline-none focus:border-brand-primary/60 disabled:opacity-60"
-            >
-              {availableProfiles.map((item) => {
-                const id = getProfileId(item);
-                const organization = getProfileOrganization(item);
-                const branch = getDefaultBranch(item);
-                return (
-                  <option key={id} value={id ?? ""}>
-                    {[organization?.name, branch?.city]
-                      .filter(Boolean)
-                      .join(" / ")}
-                  </option>
-                );
-              })}
-            </select>
-          )}
         </div>
       </div>
     </header>
