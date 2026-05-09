@@ -35,6 +35,7 @@ import { useRegisterOrganization } from "../hooks/useSignUp";
 import { useSelectProfile } from "../hooks/useSelectProfile";
 import { useAuthStore } from "../store/authStore";
 import { useAuthContextStore } from "../store/authContextStore";
+import { useAvailableProfilesStore } from "../store/availableProfilesStore";
 import type { UserProfile, UserRole } from "@/types/user.types";
 import type { Step3Data } from "../types/sign-up.types";
 
@@ -56,6 +57,9 @@ export function SignUpCompleteForm() {
   const selectProfile = useSelectProfile();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const setContext = useAuthContextStore((state) => state.setContext);
+  const setAvailableProfiles = useAvailableProfilesStore(
+    (state) => state.setAvailableProfiles,
+  );
 
   const form = useForm<Step3Data>({
     resolver: zodResolver(schema),
@@ -93,6 +97,7 @@ export function SignUpCompleteForm() {
 
       if (nextPath === "/select-profile") {
         const profiles = getProfilesFromAuthResponse(res);
+        setAvailableProfiles(profiles);
 
         if (canAutoSelect(profiles)) {
           const profile = profiles[0];
@@ -101,8 +106,8 @@ export function SignUpCompleteForm() {
           const organizationId = getProfileOrganizationId(profile)!;
           const branchId = getBranchId(branch)!;
           try {
+            // canAutoSelect already gates on branches.length === 1, so omit branch_id.
             const selectionRes = await selectProfile.mutateAsync({
-              branch_id: branchId,
               profile_id: profileId,
               organization_id: organizationId,
             });

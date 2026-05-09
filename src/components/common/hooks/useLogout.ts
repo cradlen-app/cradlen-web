@@ -6,12 +6,16 @@ import { useUserStore } from "@/features/auth/store/userStore";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { clearPendingProfileSelection } from "@/features/auth/lib/profile-selection-session";
+import { useAvailableProfilesStore } from "@/features/auth/store/availableProfilesStore";
 
 export function useLogout() {
   const router = useRouter();
   const clearUser = useUserStore((s) => s.clearUser);
   const clearSession = useAuthStore((s) => s.clearSession);
   const clearContext = useAuthContextStore((s) => s.clearContext);
+  const clearAvailableProfiles = useAvailableProfilesStore(
+    (s) => s.clearAvailableProfiles,
+  );
 
   async function handleLogout() {
     try {
@@ -23,6 +27,7 @@ export function useLogout() {
     clearContext();
     clearUser();
     clearPendingProfileSelection();
+    clearAvailableProfiles();
     queryClient.clear();
     router.replace("/sign-in");
   }

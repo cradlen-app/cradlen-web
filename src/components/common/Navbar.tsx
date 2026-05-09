@@ -8,13 +8,19 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useSelectProfile } from "@/features/auth/hooks/useSelectProfile";
 import {
   getActiveProfile,
+  getBranchId,
   getDefaultBranch,
+  getProfileBranches,
   getProfileOrganization,
   getProfileOrganizationId,
   getProfileId,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import {
+  getValidAvailableProfiles,
+  useAvailableProfilesStore,
+} from "@/features/auth/store/availableProfilesStore";
 import { queryClient } from "@/lib/queryClient";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -91,6 +97,11 @@ export function Navbar() {
   const selectProfile = useSelectProfile();
   const setContext = useAuthContextStore((state) => state.setContext);
   const branchId = useAuthContextStore((state) => state.branchId);
+  // /auth/me only returns the active profile, so the multi-org list lives here.
+  // It expires alongside the selection_token cookie's 30-min TTL.
+  const availableProfiles = useAvailableProfilesStore((state) =>
+    getValidAvailableProfiles(state),
+  );
 
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
@@ -98,21 +109,24 @@ export function Navbar() {
   const subLabel = profile?.job_title || getProfilePrimaryRole(profile) || "";
 
   async function handleProfileChange(profileId: string) {
-    const nextProfile = user?.profiles.find(
+    const nextProfile = availableProfiles.find(
       (item) => getProfileId(item) === profileId,
     );
     const organizationId = getProfileOrganizationId(nextProfile);
     const branch = getDefaultBranch(nextProfile);
+    const nextBranchId = getBranchId(branch);
+    const multiBranch = getProfileBranches(nextProfile).length > 1;
 
-    if (!nextProfile || !organizationId) return;
+    if (!nextProfile || !organizationId || !nextBranchId) return;
 
     try {
       const response = await selectProfile.mutateAsync({
-        branch_id: branch?.id ?? null,
         profile_id: profileId,
+        organization_id: organizationId,
+        ...(multiBranch ? { branch_id: nextBranchId } : {}),
       });
       const newOrgId = response.data.organization_id || organizationId;
-      const newBranchId = response.data.branch_id ?? branch?.id ?? null;
+      const newBranchId = response.data.branch_id ?? nextBranchId;
       setContext({
         organizationId: newOrgId,
         branchId: newBranchId,
@@ -208,18 +222,20 @@ export function Navbar() {
               {subLabel}
             </span>
           </div>
-          {(user?.profiles.length ?? 0) > 1 && (
+          {availableProfiles.length > 1 && (
             <select
               aria-label={t("profileSwitcher")}
-              value={profile ? getProfileId(profile) : ""}
+              value={profile ? (getProfileId(profile) ?? "") : ""}
               onChange={(event) => void handleProfileChange(event.target.value)}
-              className="max-w-36 rounded-full border border-gray-100 bg-white px-2 py-1 text-xs text-gray-500 outline-none focus:border-brand-primary/60"
+              disabled={selectProfile.isPending}
+              className="max-w-36 rounded-full border border-gray-100 bg-white px-2 py-1 text-xs text-gray-500 outline-none focus:border-brand-primary/60 disabled:opacity-60"
             >
-              {user?.profiles.map((item) => {
+              {availableProfiles.map((item) => {
+                const id = getProfileId(item);
                 const organization = getProfileOrganization(item);
                 const branch = getDefaultBranch(item);
                 return (
-                  <option key={getProfileId(item)} value={getProfileId(item)}>
+                  <option key={id} value={id ?? ""}>
                     {[organization?.name, branch?.city]
                       .filter(Boolean)
                       .join(" / ")}

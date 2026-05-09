@@ -32,6 +32,7 @@ import {
 } from "../lib/current-user";
 import { useAuthStore } from "../store/authStore";
 import { useAuthContextStore } from "../store/authContextStore";
+import { useAvailableProfilesStore } from "../store/availableProfilesStore";
 
 export function SignInForm() {
   const t = useTranslations("auth.signIn");
@@ -43,6 +44,9 @@ export function SignInForm() {
   const { mutateAsync: selectProfileAsync } = useSelectProfile();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const setContext = useAuthContextStore((state) => state.setContext);
+  const setAvailableProfiles = useAvailableProfilesStore(
+    (state) => state.setAvailableProfiles,
+  );
   const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
   const notice = searchParams.get("notice");
 
@@ -72,6 +76,9 @@ export function SignInForm() {
 
       if (nextPath === "/select-profile") {
         const profiles = getProfilesFromAuthResponse(res);
+        // Cache the full multi-org list for the nav bar's profile switcher.
+        // Mirrors the selection_token's 30-min server TTL.
+        setAvailableProfiles(profiles);
 
         if (profiles.length === 1 && getProfileBranches(profiles[0]).length === 1) {
           const profile = profiles[0];
@@ -82,9 +89,9 @@ export function SignInForm() {
 
           if (profileId && organizationId && branchId) {
             try {
+              // Single-branch fast path: omit branch_id and let the backend pick.
               const selRes = await selectProfileAsync({
                 profile_id: profileId,
-                branch_id: branchId,
                 organization_id: organizationId,
               });
               setAuthenticated();
