@@ -43,9 +43,6 @@ export type CreateOrganizationRequest = {
   branch_governorate: string;
   branch_country?: string;
   specialties: string[];
-  roles: string[];
-  specialty?: string;
-  job_title?: string;
 };
 
 export type UpdateOrganizationRequest = {

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const SPECIALTIES = ["Pediatrics", "OB / GYN"];
+import { useSpecialtiesLookup } from "@/features/settings/hooks/useSettingsLookups";
 
 interface SpecialtiesSelectProps {
   value: string[];
@@ -19,6 +18,15 @@ export function SpecialtiesSelect({
   placeholder = "Select specialties",
   hasError,
 }: SpecialtiesSelectProps) {
+  const lookup = useSpecialtiesLookup();
+  const options = useMemo(
+    () => lookup.data?.data ?? [],
+    [lookup.data],
+  );
+  const labelByCode = useMemo(
+    () => new Map(options.map((o) => [o.code, o.name])),
+    [options],
+  );
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -65,22 +73,25 @@ export function SpecialtiesSelect({
         {value.length === 0 ? (
           <span className="text-gray-400 flex-1">{placeholder}</span>
         ) : (
-          value.map((s) => (
-            <span
-              key={s}
-              className="inline-flex items-center gap-1 rounded-md bg-brand-primary/10 px-2 py-0.5 text-xs font-medium text-brand-primary"
-            >
-              {s}
+          value.map((code) => {
+            const label = labelByCode.get(code) ?? code;
+            return (
               <span
-                role="button"
-                aria-label={`Remove ${s}`}
-                onClick={(e) => remove(s, e)}
-                className="cursor-pointer hover:text-brand-primary/70"
+                key={code}
+                className="inline-flex items-center gap-1 rounded-md bg-brand-primary/10 px-2 py-0.5 text-xs font-medium text-brand-primary"
               >
-                <X className="size-3" />
+                {label}
+                <span
+                  role="button"
+                  aria-label={`Remove ${label}`}
+                  onClick={(e) => remove(code, e)}
+                  className="cursor-pointer hover:text-brand-primary/70"
+                >
+                  <X className="size-3" />
+                </span>
               </span>
-            </span>
-          ))
+            );
+          })
         )}
         <ChevronDown
           className={cn(
@@ -92,44 +103,48 @@ export function SpecialtiesSelect({
 
       {open && (
         <div className="absolute z-10 mt-1 w-full rounded-xl border border-gray-200 bg-white py-1 shadow-md">
-          {SPECIALTIES.map((specialty) => {
-            const checked = value.includes(specialty);
-            return (
-              <button
-                key={specialty}
-                type="button"
-                onClick={() => toggle(specialty)}
-                className={cn(
-                  "flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors",
-                  "hover:bg-brand-primary/5",
-                  checked ? "text-brand-primary" : "text-brand-black",
-                )}
-              >
-                <span
+          {options.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-gray-400">…</p>
+          ) : (
+            options.map(({ code, name }) => {
+              const checked = value.includes(code);
+              return (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => toggle(code)}
                   className={cn(
-                    "flex size-4 shrink-0 items-center justify-center rounded border",
-                    checked
-                      ? "border-brand-primary bg-brand-primary text-white"
-                      : "border-gray-300",
+                    "flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors",
+                    "hover:bg-brand-primary/5",
+                    checked ? "text-brand-primary" : "text-brand-black",
                   )}
                 >
-                  {checked && (
-                    <svg viewBox="0 0 10 8" className="size-2.5 fill-current">
-                      <path
-                        d="M1 4l3 3 5-6"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  )}
-                </span>
-                {specialty}
-              </button>
-            );
-          })}
+                  <span
+                    className={cn(
+                      "flex size-4 shrink-0 items-center justify-center rounded border",
+                      checked
+                        ? "border-brand-primary bg-brand-primary text-white"
+                        : "border-gray-300",
+                    )}
+                  >
+                    {checked && (
+                      <svg viewBox="0 0 10 8" className="size-2.5 fill-current">
+                        <path
+                          d="M1 4l3 3 5-6"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </span>
+                  {name}
+                </button>
+              );
+            })
+          )}
         </div>
       )}
     </div>
