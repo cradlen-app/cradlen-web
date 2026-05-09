@@ -100,4 +100,12 @@ export const queryKeys = {
   settings: {
     branches: (organizationId: string) => ["branches", organizationId] as const,
   },
+
+  // ── Lookups ───────────────────────────────────────────────────────────────
+  // Seeded reference data — long staleTime in the consuming hook.
+  lookups: {
+    specialties: () => ["lookups", "specialties"] as const,
+    jobFunctions: () => ["lookups", "job-functions"] as const,
+    profile: () => ["lookups", "profile"] as const,
+  },
 } as const;

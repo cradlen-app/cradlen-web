@@ -367,14 +367,6 @@
       "ON_DEMAND": "On demand",
       "EXTERNAL_CONSULTANT": "External consultant"
     },
-    "jobFunctions": {
-      "OBGYN": "OB-GYN",
-      "PEDIATRICIAN": "Pediatrician"
-    },
-    "specialtyCodes": {
-      "OBGYN": "OB-GYN",
-      "PEDIATRICS": "Pediatrics"
-    },
     "tabs": {
       "profile": "Profile",
       "account": "Account",
@@ -484,6 +476,10 @@
     },
     "validation": {
       "required": "Please complete all required fields."
+    },
+    "subscription": {
+      "branchLimitReached": "You've reached your plan's branch limit ({current}/{limit}). Upgrade your subscription to add more branches.",
+      "organizationLimitReached": "You've reached your plan's organization limit ({current}/{limit}). Upgrade your subscription to add more organizations."
     }
   },
   "patientDashboard": {
@@ -693,11 +689,9 @@
     "backToProfiles": "Back to profiles",
     "groupOrganization": "Organization details",
     "groupBranch": "Main branch",
-    "groupRole": "Your role",
-    "isClinical": "I am a doctor (clinical staff)",
-    "isClinicalHint": "Adds the Doctor role and enables clinical features for your account",
     "createSuccess": "Organization created. Please select your new profile.",
     "createError": "Failed to create organization. Please try again.",
+    "organizationLimitReached": "You've reached your plan's organization limit ({current}/{limit}). Upgrade your subscription to add more organizations.",
     "validationError": "Please complete all required fields.",
     "selectProfileFirst": "You need to select an existing profile first. Once authenticated, you'll be brought back here to finish.",
     "selectProfile": "Select a profile",
@@ -710,9 +704,7 @@
       "city": "City",
       "governorate": "Governorate",
       "address": "Address",
-      "country": "Country",
-      "specialty": "Specialty",
-      "jobTitle": "Job title"
+      "country": "Country"
     }
   },
   "notifications": {
