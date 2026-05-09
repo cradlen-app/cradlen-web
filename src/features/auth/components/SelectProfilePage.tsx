@@ -48,7 +48,11 @@ function getBranchLabel(branch: UserBranch) {
 }
 
 function isSessionExpiredError(error: unknown) {
-  return error instanceof ApiError && (error.status === 401 || error.status === 403);
+  return error instanceof ApiError && error.status === 401;
+}
+
+function isProfileUnavailableError(error: unknown) {
+  return error instanceof ApiError && error.status === 403;
 }
 
 export function SelectProfilePage() {
@@ -123,6 +127,7 @@ export function SelectProfilePage() {
       const response = await selectProfile.mutateAsync({
         branch_id: branchId,
         profile_id: profileId,
+        organization_id: organizationId,
       });
 
       setAuthenticated();
@@ -145,6 +150,11 @@ export function SelectProfilePage() {
       setIsAutoProceeding(false);
       if (isSessionExpiredError(error)) {
         expireSelectionSession();
+        return;
+      }
+
+      if (isProfileUnavailableError(error)) {
+        toast.error(t("profileUnavailable"));
         return;
       }
 

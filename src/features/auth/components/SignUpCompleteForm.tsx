@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useForm, useWatch, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,6 @@ import {
 } from "../lib/current-user";
 import { getDefaultRouteForRole } from "../lib/redirect";
 import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
-import { DoctorFields } from "./DoctorFields";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
@@ -69,14 +68,7 @@ export function SignUpCompleteForm() {
       governorate: "",
       country: "",
       branchName: "",
-      isClinical: false,
-      specialty: "",
-      jobTitle: "",
     },
-  });
-  const isClinical = useWatch({
-    control: form.control,
-    name: "isClinical",
   });
 
   const inputClass = cn(
@@ -108,23 +100,28 @@ export function SignUpCompleteForm() {
           const profileId = getProfileId(profile)!;
           const organizationId = getProfileOrganizationId(profile)!;
           const branchId = getBranchId(branch)!;
-          const selectionRes = await selectProfile.mutateAsync({
-            branch_id: branchId,
-            profile_id: profileId,
-          });
-          setAuthenticated();
-          setContext({
-            organizationId: selectionRes.data.organization_id || organizationId,
-            branchId: selectionRes.data.branch_id ?? branchId,
-            profileId: selectionRes.data.profile_id || profileId,
-          });
-          clearPendingProfileSelection();
-          queryClient.clear();
-          const role = getProfileRoles(profile)[0] ?? ("unknown" as UserRole);
-          const resolvedOrgId = selectionRes.data.organization_id || organizationId;
-          const resolvedBranchId = selectionRes.data.branch_id ?? branchId;
-          router.replace(getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
-          return;
+          try {
+            const selectionRes = await selectProfile.mutateAsync({
+              branch_id: branchId,
+              profile_id: profileId,
+              organization_id: organizationId,
+            });
+            setAuthenticated();
+            setContext({
+              organizationId: selectionRes.data.organization_id || organizationId,
+              branchId: selectionRes.data.branch_id ?? branchId,
+              profileId: selectionRes.data.profile_id || profileId,
+            });
+            clearPendingProfileSelection();
+            queryClient.clear();
+            const role = getProfileRoles(profile)[0] ?? ("unknown" as UserRole);
+            const resolvedOrgId = selectionRes.data.organization_id || organizationId;
+            const resolvedBranchId = selectionRes.data.branch_id ?? branchId;
+            router.replace(getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
+            return;
+          } catch {
+            // Fall through to manual /select-profile so the user can retry.
+          }
         }
 
         clearPendingSignupSession();
@@ -293,31 +290,6 @@ export function SignUpCompleteForm() {
             {fieldError(form.formState.errors.address?.message)}
           </div>
         </div>
-
-        <div className="flex flex-col gap-4">
-          <h3 className="border-b border-gray-100 pb-2 text-sm font-medium text-brand-black">
-            {t("clinicianHeading")}
-          </h3>
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3.5 transition-colors hover:border-brand-primary/30 hover:bg-brand-primary/5">
-            <input
-              type="checkbox"
-              {...form.register("isClinical")}
-              className="size-4 cursor-pointer rounded border-gray-300 accent-brand-primary"
-            />
-            <span className="text-sm text-brand-black">{t("isClinicalLabel")}</span>
-            <span className="ms-auto text-xs text-gray-400">{t("ownerDoctorRole")}</span>
-          </label>
-        </div>
-
-        <DoctorFields
-          isVisible={isClinical}
-          register={form.register}
-          inputClassName={inputClass}
-          specialtyLabel={t("specialtyLabel")}
-          specialtyPlaceholder={t("specialtyPlaceholder")}
-          jobTitleLabel={t("jobTitleLabel")}
-          jobTitlePlaceholder={t("jobTitlePlaceholder")}
-        />
 
         {stepError && (
           <p className="text-center text-sm text-red-500">{stepError}</p>

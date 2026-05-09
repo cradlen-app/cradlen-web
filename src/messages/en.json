@@ -481,9 +481,6 @@
       "confirmPasswordPlaceholder": "Enter your password again",
       "showPassword": "Show",
       "hidePassword": "Hide",
-      "isClinicalLabel": "I am a clinical professional",
-      "specialtyLabel": "Specialty",
-      "specialtyPlaceholder": "Select your specialty",
       "verificationTitle": "Check your inbox",
       "verificationDescription": "We sent a verification code to {email}. Please enter it below.",
       "verificationCodeLabel": "Verification code",
@@ -505,11 +502,6 @@
       "governoratePlaceholder": "Giza",
       "countryLabel": "Country",
       "countryPlaceholder": "Egypt",
-      "clinicianHeading": "Your role",
-      "ownerRole": "Owner",
-      "ownerDoctorRole": "Owner + Doctor",
-      "jobTitleLabel": "Job title (optional)",
-      "jobTitlePlaceholder": "e.g. Senior Physician",
       "errors": {
         "serverError": "Something went wrong. Please try again.",
         "emailTaken": "An account with this email already exists.",
@@ -543,10 +535,7 @@
         "branchNameRequired": "Branch name is required",
         "cityRequired": "City is required",
         "addressRequired": "Address is required",
-        "governorateRequired": "Governorate is required",
-        "roleRequired": "Please select a role",
-        "specialtyRequired": "Specialty is required for clinical professionals",
-        "jobTitleRequired": "Job title is required for clinical professionals"
+        "governorateRequired": "Governorate is required"
       },
       "toasts": {
         "resumingRegistration": "Email already registered — resuming your incomplete registration.",
@@ -628,6 +617,8 @@
         "passwordRequired": "Password is required",
         "passwordMinLength": "Password must be at least 8 characters",
         "invalidCredentials": "Invalid email or password",
+        "accountSuspended": "This account is currently suspended. Please contact your clinic administrator.",
+        "tooManyAttempts": "Too many sign-in attempts. Please wait a few minutes and try again.",
         "serverError": "Something went wrong. Please try again.",
         "noProfiles": "No profiles are available for this sign-in."
       },
@@ -650,6 +641,7 @@
       "noBranches": "This profile does not have any branches. Please contact your clinic administrator.",
       "invalidSession": "Your profile selection session expired. Please sign in again.",
       "missingContext": "This profile is missing organization context.",
+      "profileUnavailable": "This profile or branch is no longer available. Please pick another.",
       "error": "Could not select this profile. Please try again.",
       "signingIn": "Signing you in...",
       "selectBranch": "Select your branch",
