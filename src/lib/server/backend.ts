@@ -271,6 +271,39 @@ async function getValidAccessToken() {
   return { accessToken: refreshedTokens.access_token, refreshedTokens };
 }
 
+// Last-resort recovery when refresh fails but the selection_token is still
+// within its 30-min TTL. Mints a fresh token pair without bouncing the user
+// back through /sign-in. Per backend contract: if the user has only one
+// branch this also re-creates the active branch context.
+async function fallbackToSelectionToken(
+  request: NextRequest,
+): Promise<AuthTokens | null> {
+  const cookieStore = await cookies();
+  const selectionToken = cookieStore.get(AUTH_SELECTION_TOKEN_COOKIE)?.value;
+  if (!selectionToken) return null;
+
+  const profileId = request.headers.get("x-profile-id");
+  if (!profileId) return null;
+  const branchId = request.headers.get("x-branch-id");
+
+  try {
+    const response = await fetch(backendUrl("/auth/profiles/select"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        selection_token: selectionToken,
+        profile_id: profileId,
+        ...(branchId ? { branch_id: branchId } : {}),
+      }),
+    });
+    if (!response.ok) return null;
+    const body = (await response.json().catch(() => null)) as unknown;
+    return extractTokens(body);
+  } catch {
+    return null;
+  }
+}
+
 function copyRequestHeaders(request: NextRequest, accessToken: string) {
   const headers = new Headers(request.headers);
   headers.set("Authorization", `Bearer ${accessToken}`);
@@ -307,12 +340,22 @@ export async function proxyAuthenticatedRequest(
     refreshedTokens = validToken.refreshedTokens;
 
     if (!validToken.accessToken) {
-      const response = NextResponse.json(
-        { message: "Authentication required" },
-        { status: 401 },
-      );
-      clearAuthCookies(response);
-      return response;
+      const fallback = await fallbackToSelectionToken(request);
+      if (!fallback) {
+        const response = NextResponse.json(
+          { message: "Authentication required" },
+          { status: 401 },
+        );
+        clearAuthCookies(response);
+        return response;
+      }
+      refreshedTokens = fallback;
+      const retryResponse = await fetch(backendUrl(backendPath), {
+        method: request.method,
+        headers: copyRequestHeaders(request, fallback.access_token),
+        body: requestBody,
+      });
+      return forwardBackendResponse(retryResponse, refreshedTokens);
     }
 
     const response = await fetch(backendUrl(backendPath), {
@@ -328,22 +371,27 @@ export async function proxyAuthenticatedRequest(
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get(AUTH_REFRESH_TOKEN_COOKIE)?.value;
 
-    if (!refreshToken) {
+    let newTokens: AuthTokens | null = null;
+    if (refreshToken) {
+      try {
+        newTokens = await refreshAuthTokens(refreshToken);
+      } catch {
+        // Network failure or backend error during refresh — fall through to
+        // the selection-token fallback before giving up.
+        newTokens = null;
+      }
+    }
+
+    if (!newTokens) {
+      newTokens = await fallbackToSelectionToken(request);
+    }
+
+    if (!newTokens) {
       const unauthorized = await forwardBackendResponse(response, null);
       clearAuthCookies(unauthorized);
       return unauthorized;
     }
 
-    let newTokens: AuthTokens | null = null;
-    try {
-      newTokens = await refreshAuthTokens(refreshToken);
-    } catch {
-      // Network failure or backend error during refresh → treat as expired session
-      return new NextResponse(null, { status: 401 });
-    }
-    if (!newTokens) {
-      return new NextResponse(null, { status: 401 });
-    }
     refreshedTokens = newTokens;
     const retryResponse = await fetch(backendUrl(backendPath), {
       method: request.method,

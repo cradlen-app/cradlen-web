@@ -1,34 +1,20 @@
 import { useTranslations } from "next-intl";
 import { normalizeRoleName } from "@/features/auth/lib/current-user";
+import type { EngagementType, ExecutiveTitle } from "@/types/user.types";
 
 export type SettingsT = ReturnType<typeof useTranslations>;
 export type SettingsLocale = "en" | "ar";
 
-function readFormValue(form: HTMLFormElement, name: string) {
+export function getFormString(form: HTMLFormElement, name: string) {
   const value = new FormData(form).get(name);
   return typeof value === "string" ? value.trim() : "";
-}
-
-export function getFormString(form: HTMLFormElement, name: string) {
-  return readFormValue(form, name);
-}
-
-export function getFormBoolean(form: HTMLFormElement, name: string) {
-  return new FormData(form).get(name) === "on";
-}
-
-export function getSpecialities(value: string) {
-  return value
-    .split(",")
-    .map((speciality) => speciality.trim())
-    .filter(Boolean);
 }
 
 export function hasRequiredValues(
   form: HTMLFormElement,
   requiredFields: string[],
 ) {
-  return requiredFields.every((field) => readFormValue(form, field));
+  return requiredFields.every((field) => getFormString(form, field));
 }
 
 export function formatRole(role: string | undefined, t: SettingsT) {
@@ -45,6 +31,22 @@ export function formatOrgStatus(status: string | undefined, t: SettingsT) {
   return status;
 }
 
+export function formatExecutiveTitle(
+  title: ExecutiveTitle | null | undefined,
+  t: SettingsT,
+) {
+  if (!title) return t("empty.missing");
+  return t(`executiveTitles.${title}`);
+}
+
+export function formatEngagementType(
+  engagement: EngagementType | null | undefined,
+  t: SettingsT,
+) {
+  if (!engagement) return t("empty.missing");
+  return t(`engagementTypes.${engagement}`);
+}
+
 export function formatSettingsDateTime(
   value: string | null | undefined,
   locale: SettingsLocale,
@@ -58,4 +60,27 @@ export function formatSettingsDateTime(
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
+}
+
+/** Returns only the keys whose value differs between `next` and `prev`. */
+export function pickDirty<T extends Record<string, unknown>>(
+  next: T,
+  prev: Partial<T>,
+): Partial<T> {
+  const out: Partial<T> = {};
+  for (const key of Object.keys(next) as (keyof T)[]) {
+    if (!shallowEqual(next[key], prev[key])) {
+      out[key] = next[key];
+    }
+  }
+  return out;
+}
+
+function shallowEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
+    return a.every((v, i) => v === b[i]);
+  }
+  return false;
 }

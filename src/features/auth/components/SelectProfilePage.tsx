@@ -124,10 +124,12 @@ export function SelectProfilePage() {
     }
 
     try {
+      // Backend auto-selects the only branch when omitted; only send branch_id
+      // when the profile actually has a choice to make.
       const response = await selectProfile.mutateAsync({
-        branch_id: branchId,
         profile_id: profileId,
         organization_id: organizationId,
+        ...(branches.length > 1 ? { branch_id: branchId } : {}),
       });
 
       setAuthenticated();

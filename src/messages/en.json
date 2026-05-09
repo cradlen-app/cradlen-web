@@ -337,6 +337,7 @@
     "no": "No",
     "cancel": "Cancel",
     "softDeleteConfirm": "Delete",
+    "typedConfirmHint": "Type \"{name}\" to confirm.",
     "status": {
       "active": "Active",
       "inactive": "Inactive"
@@ -353,8 +354,30 @@
       "INACTIVE": "Inactive",
       "SUSPENDED": "Suspended"
     },
+    "executiveTitles": {
+      "NONE": "None",
+      "CEO": "CEO",
+      "COO": "COO",
+      "CFO": "CFO",
+      "CMO": "CMO"
+    },
+    "engagementTypes": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "ON_DEMAND": "On demand",
+      "EXTERNAL_CONSULTANT": "External consultant"
+    },
+    "jobFunctions": {
+      "OBGYN": "OB-GYN",
+      "PEDIATRICIAN": "Pediatrician"
+    },
+    "specialtyCodes": {
+      "OBGYN": "OB-GYN",
+      "PEDIATRICS": "Pediatrics"
+    },
     "tabs": {
       "profile": "Profile",
+      "account": "Account",
       "organization": "Organization",
       "branches": "Branches",
       "danger": "Danger Zone"
@@ -372,13 +395,17 @@
       "organization": "Organization",
       "organizationName": "Organization name",
       "specialties": "Specialties",
+      "specialtiesPlaceholder": "Select specialties",
       "currentBranch": "Current branch",
       "country": "Country",
       "city": "City",
       "governorate": "Governorate",
       "address": "Address",
-      "isClinical": "I am a doctor (clinical staff)",
-      "specialty": "Specialty",
+      "executiveTitle": "Executive title",
+      "engagementType": "Engagement type",
+      "jobFunctions": "Job functions",
+      "jobFunctionsPlaceholder": "Select job functions",
+      "removeOption": "Remove {label}",
       "mainBranch": "Main branch"
     },
     "profile": {
@@ -388,7 +415,16 @@
       "drawerDescription": "Update the personal details attached to your current staff profile.",
       "save": "Save profile",
       "updateSuccess": "Profile updated.",
-      "updateError": "Failed to update profile. Please try again."
+      "updateError": "Failed to update profile. Please try again.",
+      "updateInvalid": "Some values were rejected by the server. Please review and try again.",
+      "sharedAcrossOrgs": "Your name and phone are shared across all your organizations."
+    },
+    "account": {
+      "title": "Account",
+      "description": "Email and password tied to your sign-in.",
+      "password": "Password",
+      "passwordHint": "Changing your password signs you out of every device.",
+      "changePassword": "Change password"
     },
     "organization": {
       "title": "Organization",
@@ -397,25 +433,32 @@
       "add": "Add organization",
       "edit": "Edit organization",
       "save": "Save organization",
-      "Delete": "Delete organization",
-      "DeleteTitle": "Delete organization?",
-      "DeleteDescription": "This will disable the organization, its branches, staff, subscriptions, and pending invitations.",
+      "delete": "Delete organization",
+      "deleteTitle": "Delete organization?",
+      "deleteDescription": "This will soft-delete the organization, all of its branches, all staff profiles, and sign you out. This cannot be undone from the app.",
       "updateSuccess": "Organization updated.",
       "updateError": "Failed to update organization. Please try again.",
       "deleteSuccess": "Organization deleted.",
-      "deleteError": "Failed to delete organization. Please try again."
+      "deleteError": "Failed to delete organization. Please try again.",
+      "deleteForbidden": "Only the organization owner can delete the organization."
     },
     "branches": {
       "title": "Branches",
       "description": "Review the active branch and prepare another clinic location.",
-      "drawerDescription": "Add another clinic location under the current organization.",
+      "drawerDescription": "Add another clinic location under the current organization. Staff are not assigned automatically — assign them after creation.",
       "editDrawerDescription": "Update the address and main-branch status for this branch.",
       "add": "Add branch",
       "edit": "Edit branch",
       "save": "Save branch",
-      "Delete": "Delete branch",
-      "DeleteTitle": "Delete branch?",
-      "DeleteDescription": "This branch will be disabled and no longer accessible. Your clinic must always have at least one active branch.",
+      "delete": "Delete branch",
+      "deleteTitle": "Delete branch?",
+      "deleteDescription": "This branch will be disabled and no longer accessible.",
+      "deleteMainDescription": "This is the main branch. \"{name}\" will be promoted to main automatically.",
+      "deleteLastTitle": "Delete your only branch?",
+      "deleteLastDescription": "This is your last branch. Deleting it will soft-delete the entire organization, all staff, and sign you out.",
+      "demoteWarning": "Saving with this branch as main will demote \"{name}\".",
+      "onlyMainHint": "This is your only main branch. Promote another branch first if you want to demote it.",
+      "cannotDemoteOnlyMain": "At least one branch must remain main. Promote a different branch first.",
       "createSuccess": "Branch created.",
       "createError": "Failed to create branch. Please try again.",
       "updateSuccess": "Branch updated.",
@@ -427,14 +470,8 @@
     "danger": {
       "title": "Danger Zone",
       "description": "Sensitive organization actions stay behind confirmation.",
-      "deactivateTitle": "Deactivate organization",
-      "deactivateDescription": "This will disable your access and sign you out.",
-      "deactivate": "Deactivate organization",
-      "confirmTitle": "Deactivate your organization?",
-      "confirmDescription": "You will be signed out after the organization is deactivated.",
-      "confirm": "Confirm deactivation",
-      "deactivateSuccess": "Organization deactivated.",
-      "deactivateError": "Failed to deactivate organization. Please try again."
+      "deleteTitle": "Delete organization",
+      "deleteDescription": "Soft-deletes the organization, all branches, and all staff profiles. You will be signed out and cannot recover this from the app."
     },
     "empty": {
       "missing": "Not available",
@@ -620,7 +657,8 @@
         "accountSuspended": "This account is currently suspended. Please contact your clinic administrator.",
         "tooManyAttempts": "Too many sign-in attempts. Please wait a few minutes and try again.",
         "serverError": "Something went wrong. Please try again.",
-        "noProfiles": "No profiles are available for this sign-in."
+        "noProfiles": "No profiles are available for this sign-in.",
+        "inactiveOrganization": "Your organization is no longer active. You have been signed out."
       },
       "toasts": {
         "resumingRegistration": "Your registration is incomplete — redirecting to continue sign-up."
