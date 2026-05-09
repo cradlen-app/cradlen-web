@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
   backendFetch,
+  clearAuthCookies,
   clearResetTokenCookie,
   getResetTokenFromRequest,
   readBackendJson,
@@ -36,5 +37,8 @@ export async function POST(request: NextRequest) {
       : NextResponse.json(body ?? {}, { status: response.status });
 
   clearResetTokenCookie(nextResponse as NextResponse);
+  // Backend revokes all refresh tokens for the user on successful reset; mirror that
+  // by clearing any access/refresh cookies still in this browser.
+  clearAuthCookies(nextResponse as NextResponse);
   return nextResponse;
 }

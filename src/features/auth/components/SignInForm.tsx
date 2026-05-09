@@ -18,9 +18,11 @@ import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas"
 import { useSignIn } from "../hooks/useSignIn";
 import { useSelectProfile } from "../hooks/useSelectProfile";
 import { getSafeRedirectPath, getDefaultRouteForRole } from "../lib/redirect";
-import { setPendingProfileSelection } from "../lib/profile-selection-session";
-import { setPendingSignupEmail } from "../lib/registration-session";
-import { isInvalidSignInError } from "../lib/sign-in-errors";
+import {
+  clearPendingProfileSelection,
+  setPendingProfileSelection,
+} from "../lib/profile-selection-session";
+import { classifySignInError } from "../lib/sign-in-errors";
 import {
   getBranchId,
   getProfileOrganizationId,
@@ -54,14 +56,17 @@ export function SignInForm() {
 
   const onSubmit = async (data: SignInFormData) => {
     setFallbackError(null);
+    // Don't carry a previous attempt's profile list into this sign-in.
+    clearPendingProfileSelection();
 
     try {
       const res = await mutateAsync(data);
       const nextPath = resolveAuthRedirect(res, data.email);
 
       if (isOnboardingRedirectPath(nextPath)) {
-        setPendingSignupEmail(data.email);
-        router.replace(nextPath);
+        // Login returned ONBOARDING_REQUIRED. Backend never issues a fresh signup_token here,
+        // so route the user back to the start of signup with email pre-filled via query.
+        router.replace(`${nextPath}?resume=1&email=${encodeURIComponent(data.email)}`);
         return;
       }
 
@@ -77,7 +82,11 @@ export function SignInForm() {
 
           if (profileId && organizationId && branchId) {
             try {
-              const selRes = await selectProfileAsync({ profile_id: profileId, branch_id: branchId });
+              const selRes = await selectProfileAsync({
+                profile_id: profileId,
+                branch_id: branchId,
+                organization_id: organizationId,
+              });
               setAuthenticated();
               setContext({
                 organizationId: selRes.data.organization_id || organizationId,
@@ -111,13 +120,9 @@ export function SignInForm() {
     }
   };
 
+  const errorKind = isError ? classifySignInError(error) : null;
   const apiErrorMessage =
-    fallbackError ??
-    (isError && isInvalidSignInError(error)
-      ? t("errors.invalidCredentials")
-      : isError
-        ? t("errors.serverError")
-        : null);
+    fallbackError ?? (errorKind ? t(`errors.${errorKind}`) : null);
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",

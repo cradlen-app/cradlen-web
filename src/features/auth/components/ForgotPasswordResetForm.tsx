@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Link, useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -12,28 +13,29 @@ import {
   createForgotPasswordResetSchema,
   type ForgotPasswordResetData,
 } from "../lib/forgot-password.schemas";
-import { clearForgotPasswordSession } from "../lib/forgot-password-session";
+import {
+  clearForgotPasswordSession,
+  isPendingForgotPasswordEmailExpired,
+} from "../lib/forgot-password-session";
 import { useResetForgotPassword } from "../hooks/useForgotPassword";
-
-function getErrorCode(error: unknown): string | undefined {
-  const body = (error instanceof ApiError ? error.body : null) as
-    | { error?: { code?: string } }
-    | null
-    | undefined;
-  return body?.error?.code;
-}
+import { getErrorCode } from "../lib/api-errors";
 
 export function ForgotPasswordResetForm() {
   const t = useTranslations("auth.forgotPassword");
   const router = useRouter();
   const resetPassword = useResetForgotPassword();
-  const [sessionExpired, setSessionExpired] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState<boolean>(() =>
+    typeof window !== "undefined" && isPendingForgotPasswordEmailExpired(),
+  );
   const [stepError, setStepError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const form = useForm<ForgotPasswordResetData>({
     resolver: zodResolver(createForgotPasswordResetSchema(t)),
   });
+
+  useEffect(() => {
+    if (sessionExpired) clearForgotPasswordSession();
+  }, [sessionExpired]);
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -45,7 +47,6 @@ export function ForgotPasswordResetForm() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     setStepError(null);
-    setSuccessMessage(null);
 
     try {
       await resetPassword.mutateAsync({
@@ -53,8 +54,8 @@ export function ForgotPasswordResetForm() {
         confirm_password: data.confirmPassword,
       });
       clearForgotPasswordSession();
-      setSuccessMessage(t("resetSuccess"));
-      window.setTimeout(() => router.replace("/sign-in"), 900);
+      toast.success(t("resetSuccess"));
+      router.replace("/sign-in");
     } catch (error) {
       const code = getErrorCode(error);
 
@@ -64,11 +65,12 @@ export function ForgotPasswordResetForm() {
         return;
       }
 
-      if (
-        error instanceof ApiError &&
-        [400, 403, 404, 422].includes(error.status)
-      ) {
-        setStepError(t("errors.invalidToken"));
+      // Backend returns 401 for token problems (handled above). 400 means a password
+      // validation issue — surface the backend message if available so the user knows
+      // exactly what to fix instead of being told the link expired.
+      if (error instanceof ApiError && error.status === 400) {
+        const backendMessage = error.messages?.[0];
+        setStepError(backendMessage ?? t("errors.serverError"));
         return;
       }
 
@@ -129,10 +131,6 @@ export function ForgotPasswordResetForm() {
         showLabel={t("showPassword")}
         hideLabel={t("hidePassword")}
       />
-
-      {successMessage ? (
-        <p className="text-center text-sm text-green-600">{successMessage}</p>
-      ) : null}
 
       {stepError ? (
         <p className="text-center text-sm text-red-500">{stepError}</p>

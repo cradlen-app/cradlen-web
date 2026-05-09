@@ -222,7 +222,9 @@ export async function proxySessionEndpoint(
   return sessionResponse(tokens ? sanitize(body) : body, tokens, response.status);
 }
 
-async function refreshAuthTokens(refreshToken: string) {
+const inflightRefreshes = new Map<string, Promise<AuthTokens>>();
+
+async function performRefresh(refreshToken: string) {
   const response = await backendFetch("/auth/refresh", {
     method: "POST",
     body: JSON.stringify({ refresh_token: refreshToken }),
@@ -239,6 +241,17 @@ async function refreshAuthTokens(refreshToken: string) {
   }
 
   return tokens;
+}
+
+async function refreshAuthTokens(refreshToken: string) {
+  const existing = inflightRefreshes.get(refreshToken);
+  if (existing) return existing;
+
+  const promise = performRefresh(refreshToken).finally(() => {
+    inflightRefreshes.delete(refreshToken);
+  });
+  inflightRefreshes.set(refreshToken, promise);
+  return promise;
 }
 
 async function getValidAccessToken() {

@@ -1,5 +1,4 @@
 import type { UserProfile } from "@/types/user.types";
-import type { OnboardingRequiredResponse } from "@/lib/auth/redirect";
 import type { AuthTokens } from "./sign-in.types";
 
 export type Step1Data = {
@@ -23,9 +22,6 @@ export type Step3Data = {
   address: string;
   governorate: string;
   country?: string;
-  isClinical: boolean;
-  specialty?: string;
-  jobTitle?: string;
 };
 
 export type SignUpFormData = Omit<Step3Data, "specialties"> &
@@ -56,9 +52,6 @@ export type RegisterOrganizationRequest = {
   branch_city: string;
   branch_governorate: string;
   branch_country?: string;
-  roles: ("OWNER" | "DOCTOR")[];
-  specialty?: string;
-  job_title?: string;
 };
 
 export type ResendOtpRequest = {
@@ -87,9 +80,7 @@ export type AuthenticatedSession = { authenticated: true };
 
 export type RegisterOrganizationResponse = ApiResponse<AuthenticatedSession>;
 
-export type SignupCompleteResponse = ApiResponse<
-  { profiles: UserProfile[] } | OnboardingRequiredResponse
->;
+export type SignupCompleteResponse = ApiResponse<{ profiles: UserProfile[] }>;
 
 export type PendingLoginResponse = {
   registration_token: string;

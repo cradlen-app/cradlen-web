@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
   backendFetch,
+  clearResetTokenCookie,
   readBackendJson,
   setResetTokenCookie,
 } from "@/lib/server/backend";
@@ -23,6 +24,9 @@ export async function POST(request: NextRequest) {
     { status: response.status },
   );
 
+  // Always clear any prior reset token first — a previous request may have set one tied
+  // to a different email. Then set the new token only if the backend issued one.
+  clearResetTokenCookie(nextResponse);
   if (data?.reset_token) {
     setResetTokenCookie(nextResponse, data.reset_token, data.expires_in ?? RESET_TOKEN_MAX_AGE);
   }

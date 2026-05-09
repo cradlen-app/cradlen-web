@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -20,7 +20,6 @@ export function ForgotPasswordStartForm() {
   const t = useTranslations("auth.forgotPassword");
   const router = useRouter();
   const startForgotPassword = useStartForgotPassword();
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const form = useForm<ForgotPasswordStartData>({
     resolver: zodResolver(createForgotPasswordStartSchema(t)),
@@ -33,8 +32,6 @@ export function ForgotPasswordStartForm() {
   );
 
   const onSubmit = form.handleSubmit(async (data) => {
-    setSuccessMessage(null);
-
     try {
       await startForgotPassword.mutateAsync({ email: data.email });
     } catch {
@@ -42,8 +39,8 @@ export function ForgotPasswordStartForm() {
     } finally {
       setPendingForgotPasswordEmail(data.email);
       startForgotPasswordResendCooldown();
-      setSuccessMessage(t("startSuccess"));
-      window.setTimeout(() => router.push("/forgot-password/verify"), 650);
+      toast.success(t("startSuccess"));
+      router.push("/forgot-password/verify");
     }
   });
 
@@ -78,10 +75,6 @@ export function ForgotPasswordStartForm() {
           </p>
         ) : null}
       </div>
-
-      {successMessage ? (
-        <p className="text-center text-sm text-green-600">{successMessage}</p>
-      ) : null}
 
       <button
         type="submit"

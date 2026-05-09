@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -13,6 +14,7 @@ import { PhoneInput } from "./PhoneInput";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep1Schema } from "../lib/sign-up.schemas";
 import {
+  clearPendingSignupSession,
   setPendingSignupEmail,
 } from "../lib/registration-session";
 import { buildSignupStartRequest } from "../lib/signup-start";
@@ -31,6 +33,17 @@ function getConflictFields(err: ApiError): string[] {
 export function SignUpForm() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // When a sign-in attempt returns ONBOARDING_REQUIRED, the user is bounced here with
+  // ?resume=1&email=<addr> so they can re-run /auth/signup/start to mint a fresh signup token.
+  // Skip the registration-status redirect in that case to prevent bouncing back to verify/complete.
+  const resume = searchParams.get("resume") === "1";
+  const resumeEmail = resume ? (searchParams.get("email") ?? "") : "";
+  // In resume mode, clear any stale signup session BEFORE useAuthRedirect captures it,
+  // so the user doesn't get bounced to /sign-up/verify or /sign-up/complete with no token.
+  if (resume && typeof window !== "undefined") {
+    clearPendingSignupSession();
+  }
   const { email: pendingEmail, isChecking } = useAuthRedirect({
     currentStep: "NONE",
   });
@@ -45,7 +58,7 @@ export function SignUpForm() {
       firstName: "",
       lastName: "",
       phoneNumber: "",
-      email: "",
+      email: resumeEmail,
       password: "",
       confirmPassword: "",
     },

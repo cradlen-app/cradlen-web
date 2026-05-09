@@ -25,14 +25,15 @@ export type LoginProfilesResponse = {
 export type SelectProfileRequest = {
   branch_id?: string | null;
   profile_id: string;
+  organization_id?: string | null;
 };
 
 export type SelectProfileResponse = {
   data: {
-    organization_id: string;
+    organization_id: string | null;
     authenticated: true;
     branch_id?: string | null;
-    profile_id: string;
+    profile_id: string | null;
   };
   meta: Record<string, unknown>;
 };

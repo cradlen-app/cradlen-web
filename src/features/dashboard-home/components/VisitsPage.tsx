@@ -7,6 +7,7 @@ import {
   getActiveProfile,
   getActiveRole,
   getDefaultBranch,
+  getProfileIsClinical,
 } from "@/features/auth/lib/current-user";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
@@ -37,7 +38,7 @@ export function VisitsPage() {
   const isReceptionOrOwner =
     role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER;
   const isClinical =
-    isDoctor || (role === STAFF_ROLE.OWNER && !!profile?.is_clinical);
+    isDoctor || (role === STAFF_ROLE.OWNER && getProfileIsClinical(profile));
 
   const canCreateVisit = role === STAFF_ROLE.RECEPTION;
   const canManageStatus =

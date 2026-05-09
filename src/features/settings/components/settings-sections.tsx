@@ -11,7 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
-import { getProfilePrimaryRole } from "@/features/auth/lib/current-user";
+import {
+  getOrganizationSpecialtyNames,
+  getProfileIsClinical,
+  getProfilePrimaryRole,
+  getProfileSpecialtyNames,
+} from "@/features/auth/lib/current-user";
 import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import type { DrawerKey, SoftDeleteKey } from "./settings.types";
@@ -108,15 +113,15 @@ export function ProfileSection({
               value={profile.job_title}
             />
             {(getProfilePrimaryRole(profile) === STAFF_ROLE.DOCTOR ||
-              (profile.organization?.specialities?.length ?? 0) > 0) && (
+              getOrganizationSpecialtyNames(profile).length > 0) && (
               <>
                 <DetailRow
                   label={t("fields.specialty")}
-                  value={profile.specialty}
+                  value={getProfileSpecialtyNames(profile).join(", ")}
                 />
                 <DetailRow
                   label={t("fields.isClinical")}
-                  value={profile.is_clinical ? t("yes") : t("no")}
+                  value={getProfileIsClinical(profile) ? t("yes") : t("no")}
                 />
               </>
             )}
@@ -180,7 +185,7 @@ export function OrganizationSection({
               </span>
             }
             title={profile.organization.name}
-            description={profile.organization.specialities?.join(", ")}
+            description={getOrganizationSpecialtyNames(profile).join(", ")}
           />
           <SoftDeletePanel
             description={t("organization.DeleteDescription")}
