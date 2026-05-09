@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/hooks/useCurrentUser";
 import { ApiError } from "@/lib/api";
+import { getSubscriptionLimit } from "@/lib/subscription-errors";
 import { queryClient } from "@/lib/queryClient";
 import { queryKeys } from "@/lib/queryKeys";
 import { cn } from "@/lib/utils";
@@ -22,11 +23,10 @@ import {
   type UpdateProfileRequest,
 } from "../lib/settings.api";
 import {
-  ENGAGEMENT_TYPES,
-  EXECUTIVE_TITLES,
-  JOB_FUNCTION_CODES,
-  SPECIALTY_CODES,
-} from "../lib/settings.catalog";
+  useJobFunctionsLookup,
+  useProfileLookups,
+  useSpecialtiesLookup,
+} from "../hooks/useSettingsLookups";
 import {
   branchFormSchema,
   organizationFormSchema,
@@ -100,6 +100,15 @@ export function ProfileForm({
   t,
   user,
 }: SettingsFormProps) {
+  const profileLookups = useProfileLookups();
+  const specialtiesLookup = useSpecialtiesLookup();
+  const jobFunctionsLookup = useJobFunctionsLookup();
+  const profileEnums = profileLookups.data?.data;
+  const specialtyOptions =
+    specialtiesLookup.data?.data?.map((s) => ({ code: s.code, label: s.name })) ?? [];
+  const jobFunctionOptions =
+    jobFunctionsLookup.data?.data?.map((j) => ({ code: j.code, label: j.name })) ?? [];
+
   const initial = useMemo<ProfileFormData>(
     () => ({
       first_name: user.first_name ?? "",
@@ -231,9 +240,9 @@ export function ProfileForm({
           {...register("executive_title")}
         >
           <option value="">{t("executiveTitles.NONE")}</option>
-          {EXECUTIVE_TITLES.map((title) => (
-            <option key={title} value={title}>
-              {t(`executiveTitles.${title}`)}
+          {profileEnums?.executive_titles?.map((opt) => (
+            <option key={opt.code} value={opt.code}>
+              {opt.name}
             </option>
           ))}
         </select>
@@ -248,9 +257,9 @@ export function ProfileForm({
           className={fieldClass(errors.engagement_type)}
           {...register("engagement_type")}
         >
-          {ENGAGEMENT_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {t(`engagementTypes.${type}`)}
+          {profileEnums?.engagement_types?.map((opt) => (
+            <option key={opt.code} value={opt.code}>
+              {opt.name}
             </option>
           ))}
         </select>
@@ -265,11 +274,12 @@ export function ProfileForm({
           onChange={(next) =>
             setValue("job_function_codes", next, { shouldDirty: true })
           }
-          options={JOB_FUNCTION_CODES.map(({ code, labelKey }) => ({
-            code,
-            label: t(`jobFunctions.${labelKey}`),
-          }))}
-          placeholder={t("fields.jobFunctionsPlaceholder")}
+          options={jobFunctionOptions}
+          placeholder={
+            jobFunctionsLookup.isLoading
+              ? t("loading")
+              : t("fields.jobFunctionsPlaceholder")
+          }
           removeAriaLabel={(label) => t("fields.removeOption", { label })}
         />
       </div>
@@ -283,11 +293,12 @@ export function ProfileForm({
           onChange={(next) =>
             setValue("specialty_codes", next, { shouldDirty: true })
           }
-          options={SPECIALTY_CODES.map(({ code, labelKey }) => ({
-            code,
-            label: t(`specialtyCodes.${labelKey}`),
-          }))}
-          placeholder={t("fields.specialtiesPlaceholder")}
+          options={specialtyOptions}
+          placeholder={
+            specialtiesLookup.isLoading
+              ? t("loading")
+              : t("fields.specialtiesPlaceholder")
+          }
           removeAriaLabel={(label) => t("fields.removeOption", { label })}
         />
       </div>
@@ -312,6 +323,10 @@ export function OrganizationForm({
   profile,
   t,
 }: SettingsFormProps) {
+  const specialtiesLookup = useSpecialtiesLookup();
+  const specialtyOptions =
+    specialtiesLookup.data?.data?.map((s) => ({ code: s.code, label: s.name })) ?? [];
+
   const initial = useMemo<OrganizationFormData>(
     () => ({
       name: profile?.organization.name ?? "",
@@ -376,11 +391,12 @@ export function OrganizationForm({
           onChange={(next) =>
             setValue("specialties", next, { shouldDirty: true })
           }
-          options={SPECIALTY_CODES.map(({ code, labelKey }) => ({
-            code,
-            label: t(`specialtyCodes.${labelKey}`),
-          }))}
-          placeholder={t("fields.specialtiesPlaceholder")}
+          options={specialtyOptions}
+          placeholder={
+            specialtiesLookup.isLoading
+              ? t("loading")
+              : t("fields.specialtiesPlaceholder")
+          }
           removeAriaLabel={(label) => t("fields.removeOption", { label })}
         />
       </div>
@@ -504,7 +520,15 @@ export function BranchForm({
         queryClient.invalidateQueries({ queryKey: queryKeys.calendar.all() }),
       ]);
     } catch (error) {
-      if (error instanceof ApiError && error.status === 400) {
+      const limit = getSubscriptionLimit(error);
+      if (limit?.resource === "branches") {
+        toast.error(
+          t("subscription.branchLimitReached", {
+            current: limit.current,
+            limit: limit.limit,
+          }),
+        );
+      } else if (error instanceof ApiError && error.status === 400) {
         toast.error(t("branches.cannotDemoteOnlyMain"));
       } else {
         toast.error(

@@ -25,13 +25,17 @@ export const useAvailableProfilesStore = create<AvailableProfilesState>()(
   ),
 );
 
+// Stable sentinel: returning a fresh `[]` from a Zustand selector breaks
+// useSyncExternalStore's reference equality and causes React #185 loops.
+const EMPTY_PROFILES: UserProfile[] = Object.freeze([]) as unknown as UserProfile[];
+
 // Mirrors the selection_token's 30-min server-side TTL: returns the cached list
-// only while still within that window, otherwise []. Use this in components/hooks
-// that drive the org switcher.
+// only while still within that window, otherwise the shared empty sentinel.
+// Use this in components/hooks that drive the org switcher.
 export function getValidAvailableProfiles(
   state: Pick<AvailableProfilesState, "profiles" | "expiresAt">,
 ): UserProfile[] {
-  if (!state.expiresAt) return [];
-  if (Date.now() >= state.expiresAt) return [];
+  if (!state.expiresAt) return EMPTY_PROFILES;
+  if (Date.now() >= state.expiresAt) return EMPTY_PROFILES;
   return state.profiles;
 }
