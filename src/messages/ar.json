@@ -367,14 +367,6 @@
       "ON_DEMAND": "عند الطلب",
       "EXTERNAL_CONSULTANT": "استشاري خارجي"
     },
-    "jobFunctions": {
-      "OBGYN": "نساء وتوليد",
-      "PEDIATRICIAN": "طب أطفال"
-    },
-    "specialtyCodes": {
-      "OBGYN": "نساء وتوليد",
-      "PEDIATRICS": "طب الأطفال"
-    },
     "tabs": {
       "profile": "الملف الشخصي",
       "account": "الحساب",
@@ -484,6 +476,10 @@
     },
     "validation": {
       "required": "يرجى إكمال جميع الحقول المطلوبة."
+    },
+    "subscription": {
+      "branchLimitReached": "لقد وصلت إلى حد الفروع في خطتك ({current}/{limit}). قم بترقية اشتراكك لإضافة المزيد من الفروع.",
+      "organizationLimitReached": "لقد وصلت إلى حد المنظمات في خطتك ({current}/{limit}). قم بترقية اشتراكك لإضافة المزيد من المنظمات."
     }
   },
   "patientDashboard": {
@@ -693,11 +689,9 @@
     "backToProfiles": "العودة إلى الملفات",
     "groupOrganization": "تفاصيل المنظمة",
     "groupBranch": "الفرع الرئيسي",
-    "groupRole": "دورك",
-    "isClinical": "أنا طبيب (موظف سريري)",
-    "isClinicalHint": "يضيف دور الطبيب ويتيح الميزات السريرية لحسابك",
     "createSuccess": "تم إنشاء المنظمة. اختر ملفك الجديد.",
     "createError": "فشل إنشاء المنظمة. حاول مرة أخرى.",
+    "organizationLimitReached": "لقد وصلت إلى حد المنظمات في خطتك ({current}/{limit}). قم بترقية اشتراكك لإضافة المزيد من المنظمات.",
     "validationError": "يرجى إكمال جميع الحقول المطلوبة.",
     "selectProfileFirst": "يجب عليك اختيار ملف موجود أولاً. بعد تسجيل الدخول، ستعود هنا لإتمام الإنشاء.",
     "selectProfile": "اختر ملفاً",
@@ -710,9 +704,7 @@
       "city": "المدينة",
       "governorate": "المحافظة",
       "address": "العنوان",
-      "country": "الدولة",
-      "specialty": "التخصص",
-      "jobTitle": "المسمى الوظيفي"
+      "country": "الدولة"
     }
   },
   "notifications": {

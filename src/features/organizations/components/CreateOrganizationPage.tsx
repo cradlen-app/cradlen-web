@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
-import { Building2, GitBranch, Loader2, Stethoscope } from "lucide-react";
+import { Building2, GitBranch, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   getFormString,
   hasRequiredValues,
 } from "@/features/settings/components/settings.utils";
+import { getSubscriptionLimit } from "@/lib/subscription-errors";
 
 function FieldGroup({
   icon,
@@ -71,7 +72,6 @@ export function CreateOrganizationPage() {
   const t = useTranslations("createOrganization");
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
-  const [isClinical, setIsClinical] = useState(false);
   const [specialties, setSpecialties] = useState<string[]>([]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -98,8 +98,6 @@ export function CreateOrganizationPage() {
 
     setIsPending(true);
     try {
-      const roles = isClinical ? ["OWNER", "DOCTOR"] : ["OWNER"];
-
       await createOrganizationSession({
         organization_name: getFormString(form, "organizationName"),
         branch_name: getFormString(form, "branchName"),
@@ -108,19 +106,22 @@ export function CreateOrganizationPage() {
         branch_governorate: getFormString(form, "governorate"),
         branch_address: getFormString(form, "address"),
         branch_country: getFormString(form, "country") || undefined,
-        roles,
-        job_title: isClinical
-          ? getFormString(form, "jobTitle") || undefined
-          : undefined,
-        specialty: isClinical
-          ? getFormString(form, "specialty") || undefined
-          : undefined,
       });
 
       toast.success(t("createSuccess"));
       router.replace("/select-profile");
-    } catch {
-      toast.error(t("createError"));
+    } catch (error) {
+      const limit = getSubscriptionLimit(error);
+      if (limit?.resource === "organizations") {
+        toast.error(
+          t("organizationLimitReached", {
+            current: limit.current,
+            limit: limit.limit,
+          }),
+        );
+      } else {
+        toast.error(t("createError"));
+      }
     } finally {
       setIsPending(false);
     }
@@ -186,36 +187,6 @@ export function CreateOrganizationPage() {
             label={t("fields.country")}
             name="country"
           />
-        </FieldGroup>
-
-        <FieldGroup icon={<Stethoscope className="size-4" />} title={t("groupRole")}>
-          <div>
-            <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-gray-200 bg-white p-3 transition hover:border-brand-primary/40">
-              <input
-                checked={isClinical}
-                className="size-4 rounded border-gray-300 accent-brand-primary"
-                name="isClinical"
-                type="checkbox"
-                onChange={(e) => setIsClinical(e.target.checked)}
-              />
-              <span className="text-sm font-medium text-brand-black">{t("isClinical")}</span>
-            </label>
-            <p className="mt-1.5 ps-1 text-xs text-gray-400">{t("isClinicalHint")}</p>
-          </div>
-          {isClinical && (
-            <div className="grid gap-3 pt-1">
-              <Field
-                id="org-specialty"
-                label={t("fields.specialty")}
-                name="specialty"
-              />
-              <Field
-                id="org-job-title"
-                label={t("fields.jobTitle")}
-                name="jobTitle"
-              />
-            </div>
-          )}
         </FieldGroup>
 
         <div className="flex flex-col gap-3 pt-1">

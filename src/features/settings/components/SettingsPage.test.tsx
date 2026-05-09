@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderWithIntl } from "@/test/render";
 import type { CurrentUser, UserRole } from "@/types/user.types";
-import { apiAuthFetch } from "@/lib/api";
+import { ApiError, apiAuthFetch } from "@/lib/api";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { SettingsPage } from "./SettingsPage";
@@ -27,11 +27,15 @@ vi.mock("@/features/auth/hooks/useCurrentUser", () => ({
 
 vi.mock("@/lib/api", () => {
   class MockApiError extends Error {
+    public messages: string[];
     constructor(
-      message: string,
       public status: number,
+      message: string | string[],
+      public body?: unknown,
     ) {
-      super(message);
+      const messages = Array.isArray(message) ? message : [message];
+      super(messages.join("\n"));
+      this.messages = messages;
     }
   }
   return {
@@ -203,6 +207,65 @@ describe("SettingsPage", () => {
       // Critical: must NOT use the legacy `specialities` key.
       expect(body).not.toHaveProperty("specialities");
     });
+  });
+
+  it("surfaces the SUBSCRIPTION_LIMIT_REACHED toast when adding a branch is capped", async () => {
+    mockCurrentUser("owner");
+
+    vi.mocked(apiAuthFetch).mockImplementation(async (url, init) => {
+      const method = init?.method ?? "GET";
+      if (
+        typeof url === "string" &&
+        url.endsWith("/branches") &&
+        method === "GET"
+      ) {
+        return { data: [] } as never;
+      }
+      throw new ApiError(403, "Branch limit reached (1). Upgrade your plan.", {
+        code: "SUBSCRIPTION_LIMIT_REACHED",
+        details: { resource: "branches", limit: 1, current: 1 },
+      });
+    });
+
+    renderWithIntl(renderPage());
+    fireEvent.click(screen.getByRole("button", { name: /Branches/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Add branch/ }));
+    fireEvent.input(document.getElementById("branch-name")!, {
+      target: { value: "Maadi" },
+    });
+    fireEvent.input(document.getElementById("branch-city")!, {
+      target: { value: "Cairo" },
+    });
+    fireEvent.input(document.getElementById("branch-governorate")!, {
+      target: { value: "Cairo" },
+    });
+    fireEvent.input(document.getElementById("branch-address")!, {
+      target: { value: "10 Road 9" },
+    });
+    fireEvent.click(screen.getAllByRole("button", { name: /Add branch/ }).at(-1)!);
+
+    await waitFor(
+      () => {
+        const postCall = vi.mocked(apiAuthFetch).mock.calls.find(
+          ([, init]) => (init as RequestInit | undefined)?.method === "POST",
+        );
+        expect(postCall).toBeDefined();
+      },
+      { timeout: 3000 },
+    );
+
+    // Surface what toast.error received, then assert.
+    await waitFor(
+      () => {
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.stringContaining("branch limit"),
+        );
+      },
+      { timeout: 3000 },
+    );
+    expect(toast.error).not.toHaveBeenCalledWith(
+      "Failed to create branch. Please try again.",
+    );
   });
 
   it("opens the typed-confirm dialog when deleting an organization", () => {
