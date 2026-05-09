@@ -6,10 +6,6 @@ import type {
 export function buildRegisterOrganizationRequest(
   data: Step3Data,
 ): RegisterOrganizationRequest {
-  const isClinical = data.isClinical;
-  const specialty = data.specialty?.trim();
-  const jobTitle = data.jobTitle?.trim();
-
   const payload: RegisterOrganizationRequest = {
     organization_name: data.organizationName,
     specialties: data.specialties,
@@ -17,12 +13,9 @@ export function buildRegisterOrganizationRequest(
     branch_address: data.address,
     branch_city: data.city,
     branch_governorate: data.governorate,
-    roles: isClinical ? ["OWNER", "DOCTOR"] : ["OWNER"],
   };
 
   if (data.country) payload.branch_country = data.country;
-  if (isClinical && specialty) payload.specialty = specialty;
-  if (isClinical && jobTitle) payload.job_title = jobTitle;
 
   return payload;
 }

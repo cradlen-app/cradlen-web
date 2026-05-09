@@ -35,7 +35,8 @@ function CurrentVisitRow({
   const router = useRouter();
 
   const isInProgress = visit.status === "IN_PROGRESS";
-  const canStart = visit.status === "CHECKED_IN" || visit.status === "SCHEDULED";
+  const canStart =
+    visit.status === "CHECKED_IN" || visit.status === "SCHEDULED";
 
   async function handleStart() {
     try {
@@ -44,6 +45,7 @@ function CurrentVisitRow({
         visitId: visit.id,
       });
       toast.success(t("startedToast"));
+      handleOpen();
     } catch (error) {
       const message =
         error instanceof ApiError ? error.messages[0] : t("startedError");
@@ -121,6 +123,7 @@ export function CurrentVisitCard({ branchId, organizationId }: Props) {
           <span>{t("columns.type")}</span>
           <span>{t("columns.priority")}</span>
           <span className="text-end">{t("columns.status")}</span>
+          <span className="text-end"></span>
         </div>
 
         {isLoading ? (

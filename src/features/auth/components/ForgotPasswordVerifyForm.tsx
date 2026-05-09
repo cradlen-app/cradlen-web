@@ -14,22 +14,16 @@ import {
   clearForgotPasswordSession,
   getForgotPasswordResendSecondsRemaining,
   getPendingForgotPasswordEmail,
+  isPendingForgotPasswordEmailExpired,
   startForgotPasswordResendCooldown,
 } from "../lib/forgot-password-session";
 import {
   useResendForgotPasswordOtp,
   useVerifyForgotPasswordOtp,
 } from "../hooks/useForgotPassword";
+import { getErrorCode } from "../lib/api-errors";
 import { OTPInput } from "./OTPInput";
 import { ResendButton } from "./ResendButton";
-
-function getErrorCode(error: unknown): string | undefined {
-  const body = (error instanceof ApiError ? error.body : null) as
-    | { error?: { code?: string } }
-    | null
-    | undefined;
-  return body?.error?.code;
-}
 
 export function ForgotPasswordVerifyForm() {
   const t = useTranslations("auth.forgotPassword");
@@ -47,6 +41,16 @@ export function ForgotPasswordVerifyForm() {
     resolver: zodResolver(createForgotPasswordOtpSchema(t)),
     defaultValues: { verificationCode: "" },
   });
+
+  useEffect(() => {
+    // The reset_token cookie is HttpOnly and expires after 30 min; once gone, any
+    // submission would bounce. If our locally tracked expiry has passed, redirect
+    // to /forgot-password proactively so the user doesn't waste an OTP.
+    if (isPendingForgotPasswordEmailExpired()) {
+      clearForgotPasswordSession();
+      router.replace("/forgot-password");
+    }
+  }, [router]);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
@@ -77,6 +81,11 @@ export function ForgotPasswordVerifyForm() {
       if (code === "CODE_EXPIRED" || code === "MAX_ATTEMPTS_EXCEEDED") {
         clearForgotPasswordSession();
         router.replace("/forgot-password");
+        return;
+      }
+
+      if (error instanceof ApiError && error.status === 429) {
+        setStepError(t("errors.tryAgainLater"));
         return;
       }
 

@@ -1,6 +1,30 @@
 import { STAFF_ROLE } from "./auth.constants";
-import type { CurrentUser, UserProfile, UserRole } from "@/types/user.types";
+import type { CurrentUser, UserProfile, UserRole, UserSpecialty } from "@/types/user.types";
 import { useAuthContextStore } from "../store/authContextStore";
+
+export function getProfileIsClinical(profile?: UserProfile): boolean {
+  if (profile?.job_functions?.length) {
+    return profile.job_functions.some((fn) => fn.is_clinical);
+  }
+  return profile?.is_clinical ?? false;
+}
+
+function specialtyName(s: UserSpecialty | string): string {
+  return typeof s === "string" ? s : s.name;
+}
+
+export function getProfileSpecialtyNames(profile?: UserProfile): string[] {
+  if (profile?.specialties?.length) {
+    return profile.specialties.map((s) => s.name);
+  }
+  return profile?.specialty ? [profile.specialty] : [];
+}
+
+export function getOrganizationSpecialtyNames(profile?: UserProfile): string[] {
+  const list = profile?.organization?.specialties ?? profile?.organization?.specialities;
+  if (!list?.length) return [];
+  return list.map(specialtyName);
+}
 
 export function normalizeRoleName(name?: string | null): UserRole {
   const normalized = name?.toLowerCase();

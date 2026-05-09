@@ -7,6 +7,7 @@ import {
   getActiveProfile,
   getActiveRole,
   getDefaultBranch,
+  getProfileIsClinical,
 } from "@/features/auth/lib/current-user";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
@@ -36,6 +37,8 @@ export function VisitsPage() {
   const isDoctor = role === STAFF_ROLE.DOCTOR;
   const isReceptionOrOwner =
     role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER;
+  const isClinical =
+    isDoctor || (role === STAFF_ROLE.OWNER && getProfileIsClinical(profile));
 
   const canCreateVisit = role === STAFF_ROLE.RECEPTION;
   const canManageStatus =
@@ -66,6 +69,7 @@ export function VisitsPage() {
             <InProgressByDoctorPanel
               branchId={branchId}
               organizationId={organizationId}
+              filterDoctorId={isClinical ? (profile?.staff_id ?? undefined) : undefined}
             />
           )}
           <WaitingListSection
@@ -75,6 +79,7 @@ export function VisitsPage() {
             canCreateVisit={canCreateVisit}
             canManageStatus={canManageStatus}
             assignedToMe={isDoctor}
+            isDoctor={isDoctor}
           />
         </section>
         <aside>
