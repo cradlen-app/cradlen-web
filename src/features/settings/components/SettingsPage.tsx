@@ -11,7 +11,9 @@ import {
 import {
   getActiveProfile,
   getProfilePrimaryRole,
+  getProfileRoles,
 } from "@/features/auth/lib/current-user";
+import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUserStore } from "@/features/auth/store/userStore";
@@ -19,10 +21,9 @@ import type { CurrentUser } from "@/types/user.types";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
+import { queryKeys } from "@/lib/queryKeys";
 import { cn } from "@/lib/utils";
 import {
-  branchesQueryKey,
-  deactivateOrganization,
   deleteBranch,
   deleteOrganization,
   listBranches,
@@ -31,13 +32,14 @@ import {
 import { SettingsConfirmDialogs } from "./settings-dialogs";
 import { BranchForm, OrganizationForm, ProfileForm } from "./settings-forms";
 import {
+  AccountSection,
   BranchesSection,
   DangerSection,
   OrganizationSection,
   ProfileSection,
 } from "./settings-sections";
 import {
-  SETTINGS_SECTIONS,
+  getVisibleSections,
   type DrawerKey,
   type SectionKey,
   type SoftDeleteKey,
@@ -49,23 +51,33 @@ export function SettingsPage() {
   const t = useTranslations("settings");
   const locale = useLocale() as SettingsLocale;
   const router = useRouter();
-  const [activeSection, setActiveSection] = useState<SectionKey>("profile");
+  const { data: user, isError, isLoading } = useCurrentUser();
+  const profile = getActiveProfile(user);
+  const isOwner = getProfileRoles(profile).includes(STAFF_ROLE.OWNER);
+  const visibleSections = getVisibleSections(isOwner);
+
+  const [activeSectionState, setActiveSection] = useState<SectionKey>("profile");
   const [activeDrawer, setActiveDrawer] = useState<DrawerKey>(null);
   const [activeBranchId, setActiveBranchId] = useState<string | null>(null);
-  const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [confirmSoftDelete, setConfirmSoftDelete] =
     useState<SoftDeleteKey>(null);
-  const { data: user, isError, isLoading } = useCurrentUser();
+
+  // Coerce: if a non-owner somehow has an owner-only section selected, fall back.
+  const activeSection: SectionKey = visibleSections.some(
+    (s) => s.key === activeSectionState,
+  )
+    ? activeSectionState
+    : "profile";
+
   const clearSession = useAuthStore((state) => state.clearSession);
   const clearUser = useUserStore((state) => state.clearUser);
   const currentBranchId = useAuthContextStore((state) => state.branchId);
-  const profile = getActiveProfile(user);
   const organizationId = profile?.organization.id;
 
   const { data: branchesData, isLoading: branchesLoading } = useQuery({
-    queryKey: branchesQueryKey(organizationId ?? ""),
+    queryKey: queryKeys.settings.branches(organizationId ?? ""),
     queryFn: () => listBranches(organizationId!),
-    enabled: !!organizationId,
+    enabled: !!organizationId && isOwner,
   });
   const branches: OrganizationBranch[] = branchesData?.data ?? [];
 
@@ -87,6 +99,18 @@ export function SettingsPage() {
 
   const displayName = `${user.first_name} ${user.last_name}`;
 
+  async function forceSignOut() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // best-effort
+    }
+    clearSession();
+    clearUser();
+    queryClient.clear();
+    router.replace("/sign-in");
+  }
+
   async function handleSoftDeleteConfirm() {
     try {
       if (confirmSoftDelete?.type === "organization") {
@@ -94,24 +118,23 @@ export function SettingsPage() {
         await deleteOrganization(profile.organization.id);
         toast.success(t("organization.deleteSuccess"));
         setConfirmSoftDelete(null);
-
-        try {
-          await fetch("/api/auth/logout", { method: "POST" });
-        } catch {
-          // best-effort
-        }
-        clearSession();
-        clearUser();
-        queryClient.clear();
-        router.replace("/sign-in");
+        await forceSignOut();
         return;
       }
 
       if (confirmSoftDelete?.type === "branch") {
         if (!confirmSoftDelete.branchId || !profile?.organization.id) return;
         const deletedBranchId = confirmSoftDelete.branchId;
+        const isLastBranch = branches.length <= 1;
         await deleteBranch(profile.organization.id, deletedBranchId);
         toast.success(t("branches.deleteSuccess"));
+        setConfirmSoftDelete(null);
+
+        if (isLastBranch) {
+          await forceSignOut();
+          return;
+        }
+
         queryClient.setQueryData(CURRENT_USER_QUERY_KEY, (old: CurrentUser | undefined) => {
           if (!old) return old;
           return {
@@ -122,20 +145,25 @@ export function SettingsPage() {
             })),
           };
         });
-      }
 
-      setConfirmSoftDelete(null);
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY }),
-        organizationId
-          ? queryClient.invalidateQueries({
-              queryKey: branchesQueryKey(organizationId),
-            })
-          : Promise.resolve(),
-      ]);
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY }),
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.settings.branches(profile.organization.id),
+          }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.calendar.all() }),
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.visits.branch(deletedBranchId),
+          }),
+        ]);
+      }
     } catch (error) {
-      if (confirmSoftDelete?.type === "branch" && error instanceof ApiError && error.status === 403) {
-        toast.error(t("branches.deleteForbidden"));
+      if (error instanceof ApiError && error.status === 403) {
+        toast.error(
+          confirmSoftDelete?.type === "organization"
+            ? t("organization.deleteForbidden")
+            : t("branches.deleteForbidden"),
+        );
       } else {
         toast.error(
           confirmSoftDelete?.type === "organization"
@@ -146,38 +174,15 @@ export function SettingsPage() {
     }
   }
 
-  async function handleDeactivateConfirm() {
-    try {
-      await deactivateOrganization();
-      toast.success(t("danger.deactivateSuccess"));
-      setConfirmDeactivate(false);
-
-      try {
-        await fetch("/api/auth/logout", { method: "POST" });
-      } catch {
-        // Continue with local session cleanup after organization deactivation.
-      }
-
-      clearSession();
-      clearUser();
-      queryClient.clear();
-      router.replace("/sign-in");
-    } catch {
-      toast.error(t("danger.deactivateError"));
-    }
-  }
-
   const sectionProps = {
     branches,
     branchesLoading,
-    branchAddress: "",
     currentBranchId,
     displayName,
     locale,
     profile,
     setActiveDrawer,
     setActiveBranchId,
-    setConfirmDeactivate,
     setConfirmSoftDelete,
     t,
     user,
@@ -195,18 +200,24 @@ export function SettingsPage() {
         <SettingsNav
           activeSection={activeSection}
           onSectionChange={setActiveSection}
+          sections={visibleSections}
           t={t}
         />
 
         <div className="min-w-0">
           {activeSection === "profile" && <ProfileSection {...sectionProps} />}
-          {activeSection === "organization" && (
+          {activeSection === "account" && (
+            <AccountSection user={user} t={t} />
+          )}
+          {activeSection === "organization" && isOwner && (
             <OrganizationSection {...sectionProps} />
           )}
-          {activeSection === "branches" && (
+          {activeSection === "branches" && isOwner && (
             <BranchesSection {...sectionProps} />
           )}
-          {activeSection === "danger" && <DangerSection {...sectionProps} />}
+          {activeSection === "danger" && isOwner && (
+            <DangerSection {...sectionProps} />
+          )}
         </div>
       </div>
 
@@ -224,11 +235,10 @@ export function SettingsPage() {
       />
 
       <SettingsConfirmDialogs
+        branches={branches}
         cancelLabel={t("cancel")}
-        confirmDeactivate={confirmDeactivate}
         confirmSoftDelete={confirmSoftDelete}
-        onDeactivateChange={setConfirmDeactivate}
-        onDeactivateConfirm={handleDeactivateConfirm}
+        organizationName={profile?.organization.name ?? ""}
         onSoftDeleteConfirm={handleSoftDeleteConfirm}
         onSoftDeleteChange={setConfirmSoftDelete}
         t={t}
@@ -276,10 +286,12 @@ function SettingsHeader({
 function SettingsNav({
   activeSection,
   onSectionChange,
+  sections,
   t,
 }: {
   activeSection: SectionKey;
   onSectionChange: (section: SectionKey) => void;
+  sections: ReturnType<typeof getVisibleSections>;
   t: ReturnType<typeof useTranslations>;
 }) {
   return (
@@ -288,7 +300,7 @@ function SettingsNav({
         className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden md:flex-col md:overflow-visible"
         aria-label={t("navLabel")}
       >
-        {SETTINGS_SECTIONS.map((section) => {
+        {sections.map((section) => {
           const Icon = section.icon;
           const isActive = activeSection === section.key;
 
@@ -325,7 +337,7 @@ function SettingsDrawers({
 }: {
   activeBranchId: string | null;
   activeDrawer: DrawerKey;
-  branches: import("../lib/settings.api").OrganizationBranch[];
+  branches: OrganizationBranch[];
   onClose: () => void;
   profile: ReturnType<typeof getActiveProfile>;
   t: ReturnType<typeof useTranslations>;

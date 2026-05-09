@@ -64,7 +64,9 @@
       "Bash(findstr /i \"calendar\")",
       "Bash(findstr /i \"event\")",
       "PowerShell(Get-ChildItem -Path \"f:\\\\Cradlen\\\\cradlen-api\" -Filter \"schema.prisma\" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName })",
-      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")"
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "PowerShell(Test-Path \"F:\\\\Cradlen\\\\cradlen-web\\\\src\" && \\(Get-ChildItem \"F:\\\\Cradlen\\\\cradlen-web\\\\src\" | ForEach-Object { $_.Name }\\))",
+      "PowerShell(ls -R F:\\\\Cradlen\\\\cradlen-web\\\\src\\\\features\\\\settings\\\\)"
     ],
     "additionalDirectories": [
       "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard\\visits",

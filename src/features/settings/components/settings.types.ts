@@ -1,6 +1,11 @@
-import { Building2, MapPin, ShieldAlert, UserRound } from "lucide-react";
+import { Building2, KeyRound, MapPin, ShieldAlert, UserRound } from "lucide-react";
 
-export type SectionKey = "profile" | "organization" | "branches" | "danger";
+export type SectionKey =
+  | "profile"
+  | "account"
+  | "organization"
+  | "branches"
+  | "danger";
 
 export type DrawerKey =
   | "profile"
@@ -14,10 +19,18 @@ export type SoftDeleteKey =
   | { type: "branch"; branchId: string }
   | null;
 
-export const SETTINGS_SECTIONS: { key: SectionKey; icon: typeof UserRound }[] =
-  [
-    { key: "profile", icon: UserRound },
-    { key: "organization", icon: Building2 },
-    { key: "branches", icon: MapPin },
-    { key: "danger", icon: ShieldAlert },
-  ];
+export const SETTINGS_SECTIONS: {
+  key: SectionKey;
+  icon: typeof UserRound;
+  ownerOnly?: boolean;
+}[] = [
+  { key: "profile", icon: UserRound },
+  { key: "account", icon: KeyRound },
+  { key: "organization", icon: Building2, ownerOnly: true },
+  { key: "branches", icon: MapPin, ownerOnly: true },
+  { key: "danger", icon: ShieldAlert, ownerOnly: true },
+];
+
+export function getVisibleSections(isOwner: boolean) {
+  return SETTINGS_SECTIONS.filter((s) => !s.ownerOnly || isOwner);
+}

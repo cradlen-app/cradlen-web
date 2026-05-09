@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   Building2,
+  KeyRound,
   MapPin,
   Pencil,
   Plus,
@@ -10,10 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import {
-  getOrganizationSpecialtyNames,
-  getProfileIsClinical,
   getProfilePrimaryRole,
   getProfileSpecialtyNames,
 } from "@/features/auth/lib/current-user";
@@ -21,6 +19,8 @@ import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import type { DrawerKey, SoftDeleteKey } from "./settings.types";
 import {
+  formatEngagementType,
+  formatExecutiveTitle,
   formatOrgStatus,
   formatRole,
   formatSettingsDateTime,
@@ -37,14 +37,12 @@ import {
 type SectionProps = {
   branches: OrganizationBranch[];
   branchesLoading?: boolean;
-  branchAddress: string;
   currentBranchId?: string | null;
   displayName: string;
   locale: SettingsLocale;
   profile?: UserProfile;
   setActiveDrawer: (drawer: DrawerKey) => void;
   setActiveBranchId: (branchId: string | null) => void;
-  setConfirmDeactivate: (open: boolean) => void;
   setConfirmSoftDelete: (target: SoftDeleteKey) => void;
   t: SettingsT;
   user: CurrentUser;
@@ -102,29 +100,34 @@ export function ProfileSection({
             <DetailRow label={t("fields.email")} value={user.email} />
             <DetailRow
               label={t("fields.phone")}
-              value={profile?.phone_number ?? profile?.phone ?? user.phone_number ?? user.phone}
+              value={user.phone_number ?? user.phone ?? undefined}
             />
             <DetailRow
               label={t("fields.role")}
               value={formatRole(getProfilePrimaryRole(profile), t)}
             />
             <DetailRow
-              label={t("fields.jobTitle")}
-              value={profile.job_title}
+              label={t("fields.executiveTitle")}
+              value={formatExecutiveTitle(profile.executive_title, t)}
             />
-            {(getProfilePrimaryRole(profile) === STAFF_ROLE.DOCTOR ||
-              getOrganizationSpecialtyNames(profile).length > 0) && (
-              <>
-                <DetailRow
-                  label={t("fields.specialty")}
-                  value={getProfileSpecialtyNames(profile).join(", ")}
-                />
-                <DetailRow
-                  label={t("fields.isClinical")}
-                  value={getProfileIsClinical(profile) ? t("yes") : t("no")}
-                />
-              </>
-            )}
+            <DetailRow
+              label={t("fields.engagementType")}
+              value={formatEngagementType(profile.engagement_type, t)}
+            />
+            <DetailRow
+              label={t("fields.jobFunctions")}
+              value={
+                profile.job_functions?.map((j) => j.name).join(", ") ||
+                t("empty.missing")
+              }
+            />
+            <DetailRow
+              label={t("fields.specialties")}
+              value={
+                getProfileSpecialtyNames(profile).join(", ") ||
+                t("empty.missing")
+              }
+            />
             <DetailRow
               label={t("fields.verifiedAt")}
               value={formatSettingsDateTime(user.verified_at, locale)}
@@ -136,10 +139,44 @@ export function ProfileSection({
   );
 }
 
+export function AccountSection({
+  user,
+  t,
+}: Pick<SectionProps, "user" | "t">) {
+  return (
+    <SectionPanel
+      description={t("account.description")}
+      icon={<KeyRound className="size-5" />}
+      title={t("account.title")}
+    >
+      <dl className="rounded-xl border border-gray-100 px-3">
+        <DetailRow label={t("fields.email")} value={user.email} />
+        <DetailRow
+          label={t("fields.phone")}
+          value={user.phone_number ?? user.phone ?? undefined}
+        />
+      </dl>
+      <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/40 p-4">
+        <h3 className="text-sm font-medium text-brand-black">
+          {t("account.password")}
+        </h3>
+        <p className="mt-1 text-xs text-gray-500">
+          {t("account.passwordHint")}
+        </p>
+        <Link
+          href="/forgot-password"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-brand-black hover:bg-gray-50"
+        >
+          {t("account.changePassword")}
+        </Link>
+      </div>
+    </SectionPanel>
+  );
+}
+
 export function OrganizationSection({
   profile,
   setActiveDrawer,
-  setConfirmSoftDelete,
   t,
 }: SectionProps) {
   return (
@@ -165,34 +202,26 @@ export function OrganizationSection({
           title={t("empty.organizationTitle")}
         />
       ) : (
-        <>
-          <EntitySummary
-            actions={
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setActiveDrawer("organizationEdit")}
-              >
-                <Pencil className="size-4" />
-                {t("organization.edit")}
-              </Button>
-            }
-            icon={<Building2 className="size-5" />}
-            label={t("fields.organization")}
-            meta={
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-500">
-                {formatOrgStatus(profile.organization.status, t)}
-              </span>
-            }
-            title={profile.organization.name}
-            description={getOrganizationSpecialtyNames(profile).join(", ")}
-          />
-          <SoftDeletePanel
-            description={t("organization.DeleteDescription")}
-            label={t("organization.Delete")}
-            onClick={() => setConfirmSoftDelete({ type: "organization" })}
-          />
-        </>
+        <EntitySummary
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setActiveDrawer("organizationEdit")}
+            >
+              <Pencil className="size-4" />
+              {t("organization.edit")}
+            </Button>
+          }
+          icon={<Building2 className="size-5" />}
+          label={t("fields.organization")}
+          meta={
+            <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-500">
+              {formatOrgStatus(profile.organization.status, t)}
+            </span>
+          }
+          title={profile.organization.name}
+        />
       )}
     </SectionPanel>
   );
@@ -269,7 +298,7 @@ export function BranchesSection({
                     }
                   >
                     <Trash2 className="size-4" />
-                    {t("branches.Delete")}
+                    {t("branches.delete")}
                   </Button>
                 </div>
               }
@@ -293,7 +322,7 @@ export function BranchesSection({
 }
 
 export function DangerSection({
-  setConfirmDeactivate,
+  setConfirmSoftDelete,
   t,
 }: SectionProps) {
   return (
@@ -307,10 +336,10 @@ export function DangerSection({
           <AlertTriangle className="mt-0.5 size-5 shrink-0 text-red-500" />
           <div>
             <h3 className="text-sm font-medium text-red-700">
-              {t("danger.deactivateTitle")}
+              {t("danger.deleteTitle")}
             </h3>
             <p className="mt-1 text-sm text-red-500">
-              {t("danger.deactivateDescription")}
+              {t("danger.deleteDescription")}
             </p>
           </div>
         </div>
@@ -318,37 +347,13 @@ export function DangerSection({
           <Button
             type="button"
             variant="destructive"
-            onClick={() => setConfirmDeactivate(true)}
+            onClick={() => setConfirmSoftDelete({ type: "organization" })}
           >
-            {t("danger.deactivate")}
+            <Trash2 className="size-4" />
+            {t("organization.delete")}
           </Button>
         </div>
       </div>
     </SectionPanel>
-  );
-}
-
-function SoftDeletePanel({
-  description,
-  label,
-  onClick,
-}: {
-  description: string;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <div className="mt-4 rounded-xl border border-red-100 bg-red-50/50 p-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-red-700">{label}</p>
-          <p className="mt-1 text-xs text-red-500">{description}</p>
-        </div>
-        <Button type="button" variant="destructive" onClick={onClick}>
-          <Trash2 className="size-4" />
-          {label}
-        </Button>
-      </div>
-    </div>
   );
 }

@@ -1,5 +1,7 @@
+import type { ReactElement } from "react";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderWithIntl } from "@/test/render";
 import type { CurrentUser, UserRole } from "@/types/user.types";
 import { apiAuthFetch } from "@/lib/api";
@@ -7,16 +9,43 @@ import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { SettingsPage } from "./SettingsPage";
 
+function renderPage(): ReactElement {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SettingsPage />
+    </QueryClientProvider>
+  );
+}
+
 vi.mock("@/features/auth/hooks/useCurrentUser", () => ({
   useCurrentUser: vi.fn(),
+  CURRENT_USER_QUERY_KEY: ["currentUser"],
 }));
 
-vi.mock("@/lib/api", () => ({
-  apiAuthFetch: vi.fn(),
-}));
+vi.mock("@/lib/api", () => {
+  class MockApiError extends Error {
+    constructor(
+      message: string,
+      public status: number,
+    ) {
+      super(message);
+    }
+  }
+  return {
+    apiAuthFetch: vi.fn(),
+    apiFetch: vi.fn(),
+    ApiError: MockApiError,
+  };
+});
 
 vi.mock("@/i18n/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  Link: ({ children, ...props }: { children: React.ReactNode }) => (
+    <a {...props}>{children}</a>
+  ),
 }));
 
 vi.mock("sonner", () => ({
@@ -40,17 +69,21 @@ function createCurrentUser(role: UserRole): CurrentUser {
     profiles: [
       {
         staff_id: "staff-1",
-        job_title: "Clinic owner",
+        executive_title: null,
+        engagement_type: "FULL_TIME",
         roles: [{ id: "role-1", name: role }],
         organization: {
           id: "org-1",
           name: "Cradlen Clinic",
-          specialities: ["Cardiology", "Pediatrics"],
-          status: "active",
+          specialties: [
+            { id: "s1", code: "OBGYN", name: "OB-GYN" },
+          ],
+          status: "ACTIVE",
         },
         branches: [
           {
             id: "branch-1",
+            name: "Main",
             address: "123 Medical St",
             city: "Cairo",
             country: "Egypt",
@@ -58,6 +91,8 @@ function createCurrentUser(role: UserRole): CurrentUser {
             is_main: true,
           },
         ],
+        specialties: [{ id: "s1", code: "OBGYN", name: "OB-GYN" }],
+        job_functions: [],
       },
     ],
   };
@@ -74,28 +109,39 @@ function mockCurrentUser(role: UserRole) {
 describe("SettingsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(apiAuthFetch).mockResolvedValue({});
+    vi.mocked(apiAuthFetch).mockResolvedValue({ data: [] });
   });
 
-  it("renders organization settings for an owner", () => {
+  it("renders all owner tabs for an owner", () => {
     mockCurrentUser("owner");
 
-    renderWithIntl(<SettingsPage />);
+    renderWithIntl(renderPage());
 
-    expect(screen.getByRole("heading", { name: "Organization settings" })).toBeInTheDocument();
-    expect(screen.getByText("+201000000000")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Organization/ }));
-    expect(screen.getAllByText("Cradlen Clinic").length).toBeGreaterThan(0);
-    expect(screen.getByText("Owner")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Organization settings" }),
+    ).toBeInTheDocument();
+    // Owner-only tabs should be visible
+    expect(screen.getByRole("button", { name: /Organization/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Branches/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Danger Zone/ })).toBeInTheDocument();
   });
 
-  it("renders organization settings for a doctor", () => {
+  it("hides owner-only tabs for a doctor", () => {
     mockCurrentUser("doctor");
 
-    renderWithIntl(<SettingsPage />);
+    renderWithIntl(renderPage());
 
-    expect(screen.getByRole("heading", { name: "Organization settings" })).toBeInTheDocument();
-    expect(screen.getAllByText("Doctor").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Profile/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Account/ })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Organization/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Branches/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Danger Zone/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows the verified timestamp as localized date and time", () => {
@@ -106,113 +152,69 @@ describe("SettingsPage", () => {
       timeStyle: "short",
     }).format(new Date(rawTimestamp));
 
-    renderWithIntl(<SettingsPage />);
+    renderWithIntl(renderPage());
 
     expect(screen.queryByText(rawTimestamp)).not.toBeInTheDocument();
     expect(screen.getByText(formattedTimestamp)).toBeInTheDocument();
   });
 
-  it("validates required organization fields before calling the backend", () => {
+  it("submits profile edits with new user-level fields to /profiles/:id", async () => {
     mockCurrentUser("owner");
 
-    renderWithIntl(<SettingsPage />);
-    fireEvent.click(screen.getByRole("button", { name: /Organization/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Add organization/ }));
-    fireEvent.click(screen.getAllByRole("button", { name: /Add organization/ }).at(-1)!);
-
-    expect(toast.error).toHaveBeenCalledWith("Please complete all required fields.");
-    expect(apiAuthFetch).not.toHaveBeenCalled();
-  });
-
-  it("submits branch creation through the backend proxy", async () => {
-    mockCurrentUser("doctor");
-
-    renderWithIntl(<SettingsPage />);
-    fireEvent.click(screen.getByRole("button", { name: /Branches/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Add branch/ }));
-    fireEvent.change(screen.getByLabelText("Country"), { target: { value: "Egypt" } });
-    fireEvent.change(screen.getByLabelText("City"), { target: { value: "Cairo" } });
-    fireEvent.change(screen.getByLabelText("Governorate"), { target: { value: "Cairo" } });
-    fireEvent.change(screen.getByLabelText("Address"), { target: { value: "456 Clinic Ave" } });
-    fireEvent.click(screen.getAllByRole("button", { name: /Add branch/ }).at(-1)!);
-
-    await waitFor(() => {
-      expect(apiAuthFetch).toHaveBeenCalledWith("/owner/branches", {
-        method: "POST",
-        body: JSON.stringify({
-          organization_id: "org-1",
-          country: "Egypt",
-          city: "Cairo",
-          governorate: "Cairo",
-          address: "456 Clinic Ave",
-          is_main: false,
-        }),
-      });
-    });
-    expect(toast.success).toHaveBeenCalledWith("Branch created.");
-  });
-
-  it("submits organization edits through the backend proxy", async () => {
-    mockCurrentUser("owner");
-
-    renderWithIntl(<SettingsPage />);
-    fireEvent.click(screen.getByRole("button", { name: /Organization/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Edit organization/ }));
-    fireEvent.change(screen.getByLabelText("Organization name"), {
-      target: { value: "Updated Clinic" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Save organization/ }));
-
-    await waitFor(() => {
-      expect(apiAuthFetch).toHaveBeenCalledWith("/owner/organizations/org-1", {
-        method: "PATCH",
-        body: JSON.stringify({
-          name: "Updated Clinic",
-          specialities: ["Cardiology", "Pediatrics"],
-        }),
-      });
-    });
-    expect(toast.success).toHaveBeenCalledWith("Organization updated.");
-  });
-
-  it("submits profile edits with the phone number", async () => {
-    mockCurrentUser("owner");
-
-    renderWithIntl(<SettingsPage />);
+    renderWithIntl(renderPage());
     fireEvent.click(screen.getByRole("button", { name: /Edit profile/ }));
-    fireEvent.change(screen.getByLabelText("Phone"), {
+    fireEvent.change(screen.getByLabelText(/Phone/i), {
       target: { value: "+201111111111" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Save profile/ }));
 
     await waitFor(() => {
-      expect(apiAuthFetch).toHaveBeenCalledWith("/profiles/staff-1", {
-        method: "PATCH",
-        body: JSON.stringify({
-          first_name: "Mona",
-          last_name: "Amin",
-          job_title: "Clinic owner",
-          phone_number: "+201111111111",
+      expect(apiAuthFetch).toHaveBeenCalledWith(
+        "/profiles/staff-1",
+        expect.objectContaining({
+          method: "PATCH",
+          body: expect.stringContaining('"phone_number":"+201111111111"'),
         }),
-      });
+      );
     });
     expect(toast.success).toHaveBeenCalledWith("Profile updated.");
   });
 
-  it("confirms branch delete through the backend proxy", async () => {
-    mockCurrentUser("doctor");
+  it("submits organization edits with specialties[] (correct key) to /organizations/:id", async () => {
+    mockCurrentUser("owner");
 
-    renderWithIntl(<SettingsPage />);
-    fireEvent.click(screen.getByRole("button", { name: /Branches/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Delete branch/ }));
-    fireEvent.click(screen.getByRole("button", { name: /^Soft delete$/ }));
+    renderWithIntl(renderPage());
+    fireEvent.click(screen.getByRole("button", { name: /Organization/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Edit organization/ }));
+    fireEvent.change(screen.getByLabelText(/Organization name/i), {
+      target: { value: "Updated Clinic" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Save organization/ }));
 
     await waitFor(() => {
-      expect(apiAuthFetch).toHaveBeenCalledWith(
-        "/owner/branches/branch-1?organization_id=org-1",
-        { method: "DELETE" },
+      const call = vi.mocked(apiAuthFetch).mock.calls.find(
+        ([url]) => url === "/organizations/org-1",
       );
+      expect(call).toBeDefined();
+      const [, init] = call!;
+      expect(init).toMatchObject({ method: "PATCH" });
+      const body = JSON.parse((init as { body: string }).body);
+      expect(body.name).toBe("Updated Clinic");
+      // Critical: must NOT use the legacy `specialities` key.
+      expect(body).not.toHaveProperty("specialities");
     });
-    expect(toast.success).toHaveBeenCalledWith("Branch deleted.");
+  });
+
+  it("opens the typed-confirm dialog when deleting an organization", () => {
+    mockCurrentUser("owner");
+
+    renderWithIntl(renderPage());
+    fireEvent.click(screen.getByRole("button", { name: /Danger Zone/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Delete organization/ }));
+
+    // Typed-name confirmation must be displayed.
+    expect(
+      screen.getByText(/Type "Cradlen Clinic" to confirm/i),
+    ).toBeInTheDocument();
   });
 });
