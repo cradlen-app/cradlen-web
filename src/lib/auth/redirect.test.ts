@@ -5,16 +5,16 @@ import {
 } from "./redirect";
 
 describe("resolveAuthRedirect", () => {
-  it("routes onboarding verify responses to the verify step", () => {
+  it("routes onboarding verify responses to /sign-up to mint a fresh signup token", () => {
     expect(
       resolveAuthRedirect({
         type: "ONBOARDING_REQUIRED",
         step: "VERIFY_OTP",
       }),
-    ).toBe("/sign-up/verify");
+    ).toBe("/sign-up");
   });
 
-  it("routes onboarding complete responses to the complete step", () => {
+  it("routes onboarding complete responses to /sign-up to mint a fresh signup token", () => {
     expect(
       resolveAuthRedirect({
         data: {
@@ -22,7 +22,7 @@ describe("resolveAuthRedirect", () => {
           step: "COMPLETE_ONBOARDING",
         },
       }),
-    ).toBe("/sign-up/complete");
+    ).toBe("/sign-up");
   });
 
   it("routes wrapped and unwrapped profile responses to profile selection", () => {

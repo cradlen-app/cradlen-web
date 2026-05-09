@@ -21,7 +21,6 @@ const baseStep3Data: Step3Data = {
   address: "123 Main St",
   governorate: "Cairo",
   country: "Egypt",
-  isClinical: false,
 };
 
 describe("step1Schema", () => {
@@ -115,11 +114,6 @@ describe("step3Schema", () => {
     expect(step3Schema.safeParse(baseStep3Data).success).toBe(true);
   });
 
-  it("accepts isClinical as a boolean", () => {
-    expect(step3Schema.safeParse({ ...baseStep3Data, isClinical: true }).success).toBe(true);
-    expect(step3Schema.safeParse({ ...baseStep3Data, isClinical: false }).success).toBe(true);
-  });
-
   it("requires branchName", () => {
     const result = step3Schema.safeParse({ ...baseStep3Data, branchName: "" });
 
@@ -206,29 +200,7 @@ describe("buildSignupStartRequest", () => {
 });
 
 describe("buildRegisterOrganizationRequest", () => {
-  it("maps owner doctor to the signup complete payload", () => {
-    expect(
-      buildRegisterOrganizationRequest({
-        ...baseStep3Data,
-        isClinical: true,
-        specialty: "Pediatrics",
-        jobTitle: "Senior Physician",
-      }),
-    ).toEqual({
-      organization_name: "Test Clinic",
-      specialties: ["Cardiology", "Pediatrics"],
-      branch_name: "Main Branch",
-      branch_address: "123 Main St",
-      branch_city: "Cairo",
-      branch_governorate: "Cairo",
-      branch_country: "Egypt",
-      roles: ["OWNER", "DOCTOR"],
-      specialty: "Pediatrics",
-      job_title: "Senior Physician",
-    });
-  });
-
-  it("maps owner to a non-clinical signup complete payload", () => {
+  it("maps step 3 data to the signup complete payload", () => {
     expect(buildRegisterOrganizationRequest(baseStep3Data)).toEqual({
       organization_name: "Test Clinic",
       specialties: ["Cardiology", "Pediatrics"],
@@ -237,27 +209,6 @@ describe("buildRegisterOrganizationRequest", () => {
       branch_city: "Cairo",
       branch_governorate: "Cairo",
       branch_country: "Egypt",
-      roles: ["OWNER"],
-    });
-  });
-
-  it("omits empty doctor optional fields", () => {
-    expect(
-      buildRegisterOrganizationRequest({
-        ...baseStep3Data,
-        isClinical: true,
-        specialty: " ",
-        jobTitle: "",
-      }),
-    ).toEqual({
-      organization_name: "Test Clinic",
-      specialties: ["Cardiology", "Pediatrics"],
-      branch_name: "Main Branch",
-      branch_address: "123 Main St",
-      branch_city: "Cairo",
-      branch_governorate: "Cairo",
-      branch_country: "Egypt",
-      roles: ["OWNER", "DOCTOR"],
     });
   });
 

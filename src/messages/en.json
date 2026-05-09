@@ -481,9 +481,6 @@
       "confirmPasswordPlaceholder": "Enter your password again",
       "showPassword": "Show",
       "hidePassword": "Hide",
-      "isClinicalLabel": "I am a clinical professional",
-      "specialtyLabel": "Specialty",
-      "specialtyPlaceholder": "Select your specialty",
       "verificationTitle": "Check your inbox",
       "verificationDescription": "We sent a verification code to {email}. Please enter it below.",
       "verificationCodeLabel": "Verification code",
@@ -505,11 +502,6 @@
       "governoratePlaceholder": "Giza",
       "countryLabel": "Country",
       "countryPlaceholder": "Egypt",
-      "clinicianHeading": "Your role",
-      "ownerRole": "Owner",
-      "ownerDoctorRole": "Owner + Doctor",
-      "jobTitleLabel": "Job title (optional)",
-      "jobTitlePlaceholder": "e.g. Senior Physician",
       "errors": {
         "serverError": "Something went wrong. Please try again.",
         "emailTaken": "An account with this email already exists.",
@@ -543,10 +535,7 @@
         "branchNameRequired": "Branch name is required",
         "cityRequired": "City is required",
         "addressRequired": "Address is required",
-        "governorateRequired": "Governorate is required",
-        "roleRequired": "Please select a role",
-        "specialtyRequired": "Specialty is required for clinical professionals",
-        "jobTitleRequired": "Job title is required for clinical professionals"
+        "governorateRequired": "Governorate is required"
       },
       "toasts": {
         "resumingRegistration": "Email already registered — resuming your incomplete registration.",
@@ -628,6 +617,8 @@
         "passwordRequired": "Password is required",
         "passwordMinLength": "Password must be at least 8 characters",
         "invalidCredentials": "Invalid email or password",
+        "accountSuspended": "This account is currently suspended. Please contact your clinic administrator.",
+        "tooManyAttempts": "Too many sign-in attempts. Please wait a few minutes and try again.",
         "serverError": "Something went wrong. Please try again.",
         "noProfiles": "No profiles are available for this sign-in."
       },
@@ -650,6 +641,7 @@
       "noBranches": "This profile does not have any branches. Please contact your clinic administrator.",
       "invalidSession": "Your profile selection session expired. Please sign in again.",
       "missingContext": "This profile is missing organization context.",
+      "profileUnavailable": "This profile or branch is no longer available. Please pick another.",
       "error": "Could not select this profile. Please try again.",
       "signingIn": "Signing you in...",
       "selectBranch": "Select your branch",
@@ -727,6 +719,78 @@
     },
     "calendar": {
       "title": "Calendar"
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "newEvent": "+ New Event",
+    "overview": "Overview",
+    "todaysSchedule": "Today's Schedule",
+    "empty": "No events scheduled",
+    "allDay": "All day",
+    "more": "more",
+    "types": {
+      "SURGERY": "Surgery",
+      "MEETING": "Meeting",
+      "PERSONAL": "Personal",
+      "LEAVE": "Leave"
+    },
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "CANCELLED": "Cancelled",
+      "COMPLETED": "Completed"
+    },
+    "roles": {
+      "primaryDoctor": "Primary Doctor",
+      "assistant": "Assistant",
+      "attendee": "Attendee"
+    },
+    "primaryDoctor": "Primary Doctor",
+    "assistants": "Assistants",
+    "attendees": "Attendees",
+    "patientLabel": "Patient",
+    "notes": "Notes",
+    "form": {
+      "title": "Calendar / New event",
+      "chooseType": "Choose event type",
+      "eventType": "Event Type",
+      "startsAt": "Start",
+      "endsAt": "End",
+      "allDay": "All day",
+      "name": "Name",
+      "description": "Description",
+      "branch": "Branch",
+      "patient": "Patient",
+      "surgeryName": "Surgery Name",
+      "surgeryType": "Surgery Type",
+      "operatingRoom": "Operating Room",
+      "preOpNotes": "Pre-op Notes",
+      "location": "Location",
+      "virtualLink": "Virtual Link",
+      "agenda": "Agenda",
+      "reason": "Reason",
+      "primaryDoctor": "Primary Doctor",
+      "selectBranch": "Select branch",
+      "selectDoctor": "Select doctor",
+      "patientPlaceholder": "Search by name, national ID or phone...",
+      "patientNotFound": "No patient found — check spelling or try a different term.",
+      "attendees": "Attendees",
+      "addParticipant": "Add participant",
+      "addAttendee": "Add attendee",
+      "noParticipants": "No participants added yet",
+      "save": "Save",
+      "saving": "Saving...",
+      "next": "Next",
+      "back": "Back",
+      "close": "Close new event form",
+      "success": "Event created.",
+      "error": "Failed to create event. Please try again."
+    },
+    "conflict": {
+      "title": "Schedule Conflicts",
+      "description": "The following conflicts were found. The event was saved — do you want to keep it?",
+      "confirm": "Keep Event",
+      "cancel": "Review"
     }
   },
   "visits": {

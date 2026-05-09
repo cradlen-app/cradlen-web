@@ -6,7 +6,7 @@ import {
   getProfilesFromAuthResponse,
   resolveAuthRedirect,
 } from "@/lib/auth/redirect";
-import { isInvalidSignInError } from "../lib/sign-in-errors";
+import { classifySignInError, isInvalidSignInError } from "../lib/sign-in-errors";
 import { getSafeRedirectPath } from "../lib/redirect";
 import { SignInForm } from "./SignInForm";
 
@@ -57,14 +57,31 @@ describe("getSafeRedirectPath", () => {
 });
 
 describe("isInvalidSignInError", () => {
-  it("treats rejected sign-in statuses as invalid credentials", () => {
+  it("treats only 401 as invalid credentials (anti-enumeration)", () => {
     expect(isInvalidSignInError(new ApiError(401, "Unauthorized"))).toBe(true);
-    expect(isInvalidSignInError(new ApiError(403, "Forbidden"))).toBe(true);
+    expect(isInvalidSignInError(new ApiError(403, "Forbidden"))).toBe(false);
   });
 
   it("does not treat other failures as invalid credentials", () => {
     expect(isInvalidSignInError(new ApiError(500, "Server error"))).toBe(false);
     expect(isInvalidSignInError(new Error("Network error"))).toBe(false);
+  });
+});
+
+describe("classifySignInError", () => {
+  it("maps backend statuses to UX-distinct error kinds", () => {
+    expect(classifySignInError(new ApiError(401, "Unauthorized"))).toBe(
+      "invalidCredentials",
+    );
+    expect(classifySignInError(new ApiError(403, "Forbidden"))).toBe(
+      "accountSuspended",
+    );
+    expect(classifySignInError(new ApiError(429, "Too many"))).toBe(
+      "tooManyAttempts",
+    );
+    expect(classifySignInError(new ApiError(500, "Boom"))).toBe("serverError");
+    expect(classifySignInError(new Error("network"))).toBe("serverError");
+    expect(classifySignInError(null)).toBe(null);
   });
 });
 
@@ -77,7 +94,7 @@ describe("sign-in auth redirect responses", () => {
           step: "VERIFY_OTP",
         },
       }),
-    ).toBe("/sign-up/verify");
+    ).toBe("/sign-up");
   });
 
   it("extracts profiles from normal sign-in responses", () => {

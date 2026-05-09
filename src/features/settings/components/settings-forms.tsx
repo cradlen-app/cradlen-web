@@ -5,7 +5,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/hooks/useCurrentUser";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
-import { getProfilePrimaryRole, getProfileRoles } from "@/features/auth/lib/current-user";
+import {
+  getOrganizationSpecialtyNames,
+  getProfileIsClinical,
+  getProfilePrimaryRole,
+  getProfileRoles,
+  getProfileSpecialtyNames,
+} from "@/features/auth/lib/current-user";
 import { queryClient } from "@/lib/queryClient";
 import type { CurrentUser, UserProfile } from "@/types/user.types";
 import {
@@ -108,9 +114,9 @@ export function ProfileForm({
         name="phone"
       />
       {(getProfilePrimaryRole(profile) === STAFF_ROLE.DOCTOR ||
-        (profile?.organization?.specialities?.length ?? 0) > 0) && (
+        getOrganizationSpecialtyNames(profile).length > 0) && (
         <TextField
-          defaultValue={profile?.specialty ?? ""}
+          defaultValue={getProfileSpecialtyNames(profile).join(", ")}
           id="settings-specialty"
           label={t("fields.specialty")}
           name="specialty"
@@ -118,7 +124,11 @@ export function ProfileForm({
       )}
       <label className="flex items-center gap-2 text-sm text-brand-black">
         <input
-          defaultChecked={profile?.is_clinical ?? getProfileRoles(profile).includes(STAFF_ROLE.DOCTOR)}
+          defaultChecked={
+            profile
+              ? getProfileIsClinical(profile)
+              : getProfileRoles(profile).includes(STAFF_ROLE.DOCTOR)
+          }
           name="isClinical"
           type="checkbox"
           className="size-4 rounded border-gray-300"
@@ -147,7 +157,7 @@ export function OrganizationForm({
 }: SettingsFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [specialties, setSpecialties] = useState<string[]>(
-    profile?.organization.specialities ?? [],
+    getOrganizationSpecialtyNames(profile),
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

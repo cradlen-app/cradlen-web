@@ -481,9 +481,6 @@
       "confirmPasswordPlaceholder": "أدخل كلمة المرور مرة أخرى",
       "showPassword": "إظهار",
       "hidePassword": "إخفاء",
-      "isClinicalLabel": "أنا متخصص طبي",
-      "specialtyLabel": "التخصص",
-      "specialtyPlaceholder": "اختر تخصصك",
       "verificationTitle": "تحقق من بريدك الإلكتروني",
       "verificationDescription": "لقد أرسلنا رمز التحقق إلى {email}. يرجى إدخاله أدناه.",
       "verificationCodeLabel": "رمز التحقق",
@@ -505,11 +502,6 @@
       "governoratePlaceholder": "الجيزة",
       "countryLabel": "الدولة",
       "countryPlaceholder": "مصر",
-      "clinicianHeading": "دورك المهني",
-      "ownerRole": "مالك",
-      "ownerDoctorRole": "مالك + طبيب",
-      "jobTitleLabel": "المسمى الوظيفي (اختياري)",
-      "jobTitlePlaceholder": "مثال: طبيب أول",
       "errors": {
         "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
         "emailTaken": "يوجد حساب بهذا البريد الإلكتروني بالفعل.",
@@ -543,10 +535,7 @@
         "branchNameRequired": "اسم الفرع مطلوب",
         "cityRequired": "المدينة مطلوبة",
         "addressRequired": "العنوان مطلوب",
-        "governorateRequired": "المحافظة مطلوبة",
-        "roleRequired": "يرجى اختيار دور",
-        "specialtyRequired": "التخصص مطلوب للمتخصصين السريريين",
-        "jobTitleRequired": "المسمى الوظيفي مطلوب للمتخصصين السريريين"
+        "governorateRequired": "المحافظة مطلوبة"
       },
       "toasts": {
         "resumingRegistration": "البريد الإلكتروني مسجل بالفعل — سنستكمل تسجيلك غير المكتمل.",
@@ -628,6 +617,8 @@
         "passwordRequired": "كلمة المرور مطلوبة",
         "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
         "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+        "accountSuspended": "هذا الحساب موقوف حاليًا. يرجى التواصل مع مسؤول العيادة.",
+        "tooManyAttempts": "محاولات دخول كثيرة جدًا. يرجى الانتظار بضع دقائق ثم المحاولة مجددًا.",
         "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
         "noProfiles": "لا توجد ملفات متاحة لهذا الدخول."
       },
@@ -650,6 +641,7 @@
       "noBranches": "هذا الملف لا يحتوي على أي فروع. يرجى التواصل مع مدير العيادة.",
       "invalidSession": "انتهت صلاحية جلسة اختيار الملف. يرجى تسجيل الدخول مرة أخرى.",
       "missingContext": "هذا الملف لا يحتوي على سياق المنظمة.",
+      "profileUnavailable": "هذا الملف أو الفرع لم يعد متاحاً. يرجى اختيار غيره.",
       "error": "تعذر اختيار هذا الملف. حاول مرة أخرى.",
       "signingIn": "جاري تسجيل دخولك...",
       "selectBranch": "اختر الفرع",
@@ -727,6 +719,78 @@
     },
     "calendar": {
       "title": "التقويم"
+    }
+  },
+  "calendar": {
+    "title": "التقويم",
+    "newEvent": "+ حدث جديد",
+    "overview": "نظرة عامة",
+    "todaysSchedule": "جدول اليوم",
+    "empty": "لا توجد أحداث مجدولة",
+    "allDay": "طوال اليوم",
+    "more": "المزيد",
+    "types": {
+      "SURGERY": "عملية جراحية",
+      "MEETING": "اجتماع",
+      "PERSONAL": "شخصي",
+      "LEAVE": "إجازة"
+    },
+    "status": {
+      "SCHEDULED": "مجدول",
+      "CANCELLED": "ملغى",
+      "COMPLETED": "مكتمل"
+    },
+    "roles": {
+      "primaryDoctor": "الطبيب الرئيسي",
+      "assistant": "مساعد",
+      "attendee": "حاضر"
+    },
+    "primaryDoctor": "الطبيب الرئيسي",
+    "assistants": "المساعدون",
+    "attendees": "الحاضرون",
+    "patientLabel": "المريض",
+    "notes": "ملاحظات",
+    "form": {
+      "title": "التقويم / حدث جديد",
+      "chooseType": "اختر نوع الحدث",
+      "eventType": "نوع الحدث",
+      "startsAt": "البداية",
+      "endsAt": "النهاية",
+      "allDay": "طوال اليوم",
+      "name": "الاسم",
+      "description": "الوصف",
+      "branch": "الفرع",
+      "patient": "المريض",
+      "surgeryName": "اسم العملية",
+      "surgeryType": "نوع العملية",
+      "operatingRoom": "غرفة العمليات",
+      "preOpNotes": "ملاحظات ما قبل الجراحة",
+      "location": "الموقع",
+      "virtualLink": "رابط الاجتماع",
+      "agenda": "جدول الأعمال",
+      "reason": "السبب",
+      "primaryDoctor": "الطبيب الرئيسي",
+      "selectBranch": "اختر الفرع",
+      "selectDoctor": "اختر طبيباً",
+      "patientPlaceholder": "ابحث بالاسم أو الرقم القومي أو الهاتف...",
+      "patientNotFound": "لم يُعثر على مريض — تحقق من التهجئة أو جرب مصطلحاً آخر.",
+      "attendees": "الحاضرون",
+      "addParticipant": "إضافة مشارك",
+      "addAttendee": "إضافة حاضر",
+      "noParticipants": "لم يتم إضافة مشاركين بعد",
+      "save": "حفظ",
+      "saving": "جاري الحفظ...",
+      "next": "التالي",
+      "back": "رجوع",
+      "close": "إغلاق نموذج الحدث الجديد",
+      "success": "تم إنشاء الحدث.",
+      "error": "فشل إنشاء الحدث. يرجى المحاولة مجدداً."
+    },
+    "conflict": {
+      "title": "تعارض في الجدول",
+      "description": "تم العثور على التعارضات التالية. تم حفظ الحدث — هل تريد الاحتفاظ به؟",
+      "confirm": "الإبقاء على الحدث",
+      "cancel": "مراجعة"
     }
   },
   "visits": {

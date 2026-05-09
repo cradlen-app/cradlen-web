@@ -31,6 +31,7 @@ const mockStartCooldown = vi.hoisted(() => vi.fn());
 const mockGetPendingEmail = vi.hoisted(() => vi.fn(() => "user@example.com"));
 const mockGetCooldown = vi.hoisted(() => vi.fn(() => 0));
 const mockClearSession = vi.hoisted(() => vi.fn());
+const mockIsExpired = vi.hoisted(() => vi.fn(() => false));
 
 vi.mock("../lib/forgot-password-session", () => ({
   setPendingForgotPasswordEmail: mockSetPendingEmail,
@@ -38,6 +39,17 @@ vi.mock("../lib/forgot-password-session", () => ({
   getPendingForgotPasswordEmail: mockGetPendingEmail,
   getForgotPasswordResendSecondsRemaining: mockGetCooldown,
   clearForgotPasswordSession: mockClearSession,
+  isPendingForgotPasswordEmailExpired: mockIsExpired,
+}));
+
+const mockToastSuccess = vi.hoisted(() => vi.fn());
+const mockToastError = vi.hoisted(() => vi.fn());
+
+vi.mock("sonner", () => ({
+  toast: {
+    success: mockToastSuccess,
+    error: mockToastError,
+  },
 }));
 
 // ---------------------------------------------------------------------------
@@ -76,6 +88,9 @@ beforeEach(() => {
   mockResendMutate.mockReset();
   mockResetMutateAsync.mockReset();
   mockClearSession.mockClear();
+  mockToastSuccess.mockClear();
+  mockToastError.mockClear();
+  mockIsExpired.mockReturnValue(false);
 });
 
 // ---------------------------------------------------------------------------
@@ -83,7 +98,7 @@ beforeEach(() => {
 // ---------------------------------------------------------------------------
 
 describe("ForgotPasswordStartForm", () => {
-  it("shows enumeration-safe success and navigates to verify regardless of backend result", async () => {
+  it("shows enumeration-safe success toast and navigates to verify regardless of backend result", async () => {
     mockStartMutateAsync.mockResolvedValue({ data: { success: true }, meta: {} });
 
     renderWithIntl(<ForgotPasswordStartForm />);
@@ -94,8 +109,9 @@ describe("ForgotPasswordStartForm", () => {
     fireEvent.submit(screen.getByRole("button", { name: /send code/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/if this email exists/i)).toBeInTheDocument();
+      expect(mockRouter.push).toHaveBeenCalledWith("/forgot-password/verify");
     });
+    expect(mockToastSuccess).toHaveBeenCalled();
     expect(mockSetPendingEmail).toHaveBeenCalledWith("user@example.com");
     expect(mockStartCooldown).toHaveBeenCalled();
   });
@@ -111,8 +127,9 @@ describe("ForgotPasswordStartForm", () => {
     fireEvent.submit(screen.getByRole("button", { name: /send code/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/if this email exists/i)).toBeInTheDocument();
+      expect(mockRouter.push).toHaveBeenCalledWith("/forgot-password/verify");
     });
+    expect(mockToastSuccess).toHaveBeenCalled();
     expect(mockSetPendingEmail).toHaveBeenCalledWith("ghost@example.com");
   });
 });

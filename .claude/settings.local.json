@@ -50,10 +50,25 @@
       "Bash(xargs -I{} bash -c 'echo \"=== {} ===\" && head -40 \"{}\"')",
       "Bash(xargs -I{} bash -c 'echo \"=== {} ===\" && head -50 \"{}\"')",
       "Bash(mkdir -p \"f:/Cradlen/cradlen-web/src/app/[locale]/[orgId]/[branchId]/dashboard/visits/[visitId]\")",
-      "Bash(echo \"EXIT=$?\")"
+      "Bash(echo \"EXIT=$?\")",
+      "Read(//f/Cradlen/cradlen-web/src/app/**)",
+      "Bash(mkdir -p \"f:/Cradlen/cradlen-web/src/app/[locale]/[orgId]/[branchId]/dashboard/calendar\")",
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(Get-ChildItem -Path \"F:\\\\Cradlen\\\\cradlen-web\\\\src\\\\app\" -Recurse -Filter \"calendar\" -Directory)",
+      "Bash(dir \"f:\\\\Cradlen\\\\cradlen-web\\\\src\")",
+      "Bash(dir \"f:\\\\Cradlen\\\\cradlen-web\")",
+      "Bash(dir \"f:\\\\Cradlen\\\\cradlen-web\\\\src\\\\features\")",
+      "Bash(dir \"f:\\\\Cradlen\\\\cradlen-web\\\\src\\\\lib\")",
+      "Bash(dir /s /b \"f:\\\\Cradlen\\\\cradlen-api\")",
+      "Bash(findstr /i \"calendar\")",
+      "Bash(findstr /i \"event\")",
+      "PowerShell(Get-ChildItem -Path \"f:\\\\Cradlen\\\\cradlen-api\" -Filter \"schema.prisma\" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName })",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")"
     ],
     "additionalDirectories": [
-      "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard\\visits"
+      "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard\\visits",
+      "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard"
     ]
   }
 }

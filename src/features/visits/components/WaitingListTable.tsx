@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Loader2, Pencil } from "lucide-react";
+import { ChevronDown, Loader2, Pencil, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
+import { useRouter } from "@/i18n/navigation";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import type { Visit, VisitStatus } from "../types/visits.types";
@@ -20,6 +22,7 @@ type Props = {
   isLoading: boolean;
   isError: boolean;
   canManageStatus: boolean;
+  isDoctor?: boolean;
   onRetry: () => void;
 };
 
@@ -135,10 +138,12 @@ export function WaitingListTable({
   isLoading,
   isError,
   canManageStatus,
+  isDoctor,
   onRetry,
 }: Props) {
   const t = useTranslations("visits.waitingList");
   const tVisits = useTranslations("visits");
+  const router = useRouter();
   const branchId = useAuthContextStore((s) => s.branchId);
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const [editVisit, setEditVisit] = useState<Visit | null>(null);
@@ -215,7 +220,21 @@ export function WaitingListTable({
                 <VisitTypeBadge type={visit.type} />
                 <VisitPriorityBadge priority={visit.priority} />
                 <div className="flex items-center justify-end">
-                  {canManageStatus ? (
+                  {isDoctor && visit.status === "IN_PROGRESS" ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() =>
+                        router.push(
+                          `/${organizationId}/${branchId}/dashboard/visits/${visit.id}`,
+                        )
+                      }
+                      className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+                    >
+                      <Play className="size-3.5" aria-hidden="true" />
+                      <span>{tVisits("currentVisit.startVisit")}</span>
+                    </Button>
+                  ) : canManageStatus ? (
                     <StatusSelect visit={visit} />
                   ) : (
                     <VisitStatusBadge status={visit.status} />

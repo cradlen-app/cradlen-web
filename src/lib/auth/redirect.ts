@@ -8,14 +8,15 @@ export type OnboardingRequiredResponse = {
 };
 
 export type AuthRedirectPath =
-  | "/sign-up/verify"
-  | "/sign-up/complete"
+  | "/sign-up"
   | "/select-profile"
   | "/sign-in";
 
+// Login responses for ONBOARDING_REQUIRED never carry a fresh signup_token —
+// the user must re-run /auth/signup/start. Both steps therefore restart at /sign-up.
 const ONBOARDING_REDIRECTS: Record<OnboardingRequiredStep, AuthRedirectPath> = {
-  VERIFY_OTP: "/sign-up/verify",
-  COMPLETE_ONBOARDING: "/sign-up/complete",
+  VERIFY_OTP: "/sign-up",
+  COMPLETE_ONBOARDING: "/sign-up",
 };
 
 function getObject(value: unknown) {
@@ -46,8 +47,8 @@ export function getProfilesFromAuthResponse(response: unknown): UserProfile[] {
 
 export function isOnboardingRedirectPath(
   path: string | null,
-): path is "/sign-up/verify" | "/sign-up/complete" {
-  return path === "/sign-up/verify" || path === "/sign-up/complete";
+): path is "/sign-up" {
+  return path === "/sign-up";
 }
 
 export function resolveAuthRedirect(

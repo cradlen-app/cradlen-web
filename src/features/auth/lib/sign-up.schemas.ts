@@ -51,44 +51,23 @@ export function makeStep2Schema(t: (key: string) => string = (k) => k) {
 }
 
 export function makeStep3Schema(t: (key: string) => string = (k) => k) {
-  return z
-    .object({
-      organizationName: z
-        .string()
-        .min(1, { message: t("errors.accountNameRequired") }),
-      specialties: z
-        .array(z.string())
-        .min(1, { message: t("errors.specialtiesRequired") }),
-      branchName: z
-        .string()
-        .min(1, { message: t("errors.branchNameRequired") }),
-      city: z.string().min(1, { message: t("errors.cityRequired") }),
-      address: z.string().min(1, { message: t("errors.addressRequired") }),
-      governorate: z
-        .string()
-        .min(1, { message: t("errors.governorateRequired") }),
-      country: z.string().optional(),
-      isClinical: z.boolean(),
-      specialty: z.string().optional(),
-      jobTitle: z.string().optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (!data.isClinical) return;
-      if (!data.specialty?.trim()) {
-        ctx.addIssue({
-          code: "custom",
-          message: t("errors.specialtyRequired"),
-          path: ["specialty"],
-        });
-      }
-      if (!data.jobTitle?.trim()) {
-        ctx.addIssue({
-          code: "custom",
-          message: t("errors.jobTitleRequired"),
-          path: ["jobTitle"],
-        });
-      }
-    });
+  return z.object({
+    organizationName: z
+      .string()
+      .min(1, { message: t("errors.accountNameRequired") }),
+    specialties: z
+      .array(z.string())
+      .min(1, { message: t("errors.specialtiesRequired") }),
+    branchName: z
+      .string()
+      .min(1, { message: t("errors.branchNameRequired") }),
+    city: z.string().min(1, { message: t("errors.cityRequired") }),
+    address: z.string().min(1, { message: t("errors.addressRequired") }),
+    governorate: z
+      .string()
+      .min(1, { message: t("errors.governorateRequired") }),
+    country: z.string().optional(),
+  });
 }
 
 // Convenience exports — use makeStepNSchema(t) in components for translated messages.

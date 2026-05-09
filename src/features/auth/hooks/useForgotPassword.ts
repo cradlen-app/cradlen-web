@@ -45,9 +45,9 @@ export function useVerifyForgotPasswordOtp() {
 export function useResendForgotPasswordOtp() {
   return useMutation({
     mutationFn: () =>
+      // BFF reads the reset token from the cookie; no request body is needed.
       apiFetch<ForgotPasswordSuccessResponse>("/auth/forgot-password/resend", {
         method: "POST",
-        body: "{}",
       }),
     onError: (error) => {
       const message =
