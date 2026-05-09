@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useOrgStatusGuard } from "@/features/auth/hooks/useOrgStatusGuard";
 import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
 import { getActiveRole } from "@/features/auth/lib/current-user";
 import { buildDashboardUrl } from "@/lib/routes";
@@ -27,6 +28,8 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
   const { data: user, isLoading } = useCurrentUser(initialUser ?? undefined);
   const role = getActiveRole(user);
   const { mobileOpen, closeMobile } = useSidebar();
+
+  useOrgStatusGuard(user);
 
   useEffect(() => {
     if (isLoading || !role) return;

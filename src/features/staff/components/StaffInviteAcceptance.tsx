@@ -11,6 +11,7 @@ import { ApiError, apiAuthFetch } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { useAvailableProfilesStore } from "@/features/auth/store/availableProfilesStore";
 import { setPendingProfileSelection } from "@/features/auth/lib/profile-selection-session";
 import {
   getActiveProfile,
@@ -219,6 +220,9 @@ function AcceptStep({ preview, token, invitationId, onBack }: AcceptStepProps) {
   const t = useTranslations("staff.invite");
   const router = useRouter();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
+  const setAvailableProfiles = useAvailableProfilesStore(
+    (state) => state.setAvailableProfiles,
+  );
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -283,6 +287,7 @@ function AcceptStep({ preview, token, invitationId, onBack }: AcceptStepProps) {
     onSuccess: async (response) => {
       if (response.data.profiles?.length) {
         setPendingProfileSelection({ profiles: response.data.profiles });
+        setAvailableProfiles(response.data.profiles);
         toast.success(t("success"));
         router.replace("/select-profile");
         return;

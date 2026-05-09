@@ -1,6 +1,6 @@
 import { apiAuthFetch, apiFetch } from "@/lib/api";
 import type { ApiResponse } from "@/types/api.types";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import type { EngagementType, ExecutiveTitle } from "@/types/user.types";
 import { queryKeys } from "@/lib/queryKeys";
 
 export type OrganizationBranch = {
@@ -19,12 +19,20 @@ export const branchesQueryKey = (organizationId: string) =>
   queryKeys.settings.branches(organizationId);
 
 export type UpdateProfileRequest = {
+  /** USER-LEVEL — shared across all the user's profiles. */
   first_name?: string;
-  is_clinical?: boolean;
-  job_title?: string;
+  /** USER-LEVEL — shared across all the user's profiles. */
   last_name?: string;
+  /** USER-LEVEL — shared across all the user's profiles. */
   phone_number?: string;
-  specialty?: string;
+  /** PROFILE-LEVEL — pass null to clear. */
+  executive_title?: ExecutiveTitle | null;
+  /** PROFILE-LEVEL — non-nullable on PATCH. */
+  engagement_type?: EngagementType;
+  /** PROFILE-LEVEL — replace semantics; [] clears. */
+  job_function_codes?: string[];
+  /** PROFILE-LEVEL — replace semantics; [] clears. */
+  specialty_codes?: string[];
 };
 
 export type CreateOrganizationRequest = {
@@ -42,7 +50,8 @@ export type CreateOrganizationRequest = {
 
 export type UpdateOrganizationRequest = {
   name?: string;
-  specialities?: string[];
+  /** Replace semantics; [] clears. Codes or names (case-insensitive). */
+  specialties?: string[];
   status?: "ACTIVE" | "INACTIVE" | "SUSPENDED";
 };
 
@@ -74,11 +83,6 @@ export function updateProfile(
   });
 }
 
-export function deactivateOrganization() {
-  const { organizationId } = useAuthContextStore.getState();
-  return apiAuthFetch<void>(`/organizations/${organizationId}`, { method: "DELETE" });
-}
-
 export function createOrganization(data: CreateOrganizationRequest) {
   return apiAuthFetch("/organizations", {
     method: "POST",
@@ -103,8 +107,13 @@ export function updateOrganization(
   });
 }
 
+/**
+ * Soft-deletes the organization and cascades to branches, profiles, and the
+ * calling user when this is their last profile. After success, the caller MUST
+ * sign out and redirect to /sign-in.
+ */
 export function deleteOrganization(organizationId: string) {
-  return apiAuthFetch(`/organizations/${organizationId}`, {
+  return apiAuthFetch<void>(`/organizations/${organizationId}`, {
     method: "DELETE",
   });
 }
