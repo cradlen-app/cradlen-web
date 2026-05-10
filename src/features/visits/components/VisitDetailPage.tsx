@@ -4,8 +4,11 @@ import { ArrowLeft, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { getActiveRole } from "@/features/auth/lib/current-user";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import {
+  isClinical,
+  showsBranchAggregate,
+} from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -38,19 +41,17 @@ function formatDateTime(iso?: string) {
 export function VisitDetailPage({ visitId }: Props) {
   const t = useTranslations("visits.detail");
   const { data: user } = useCurrentUser();
-  const role = getActiveRole(user);
+  const profile = getActiveProfile(user);
   const branchId = useAuthContextStore((s) => s.branchId);
   const organizationId = useAuthContextStore((s) => s.organizationId);
 
   const { data: visit, isLoading, isError } = useVisit(visitId);
   const updateStatus = useUpdateVisitStatus();
 
-  const canComplete =
-    role === STAFF_ROLE.DOCTOR &&
-    visit?.status === "IN_PROGRESS";
+  const canComplete = isClinical(profile) && visit?.status === "IN_PROGRESS";
   const canCancel =
     visit &&
-    (role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER) &&
+    showsBranchAggregate(profile) &&
     !TERMINAL_STATUSES.has(visit.status);
 
   async function handleComplete() {

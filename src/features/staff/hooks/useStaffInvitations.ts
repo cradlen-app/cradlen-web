@@ -48,6 +48,8 @@ export function useStaffInvitations(
   organizationId: string | undefined,
   _branchId: string | undefined,
   { page = 1, limit = 100, status = "all" }: UseStaffInvitationsOptions = {},
+  // Note: `status` only namespaces the cache. Backend has no `status` query param —
+  // filter on the client (see spec §4.3).
 ) {
   return useQuery<{ data: ApiStaffInvitation[]; meta?: StaffInvitationsMeta }>({
     queryKey: queryKeys.staff.invitations.list(organizationId ?? "", { page, limit, status }),
@@ -57,7 +59,6 @@ export function useStaffInvitations(
           organizationId: organizationId!,
           limit,
           page,
-          status,
         }),
       ),
     enabled: !!organizationId,

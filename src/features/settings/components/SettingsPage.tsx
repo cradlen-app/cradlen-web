@@ -11,9 +11,8 @@ import {
 import {
   getActiveProfile,
   getProfilePrimaryRole,
-  getProfileRoles,
 } from "@/features/auth/lib/current-user";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import { isOwner as isOwnerPerm } from "@/features/auth/lib/permissions";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUserStore } from "@/features/auth/store/userStore";
@@ -53,7 +52,7 @@ export function SettingsPage() {
   const router = useRouter();
   const { data: user, isError, isLoading } = useCurrentUser();
   const profile = getActiveProfile(user);
-  const isOwner = getProfileRoles(profile).includes(STAFF_ROLE.OWNER);
+  const isOwner = isOwnerPerm(profile);
   const visibleSections = getVisibleSections(isOwner);
 
   const [activeSectionState, setActiveSection] = useState<SectionKey>("profile");

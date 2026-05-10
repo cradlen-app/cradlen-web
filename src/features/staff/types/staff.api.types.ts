@@ -1,15 +1,21 @@
+import type { EngagementTypeCode, ExecutiveTitleCode } from "@/features/auth/lib/auth.constants";
+
 export type ApiStaffRole = {
   id: string;
   name: string;
 };
 
-export type ApiStaffUser = {
+export type ApiStaffJobFunction = {
   id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number?: string;
-  phone?: string;
+  code: string;
+  name: string;
+  is_clinical: boolean;
+};
+
+export type ApiStaffSpecialty = {
+  id: string;
+  code: string;
+  name: string;
 };
 
 export type ApiStaffShift = {
@@ -39,61 +45,71 @@ export type ApiStaffBranchSchedule = {
 
 export type ApiStaffBranch = {
   id: string;
-  name: string;
+  name?: string;
+  address?: string;
   city?: string;
   governorate?: string;
+  country?: string;
+  is_main?: boolean;
 };
 
-// New staff list item shape from GET /organizations/:organizationId/staff
-export type NewApiStaffMember = {
-  profile_id: string;
-  user_id: string;
+/**
+ * Staff list item shape from GET /v1/organizations/:orgId/staff (StaffResponseDto).
+ * Per backend StaffResponseDto: roles, branches, job_functions, specialties are full
+ * objects; executive_title + engagement_type live at the row level.
+ */
+export type ApiStaffMember = {
+  staff_id: string;
+  /** @deprecated some legacy responses still use profile_id */
+  profile_id?: string;
+  user_id?: string;
   first_name: string;
   last_name: string;
   email: string;
-  phone_number?: string;
-  job_title?: string;
-  specialty?: string;
-  is_clinical?: boolean;
+  phone_number?: string | null;
+  executive_title?: ExecutiveTitleCode | null;
+  engagement_type?: EngagementTypeCode | null;
   roles: ApiStaffRole[];
   branches: ApiStaffBranch[];
-  schedule: ApiStaffBranchSchedule[];
+  job_functions: ApiStaffJobFunction[];
+  specialties: ApiStaffSpecialty[];
+  schedule?: ApiStaffBranchSchedule[];
 };
 
-export type InviteStaffShift = {
-  start_time: string;
-  end_time: string;
-};
+/** @deprecated kept temporarily for code that still imports the old name. */
+export type NewApiStaffMember = ApiStaffMember;
 
-export type InviteStaffDay = {
-  day_of_week: ApiStaffDay["day_of_week"];
-  shifts: InviteStaffShift[];
-};
-
-// Updated: POST /organizations/:organizationId/invitations — flat arrays, no schedule
+/** POST /v1/organizations/:orgId/invitations — flat code arrays, no schedule. */
 export type InviteStaffRequest = {
+  email: string;
   first_name: string;
   last_name: string;
-  email: string;
   phone_number?: string;
-  job_title?: string;
-  specialty?: string;
-  is_clinical?: boolean;
   role_ids: string[];
   branch_ids: string[];
+  job_function_codes?: string[];
+  specialty_codes?: string[];
+  executive_title?: ExecutiveTitleCode | null;
+  engagement_type?: EngagementTypeCode;
 };
 
-// POST /organizations/:organizationId/staff — direct creation with phone + password
+/** POST /v1/organizations/:orgId/invitations/bulk */
+export type BulkInviteStaffRequest = {
+  invitations: InviteStaffRequest[];
+};
+
+/** POST /v1/organizations/:orgId/staff — direct creation. */
 export type CreateStaffDirectRequest = {
   first_name: string;
   last_name: string;
   phone_number: string;
   password: string;
-  job_title?: string;
-  specialty?: string;
-  is_clinical?: boolean;
   role_ids: string[];
   branch_ids: string[];
+  job_function_codes?: string[];
+  specialty_codes?: string[];
+  executive_title?: ExecutiveTitleCode | null;
+  engagement_type?: EngagementTypeCode;
   schedule?: ApiStaffBranchSchedule[];
 };
 
@@ -107,31 +123,27 @@ export type CreateStaffDirectResponse = {
   meta?: Record<string, unknown>;
 };
 
+/** PATCH /v1/organizations/:orgId/staff/:staffProfileId — replace semantics on arrays. */
 export type UpdateStaffRequest = {
   first_name?: string;
   last_name?: string;
   phone_number?: string;
+  /** OWNER-only — backend 403s if a BRANCH_MANAGER sends this. */
   role_ids?: string[];
   branch_ids?: string[];
-  job_title?: string;
-  specialty?: string;
-  is_clinical?: boolean;
+  job_function_codes?: string[];
+  specialty_codes?: string[];
+  executive_title?: ExecutiveTitleCode | null;
+  engagement_type?: EngagementTypeCode;
+  schedule?: ApiStaffBranchSchedule[];
 };
 
-export type InviteStaffResponse = {
-  data: ApiStaffInvitation;
-  meta?: Record<string, unknown>;
-};
+export type ApiResponseEnvelope<T> = T | { data: T; meta?: Record<string, unknown> };
 
-export type StaffMemberResponse =
-  | NewApiStaffMember
-  | {
-      data: NewApiStaffMember;
-      meta?: Record<string, unknown>;
-    };
-
-export type UpdateStaffResponse = StaffMemberResponse;
-
+export type ApiStaffMemberResponse = ApiResponseEnvelope<ApiStaffMember>;
+/** @deprecated alias kept for older imports. */
+export type StaffMemberResponse = ApiStaffMemberResponse;
+export type UpdateStaffResponse = ApiStaffMemberResponse;
 export type DeactivateStaffResponse = void;
 
 export type StaffInvitationStatus =
@@ -147,28 +159,6 @@ export type StaffInvitationStatus =
   | "revoked"
   | string;
 
-export type StaffInvitationBranch = {
-  id?: string;
-  name?: string;
-  city?: string;
-  governorate?: string;
-  branch_id?: string;
-  branch_name?: string;
-  branch?: {
-    id?: string;
-    name?: string;
-    address?: string;
-    city?: string;
-    governorate?: string;
-    country?: string;
-    is_main?: boolean;
-  };
-  schedule?: {
-    id?: string;
-    days: InviteStaffDay[];
-  };
-};
-
 export type ApiInvitationWorkingSchedule = {
   branch: { id: string; name: string };
   days: Array<{
@@ -180,53 +170,34 @@ export type ApiInvitationWorkingSchedule = {
 export type ApiStaffInvitation = {
   id: string;
   organization_id?: string;
-  branch_id?: string;
   email?: string;
   first_name?: string;
   last_name?: string;
-  phone?: string;
   phone_number?: string | null;
-  job_title?: string | null;
-  specialty?: string | null;
-  is_clinical?: boolean;
-  role_id?: string;
-  role_name?: string;
-  role?: ApiStaffRole;
-  roles?: ApiStaffRole[];
-  branches?: StaffInvitationBranch[];
-  working_schedule?: ApiInvitationWorkingSchedule[] | null;
+  executive_title?: ExecutiveTitleCode | null;
+  engagement_type?: EngagementTypeCode | null;
   status?: StaffInvitationStatus;
-  token?: string;
-  expires_at?: string;
-  expired_at?: string;
+  invited_at?: string | null;
+  expires_at?: string | null;
   accepted_at?: string | null;
   created_at?: string;
   updated_at?: string;
-  sent_at?: string;
-  invited_at?: string;
   invited_by?: {
     id?: string;
     first_name?: string;
     last_name?: string;
     email?: string;
   };
-  inviter?: {
-    id?: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  created_by?: {
-    id?: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  organization?: {
-    id?: string;
-    name?: string;
-  };
+  roles?: ApiStaffRole[];
+  branches?: ApiStaffBranch[];
+  job_functions?: ApiStaffJobFunction[];
+  specialties?: ApiStaffSpecialty[];
+  working_schedule?: ApiInvitationWorkingSchedule[] | null;
   user_exists?: boolean;
+  /** @deprecated some endpoints used to nest a single role here */
+  role?: ApiStaffRole;
+  /** @deprecated some endpoints used to nest a single role name */
+  role_name?: string;
 };
 
 export type StaffInvitationsMeta = {
@@ -239,25 +210,28 @@ export type StaffInvitationsMeta = {
 
 export type StaffInvitationsResponse =
   | ApiStaffInvitation[]
-  | {
-      data: ApiStaffInvitation[];
-      meta?: StaffInvitationsMeta;
-    };
+  | { data: ApiStaffInvitation[]; meta?: StaffInvitationsMeta };
 
-export type StaffInvitationResponse =
-  | ApiStaffInvitation
-  | {
-      data: ApiStaffInvitation;
-      meta?: Record<string, unknown>;
-    };
+export type StaffInvitationResponse = ApiResponseEnvelope<ApiStaffInvitation>;
 
-export type StaffInvitationActionResponse =
-  | ApiStaffInvitation
-  | {
-      data?: ApiStaffInvitation;
-      message?: string;
-      meta?: Record<string, unknown>;
-    };
+export type StaffInvitationActionResponse = ApiResponseEnvelope<ApiStaffInvitation> & {
+  message?: string;
+};
+
+export type InviteStaffResponse = ApiResponseEnvelope<ApiStaffInvitation>;
+
+export type BulkInviteResultRow = {
+  id: string;
+  email: string;
+  email_sent: boolean;
+};
+
+export type BulkInviteResponse = {
+  data: {
+    created: number;
+    results: BulkInviteResultRow[];
+  };
+};
 
 export type InvitationPreview = {
   id: string;
@@ -266,13 +240,14 @@ export type InvitationPreview = {
   email: string;
   first_name: string;
   last_name: string;
-  is_clinical: boolean;
-  job_title: string | null;
-  specialty: string | null;
+  executive_title?: ExecutiveTitleCode | null;
+  engagement_type?: EngagementTypeCode | null;
   organization: { id: string; name: string };
   invited_by: { first_name: string; last_name: string };
-  roles: { id: string; name: string }[];
-  branches: { id: string; name: string; city: string; governorate: string }[];
+  roles: ApiStaffRole[];
+  branches: ApiStaffBranch[];
+  job_functions?: ApiStaffJobFunction[];
+  specialties?: ApiStaffSpecialty[];
 };
 
 export type AcceptStaffInviteRequest = {
@@ -281,13 +256,7 @@ export type AcceptStaffInviteRequest = {
   password: string;
   first_name?: string;
   last_name?: string;
-  schedule?: Array<{
-    branch_id: string;
-    days: Array<{
-      day_of_week: string;
-      shifts: Array<{ start_time: string; end_time: string }>;
-    }>;
-  }>;
+  schedule?: ApiStaffBranchSchedule[];
 };
 
 export type AcceptStaffInviteResponse = {
@@ -298,20 +267,8 @@ export type AcceptStaffInviteResponse = {
   meta?: Record<string, unknown>;
 };
 
-// Legacy type kept for updateStaff/deactivateStaff which haven't been migrated yet
-export type ApiStaffMember = Omit<NewApiStaffMember, "schedule"> & {
-  id?: string;
-  organization_id?: string;
-  branch_id?: string;
-  role_id?: string;
-  created_at?: string;
-  schedule?: ApiStaffSchedule | ApiStaffBranchSchedule[];
-  user?: ApiStaffUser;
-  role?: ApiStaffRole;
-};
-
 export type ApiStaffListResponse = {
-  data: NewApiStaffMember[];
+  data: ApiStaffMember[];
   meta: {
     page: number;
     limit: number;
@@ -321,3 +278,11 @@ export type ApiStaffListResponse = {
 };
 
 export type ApiRolesResponse = ApiStaffRole[] | { data: ApiStaffRole[] };
+
+export type ApiJobFunctionsResponse =
+  | ApiStaffJobFunction[]
+  | { data: ApiStaffJobFunction[] };
+
+export type ApiSpecialtiesResponse =
+  | ApiStaffSpecialty[]
+  | { data: ApiStaffSpecialty[] };

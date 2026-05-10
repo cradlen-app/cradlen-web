@@ -259,7 +259,7 @@ export function SurgeryFields({ register, control, errors, setValue }: BaseProps
                 {doctors.map((d) => (
                   <option key={d.id} value={d.id}>
                     {`${d.firstName} ${d.lastName}`.trim() || d.email}
-                    {d.specialty ? ` — ${d.specialty}` : ""}
+                    {d.specialties?.length ? ` — ${d.specialties.map((s) => s.name).join(", ")}` : ""}
                   </option>
                 ))}
               </select>
