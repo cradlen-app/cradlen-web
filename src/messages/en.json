@@ -956,6 +956,17 @@
       "unassigned": "Unassigned",
       "notes": "Notes",
       "noNotes": "No notes recorded.",
+      "chiefComplaint": "Chief complaint",
+      "noChiefComplaint": "No chief complaint recorded.",
+      "vitals": "Vitals",
+      "vitalsBp": "Blood pressure",
+      "vitalsPulse": "Pulse",
+      "vitalsTemperature": "Temperature",
+      "vitalsSpo2": "SpO₂",
+      "vitalsRespiratoryRate": "Respiratory rate",
+      "vitalsWeight": "Weight",
+      "vitalsHeight": "Height",
+      "vitalsBmi": "BMI",
       "complete": "Mark complete",
       "cancelVisit": "Cancel visit",
       "completedToast": "Visit completed.",
@@ -976,10 +987,11 @@
         "emergency": "Emergency"
       },
       "columns": {
-        "queue": "ID",
+        "queue": "Queue #",
         "patient": "Name",
         "doctor": "Doctor",
         "notes": "Notes",
+        "chiefComplaint": "Chief complaint",
         "type": "Type",
         "priority": "Priority",
         "waitTime": "Wait",
@@ -1086,7 +1098,52 @@
         "husbandNameRequired": "Husband name is required",
         "patientRequired": "Select a patient",
         "doctorRequired": "Select a doctor",
-        "notesTooLong": "Notes must be 500 characters or fewer"
+        "notesTooLong": "Notes must be 500 characters or fewer",
+        "invalidVital": "Value is out of range.",
+        "nationalIdExists": "A patient with this national ID already exists.",
+        "useExistingPatient": "Use existing patient",
+        "searchPatientsHint": "Search for the patient above and select them to continue."
+      },
+      "intake": {
+        "title": "Clinical intake (optional)",
+        "chiefComplaint": {
+          "title": "Chief complaint",
+          "categoriesLabel": "Categories",
+          "narrativeLabel": "Description",
+          "narrativePlaceholder": "Describe the patient's main concern…",
+          "onset": "Onset",
+          "duration": "Duration",
+          "severityLabel": "Severity",
+          "severity": {
+            "mild": "Mild",
+            "moderate": "Moderate",
+            "severe": "Severe"
+          }
+        },
+        "categories": {
+          "PREGNANCY": "Pregnancy",
+          "BLEEDING": "Bleeding",
+          "PAIN": "Pain",
+          "INFECTION": "Infection",
+          "CONTRACEPTION": "Contraception",
+          "INFERTILITY": "Infertility",
+          "MENSTRUAL": "Menstrual",
+          "POSTPARTUM": "Postpartum",
+          "ROUTINE_CHECK": "Routine check",
+          "OTHER": "Other"
+        },
+        "vitals": {
+          "title": "Vitals",
+          "systolic": "Systolic BP",
+          "diastolic": "Diastolic BP",
+          "pulse": "Pulse",
+          "temperature": "Temperature",
+          "respiratoryRate": "Respiratory rate",
+          "spo2": "SpO₂",
+          "weight": "Weight",
+          "height": "Height",
+          "bmi": "BMI: {value}"
+        }
       }
     },
     "actions": {
@@ -1096,7 +1153,32 @@
       "retry": "Retry",
       "close": "Close",
       "cancelVisitTitle": "Cancel this visit?",
-      "confirmCancel": "Yes, cancel"
+      "confirmCancel": "Yes, cancel",
+      "completeRequiresChiefComplaint": {
+        "title": "Add chief complaint",
+        "description": "A chief complaint is required before a visit can be marked complete.",
+        "label": "Chief complaint",
+        "placeholder": "Describe the patient's main concern…",
+        "categoriesLabel": "Categories (optional)",
+        "categories": {
+          "PREGNANCY": "Pregnancy",
+          "BLEEDING": "Bleeding",
+          "PAIN": "Pain",
+          "INFECTION": "Infection",
+          "CONTRACEPTION": "Contraception",
+          "INFERTILITY": "Infertility",
+          "MENSTRUAL": "Menstrual",
+          "POSTPARTUM": "Postpartum",
+          "ROUTINE_CHECK": "Routine check",
+          "OTHER": "Other"
+        },
+        "submit": "Save & complete",
+        "cancel": "Cancel",
+        "required": "Chief complaint is required.",
+        "tooLong": "Chief complaint must be 5000 characters or fewer.",
+        "successToast": "Visit completed.",
+        "genericError": "Could not complete the visit."
+      }
     }
   }
 }

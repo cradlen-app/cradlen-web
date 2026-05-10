@@ -5,6 +5,8 @@ import type {
   ApiVisitPriority,
   ApiVisitStatus,
   ApiVisitType,
+  ApiVitals,
+  ChiefComplaintMeta,
 } from "./visits.api.types";
 
 export type VisitStatus = ApiVisitStatus;
@@ -63,6 +65,9 @@ export type Visit = {
   assignedDoctorId?: string;
   assignedDoctorName?: string;
   notes?: string;
+  chiefComplaint?: string | null;
+  chiefComplaintMeta?: ChiefComplaintMeta | null;
+  vitals?: ApiVitals | null;
   createdAt: string;
   scheduledAt?: string;
   startedAt?: string;

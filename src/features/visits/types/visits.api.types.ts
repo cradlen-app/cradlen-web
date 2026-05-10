@@ -30,6 +30,34 @@ export type ApiPatient = {
   journey_status?: string;
 };
 
+export type VitalsInput = {
+  systolic_bp?: number;
+  diastolic_bp?: number;
+  pulse?: number;
+  temperature_c?: number;
+  respiratory_rate?: number;
+  spo2?: number;
+  weight_kg?: number;
+  height_cm?: number;
+};
+
+export type ApiVitals = VitalsInput & {
+  bmi?: number;
+};
+
+export type ChiefComplaintMeta = {
+  categories?: string[];
+  onset?: string;
+  duration?: string;
+  severity?: string;
+};
+
+export type VisitIntake = {
+  chief_complaint?: string;
+  chief_complaint_meta?: ChiefComplaintMeta;
+  vitals?: VitalsInput;
+};
+
 export type ApiVisit = {
   id: string;
   visit_type: ApiVisitType;
@@ -37,6 +65,9 @@ export type ApiVisit = {
   status: ApiVisitStatus;
   scheduled_at?: string;
   notes?: string;
+  chief_complaint?: string | null;
+  chief_complaint_meta?: ChiefComplaintMeta | null;
+  vitals?: ApiVitals | null;
   queue_number?: number;
   branch_id?: string;
   created_at?: string;
@@ -126,18 +157,17 @@ export type ApiPatientListResponse = {
 };
 
 // Existing patient booking
-export type BookVisitExistingPatientRequest = {
+export type BookVisitExistingPatientRequest = VisitIntake & {
   patient_id: string;
   assigned_doctor_id: string;
   visit_type: ApiVisitType;
   priority: ApiVisitPriority;
   scheduled_at: string;
-  notes?: string;
   branch_id?: string;
 };
 
 // New patient booking
-export type BookVisitNewPatientRequest = {
+export type BookVisitNewPatientRequest = VisitIntake & {
   national_id: string;
   full_name: string;
   date_of_birth: string;
@@ -149,7 +179,6 @@ export type BookVisitNewPatientRequest = {
   visit_type: ApiVisitType;
   priority: ApiVisitPriority;
   scheduled_at: string;
-  notes?: string;
   branch_id?: string;
 };
 
