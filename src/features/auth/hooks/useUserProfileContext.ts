@@ -7,16 +7,29 @@ import {
   getDefaultBranch,
   getProfileOrganization,
   getProfileOrganizationId,
-  getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import {
+  canCreateVisit,
+  canManageStaff,
+  canSearchPatients,
+  canUseSettings,
+  canViewStaff,
+  hasAnyStaffRole,
+  isBranchManager,
+  isClinical,
+  isOwner,
+  isReceptionist,
+  showsAssignedVisits,
+  showsBranchAggregate,
+} from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { formatBranchLocation } from "@/lib/branch.utils";
 
 /**
  * Centralises the extraction of user profile context used across dashboard
- * pages (StaffPage, VisitsPage, etc.).  Returns the current user query state
- * plus all commonly-needed derived values.
+ * pages. Returns the current user query state plus all commonly-needed derived
+ * values, including the new permission flags backed by the Role + JobFunction
+ * taxonomy in `permissions.ts`.
  */
 export function useUserProfileContext() {
   const {
@@ -29,8 +42,6 @@ export function useUserProfileContext() {
 
   const activeProfile = getActiveProfile(currentUser);
   const currentUserStaffId = activeProfile?.staff_id;
-  const currentUserRole = getProfilePrimaryRole(activeProfile);
-  const canManage = currentUserRole === STAFF_ROLE.OWNER;
 
   const organization = getProfileOrganization(activeProfile);
   const organizationId = getProfileOrganizationId(activeProfile);
@@ -46,13 +57,26 @@ export function useUserProfileContext() {
     isCurrentUserError,
     activeProfile,
     currentUserStaffId,
-    currentUserRole,
-    canManage,
     organization,
     organizationId,
     organizationName,
     activeBranch,
     branchId,
     branchName,
+    // Permission flags
+    isOwner: isOwner(activeProfile),
+    isBranchManager: isBranchManager(activeProfile),
+    isReceptionist: isReceptionist(activeProfile),
+    isClinical: isClinical(activeProfile),
+    hasAnyStaffRole: hasAnyStaffRole(activeProfile),
+    canViewStaff: canViewStaff(activeProfile),
+    canManageStaff: canManageStaff(activeProfile),
+    canUseSettings: canUseSettings(activeProfile),
+    canCreateVisit: canCreateVisit(activeProfile),
+    canSearchPatients: canSearchPatients(activeProfile),
+    showsAssignedVisits: showsAssignedVisits(activeProfile),
+    showsBranchAggregate: showsBranchAggregate(activeProfile),
+    /** @deprecated Use `canManageStaff` for staff-area gating. */
+    canManage: canManageStaff(activeProfile),
   };
 }

@@ -5,11 +5,13 @@ import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
-  getActiveRole,
   getDefaultBranch,
   getProfileOrganization,
 } from "@/features/auth/lib/current-user";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import {
+  hasAnyStaffRole,
+  showsAssignedVisits,
+} from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { MiniCalendar } from "@/features/visits/components/MiniCalendar";
 import { StatCards, StatCardsSkeleton } from "@/features/visits/components/StatCards";
@@ -21,7 +23,6 @@ export function DashboardHome() {
   const t = useTranslations("dashboardHome");
   const tDate = useTranslations("dashboardHome");
   const { data: user } = useCurrentUser();
-  const role = getActiveRole(user);
   const branchId = useAuthContextStore((s) => s.branchId);
   const profile = getActiveProfile(user);
   const branch = getDefaultBranch(profile, branchId ?? undefined);
@@ -29,9 +30,9 @@ export function DashboardHome() {
 
   const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
 
-  if (!role || role === "patient" || role === STAFF_ROLE.UNKNOWN) return null;
+  if (!hasAnyStaffRole(profile)) return null;
 
-  const assignedToMe = role === STAFF_ROLE.DOCTOR;
+  const assignedToMe = showsAssignedVisits(profile);
   const todayLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "short",
     month: "short",

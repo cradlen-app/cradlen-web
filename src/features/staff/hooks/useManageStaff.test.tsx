@@ -8,6 +8,7 @@ import { useDeactivateStaff, useUpdateStaff } from "./useManageStaff";
 vi.mock("../lib/staff.api", () => ({
   deactivateStaff: vi.fn(),
   updateStaff: vi.fn(),
+  unassignStaffFromBranch: vi.fn(),
 }));
 
 function createWrapper(queryClient: QueryClient) {
@@ -21,7 +22,7 @@ function createWrapper(queryClient: QueryClient) {
 describe("staff management hooks", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(updateStaff).mockResolvedValue({ data: {} as never });
+    vi.mocked(updateStaff).mockResolvedValue({} as never);
     vi.mocked(deactivateStaff).mockResolvedValue(undefined);
   });
 
@@ -36,25 +37,17 @@ describe("staff management hooks", () => {
 
     await act(async () => {
       await result.current.mutateAsync({
-        branchId: "branch-1",
+        organizationId: "org-1",
         staffId: "staff-1",
         data: {
           first_name: "Mona",
           last_name: "Amin",
         },
-        organizationId: "org-1",
       });
     });
 
-    expect(updateStaff).toHaveBeenCalledWith(
-      "staff-1",
-      expect.any(Object),
-      { branchId: "branch-1", organizationId: "org-1" },
-    );
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["staff"] });
-    expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ["staff", "detail", "org-1", "branch-1", "staff-1"],
-    });
+    expect(updateStaff).toHaveBeenCalledWith("org-1", "staff-1", expect.any(Object));
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["staff", "org-1"] });
   });
 
   it("deactivates staff and invalidates staff queries", async () => {
@@ -68,19 +61,12 @@ describe("staff management hooks", () => {
 
     await act(async () => {
       await result.current.mutateAsync({
-        branchId: "branch-1",
         organizationId: "org-1",
         staffId: "staff-1",
       });
     });
 
-    expect(deactivateStaff).toHaveBeenCalledWith("staff-1", {
-      branchId: "branch-1",
-      organizationId: "org-1",
-    });
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["staff"] });
-    expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ["staff", "detail", "org-1", "branch-1", "staff-1"],
-    });
+    expect(deactivateStaff).toHaveBeenCalledWith("org-1", "staff-1");
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["staff", "org-1"] });
   });
 });

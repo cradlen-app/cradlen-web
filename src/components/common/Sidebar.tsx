@@ -27,10 +27,14 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
   getProfileOrganization,
-  getProfilePrimaryRole,
   getBranchId,
 } from "@/features/auth/lib/current-user";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import {
+  canAccessMedicine,
+  canViewStaff as canViewStaffPerm,
+  hasAnyStaffRole,
+  isOwner,
+} from "@/features/auth/lib/permissions";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/layout/SidebarContext";
@@ -50,28 +54,25 @@ const OWNER_NAV: SidebarNavItem[] = [
   { path: "/analytics", key: "analytics", icon: BarChart2 },
 ];
 
-type StaffRole =
-  | typeof STAFF_ROLE.OWNER
-  | typeof STAFF_ROLE.DOCTOR
-  | typeof STAFF_ROLE.RECEPTION;
+const BASE_NAV: SidebarNavItem[] = [
+  { path: "", key: "dashboard", icon: LayoutDashboard },
+  { path: "/visits", key: "visits", icon: ClipboardList },
+  { path: "/calendar", key: "calendar", icon: Calendar },
+  { path: "/patients", key: "patients", icon: Users },
+];
 
-const NAV_BY_ROLE: Record<StaffRole, SidebarNavItem[]> = {
-  owner: OWNER_NAV,
-  doctor: [
-    { path: "", key: "dashboard", icon: LayoutDashboard },
-    { path: "/visits", key: "visits", icon: ClipboardList },
-    { path: "/calendar", key: "calendar", icon: Calendar },
-    { path: "/patients", key: "patients", icon: Users },
-    { path: "/medicine", key: "medicine", icon: Pill },
-  ],
-  reception: [
-    { path: "", key: "dashboard", icon: LayoutDashboard },
-    { path: "/visits", key: "visits", icon: ClipboardList },
-    { path: "/calendar", key: "calendar", icon: Calendar },
-    { path: "/patients", key: "patients", icon: Users },
-    { path: "/staff", key: "staff", icon: UserCheck },
-  ],
-};
+const STAFF_NAV_ITEM: SidebarNavItem = { path: "/staff", key: "staff", icon: UserCheck };
+const MEDICINE_NAV_ITEM: SidebarNavItem = { path: "/medicine", key: "medicine", icon: Pill };
+
+import type { UserProfile } from "@/types/user.types";
+function buildNavForProfile(profile: UserProfile | undefined): SidebarNavItem[] {
+  if (isOwner(profile)) return OWNER_NAV;
+
+  const items = [...BASE_NAV];
+  if (canViewStaffPerm(profile)) items.push(STAFF_NAV_ITEM);
+  if (canAccessMedicine(profile)) items.push(MEDICINE_NAV_ITEM);
+  return items;
+}
 
 export function Sidebar() {
   const { collapsed, setCollapsed, mobileOpen, closeMobile } = useSidebar();
@@ -82,7 +83,6 @@ export function Sidebar() {
   const { data: user } = useCurrentUser();
 
   const profile = getActiveProfile(user);
-  const rawRole = getProfilePrimaryRole(profile);
 
   const {
     branchMenuOpen,
@@ -101,10 +101,9 @@ export function Sidebar() {
 
   const { handleLogout } = useLogout();
 
-  if (rawRole === "patient" || rawRole === STAFF_ROLE.UNKNOWN) return null;
+  if (!hasAnyStaffRole(profile)) return null;
 
-  const role = rawRole as StaffRole;
-  const navItems = NAV_BY_ROLE[role];
+  const navItems = buildNavForProfile(profile);
   const organization = getProfileOrganization(profile);
   const clinicName = organization?.name ?? "-";
   const clinicBranch = branch?.city
@@ -315,7 +314,7 @@ export function Sidebar() {
 
       {/* Bottom nav */}
       <div className="px-2 py-3 space-y-0.5 border-t border-gray-100">
-        {canUseSettings(role) && (
+        {canUseSettings(profile) && (
           <Link
             href={
               dashboardPath("/settings") as Parameters<typeof Link>[0]["href"]

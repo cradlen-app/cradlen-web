@@ -6,8 +6,16 @@ import { AlertDialog } from "radix-ui";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
+import {
+  canManageStaff as canManageStaffPerms,
+  canViewStaff,
+  isOwner as isOwnerPerm,
+} from "@/features/auth/lib/permissions";
 import { ApiError } from "@/lib/api";
-import { useDeactivateStaff } from "../hooks/useManageStaff";
+import {
+  useDeactivateStaff,
+  useUnassignStaffFromBranch,
+} from "../hooks/useManageStaff";
 import { useStaff, useStaffMember } from "../hooks/useStaff";
 import { useStaffDirectory } from "../hooks/useStaffDirectory";
 import { useStaffRoles } from "../hooks/useStaffRoles";
@@ -17,6 +25,10 @@ import dynamic from "next/dynamic";
 
 const StaffCreateDrawer = dynamic(
   () => import("./StaffCreateDrawer").then((m) => m.StaffCreateDrawer),
+  { loading: () => null },
+);
+const StaffBulkInviteDrawer = dynamic(
+  () => import("./StaffBulkInviteDrawer").then((m) => m.StaffBulkInviteDrawer),
   { loading: () => null },
 );
 import { StaffHeader } from "./StaffHeader";
@@ -46,10 +58,7 @@ function StaffTableSkeleton() {
 }
 
 function unwrapApiError(error: unknown, fallback: string) {
-  if (error instanceof ApiError) {
-    return error.messages[0] || fallback;
-  }
-
+  if (error instanceof ApiError) return error.messages[0] || fallback;
   return fallback;
 }
 
@@ -60,21 +69,31 @@ export function StaffPage() {
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const [createMethod, setCreateMethod] = useState<"invite" | "direct" | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<StaffMember | null>(null);
-  const [deactivatingMember, setDeactivatingMember] =
-    useState<StaffMember | null>(null);
+  const [deactivatingMember, setDeactivatingMember] = useState<StaffMember | null>(null);
+  const [unassigningMember, setUnassigningMember] = useState<StaffMember | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [scope, setScope] = useState<"org" | "mine">("org");
   const deactivateStaff = useDeactivateStaff();
+  const unassignStaff = useUnassignStaffFromBranch();
+
   const {
+    activeProfile,
     currentUser,
     isCurrentUserLoading,
     isCurrentUserError,
     currentUserStaffId,
-    canManage,
     organizationId,
     organizationName,
     branchId,
     branchName,
   } = useUserProfileContext();
+
+  const canView = canViewStaff(activeProfile);
+  const canManage = canManageStaffPerms(activeProfile);
+  const isOwner = isOwnerPerm(activeProfile);
+
   const { data: roleFilters = [] } = useStaffRoles(organizationId);
   const selectedRoleId = useMemo(
     () =>
@@ -83,6 +102,7 @@ export function StaffPage() {
         : roleFilters.find((roleFilter) => roleFilter.role === filter)?.id,
     [filter, roleFilters],
   );
+
   const {
     data: staff = [],
     isLoading: isStaffLoading,
@@ -90,7 +110,9 @@ export function StaffPage() {
   } = useStaff(organizationId, branchId, {
     q: deferredSearch,
     roleId: selectedRoleId,
+    scope: isOwner ? scope : undefined,
   });
+
   const isLoading = isCurrentUserLoading || isStaffLoading;
   const isError = isCurrentUserError || isStaffError;
   const hasNoBranch =
@@ -99,18 +121,38 @@ export function StaffPage() {
     currentUser &&
     (!organizationId || !branchId);
 
-  const {
-    filteredStaff,
-    selectedId,
-    selectedMember,
-    setSelectedId,
-    totalStaff,
-  } = useStaffDirectory({ filter, search: deferredSearch, staff });
+  const { filteredStaff, selectedId, selectedMember, setSelectedId, totalStaff } =
+    useStaffDirectory({ filter, search: deferredSearch, staff });
+
   const { data: editingMemberDetail } = useStaffMember(
     organizationId,
     branchId,
     editingMember?.id ?? null,
   );
+
+  async function handleUnassignFromBranch() {
+    if (!unassigningMember) return;
+    try {
+      if (unassigningMember.id === currentUserStaffId) {
+        toast.error(overviewT("deactivateSelfError"));
+        return;
+      }
+      if (!organizationId || !branchId) {
+        toast.error(t("noBranch"));
+        return;
+      }
+      await unassignStaff.mutateAsync({
+        organizationId,
+        staffId: unassigningMember.id,
+        branchId,
+      });
+      toast.success(overviewT("unassignSuccess"));
+      if (selectedId === unassigningMember.id) setSelectedId(null);
+      setUnassigningMember(null);
+    } catch (error) {
+      toast.error(unwrapApiError(error, overviewT("unassignError")));
+    }
+  }
 
   async function handleDeactivateStaff() {
     if (!deactivatingMember) return;
@@ -121,13 +163,12 @@ export function StaffPage() {
         return;
       }
 
-      if (!organizationId || !branchId) {
+      if (!organizationId) {
         toast.error(t("noBranch"));
         return;
       }
 
       await deactivateStaff.mutateAsync({
-        branchId,
         organizationId,
         staffId: deactivatingMember.id,
       });
@@ -136,9 +177,18 @@ export function StaffPage() {
         setSelectedId(null);
       }
       setDeactivatingMember(null);
+      setDeleteConfirmText("");
     } catch (error) {
       toast.error(unwrapApiError(error, overviewT("deactivateError")));
     }
+  }
+
+  if (!isCurrentUserLoading && !canView) {
+    return (
+      <div className="flex h-full items-center justify-center p-6 text-sm text-gray-400">
+        {t("forbidden")}
+      </div>
+    );
   }
 
   return (
@@ -149,6 +199,7 @@ export function StaffPage() {
             canManage={canManage}
             onInviteStaff={() => setCreateMethod("invite")}
             onCreateDirectStaff={() => setCreateMethod("direct")}
+            onBulkInvite={() => setBulkOpen(true)}
           />
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
@@ -157,6 +208,8 @@ export function StaffPage() {
               search={search}
               onFilterChange={setFilter}
               onSearchChange={setSearch}
+              scope={isOwner ? scope : undefined}
+              onScopeChange={isOwner ? setScope : undefined}
             />
 
             <div className="min-h-0 flex-1 overflow-auto">
@@ -190,10 +243,13 @@ export function StaffPage() {
 
         <StaffOverview
           canManage={canManage}
+          canDelete={isOwner}
+          currentBranchId={branchId}
           currentUserStaffId={currentUserStaffId}
           member={selectedMember}
           onDeactivate={setDeactivatingMember}
           onEdit={setEditingMember}
+          onUnassignFromBranch={setUnassigningMember}
         />
       </div>
 
@@ -207,6 +263,15 @@ export function StaffPage() {
         open={!!createMethod}
         organizationId={organizationId}
         organizationName={organizationName}
+      />
+
+      <StaffBulkInviteDrawer
+        branchId={branchId}
+        branchName={branchName}
+        organizationId={organizationId}
+        organizationName={organizationName}
+        open={bulkOpen}
+        onOpenChange={setBulkOpen}
       />
 
       <StaffCreateDrawer
@@ -223,9 +288,58 @@ export function StaffPage() {
       />
 
       <AlertDialog.Root
+        open={!!unassigningMember}
+        onOpenChange={(open) => {
+          if (!open) setUnassigningMember(null);
+        }}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
+            <AlertDialog.Title className="text-lg font-medium text-brand-black">
+              {overviewT("unassignTitle")}
+            </AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-sm text-gray-500">
+              {overviewT("unassignDescription", {
+                name: unassigningMember
+                  ? getStaffFullName(unassigningMember)
+                  : overviewT("thisStaffMember"),
+                branch: branchName ?? "",
+              })}
+            </AlertDialog.Description>
+            <div className="mt-5 flex justify-end gap-2">
+              <AlertDialog.Cancel asChild>
+                <Button type="button" variant="outline">
+                  {overviewT("cancel")}
+                </Button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void handleUnassignFromBranch();
+                  }}
+                  disabled={unassignStaff.isPending}
+                >
+                  {unassignStaff.isPending
+                    ? overviewT("unassigning")
+                    : overviewT("unassign")}
+                </Button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
+
+      <AlertDialog.Root
         open={!!deactivatingMember}
         onOpenChange={(open) => {
-          if (!open) setDeactivatingMember(null);
+          if (!open) {
+            setDeactivatingMember(null);
+            setDeleteConfirmText("");
+          }
         }}
       >
         <AlertDialog.Portal>
@@ -241,6 +355,23 @@ export function StaffPage() {
                   : overviewT("thisStaffMember"),
               })}
             </AlertDialog.Description>
+            {deactivatingMember && (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-gray-500">
+                  {overviewT("typedConfirmHint", {
+                    name: getStaffFullName(deactivatingMember),
+                  })}
+                </p>
+                <input
+                  type="text"
+                  autoFocus
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder={getStaffFullName(deactivatingMember)}
+                  className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200"
+                />
+              </div>
+            )}
             <div className="mt-5 flex justify-end gap-2">
               <AlertDialog.Cancel asChild>
                 <Button type="button" variant="outline">
@@ -255,7 +386,12 @@ export function StaffPage() {
                     event.preventDefault();
                     void handleDeactivateStaff();
                   }}
-                  disabled={deactivateStaff.isPending}
+                  disabled={
+                    deactivateStaff.isPending ||
+                    !deactivatingMember ||
+                    deleteConfirmText.trim() !==
+                      getStaffFullName(deactivatingMember).trim()
+                  }
                 >
                   {deactivateStaff.isPending
                     ? overviewT("deactivating")

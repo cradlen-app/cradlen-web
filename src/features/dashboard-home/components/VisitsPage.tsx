@@ -5,11 +5,15 @@ import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
-  getActiveRole,
   getDefaultBranch,
-  getProfileIsClinical,
 } from "@/features/auth/lib/current-user";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import {
+  canCreateVisit as canCreateVisitPerm,
+  hasAnyStaffRole,
+  isClinical,
+  showsAssignedVisits,
+  showsBranchAggregate,
+} from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
@@ -21,7 +25,6 @@ import { getTodayIso } from "@/features/visits/lib/visits.utils";
 export function VisitsPage() {
   const t = useTranslations("visits");
   const { data: user } = useCurrentUser();
-  const role = getActiveRole(user);
   const branchId = useAuthContextStore((s) => s.branchId);
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const profile = getActiveProfile(user);
@@ -32,19 +35,15 @@ export function VisitsPage() {
 
   useVisitSocket(profileId, branchId);
 
-  if (!role || role === "patient" || role === STAFF_ROLE.UNKNOWN) return null;
+  if (!hasAnyStaffRole(profile)) return null;
 
-  const isDoctor = role === STAFF_ROLE.DOCTOR;
-  const isReceptionOrOwner =
-    role === STAFF_ROLE.RECEPTION || role === STAFF_ROLE.OWNER;
-  const isClinical =
-    isDoctor || (role === STAFF_ROLE.OWNER && getProfileIsClinical(profile));
+  const showAssigned = showsAssignedVisits(profile);
+  const showAggregate = showsBranchAggregate(profile);
+  const profileIsClinical = isClinical(profile);
 
-  const canCreateVisit = role === STAFF_ROLE.RECEPTION;
-  const canManageStatus =
-    role === STAFF_ROLE.RECEPTION ||
-    role === STAFF_ROLE.OWNER ||
-    role === STAFF_ROLE.DOCTOR;
+  const canCreateVisit = canCreateVisitPerm(profile);
+  // Anyone with a staff role and access to this page can manage visit status.
+  const canManageStatus = hasAnyStaffRole(profile);
 
   return (
     <main className="space-y-6 p-6">
@@ -59,17 +58,17 @@ export function VisitsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <section className="space-y-6 lg:col-span-3">
-          {isDoctor && (
+          {showAssigned && (
             <CurrentVisitCard
               branchId={branchId}
               organizationId={organizationId}
             />
           )}
-          {isReceptionOrOwner && (
+          {showAggregate && (
             <InProgressByDoctorPanel
               branchId={branchId}
               organizationId={organizationId}
-              filterDoctorId={isClinical ? (profile?.staff_id ?? undefined) : undefined}
+              filterDoctorId={profileIsClinical ? (profile?.staff_id ?? undefined) : undefined}
             />
           )}
           <WaitingListSection
@@ -78,8 +77,8 @@ export function VisitsPage() {
             branchName={branch?.name ?? branch?.city}
             canCreateVisit={canCreateVisit}
             canManageStatus={canManageStatus}
-            assignedToMe={isDoctor}
-            isDoctor={isDoctor}
+            assignedToMe={showAssigned}
+            isDoctor={showAssigned}
           />
         </section>
         <aside>
@@ -87,7 +86,7 @@ export function VisitsPage() {
             branchId={branchId}
             selectedDate={selectedDate}
             onSelect={setSelectedDate}
-            assignedToMe={isDoctor}
+            assignedToMe={showAssigned}
           />
         </aside>
       </div>

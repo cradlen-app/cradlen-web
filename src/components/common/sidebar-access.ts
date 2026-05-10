@@ -1,6 +1,7 @@
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
-import type { UserRole } from "@/types/user.types";
+import { canUseSettings as canUseSettingsPerm } from "@/features/auth/lib/permissions";
+import type { UserProfile } from "@/types/user.types";
 
-export function canUseSettings(role: UserRole | undefined) {
-  return role === STAFF_ROLE.OWNER || role === STAFF_ROLE.DOCTOR;
+/** Whether the active profile may see the Settings link in the sidebar. */
+export function canUseSettings(profile: UserProfile | undefined) {
+  return canUseSettingsPerm(profile);
 }
