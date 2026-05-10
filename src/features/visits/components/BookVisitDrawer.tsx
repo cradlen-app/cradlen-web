@@ -92,7 +92,10 @@ export function BookVisitDrawer({
   const patientMode = useWatch({ control, name: "patientMode" });
   const assignedDoctorId = useWatch({ control, name: "assignedDoctorId" });
   const selectedDoctor = doctors.find((d) => d.id === assignedDoctorId);
-  const doctorHint = selectedDoctor?.specialty || selectedDoctor?.jobTitle || null;
+  const doctorHint =
+    selectedDoctor?.specialties?.map((s) => s.name).join(", ") ||
+    selectedDoctor?.jobFunctions?.map((j) => j.name).join(", ") ||
+    null;
 
   function handleSelectPatient(patient: Patient) {
     setSelectedPatient(patient);

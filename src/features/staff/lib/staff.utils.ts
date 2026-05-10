@@ -1,17 +1,15 @@
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import { STAFF_API_ROLE, type StaffApiRole } from "@/features/auth/lib/auth.constants";
 import type {
   ApiStaffBranchSchedule,
   ApiStaffDay,
   ApiStaffMember,
   ApiStaffRole,
   ApiStaffSchedule,
-  NewApiStaffMember,
 } from "../types/staff.api.types";
 import type {
   StaffFilter,
   StaffMember,
-  StaffRole,
-  StaffRoleFilter,
+  StaffRoleOption,
   StaffStatus,
 } from "../types/staff.types";
 
@@ -33,11 +31,12 @@ export function computeStaffStatus(
 ): StaffStatus {
   if (!schedule) return "notAvailable";
 
-  // Normalize both formats into a flat days array
-  const days: Array<{ day_of_week: ApiStaffDay["day_of_week"]; shifts: Array<{ start_time: string; end_time: string }> }> =
-    Array.isArray(schedule)
-      ? schedule.flatMap((b) => b.days)
-      : schedule.days ?? [];
+  const days: Array<{
+    day_of_week: ApiStaffDay["day_of_week"];
+    shifts: Array<{ start_time: string; end_time: string }>;
+  }> = Array.isArray(schedule)
+    ? schedule.flatMap((b) => b.days)
+    : (schedule.days ?? []);
 
   if (!days.length) return "notAvailable";
 
@@ -47,17 +46,17 @@ export function computeStaffStatus(
 
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  const inShift = todaySchedule.shifts.some((shift) => {
+  return todaySchedule.shifts.some((shift) => {
     const [sh, sm] = shift.start_time.split(":").map(Number);
     const [eh, em] = shift.end_time.split(":").map(Number);
     return currentMinutes >= sh * 60 + sm && currentMinutes < eh * 60 + em;
-  });
-
-  return inShift ? "available" : "notAvailable";
+  })
+    ? "available"
+    : "notAvailable";
 }
 
 function getDayName(dayCode: string, locale: string): string {
-  // Jan 4 2026 is a Sunday; offset by dayIndex gives the correct weekday date.
+  // Jan 4 2026 is a Sunday.
   const dayIndex = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].indexOf(dayCode);
   const date = new Date(2026, 0, 4 + dayIndex);
   return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
@@ -73,8 +72,11 @@ function formatTime(time: string, locale: string): string {
   }).format(date);
 }
 
-function formatBranchSchedule(schedule: ApiStaffBranchSchedule[], locale: string): string | undefined {
-  const days = schedule.flatMap((b) => b.days);
+function formatBranchSchedule(
+  schedule: ApiStaffBranchSchedule[] | undefined,
+  locale: string,
+): string | undefined {
+  const days = schedule?.flatMap((b) => b.days) ?? [];
   if (!days.length) return undefined;
   const sorted = [...days].sort(
     (a, b) =>
@@ -91,81 +93,51 @@ function formatBranchSchedule(schedule: ApiStaffBranchSchedule[], locale: string
     .join("\n");
 }
 
-function formatLegacySchedule(schedule: ApiStaffSchedule | undefined, locale: string): string | undefined {
-  if (!schedule?.days?.length) return undefined;
-  const sorted = [...schedule.days].sort(
-    (a: ApiStaffDay, b: ApiStaffDay) =>
-      DAY_ORDER.indexOf(a.day_of_week as never) -
-      DAY_ORDER.indexOf(b.day_of_week as never),
-  );
-  return sorted
-    .map((day) => {
-      const shifts = day.shifts
-        .map((s) => `${formatTime(s.start_time, locale)} - ${formatTime(s.end_time, locale)}`)
-        .join(", ");
-      return `${getDayName(day.day_of_week, locale)}: ${shifts}`;
-    })
-    .join("\n");
+const KNOWN_API_ROLES = new Set<string>(Object.values(STAFF_API_ROLE));
+
+export function normalizeApiRoleName(name?: string): StaffApiRole | "UNKNOWN" {
+  if (!name) return "UNKNOWN";
+  const upper = name.toUpperCase();
+  if (KNOWN_API_ROLES.has(upper)) return upper as StaffApiRole;
+  return "UNKNOWN";
 }
 
-export function normalizeApiRoleName(name?: string): StaffRole {
-  const normalized = name?.toLowerCase();
-  if (normalized === STAFF_ROLE.OWNER) return STAFF_ROLE.OWNER;
-  if (normalized === "receptionist" || normalized === STAFF_ROLE.RECEPTION) return STAFF_ROLE.RECEPTION;
-  if (normalized === STAFF_ROLE.DOCTOR) return STAFF_ROLE.DOCTOR;
-  return STAFF_ROLE.UNKNOWN;
-}
-
-// Maps the /organizations/:organizationId/staff response shape
-export function mapApiStaffToMember(api: NewApiStaffMember, locale: string): StaffMember {
-  const primaryRole = api.roles?.[0];
-  const role = normalizeApiRoleName(primaryRole?.name);
+export function mapApiStaffToMember(api: ApiStaffMember, locale: string): StaffMember {
+  const roles = (api.roles ?? []).map((r) => ({
+    id: r.id,
+    name: r.name,
+    role: normalizeApiRoleName(r.name),
+  }));
+  const primary = roles[0]?.role ?? "UNKNOWN";
+  const email = api.email;
+  const id = api.staff_id ?? api.profile_id ?? api.user_id ?? "";
 
   return {
-    id: api.profile_id,
-    roleId: primaryRole?.id,
+    id,
     firstName: api.first_name,
     lastName: api.last_name,
-    email: api.email,
-    handle: api.email
-      ? `@${api.email.split("@")[0]}`
-      : `@${api.user_id.slice(0, 8)}`,
-    role,
-    roles: api.roles?.map((r) => normalizeApiRoleName(r.name)) ?? [],
-    jobTitle: api.job_title ?? "",
-    specialty: api.specialty ?? "",
+    email,
+    handle: email
+      ? `@${email.split("@")[0]}`
+      : api.user_id
+        ? `@${api.user_id.slice(0, 8)}`
+        : "@",
     phone: api.phone_number ?? "-",
     status: computeStaffStatus(api.schedule),
-    schedule: api.schedule?.length
-      ? { days: api.schedule.flatMap((b) => b.days) as ApiStaffDay[] }
-      : undefined,
-    workSchedule: api.schedule?.length ? formatBranchSchedule(api.schedule, locale) : undefined,
+    role: primary,
+    roles,
+    branches: api.branches ?? [],
+    jobFunctions: api.job_functions ?? [],
+    specialties: api.specialties ?? [],
+    executiveTitle: api.executive_title ?? null,
+    engagementType: api.engagement_type ?? null,
+    schedule: api.schedule,
+    workSchedule: formatBranchSchedule(api.schedule, locale),
+    isClinical: (api.job_functions ?? []).some((fn) => fn.is_clinical),
   };
 }
 
-// Legacy mapper for old /staff/:id response shape (used by updateStaff/deactivateStaff)
-export function mapLegacyApiStaffToMember(api: ApiStaffMember, locale: string): StaffMember {
-  const legacySchedule = Array.isArray(api.schedule) ? undefined : (api.schedule as ApiStaffSchedule | undefined);
-  return {
-    id: api.id ?? api.profile_id,
-    roleId: api.role_id ?? api.roles?.[0]?.id,
-    firstName: api.user?.first_name ?? api.first_name,
-    lastName: api.user?.last_name ?? api.last_name,
-    email: api.user?.email ?? api.email,
-    handle: (api.user?.email ?? api.email)
-      ? `@${(api.user?.email ?? api.email)!.split("@")[0]}`
-      : `@${api.user_id.slice(0, 8)}`,
-    role: normalizeApiRoleName(api.role?.name ?? api.roles?.[0]?.name),
-    jobTitle: api.job_title ?? "",
-    specialty: api.specialty ?? "",
-    phone: api.user?.phone_number ?? api.user?.phone ?? api.phone_number ?? "-",
-    status: computeStaffStatus(legacySchedule),
-    schedule: legacySchedule,
-    workSchedule: formatLegacySchedule(legacySchedule, locale),
-  };
-}
-
-export function mapApiRoleToFilter(role: ApiStaffRole): StaffRoleFilter {
+export function mapApiRoleToFilter(role: ApiStaffRole): StaffRoleOption {
   return {
     id: role.id,
     name: role.name,
@@ -188,28 +160,34 @@ export function getStaffInitials(name: string) {
     .join("");
 }
 
-export function getRoleTranslationKey(role: StaffRole) {
-  return `roles.${role}` as const;
+export function getRoleTranslationKey(role: StaffApiRole | "UNKNOWN") {
+  return `apiRoles.${role}` as const;
 }
 
 export function matchesStaffFilter(member: StaffMember, filter: StaffFilter) {
-  return filter === "all" || member.roleId === filter || member.role === filter;
+  if (filter === "all") return true;
+  return member.roles.some((r) => r.role === filter);
 }
 
 export function matchesStaffSearch(member: StaffMember, search: string) {
   const query = search.trim().toLowerCase();
+  if (!query) return true;
 
-  if (!query) {
-    return true;
-  }
-
-  return [
+  const haystacks: string[] = [
     getStaffFullName(member),
     member.handle,
-    member.jobTitle,
-    member.specialty,
     member.phone,
-  ]
-    .filter(Boolean)
-    .some((value) => value.toLowerCase().includes(query));
+    ...member.specialties.map((s) => s.name),
+    ...member.jobFunctions.map((j) => j.name),
+  ].filter(Boolean);
+
+  return haystacks.some((value) => value.toLowerCase().includes(query));
+}
+
+export function getStaffJobFunctionsLabel(member: StaffMember): string {
+  return member.jobFunctions.map((fn) => fn.name).join(", ");
+}
+
+export function getStaffSpecialtiesLabel(member: StaffMember): string {
+  return member.specialties.map((s) => s.name).join(", ");
 }

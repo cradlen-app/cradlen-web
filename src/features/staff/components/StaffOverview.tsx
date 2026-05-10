@@ -1,9 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Pencil, ShieldCheck, UserX } from "lucide-react";
+import { LogOut, Pencil, ShieldCheck, UserX } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { getRoleTranslationKey, getStaffFullName } from "../lib/staff.utils";
+import {
+  getRoleTranslationKey,
+  getStaffFullName,
+  getStaffJobFunctionsLabel,
+  getStaffSpecialtiesLabel,
+} from "../lib/staff.utils";
 import type { StaffMember } from "../types/staff.types";
 import { StaffStatusBadge } from "./StaffStatusBadge";
 
@@ -27,13 +32,27 @@ function DetailRow({ label, value }: RowProps) {
 
 type Props = {
   canManage?: boolean;
+  /** Only OWNER may delete an entire staff profile. */
+  canDelete?: boolean;
+  /** When set, shows a "Remove from this branch" action. */
+  currentBranchId?: string;
   currentUserStaffId?: string;
   member: StaffMember | null;
   onDeactivate?: (member: StaffMember) => void;
   onEdit?: (member: StaffMember) => void;
+  onUnassignFromBranch?: (member: StaffMember) => void;
 };
 
-export function StaffOverview({ canManage, currentUserStaffId, member, onDeactivate, onEdit }: Props) {
+export function StaffOverview({
+  canManage,
+  canDelete,
+  currentBranchId,
+  currentUserStaffId,
+  member,
+  onDeactivate,
+  onEdit,
+  onUnassignFromBranch,
+}: Props) {
   const t = useTranslations("staff.overview");
   const staffT = useTranslations("staff");
 
@@ -41,10 +60,7 @@ export function StaffOverview({ canManage, currentUserStaffId, member, onDeactiv
     return (
       <div className="w-64 shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3 py-10">
         <span className="size-12 rounded-full bg-brand-primary/8 flex items-center justify-center">
-          <ShieldCheck
-            className="size-5 text-brand-primary/40"
-            strokeWidth={1.5}
-          />
+          <ShieldCheck className="size-5 text-brand-primary/40" strokeWidth={1.5} />
         </span>
         <p className="text-sm text-gray-400">{t("title")}</p>
       </div>
@@ -53,6 +69,13 @@ export function StaffOverview({ canManage, currentUserStaffId, member, onDeactiv
 
   const fullName = getStaffFullName(member);
   const isSelf = !!currentUserStaffId && member.id === currentUserStaffId;
+  const showDelete = canManage && canDelete && !isSelf;
+  const memberAssignedToCurrentBranch =
+    !!currentBranchId && member.branches.some((b) => b.id === currentBranchId);
+  const showUnassign =
+    canManage && !isSelf && !!onUnassignFromBranch && memberAssignedToCurrentBranch;
+  const jobFunctionsLabel = getStaffJobFunctionsLabel(member);
+  const specialtiesLabel = getStaffSpecialtiesLabel(member);
 
   return (
     <aside className="w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:w-72">
@@ -65,9 +88,12 @@ export function StaffOverview({ canManage, currentUserStaffId, member, onDeactiv
         <span className="pointer-events-none absolute -bottom-10 -left-8 size-36 rounded-full bg-white/5" />
 
         <div className="text-center z-10">
-          <p className="text-sm font-semibold text-white leading-tight">
-            {fullName}
-          </p>
+          <p className="text-sm font-semibold text-white leading-tight">{fullName}</p>
+          {member.executiveTitle && (
+            <p className="text-[11px] font-medium uppercase tracking-wide text-white/80">
+              {member.executiveTitle}
+            </p>
+          )}
           <p className="text-xs text-white/55 mt-0.5">{member.handle}</p>
         </div>
 
@@ -85,12 +111,24 @@ export function StaffOverview({ canManage, currentUserStaffId, member, onDeactiv
             >
               <Pencil className="size-4" aria-hidden="true" />
             </button>
-            {!isSelf && (
+            {showUnassign && (
+              <button
+                type="button"
+                onClick={() => onUnassignFromBranch?.(member)}
+                className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-amber-50 hover:text-amber-600"
+                aria-label={t("actions.unassign")}
+                title={t("actions.unassign")}
+              >
+                <LogOut className="size-4" aria-hidden="true" />
+              </button>
+            )}
+            {showDelete && (
               <button
                 type="button"
                 onClick={() => onDeactivate?.(member)}
                 className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                 aria-label={t("actions.deactivate")}
+                title={t("actions.deactivate")}
               >
                 <UserX className="size-4" aria-hidden="true" />
               </button>
@@ -101,12 +139,18 @@ export function StaffOverview({ canManage, currentUserStaffId, member, onDeactiv
           label={t("role")}
           value={staffT(getRoleTranslationKey(member.role))}
         />
-        <DetailRow label={t("jobTitle")} value={member.jobTitle} />
-        <DetailRow label={t("specialty")} value={member.specialty || "-"} />
-        <DetailRow label={t("phoneNumber")} value={member.phone} />
-        {member.address && (
-          <DetailRow label={t("address")} value={member.address} />
+        {member.engagementType && (
+          <DetailRow
+            label={t("engagement")}
+            value={staffT(`engagementTypes.${member.engagementType}`)}
+          />
         )}
+        <DetailRow
+          label={t("jobFunctions")}
+          value={jobFunctionsLabel || "-"}
+        />
+        <DetailRow label={t("specialty")} value={specialtiesLabel || "-"} />
+        <DetailRow label={t("phoneNumber")} value={member.phone} />
         {member.workSchedule && (
           <DetailRow
             label={t("workSchedule")}

@@ -2,9 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
-import { fetchAllStaff, fetchStaffMember } from "../lib/staff.api";
-import { mapApiStaffToMember, mapLegacyApiStaffToMember } from "../lib/staff.utils";
-import type { ApiStaffMember, StaffMemberResponse } from "../types/staff.api.types";
+import { fetchAllStaff } from "../lib/staff.api";
+import { mapApiStaffToMember } from "../lib/staff.utils";
 import { queryKeys } from "@/lib/queryKeys";
 
 type UseStaffOptions = {
@@ -12,18 +11,19 @@ type UseStaffOptions = {
   roleId?: string;
   branchId?: string;
   role?: string;
+  scope?: "org" | "mine";
 };
 
 export function useStaff(
   organizationId: string | undefined,
   _legacyBranchId: string | undefined,
-  { q, roleId, branchId, role }: UseStaffOptions = {},
+  { q, roleId, branchId, role, scope }: UseStaffOptions = {},
 ) {
   const locale = useLocale();
   return useQuery({
-    queryKey: queryKeys.staff.list(organizationId ?? "", { q, roleId, branchId, role }),
+    queryKey: queryKeys.staff.list(organizationId ?? "", { q, roleId, branchId, role, scope }),
     queryFn: async () => {
-      const staff = await fetchAllStaff(organizationId!, { q, roleId, branchId, role });
+      const staff = await fetchAllStaff(organizationId!, { q, roleId, branchId, role, scope });
       return staff.map((member) => mapApiStaffToMember(member, locale));
     },
     enabled: !!organizationId,
@@ -31,29 +31,18 @@ export function useStaff(
   });
 }
 
-function unwrapStaffMember(response: StaffMemberResponse): ApiStaffMember {
-  return ("data" in response ? response.data : response) as ApiStaffMember;
-}
-
+/**
+ * Backend has no singular `GET /staff/:id` — detail is derived from the cached list.
+ * Returns undefined while the list is loading, otherwise the matching member.
+ */
 export function useStaffMember(
   organizationId: string | undefined,
   branchId: string | undefined,
   staffId: string | null,
 ) {
-  const locale = useLocale();
-  return useQuery({
-    queryKey: queryKeys.staff.detail(organizationId ?? "", branchId ?? "", staffId ?? ""),
-    queryFn: async () =>
-      mapLegacyApiStaffToMember(
-        unwrapStaffMember(
-          await fetchStaffMember(staffId!, {
-            branchId: branchId!,
-            organizationId: organizationId!,
-          }),
-        ),
-        locale,
-      ),
-    enabled: !!organizationId && !!branchId && !!staffId,
-    staleTime: 60 * 1000,
-  });
+  const list = useStaff(organizationId, branchId);
+  return {
+    ...list,
+    data: staffId ? list.data?.find((m) => m.id === staffId) : undefined,
+  };
 }

@@ -1,6 +1,11 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { getRoleTranslationKey, getStaffFullName } from "../lib/staff.utils";
+import {
+  getRoleTranslationKey,
+  getStaffFullName,
+  getStaffJobFunctionsLabel,
+  getStaffSpecialtiesLabel,
+} from "../lib/staff.utils";
 import type { StaffMember } from "../types/staff.types";
 import { StaffAvatar } from "./StaffAvatar";
 import { StaffStatusBadge } from "./StaffStatusBadge";
@@ -42,6 +47,11 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
         <tbody>
           {members.map((member) => {
             const fullName = getStaffFullName(member);
+            const jobFunctionsLabel = getStaffJobFunctionsLabel(member);
+            const specialtiesLabel = getStaffSpecialtiesLabel(member);
+            const rolesLabel = (member.roles.length ? member.roles : [{ role: member.role }])
+              .map((r) => t(getRoleTranslationKey(r.role)))
+              .join(", ");
 
             return (
               <tr
@@ -50,9 +60,7 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
                 aria-selected={selectedId === member.id}
                 className={cn(
                   "cursor-pointer border-b border-gray-50 transition-colors last:border-0",
-                  selectedId === member.id
-                    ? "bg-brand-primary/5"
-                    : "hover:bg-gray-50",
+                  selectedId === member.id ? "bg-brand-primary/5" : "hover:bg-gray-50",
                 )}
               >
                 <td className="py-3 pe-4">
@@ -61,6 +69,11 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
                     <div className="flex min-w-0 flex-col leading-tight">
                       <span className="truncate text-brand-black">
                         {fullName}
+                        {member.executiveTitle && (
+                          <span className="ms-1.5 rounded-full bg-brand-primary/8 px-1.5 py-0.5 text-[10px] font-medium uppercase text-brand-primary">
+                            {member.executiveTitle}
+                          </span>
+                        )}
                       </span>
                       <span className="truncate text-xs font-thin text-gray-400">
                         {member.handle}
@@ -70,19 +83,15 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
                 </td>
                 <td className="py-3 pe-4">
                   <div className="flex flex-col leading-tight">
-                    <span className="text-brand-black">
-                      {(member.roles?.length ? member.roles : [member.role])
-                        .map((r) => t(getRoleTranslationKey(r)))
-                        .join(", ")}
-                    </span>
-                    <span className="text-xs font-thin italic text-gray-400">
-                      {member.jobTitle}
-                    </span>
+                    <span className="text-brand-black">{rolesLabel}</span>
+                    {jobFunctionsLabel && (
+                      <span className="text-xs font-thin italic text-gray-400">
+                        {jobFunctionsLabel}
+                      </span>
+                    )}
                   </div>
                 </td>
-                <td className="py-3 pe-4 text-brand-black">
-                  {member.specialty || "-"}
-                </td>
+                <td className="py-3 pe-4 text-brand-black">{specialtiesLabel || "-"}</td>
                 <td className="py-3 pe-4 text-brand-black">{member.phone}</td>
                 <td className="py-3">
                   <StaffStatusBadge status={member.status} />

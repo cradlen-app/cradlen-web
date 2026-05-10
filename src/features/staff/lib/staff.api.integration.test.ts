@@ -6,9 +6,9 @@ import {
   deleteStaffInvitation,
   fetchStaff,
   fetchStaffInvitation,
-  fetchStaffMember,
   fetchStaffInvitations,
   resendStaffInvitation,
+  unassignStaffFromBranch,
   updateStaff,
 } from "./staff.api";
 
@@ -30,51 +30,49 @@ describe("staff api helpers", () => {
       limit: 25,
       q: "cardio",
       roleId: "role-1",
+      scope: "mine",
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/organizations/org-1/staff?page=2&limit=25&q=cardio&role_id=role-1",
+      "/organizations/org-1/staff?page=2&limit=25&q=cardio&role_id=role-1&scope=mine",
     );
   });
 
-  it("omits all-status invitation filters and uses organization-scoped path", async () => {
-    await fetchStaffInvitations({
-      organizationId: "org-1",
-      status: "all",
-    });
+  it("does not send a status query param to invitations list", async () => {
+    await fetchStaffInvitations({ organizationId: "org-1" });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
       "/organizations/org-1/invitations?page=1&limit=100",
     );
   });
 
-  it("calls staff detail and management endpoints", async () => {
-    const scope = { organizationId: "org-1", branchId: "branch-1" };
-
-    await fetchStaffMember("staff-1", scope);
-    await updateStaff(
-      "staff-1",
-      {
-        first_name: "Mona",
-        last_name: "Amin",
-        phone_number: "+201000000000",
-      },
-      scope,
-    );
-    await deactivateStaff("staff-1", scope);
+  it("calls staff management endpoints with the new payload shape", async () => {
+    await updateStaff("org-1", "staff-1", {
+      first_name: "Mona",
+      last_name: "Amin",
+      phone_number: "+201000000000",
+      job_function_codes: ["NURSE"],
+      specialty_codes: ["OBGYN"],
+      executive_title: "COO",
+      engagement_type: "FULL_TIME",
+      branch_ids: ["branch-1"],
+    });
+    await deactivateStaff("org-1", "staff-1");
+    await unassignStaffFromBranch("org-1", "staff-1", "branch-2");
 
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       1,
-      "/staff/staff-1?organization_id=org-1&branch_id=branch-1",
-    );
-    expect(apiAuthFetch).toHaveBeenNthCalledWith(
-      2,
       "/organizations/org-1/staff/staff-1",
       expect.objectContaining({ method: "PATCH" }),
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
-      3,
+      2,
       "/organizations/org-1/staff/staff-1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      3,
+      "/organizations/org-1/staff/staff-1/branches/branch-2",
       expect.objectContaining({ method: "DELETE" }),
     );
   });

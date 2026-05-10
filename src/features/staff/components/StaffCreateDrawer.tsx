@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -13,7 +13,13 @@ import {
   useWatch,
 } from "react-hook-form";
 import { toast } from "sonner";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
+import {
+  DEFAULT_ENGAGEMENT_TYPE,
+  STAFF_API_ROLE,
+  type StaffApiRole,
+} from "@/features/auth/lib/auth.constants";
+import { canEditStaffRoles } from "@/features/auth/lib/permissions";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useCreateStaffDirect } from "../hooks/useCreateStaffDirect";
@@ -21,15 +27,21 @@ import { useInviteStaff } from "../hooks/useInviteStaff";
 import { useUpdateStaff } from "../hooks/useManageStaff";
 import { useStaffRoles } from "../hooks/useStaffRoles";
 import {
+  useJobFunctions,
+  useOrgBranches,
+  useSpecialties,
+} from "../hooks/useStaffLookups";
+import {
   getDefaultStaffCreateDirectValues,
   getDefaultStaffInviteValues,
+  splitStaffName,
   staffCreateDirectSchema,
   staffEditSchema,
   staffInviteSchema,
-  splitStaffName,
   type StaffCreateDirectFormValues,
   type StaffInviteFormValues,
 } from "../lib/staff-invite.schemas";
+import type { ApiStaffBranchSchedule } from "../types/staff.api.types";
 import type { StaffMember } from "../types/staff.types";
 import DirectCreationSuccessModal from "./DirectCreationSuccessModal";
 import ScheduleShiftsSection from "./ScheduleShiftsSection";
@@ -39,6 +51,7 @@ type AnyFormValues = StaffInviteFormValues | StaffCreateDirectFormValues;
 
 type StaffCreateDrawerProps = {
   branchId?: string;
+  /** @deprecated kept for caller compatibility — multi-branch picker uses lookup. */
   branchName?: string;
   member?: StaffMember | null;
   method?: "invite" | "direct";
@@ -49,55 +62,41 @@ type StaffCreateDrawerProps = {
   organizationName?: string;
 };
 
-type InviteFieldName =
-  | "email"
-  | "jobTitle"
-  | "name"
-  | "phone"
-  | "roleId"
-  | "shifts"
-  | "specialty";
+type FieldName = "email" | "name" | "phone" | "roleId" | "shifts";
 
-function getInviteErrorField(message: string): InviteFieldName | null {
-  const normalized = message.toLowerCase();
-  if (normalized.includes("email")) return "email";
-  if (normalized.includes("first_name") || normalized.includes("last_name"))
-    return "name";
-  if (normalized.includes("role_id")) return "roleId";
-  if (normalized.includes("job_title")) return "jobTitle";
-  if (normalized.includes("specialty")) return "specialty";
-  if (normalized.includes("phone")) return "phone";
-  if (
-    normalized.includes("branch") ||
-    normalized.includes("schedule") ||
-    normalized.includes("shift")
-  )
-    return "shifts";
+function getInviteErrorField(message: string): FieldName | null {
+  const m = message.toLowerCase();
+  if (m.includes("email")) return "email";
+  if (m.includes("first_name") || m.includes("last_name")) return "name";
+  if (m.includes("role_id")) return "roleId";
+  if (m.includes("phone")) return "phone";
+  if (m.includes("schedule") || m.includes("shift")) return "shifts";
   return null;
 }
 
-function getStaffFormValues(
+function getDefaultsForMember(
   member: StaffMember | null | undefined,
+  branchIds: string[],
 ): StaffInviteFormValues {
-  const defaults = getDefaultStaffInviteValues();
+  const defaults = getDefaultStaffInviteValues(branchIds);
   if (!member) return defaults;
 
+  const memberBranchIds = member.branches.map((b) => b.id);
   return {
     ...defaults,
     email: member.email ?? "",
-    isClinical:
-      member.roles?.includes(STAFF_ROLE.DOCTOR) ??
-      member.role === STAFF_ROLE.DOCTOR,
-    jobTitle: member.jobTitle,
     name: [member.firstName, member.lastName].filter(Boolean).join(" "),
     phone: member.phone === "-" ? "" : member.phone,
-    role: member.role === STAFF_ROLE.UNKNOWN ? STAFF_ROLE.DOCTOR : member.role,
-    roleId: member.roleId ?? "",
-    specialty: member.specialty,
+    roleId: member.roles[0]?.id ?? "",
+    branchIds: memberBranchIds.length ? memberBranchIds : branchIds,
+    jobFunctionCodes: member.jobFunctions.map((fn) => fn.code),
+    specialtyCodes: member.specialties.map((s) => s.code),
+    executiveTitle: member.executiveTitle ?? null,
+    engagementType: member.engagementType ?? DEFAULT_ENGAGEMENT_TYPE,
     shifts: defaults.shifts.map((shift) => {
-      const day = member.schedule?.days.find(
-        (d) => d.day_of_week === shift.day,
-      );
+      const day = member.schedule
+        ?.flatMap((b) => b.days)
+        .find((d) => d.day_of_week === shift.day);
       const firstShift = day?.shifts[0];
       return {
         ...shift,
@@ -111,7 +110,6 @@ function getStaffFormValues(
 
 export function StaffCreateDrawer({
   branchId,
-  branchName,
   member,
   method = "invite",
   mode = "create",
@@ -124,28 +122,56 @@ export function StaffCreateDrawer({
   const inviteStaff = useInviteStaff();
   const createDirect = useCreateStaffDirect();
   const updateStaff = useUpdateStaff();
+  const { activeProfile, isOwner: callerIsOwner } = useUserProfileContext();
+  const ownerCanEditRoles = canEditStaffRoles(activeProfile);
+
   const { data: roleFilters = [] } = useStaffRoles(organizationId);
+  const { data: jobFunctionOptions = [] } = useJobFunctions();
+  const { data: specialtyOptions = [] } = useSpecialties();
+  const { data: branchListResponse } = useOrgBranches(organizationId);
+  const branchOptions = useMemo(
+    () => branchListResponse?.data ?? [],
+    [branchListResponse],
+  );
+
+  /**
+   * Branches the caller is allowed to assign. Backend treats branch_ids as a
+   * replace, so a BRANCH_MANAGER may only add/remove branches within their own
+   * scope. OWNER has no scope restriction (empty set means "all").
+   */
+  const callerBranchIds = useMemo(
+    () =>
+      callerIsOwner
+        ? new Set<string>()
+        : new Set((activeProfile?.branches ?? []).map((b) => b.id ?? b.branch_id ?? "")),
+    [callerIsOwner, activeProfile],
+  );
+
   const [formError, setFormError] = useState<string | null>(null);
-  const [generatedEmail, setGeneratedEmail] = useState<string | null>(null);
+  const [successCredentials, setSuccessCredentials] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
   const isEditMode = mode === "edit";
   const isDirectMode = !isEditMode && method === "direct";
+  const initialBranchIds = useMemo(
+    () => (branchId ? [branchId] : []),
+    [branchId],
+  );
 
-  // Invite / edit form
   const inviteForm = useForm<StaffInviteFormValues>({
-    defaultValues: getStaffFormValues(isEditMode ? member : null),
+    defaultValues: getDefaultStaffInviteValues(initialBranchIds),
     resolver: zodResolver(isEditMode ? staffEditSchema : staffInviteSchema),
   });
 
-  // Direct creation form
   const directForm = useForm<StaffCreateDirectFormValues>({
-    defaultValues: getDefaultStaffCreateDirectValues(),
+    defaultValues: getDefaultStaffCreateDirectValues(initialBranchIds),
     resolver: zodResolver(staffCreateDirectSchema),
   });
 
   const activeForm = isDirectMode ? directForm : inviteForm;
-  // Cast through unknown: both forms share all base fields; the extra `password` field in direct
-  // mode is accessed safely via explicit cast in the submit handler.
   const {
     formState: { errors },
     handleSubmit,
@@ -153,27 +179,41 @@ export function StaffCreateDrawer({
     setError,
     setValue,
     control,
-  } = activeForm as unknown as ReturnType<
-    typeof useForm<StaffInviteFormValues>
-  >;
+  } = activeForm as unknown as ReturnType<typeof useForm<StaffInviteFormValues>>;
 
-  const selectedRole = useWatch({ control, name: "role" });
-  const isClinical = useWatch({ control, name: "isClinical" });
+  const selectedRoleId = useWatch({ control, name: "roleId" }) ?? "";
+  const jobFunctionCodes = useWatch({ control, name: "jobFunctionCodes" }) ?? [];
+  const specialtyCodes = useWatch({ control, name: "specialtyCodes" }) ?? [];
+  const selectedBranchIds = useWatch({ control, name: "branchIds" }) ?? [];
+  const engagementType =
+    useWatch({ control, name: "engagementType" }) ?? DEFAULT_ENGAGEMENT_TYPE;
+  const executiveTitle = useWatch({ control, name: "executiveTitle" });
   const shifts = useWatch({ control, name: "shifts" });
-  const showOwnerClinical = selectedRole === STAFF_ROLE.OWNER;
-  const showSpecialty =
-    selectedRole === STAFF_ROLE.DOCTOR ||
-    (selectedRole === STAFF_ROLE.OWNER && isClinical);
+
+  // Roles a non-OWNER may not assign.
+  const assignableRoles = useMemo<Set<StaffApiRole>>(() => {
+    if (ownerCanEditRoles) {
+      // OWNER can assign anything except OWNER itself (backend rejects 400).
+      return new Set([
+        STAFF_API_ROLE.BRANCH_MANAGER,
+        STAFF_API_ROLE.STAFF,
+        STAFF_API_ROLE.EXTERNAL,
+      ]);
+    }
+    return new Set([STAFF_API_ROLE.STAFF, STAFF_API_ROLE.EXTERNAL]);
+  }, [ownerCanEditRoles]);
+
+  const hideRolePicker = isEditMode && !ownerCanEditRoles;
 
   useEffect(() => {
     if (isEditMode) {
-      inviteForm.reset(getStaffFormValues(member));
+      inviteForm.reset(getDefaultsForMember(member, initialBranchIds));
     } else if (isDirectMode) {
-      directForm.reset(getDefaultStaffCreateDirectValues());
+      directForm.reset(getDefaultStaffCreateDirectValues(initialBranchIds));
     } else {
-      inviteForm.reset(getDefaultStaffInviteValues());
+      inviteForm.reset(getDefaultStaffInviteValues(initialBranchIds));
     }
-  }, [open, method, mode, member]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, method, mode, member, initialBranchIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -183,36 +223,16 @@ export function StaffCreateDrawer({
     onOpenChange(nextOpen);
   };
 
-  const handleRoleChange = (roleId: string) => {
-    const selected = roleFilters.find((role) => role.id === roleId);
-    const selectedRoleValue =
-      !selected || selected.role === STAFF_ROLE.UNKNOWN
-        ? STAFF_ROLE.DOCTOR
-        : selected.role;
-
-    setValue("roleId", roleId, { shouldDirty: true, shouldValidate: true });
-    setValue("role", selectedRoleValue, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-
-    if (selectedRoleValue !== STAFF_ROLE.OWNER) {
-      setValue("isClinical", false, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
-    if (selectedRoleValue === STAFF_ROLE.RECEPTION) {
-      setValue("specialty", "", { shouldDirty: true, shouldValidate: true });
-    }
-  };
-
-  const enabledShifts = (shifts ?? [])
-    .filter((s) => s.enabled)
-    .map((s) => ({
-      day_of_week: s.day,
-      shifts: [{ start_time: s.startTime, end_time: s.endTime }],
-    }));
+  const enabledSchedule: ApiStaffBranchSchedule[] = useMemo(() => {
+    if (!branchId || !shifts) return [];
+    const days = shifts
+      .filter((s) => s.enabled)
+      .map((s) => ({
+        day_of_week: s.day,
+        shifts: [{ start_time: s.startTime, end_time: s.endTime }],
+      }));
+    return days.length ? [{ branch_id: branchId, days }] : [];
+  }, [branchId, shifts]);
 
   const onSubmit = handleSubmit(
     async (values) => {
@@ -232,79 +252,83 @@ export function StaffCreateDrawer({
             return;
           }
 
+          if (values.branchIds.length === 0) {
+            toast.error(t("errors.atLeastOneBranch"));
+            return;
+          }
+
           await updateStaff.mutateAsync({
-            branchId,
+            organizationId,
+            staffId: member.id,
             data: {
               first_name: firstName,
               last_name: lastName,
               ...(values.phone ? { phone_number: values.phone } : {}),
-              role_ids: [values.roleId],
-              branch_ids: [branchId],
-              job_title: values.jobTitle,
-              ...(showSpecialty && values.specialty
-                ? { specialty: values.specialty }
+              ...(ownerCanEditRoles && values.roleId
+                ? { role_ids: [values.roleId] }
                 : {}),
+              branch_ids: values.branchIds,
+              job_function_codes: values.jobFunctionCodes,
+              specialty_codes: values.specialtyCodes,
+              executive_title: values.executiveTitle ?? null,
+              engagement_type: values.engagementType,
             },
-            organizationId,
-            staffId: member.id,
           });
 
           toast.success(t("edit.success"));
           onOpenChange(false);
-          inviteForm.reset(getDefaultStaffInviteValues());
           return;
         }
 
         if (isDirectMode) {
           const directValues = values as unknown as StaffCreateDirectFormValues;
           const result = await createDirect.mutateAsync({
-            organizationId: organizationId,
+            organizationId,
             data: {
               first_name: firstName,
               last_name: lastName,
               phone_number: directValues.phone,
               password: directValues.password,
               role_ids: [directValues.roleId],
-              branch_ids: [branchId],
-              job_title: directValues.jobTitle || undefined,
-              ...(showSpecialty && directValues.specialty
-                ? { specialty: directValues.specialty }
-                : {}),
-              is_clinical: directValues.isClinical || undefined,
-              ...(enabledShifts.length > 0
-                ? { schedule: [{ branch_id: branchId, days: enabledShifts }] }
-                : {}),
+              branch_ids: directValues.branchIds,
+              job_function_codes: directValues.jobFunctionCodes,
+              specialty_codes: directValues.specialtyCodes,
+              executive_title: directValues.executiveTitle ?? null,
+              engagement_type: directValues.engagementType,
+              ...(enabledSchedule.length ? { schedule: enabledSchedule } : {}),
             },
           });
 
           onOpenChange(false);
-          directForm.reset(getDefaultStaffCreateDirectValues());
-          setGeneratedEmail(result.data.generated_email);
+          directForm.reset(getDefaultStaffCreateDirectValues(initialBranchIds));
+          setSuccessCredentials({
+            email: result.data.generated_email,
+            password: directValues.password,
+          });
           return;
         }
 
         // Invite by email
         const inviteValues = values as StaffInviteFormValues;
         await inviteStaff.mutateAsync({
-          organizationId: organizationId,
+          organizationId,
           data: {
+            email: inviteValues.email,
             first_name: firstName,
             last_name: lastName,
-            email: inviteValues.email,
-            role_ids: [inviteValues.roleId],
-            branch_ids: [branchId],
             ...(inviteValues.phone ? { phone_number: inviteValues.phone } : {}),
-            job_title: inviteValues.jobTitle || undefined,
-            ...(showSpecialty && inviteValues.specialty
-              ? { specialty: inviteValues.specialty }
-              : {}),
-            is_clinical: inviteValues.isClinical || undefined,
+            role_ids: [inviteValues.roleId],
+            branch_ids: inviteValues.branchIds,
+            job_function_codes: inviteValues.jobFunctionCodes,
+            specialty_codes: inviteValues.specialtyCodes,
+            executive_title: inviteValues.executiveTitle ?? null,
+            engagement_type: inviteValues.engagementType,
           },
         });
 
         toast.success(t("success"));
         onOpenChange(false);
-        inviteForm.reset(getDefaultStaffInviteValues());
+        inviteForm.reset(getDefaultStaffInviteValues(initialBranchIds));
       } catch (error) {
         if (error instanceof ApiError) {
           if (
@@ -314,21 +338,20 @@ export function StaffCreateDrawer({
             )
           ) {
             const message = t("errors.pendingInvitation");
-            if (!isDirectMode)
-              setError("email" as never, { type: "server", message });
+            if (!isDirectMode) setError("email" as never, { type: "server", message });
             toast.error(message);
             return;
           }
 
           if (error.status === 400) {
-            let didSetFieldError = false;
-            error.messages.forEach((message) => {
-              const field = getInviteErrorField(message);
+            let didSet = false;
+            error.messages.forEach((m) => {
+              const field = getInviteErrorField(m);
               if (!field) return;
-              didSetFieldError = true;
-              setError(field as never, { type: "server", message });
+              didSet = true;
+              setError(field as never, { type: "server", message: m });
             });
-            if (didSetFieldError) {
+            if (didSet) {
               setFormError(t("errors.reviewFields"));
               toast.error(t("errors.reviewFields"));
               return;
@@ -385,10 +408,7 @@ export function StaffCreateDrawer({
               </Dialog.Close>
             </div>
 
-            <form
-              onSubmit={onSubmit}
-              className="mt-6 flex min-h-0 flex-1 flex-col"
-            >
+            <form onSubmit={onSubmit} className="mt-6 flex min-h-0 flex-1 flex-col">
               <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pe-1">
                 {formError && (
                   <div className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600">
@@ -396,36 +416,18 @@ export function StaffCreateDrawer({
                   </div>
                 )}
 
-                {/* Organization & Branch */}
                 <section className="space-y-3">
                   <div className="flex items-center gap-4">
                     <p className="shrink-0 text-xs font-medium text-gray-400">
-                      {t("organizationAndBranch")}
+                      {t("organization")}
                     </p>
                     <span className="h-px flex-1 bg-gray-300" />
                   </div>
-                  <div className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
-                    <label className="block">
-                      <span className="text-xs font-medium text-brand-black">
-                        {t("organization")}
-                      </span>
-                      <input
-                        className="h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-gray-500 outline-none"
-                        readOnly
-                        value={organizationName ?? ""}
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-xs font-medium text-brand-black">
-                        {t("branch")}
-                      </span>
-                      <input
-                        className="h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-gray-500 outline-none"
-                        readOnly
-                        value={branchName ?? ""}
-                      />
-                    </label>
-                  </div>
+                  <input
+                    className="h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-gray-500 outline-none"
+                    readOnly
+                    value={organizationName ?? ""}
+                  />
                 </section>
 
                 <StaffFormFields
@@ -434,12 +436,21 @@ export function StaffCreateDrawer({
                   isEditMode={isEditMode}
                   member={member}
                   register={register as UseFormRegister<AnyFormValues>}
+                  setValue={setValue as never}
                   roles={roleFilters}
-                  selectedRole={selectedRole}
-                  showOwnerClinical={showOwnerClinical}
+                  assignableRoles={assignableRoles}
+                  selectedRoleId={selectedRoleId}
+                  selectedJobFunctionCodes={jobFunctionCodes}
+                  selectedSpecialtyCodes={specialtyCodes}
+                  selectedEngagementType={engagementType}
+                  selectedExecutiveTitle={executiveTitle ?? null}
+                  jobFunctionOptions={jobFunctionOptions}
+                  specialtyOptions={specialtyOptions}
+                  branchOptions={branchOptions}
+                  selectedBranchIds={selectedBranchIds}
+                  assignableBranchIds={callerBranchIds}
                   showPassword={showPassword}
-                  showSpecialty={showSpecialty}
-                  onRoleChange={handleRoleChange}
+                  hideRolePicker={hideRolePicker}
                   onTogglePassword={() => setShowPassword((v) => !v)}
                 />
 
@@ -478,8 +489,8 @@ export function StaffCreateDrawer({
       </Dialog.Root>
 
       <DirectCreationSuccessModal
-        email={generatedEmail}
-        onClose={() => setGeneratedEmail(null)}
+        credentials={successCredentials}
+        onClose={() => setSuccessCredentials(null)}
       />
     </>
   );

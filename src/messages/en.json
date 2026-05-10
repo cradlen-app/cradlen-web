@@ -64,6 +64,24 @@
       "reception": "Reception",
       "unknown": "Unknown"
     },
+    "apiRoles": {
+      "OWNER": "Owner",
+      "BRANCH_MANAGER": "Branch Manager",
+      "STAFF": "Staff",
+      "EXTERNAL": "External",
+      "UNKNOWN": "Unknown"
+    },
+    "engagementTypes": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "ON_DEMAND": "On-demand",
+      "EXTERNAL_CONSULTANT": "External Consultant"
+    },
+    "scope": {
+      "org": "Whole org",
+      "mine": "My branches"
+    },
+    "forbidden": "You don't have permission to view staff.",
     "columns": {
       "name": "Name",
       "role": "Role",
@@ -113,14 +131,67 @@
         "invite": "Invite by Email",
         "inviteHint": "Send an invitation link via email",
         "direct": "Create Directly",
-        "directHint": "Set up account with phone & password"
+        "directHint": "Set up account with phone & password",
+        "bulk": "Bulk invite",
+        "bulkHint": "Invite up to 100 people at once"
+      },
+      "bulk": {
+        "title": "Bulk invite staff",
+        "close": "Close bulk invite",
+        "roleLabel": "Role for all invitees",
+        "roleRequired": "Select a role before sending.",
+        "inviteesLabel": "Invitees",
+        "formatHint": "One per line. Format: \"Full Name, email\" or just \"email\".",
+        "preview": "{valid, plural, one {# valid row} other {# valid rows}} · {invalid, plural, one {# invalid} other {# invalid}}",
+        "send": "Send {count, plural, one {# invitation} other {# invitations}}",
+        "sending": "Sending...",
+        "created": "{count, plural, one {Sent # invitation} other {Sent # invitations}}.",
+        "error": "Failed to send invitations.",
+        "resultsTitle": "Delivery results",
+        "sent": "Sent",
+        "resend": "Resend",
+        "done": "Done"
       },
       "directSuccess": {
         "title": "Staff Member Created",
         "emailLabel": "Login Email",
-        "hint": "Share this email with the staff member so they can log in.",
+        "passwordLabel": "Password",
+        "hint": "Share these credentials with the staff member — they cannot be retrieved later.",
         "copied": "Copied!",
+        "copyEmail": "Copy email",
+        "copyPassword": "Copy password",
+        "copyBoth": "Copy email and password",
+        "acknowledge": "I have shared these credentials with the staff member.",
         "done": "Done"
+      },
+      "branches": "Branches",
+      "noBranches": "No branches available.",
+      "engagement": "Engagement",
+      "engagementType": "Engagement type",
+      "executiveTitle": "Executive title",
+      "engagementTypes": {
+        "FULL_TIME": "Full-time",
+        "PART_TIME": "Part-time",
+        "ON_DEMAND": "On-demand",
+        "EXTERNAL_CONSULTANT": "External Consultant"
+      },
+      "executiveTitles": {
+        "NONE": "None",
+        "CEO": "CEO",
+        "COO": "COO",
+        "CFO": "CFO",
+        "CMO": "CMO"
+      },
+      "jobFunctions": "Job functions",
+      "specialties": "Specialties",
+      "noJobFunctions": "Loading job function options…",
+      "noSpecialties": "Loading specialty options…",
+      "apiRoles": {
+        "OWNER": "Owner",
+        "BRANCH_MANAGER": "Branch Manager",
+        "STAFF": "Staff",
+        "EXTERNAL": "External",
+        "UNKNOWN": "Unknown"
       },
       "edit": {
         "title": "Staff / Edit Staff",
@@ -133,7 +204,8 @@
       },
       "errors": {
         "pendingInvitation": "A pending invitation already exists for this email.",
-        "reviewFields": "Please review the highlighted fields."
+        "reviewFields": "Please review the highlighted fields.",
+        "atLeastOneBranch": "Select at least one branch."
       },
       "roles": {
         "owner": "Owner",
@@ -252,7 +324,7 @@
       },
       "fields": {
         "role": "Role",
-        "jobTitle": "Job title",
+        "jobFunctions": "Job functions",
         "phone": "Phone",
         "specialty": "Specialty",
         "invitedAt": "Invited at",
@@ -267,19 +339,28 @@
       "title": "Overview",
       "status": "Status",
       "role": "Role",
-      "jobTitle": "Job Title",
+      "engagement": "Engagement",
+      "jobFunctions": "Job functions",
       "specialty": "Specialty",
       "phoneNumber": "Phone Number",
       "address": "Address",
       "workSchedule": "Work Schedule",
       "actions": {
         "edit": "Edit staff",
-        "deactivate": "Deactivate staff"
+        "deactivate": "Delete from organization",
+        "unassign": "Remove from this branch"
       },
-      "deactivate": "Deactivate",
-      "deactivating": "Deactivating...",
-      "deactivateTitle": "Deactivate staff?",
-      "deactivateDescription": "This will deactivate {name}.",
+      "unassign": "Remove",
+      "unassigning": "Removing...",
+      "unassignTitle": "Remove from this branch?",
+      "unassignDescription": "Removes {name} from {branch} only. Other branches and the organization are unaffected.",
+      "unassignSuccess": "Staff member removed from this branch.",
+      "unassignError": "Failed to remove from branch. Please try again.",
+      "deactivate": "Delete",
+      "deactivating": "Deleting...",
+      "deactivateTitle": "Delete from organization?",
+      "deactivateDescription": "Permanently removes {name} from the organization. This cannot be undone.",
+      "typedConfirmHint": "Type {name} to confirm.",
       "deactivateSuccess": "Staff member deactivated.",
       "deactivateError": "Failed to deactivate staff. Please try again.",
       "deactivateSelfError": "You cannot deactivate your own account.",

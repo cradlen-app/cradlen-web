@@ -1,26 +1,10 @@
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
-import type { UserRole } from "@/types/user.types";
-
-type StaffRole = typeof STAFF_ROLE.OWNER | typeof STAFF_ROLE.DOCTOR | typeof STAFF_ROLE.RECEPTION;
-
-const ALLOWED_DASHBOARD_ROUTES: Record<StaffRole, string[]> = {
-  owner: ["/dashboard"],
-  reception: [
-    "/dashboard",
-    "/dashboard/visits",
-    "/dashboard/calendar",
-    "/dashboard/patients",
-    "/dashboard/staff",
-  ],
-  doctor: [
-    "/dashboard",
-    "/dashboard/visits",
-    "/dashboard/calendar",
-    "/dashboard/patients",
-    "/dashboard/medicine",
-    "/dashboard/settings",
-  ],
-};
+import {
+  canAccessMedicine,
+  canViewStaff,
+  hasAnyStaffRole,
+  isOwner,
+} from "@/features/auth/lib/permissions";
+import type { UserProfile } from "@/types/user.types";
 
 /**
  * Strips the /orgId/branchId prefix from a locale-stripped pathname.
@@ -32,14 +16,48 @@ export function getCanonicalDashboardPath(pathname: string): string {
   return "/" + segments.slice(2).join("/") || "/";
 }
 
-export function canAccessRoute(role: UserRole, canonicalPathname: string) {
-  if (role === "patient" || role === STAFF_ROLE.UNKNOWN) return false;
-  if (role === STAFF_ROLE.OWNER) return true;
+/**
+ * Route-level gate. The detailed authorization (per-branch scoping, role-edits,
+ * etc.) is enforced by the backend; this only decides whether to *display* the
+ * page at all so unauthorised users don't see a flash of forbidden content.
+ */
+export function canAccessRoute(
+  profile: UserProfile | undefined,
+  canonicalPathname: string,
+): boolean {
+  if (!hasAnyStaffRole(profile)) return false;
+  if (isOwner(profile)) return true;
 
-  return ALLOWED_DASHBOARD_ROUTES[role as StaffRole].some(
-    (route) =>
-      route === "/dashboard"
-        ? canonicalPathname === route
-        : canonicalPathname === route || canonicalPathname.startsWith(`${route}/`),
-  );
+  // Always-available staff routes.
+  if (
+    canonicalPathname === "/dashboard" ||
+    canonicalPathname === "/dashboard/visits" ||
+    canonicalPathname.startsWith("/dashboard/visits/") ||
+    canonicalPathname === "/dashboard/calendar" ||
+    canonicalPathname.startsWith("/dashboard/calendar/") ||
+    canonicalPathname === "/dashboard/patients" ||
+    canonicalPathname.startsWith("/dashboard/patients/") ||
+    canonicalPathname === "/dashboard/settings" ||
+    canonicalPathname.startsWith("/dashboard/settings/")
+  ) {
+    return true;
+  }
+
+  if (
+    canonicalPathname === "/dashboard/staff" ||
+    canonicalPathname.startsWith("/dashboard/staff/")
+  ) {
+    return canViewStaff(profile);
+  }
+
+  if (
+    canonicalPathname === "/dashboard/medicine" ||
+    canonicalPathname.startsWith("/dashboard/medicine/")
+  ) {
+    return canAccessMedicine(profile);
+  }
+
+  // Owner-only sections (medical-rep, analytics, etc.) are already guarded by
+  // the early `isOwner` short-circuit; deny everything else for safety.
+  return false;
 }
