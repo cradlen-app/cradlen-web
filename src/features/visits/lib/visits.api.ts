@@ -11,11 +11,12 @@ import type {
   BookVisitRequest,
   BookVisitResponse,
   UpdateVisitStatusRequest,
+  VisitIntake,
 } from "../types/visits.api.types";
 
 export type PaginationParams = { page?: number; limit?: number };
 
-export type UpdateVisitRequest = {
+export type UpdateVisitRequest = VisitIntake & {
   assigned_doctor_id?: string;
   branch_id?: string;
   visit_type?: ApiVisit["visit_type"];

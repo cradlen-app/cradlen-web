@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowLeft, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/lib/error";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import { useVisit } from "../hooks/useVisit";
+import { CompleteVisitDialog } from "./CompleteVisitDialog";
 import {
   VisitPriorityBadge,
   VisitStatusBadge,
@@ -47,6 +49,7 @@ export function VisitDetailPage({ visitId }: Props) {
 
   const { data: visit, isLoading, isError } = useVisit(visitId);
   const updateStatus = useUpdateVisitStatus();
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
 
   const canComplete = isClinical(profile) && visit?.status === "IN_PROGRESS";
   const canCancel =
@@ -56,6 +59,10 @@ export function VisitDetailPage({ visitId }: Props) {
 
   async function handleComplete() {
     if (!visit) return;
+    if (!visit.chiefComplaint?.trim()) {
+      setCompleteDialogOpen(true);
+      return;
+    }
     try {
       await updateStatus.mutateAsync({
         visitId: visit.id,
@@ -198,13 +205,88 @@ export function VisitDetailPage({ visitId }: Props) {
 
         <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm lg:col-span-3">
           <h2 className="mb-2 text-sm font-semibold text-brand-black">
-            {t("notes")}
+            {t("chiefComplaint")}
           </h2>
           <p className="whitespace-pre-wrap text-sm text-gray-600">
-            {visit.notes?.trim() ? visit.notes : t("noNotes")}
+            {visit.chiefComplaint?.trim()
+              ? visit.chiefComplaint
+              : visit.notes?.trim() ?? t("noChiefComplaint")}
           </p>
+          {visit.chiefComplaintMeta?.categories?.length ? (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {visit.chiefComplaintMeta.categories.map((c) => (
+                <span
+                  key={c}
+                  className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600"
+                >
+                  {c}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </section>
+
+        {visit.vitals ? (
+          <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm lg:col-span-3">
+            <h2 className="mb-3 text-sm font-semibold text-brand-black">
+              {t("vitals")}
+            </h2>
+            <dl className="grid grid-cols-2 gap-y-3 sm:grid-cols-4">
+              <Field
+                label={t("vitalsBp")}
+                value={
+                  visit.vitals.systolic_bp != null && visit.vitals.diastolic_bp != null
+                    ? `${visit.vitals.systolic_bp}/${visit.vitals.diastolic_bp} mmHg`
+                    : "—"
+                }
+              />
+              <Field
+                label={t("vitalsPulse")}
+                value={visit.vitals.pulse != null ? `${visit.vitals.pulse} bpm` : "—"}
+              />
+              <Field
+                label={t("vitalsTemperature")}
+                value={
+                  visit.vitals.temperature_c != null
+                    ? `${visit.vitals.temperature_c} °C`
+                    : "—"
+                }
+              />
+              <Field
+                label={t("vitalsSpo2")}
+                value={visit.vitals.spo2 != null ? `${visit.vitals.spo2} %` : "—"}
+              />
+              <Field
+                label={t("vitalsRespiratoryRate")}
+                value={
+                  visit.vitals.respiratory_rate != null
+                    ? `${visit.vitals.respiratory_rate} rpm`
+                    : "—"
+                }
+              />
+              <Field
+                label={t("vitalsWeight")}
+                value={visit.vitals.weight_kg != null ? `${visit.vitals.weight_kg} kg` : "—"}
+              />
+              <Field
+                label={t("vitalsHeight")}
+                value={visit.vitals.height_cm != null ? `${visit.vitals.height_cm} cm` : "—"}
+              />
+              <Field
+                label={t("vitalsBmi")}
+                value={visit.vitals.bmi != null ? String(visit.vitals.bmi) : "—"}
+              />
+            </dl>
+          </section>
+        ) : null}
       </div>
+
+      <CompleteVisitDialog
+        open={completeDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        visit={visit}
+        onCompleted={() => toast.success(t("completedToast"))}
+      />
     </main>
   );
 }
