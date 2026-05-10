@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useOrgStatusGuard } from "@/features/auth/hooks/useOrgStatusGuard";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
-import { getActiveRole } from "@/features/auth/lib/current-user";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { hasAnyStaffRole } from "@/features/auth/lib/permissions";
 import { buildDashboardUrl } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { CurrentUser } from "@/types/user.types";
@@ -26,34 +26,38 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
   const pathname = usePathname();
   const { orgId, branchId } = useParams<{ orgId: string; branchId: string }>();
   const { data: user, isLoading } = useCurrentUser(initialUser ?? undefined);
-  const role = getActiveRole(user);
+  const profile = getActiveProfile(user);
   const { mobileOpen, closeMobile } = useSidebar();
 
   useOrgStatusGuard(user);
 
   useEffect(() => {
-    if (isLoading || !role) return;
+    if (isLoading || !user) return;
 
-    if (role === "patient") {
+    // Patient role is signalled separately on the profile shape; we keep the
+    // legacy patient redirect for now.
+    const profileRoleNames = (profile?.roles ?? []).map((r) =>
+      typeof r === "string" ? r : r.name,
+    );
+    if (profileRoleNames.includes("patient")) {
       router.replace("/patient/dashboard");
       return;
     }
 
-    if (role === STAFF_ROLE.UNKNOWN) {
+    if (!hasAnyStaffRole(profile)) {
       router.replace("/sign-in");
       return;
     }
 
-    if (!canAccessRoute(role, getCanonicalDashboardPath(pathname))) {
+    if (!canAccessRoute(profile, getCanonicalDashboardPath(pathname))) {
       router.replace(buildDashboardUrl(orgId, branchId));
     }
-  }, [isLoading, orgId, branchId, pathname, role, router]);
+  }, [isLoading, orgId, branchId, pathname, profile, router, user]);
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
-        {/* Mobile backdrop */}
         {mobileOpen && (
           <div
             className="fixed inset-0 top-16 z-30 bg-black/40 lg:hidden"
@@ -61,7 +65,6 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
             aria-hidden="true"
           />
         )}
-        {/* Sidebar wrapper — fixed overlay on mobile, static on desktop */}
         <div
           className={cn(
             "fixed top-16 bottom-0 inset-s-0 z-40 shrink-0",

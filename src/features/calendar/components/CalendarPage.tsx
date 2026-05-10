@@ -3,8 +3,12 @@
 import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { getActiveRole } from "@/features/auth/lib/current-user";
-import { STAFF_ROLE } from "@/features/auth/lib/auth.constants";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import {
+  isBranchManager,
+  isClinical,
+  isOwner,
+} from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Button } from "@/components/ui/button";
 import { CalendarGrid } from "./CalendarGrid";
@@ -73,7 +77,7 @@ function CalendarContentSkeleton() {
 export function CalendarPage() {
   const t = useTranslations("calendar");
   const { data: user } = useCurrentUser();
-  const role = getActiveRole(user);
+  const profile = getActiveProfile(user);
   const branchId = useAuthContextStore((s) => s.branchId) ?? undefined;
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -107,8 +111,7 @@ export function CalendarPage() {
     setDrawerOpen(true);
   }
 
-  const canCreate =
-    role === STAFF_ROLE.OWNER || role === STAFF_ROLE.DOCTOR;
+  const canCreate = isOwner(profile) || isBranchManager(profile) || isClinical(profile);
 
   return (
     <main className="flex h-full flex-col gap-6 overflow-hidden p-6">

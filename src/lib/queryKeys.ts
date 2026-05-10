@@ -39,7 +39,13 @@ export const queryKeys = {
     byOrg: (organizationId: string) => ["staff", organizationId] as const,
     list: (
       organizationId: string,
-      opts: { q?: string; roleId?: string; branchId?: string; role?: string },
+      opts: {
+        q?: string;
+        roleId?: string;
+        branchId?: string;
+        role?: string;
+        scope?: "org" | "mine";
+      },
     ) =>
       [
         "staff",
@@ -48,6 +54,7 @@ export const queryKeys = {
         opts.roleId,
         opts.branchId,
         opts.role,
+        opts.scope,
       ] as const,
     detail: (organizationId: string, branchId: string, staffId: string) =>
       ["staff", "detail", organizationId, branchId, staffId] as const,

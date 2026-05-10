@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Mail, Plus, UserPlus } from "lucide-react";
+import { ChevronDown, Mail, Plus, Upload, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,15 @@ type StaffHeaderProps = {
   canManage?: boolean;
   onInviteStaff?: () => void;
   onCreateDirectStaff?: () => void;
+  onBulkInvite?: () => void;
 };
 
-export function StaffHeader({ canManage, onInviteStaff, onCreateDirectStaff }: StaffHeaderProps) {
+export function StaffHeader({
+  canManage,
+  onInviteStaff,
+  onCreateDirectStaff,
+  onBulkInvite,
+}: StaffHeaderProps) {
   const t = useTranslations("staff");
   const dashboardPath = useDashboardPath();
 
@@ -69,6 +75,19 @@ export function StaffHeader({ canManage, onInviteStaff, onCreateDirectStaff }: S
                     <p className="text-xs text-gray-400">{t("create.tabs.directHint")}</p>
                   </div>
                 </DropdownMenu.Item>
+
+                {onBulkInvite && (
+                  <DropdownMenu.Item
+                    onSelect={onBulkInvite}
+                    className="flex cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-sm text-brand-black outline-none transition-colors hover:bg-gray-50 focus:bg-gray-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-40"
+                  >
+                    <Upload className="size-4 text-gray-400" aria-hidden="true" />
+                    <div>
+                      <p className="font-medium">{t("create.tabs.bulk")}</p>
+                      <p className="text-xs text-gray-400">{t("create.tabs.bulkHint")}</p>
+                    </div>
+                  </DropdownMenu.Item>
+                )}
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>

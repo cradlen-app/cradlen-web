@@ -34,11 +34,11 @@ export function getFullName(invitation: ApiStaffInvitation) {
 }
 
 export function getInvitedAt(invitation: ApiStaffInvitation) {
-  return invitation.invited_at ?? invitation.sent_at ?? invitation.created_at;
+  return invitation.invited_at ?? invitation.created_at ?? undefined;
 }
 
 export function getExpiresAt(invitation: ApiStaffInvitation) {
-  return invitation.expires_at ?? invitation.expired_at;
+  return invitation.expires_at ?? undefined;
 }
 
 export function getStatus(invitation: ApiStaffInvitation) {
@@ -81,16 +81,11 @@ export function getRoleLabel(
   invitation: ApiStaffInvitation,
   t: ReturnType<typeof useTranslations>,
 ) {
-  const raw =
-    invitation.role?.name ??
-    invitation.roles?.[0]?.name ??
-    invitation.role_name;
+  const raw = invitation.roles?.[0]?.name ?? invitation.role?.name ?? invitation.role_name;
   if (!raw) return "-";
 
   const normalized = normalizeApiRoleName(raw);
-  return raw === normalized || raw === "receptionist"
-    ? t(getRoleTranslationKey(normalized))
-    : raw;
+  return normalized === "UNKNOWN" ? raw : t(getRoleTranslationKey(normalized));
 }
 
 // ─── Components ──────────────────────────────────────────────────────────────
@@ -229,7 +224,7 @@ export default function InvitationsTable({
                       {getRoleLabel(invitation, staffT)}
                     </span>
                     <span className="text-xs font-thin italic text-gray-400">
-                      {invitation.job_title || "-"}
+                      {invitation.job_functions?.map((j) => j.name).join(", ") || "-"}
                     </span>
                   </div>
                 </td>

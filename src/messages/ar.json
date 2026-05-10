@@ -64,6 +64,24 @@
       "reception": "استقبال",
       "unknown": "غير معروف"
     },
+    "apiRoles": {
+      "OWNER": "مالك",
+      "BRANCH_MANAGER": "مدير فرع",
+      "STAFF": "موظف",
+      "EXTERNAL": "خارجي",
+      "UNKNOWN": "غير معروف"
+    },
+    "engagementTypes": {
+      "FULL_TIME": "دوام كامل",
+      "PART_TIME": "دوام جزئي",
+      "ON_DEMAND": "حسب الطلب",
+      "EXTERNAL_CONSULTANT": "مستشار خارجي"
+    },
+    "scope": {
+      "org": "كل المؤسسة",
+      "mine": "فروعي"
+    },
+    "forbidden": "ليس لديك صلاحية لعرض الموظفين.",
     "columns": {
       "name": "الاسم",
       "role": "الدور",
@@ -113,14 +131,67 @@
         "invite": "دعوة بالبريد الإلكتروني",
         "inviteHint": "إرسال رابط دعوة عبر البريد الإلكتروني",
         "direct": "إضافة مباشرة",
-        "directHint": "إنشاء حساب بالهاتف وكلمة المرور"
+        "directHint": "إنشاء حساب بالهاتف وكلمة المرور",
+        "bulk": "دعوة جماعية",
+        "bulkHint": "أدعُ حتى 100 شخص دفعة واحدة"
+      },
+      "bulk": {
+        "title": "دعوة موظفين جماعية",
+        "close": "إغلاق",
+        "roleLabel": "الدور لجميع المدعوين",
+        "roleRequired": "اختر دورًا قبل الإرسال.",
+        "inviteesLabel": "المدعوون",
+        "formatHint": "سطر لكل شخص. التنسيق: \"الاسم الكامل، البريد\" أو البريد فقط.",
+        "preview": "{valid, plural, one {# صف صالح} other {# صفوف صالحة}} · {invalid, plural, one {# غير صالح} other {# غير صالح}}",
+        "send": "إرسال {count, plural, one {# دعوة} other {# دعوات}}",
+        "sending": "جاري الإرسال...",
+        "created": "{count, plural, one {تم إرسال # دعوة} other {تم إرسال # دعوات}}.",
+        "error": "فشل إرسال الدعوات.",
+        "resultsTitle": "نتائج التسليم",
+        "sent": "تم الإرسال",
+        "resend": "إعادة إرسال",
+        "done": "تم"
       },
       "directSuccess": {
         "title": "تم إضافة الموظف",
         "emailLabel": "البريد الإلكتروني للدخول",
-        "hint": "شارك هذا البريد الإلكتروني مع الموظف لتمكينه من تسجيل الدخول.",
+        "passwordLabel": "كلمة المرور",
+        "hint": "شارك هذه البيانات مع الموظف — لا يمكن استرجاعها لاحقًا.",
         "copied": "تم النسخ!",
+        "copyEmail": "نسخ البريد",
+        "copyPassword": "نسخ كلمة المرور",
+        "copyBoth": "نسخ البريد وكلمة المرور",
+        "acknowledge": "لقد شاركت هذه البيانات مع الموظف.",
         "done": "تم"
+      },
+      "branches": "الفروع",
+      "noBranches": "لا توجد فروع متاحة.",
+      "engagement": "نوع التعاقد",
+      "engagementType": "نوع التعاقد",
+      "executiveTitle": "اللقب التنفيذي",
+      "engagementTypes": {
+        "FULL_TIME": "دوام كامل",
+        "PART_TIME": "دوام جزئي",
+        "ON_DEMAND": "حسب الطلب",
+        "EXTERNAL_CONSULTANT": "مستشار خارجي"
+      },
+      "executiveTitles": {
+        "NONE": "بدون",
+        "CEO": "الرئيس التنفيذي",
+        "COO": "مدير العمليات",
+        "CFO": "المدير المالي",
+        "CMO": "المدير الطبي"
+      },
+      "jobFunctions": "المهام الوظيفية",
+      "specialties": "التخصصات",
+      "noJobFunctions": "جاري تحميل الخيارات…",
+      "noSpecialties": "جاري تحميل الخيارات…",
+      "apiRoles": {
+        "OWNER": "مالك",
+        "BRANCH_MANAGER": "مدير فرع",
+        "STAFF": "موظف",
+        "EXTERNAL": "خارجي",
+        "UNKNOWN": "غير معروف"
       },
       "edit": {
         "title": "الموظفون / تعديل موظف",
@@ -133,7 +204,8 @@
       },
       "errors": {
         "pendingInvitation": "توجد دعوة معلقة بالفعل لهذا البريد الإلكتروني.",
-        "reviewFields": "يرجى مراجعة الحقول المحددة."
+        "reviewFields": "يرجى مراجعة الحقول المحددة.",
+        "atLeastOneBranch": "اختر فرعًا واحدًا على الأقل."
       },
       "roles": {
         "owner": "مالك",
@@ -252,7 +324,7 @@
       },
       "fields": {
         "role": "الدور",
-        "jobTitle": "المسمى الوظيفي",
+        "jobFunctions": "المهام الوظيفية",
         "phone": "الهاتف",
         "specialty": "التخصص",
         "invitedAt": "تاريخ الدعوة",
@@ -267,19 +339,28 @@
       "title": "نظرة عامة",
       "status": "الحالة",
       "role": "الدور",
-      "jobTitle": "المسمى الوظيفي",
+      "engagement": "نوع التعاقد",
+      "jobFunctions": "المهام الوظيفية",
       "specialty": "التخصص",
       "phoneNumber": "رقم الهاتف",
       "address": "العنوان",
       "workSchedule": "جدول العمل",
       "actions": {
         "edit": "تعديل الموظف",
-        "deactivate": "إلغاء تفعيل الموظف"
+        "deactivate": "حذف من المؤسسة",
+        "unassign": "إزالة من هذا الفرع"
       },
-      "deactivate": "إلغاء التفعيل",
-      "deactivating": "جاري إلغاء التفعيل...",
-      "deactivateTitle": "إلغاء تفعيل الموظف؟",
-      "deactivateDescription": "سيتم إلغاء تفعيل {name}.",
+      "unassign": "إزالة",
+      "unassigning": "جاري الإزالة...",
+      "unassignTitle": "إزالة من هذا الفرع؟",
+      "unassignDescription": "سيتم إزالة {name} من {branch} فقط. لن تتأثر الفروع الأخرى ولا المؤسسة.",
+      "unassignSuccess": "تمت إزالة الموظف من هذا الفرع.",
+      "unassignError": "فشلت الإزالة. يرجى المحاولة مرة أخرى.",
+      "deactivate": "حذف",
+      "deactivating": "جاري الحذف...",
+      "deactivateTitle": "حذف من المؤسسة؟",
+      "deactivateDescription": "سيتم حذف {name} نهائيًا من المؤسسة. لا يمكن التراجع.",
+      "typedConfirmHint": "اكتب {name} للتأكيد.",
       "deactivateSuccess": "تم إلغاء تفعيل الموظف.",
       "deactivateError": "فشل إلغاء تفعيل الموظف. يرجى المحاولة مرة أخرى.",
       "deactivateSelfError": "لا يمكنك إلغاء تفعيل حسابك الخاص.",

@@ -44,18 +44,9 @@ function formatScheduleDay(
 }
 
 function getScheduleLabel(invitation: ApiStaffInvitation) {
-  if (invitation.working_schedule) {
-    return (
-      invitation.working_schedule
-        .flatMap((entry) => entry.days)
-        .map((day) => formatScheduleDay(day.day_of_week, day.shifts))
-        .join("\n") || undefined
-    );
-  }
-
   return (
-    invitation.branches
-      ?.flatMap((branch) => branch.schedule?.days ?? [])
+    invitation.working_schedule
+      ?.flatMap((entry) => entry.days)
       .map((day) => formatScheduleDay(day.day_of_week, day.shifts))
       .join("\n") || undefined
   );
@@ -65,27 +56,16 @@ function getBranchLabel(
   branch: NonNullable<ApiStaffInvitation["branches"]>[number],
 ) {
   if (branch.name) return branch.name;
-  if (branch.branch_name) return branch.branch_name;
-  if (branch.branch?.name) return branch.branch.name;
-
-  return [
-    branch.city ?? branch.branch?.city,
-    branch.governorate ?? branch.branch?.governorate,
-    branch.branch?.address,
-    branch.branch?.country,
-  ]
+  return [branch.address, branch.city, branch.governorate, branch.country]
     .filter(Boolean)
     .join(", ");
 }
 
 function getInviterLabel(invitation: ApiStaffInvitation) {
-  const inviter =
-    invitation.invited_by ?? invitation.inviter ?? invitation.created_by;
+  const inviter = invitation.invited_by;
   if (!inviter) return "-";
 
-  const name = [inviter.first_name, inviter.last_name]
-    .filter(Boolean)
-    .join(" ");
+  const name = [inviter.first_name, inviter.last_name].filter(Boolean).join(" ");
   return name || inviter.email || "-";
 }
 
@@ -195,18 +175,22 @@ export default function InvitationDetailsPanel({
                     value={getRoleLabel(invitation, staffT)}
                   />
                   <DetailRow
-                    label={t("fields.jobTitle")}
-                    value={invitation.job_title ?? undefined}
-                  />
-                  <DetailRow
-                    label={t("fields.phone")}
+                    label={t("fields.jobFunctions")}
                     value={
-                      invitation.phone_number ?? invitation.phone ?? undefined
+                      invitation.job_functions?.map((j) => j.name).join(", ") ||
+                      undefined
                     }
                   />
                   <DetailRow
+                    label={t("fields.phone")}
+                    value={invitation.phone_number ?? undefined}
+                  />
+                  <DetailRow
                     label={t("fields.specialty")}
-                    value={invitation.specialty ?? undefined}
+                    value={
+                      invitation.specialties?.map((s) => s.name).join(", ") ||
+                      undefined
+                    }
                   />
                   <DetailRow
                     label={t("fields.invitedAt")}
