@@ -13,8 +13,12 @@ npm run lint           # ESLint
 npm run test           # Run all tests (Vitest)
 npm run test:unit      # Unit tests only (excludes *.integration.test.*)
 npm run test:integration  # Integration tests only
-npx tsc --noEmit --pretty false  # Faster TypeScript check without emit
+npx vitest run path/to/file.test.ts  # Run a single test file
+npx vitest run -t "test name"        # Run tests matching a name
+npx tsc --noEmit --pretty false      # Faster TypeScript check without emit
 ```
+
+Requires Node.js 20+.
 
 ## Stack
 
@@ -39,7 +43,7 @@ npx tsc --noEmit --pretty false  # Faster TypeScript check without emit
 - `src/lib/` — shared utilities: `utils.ts` (`cn()`), `api.ts` (fetch helpers), `queryClient.ts`, `queryKeys.ts` (centralized query key factory), `routes.ts` (`buildDashboardUrl`), `error.ts`, `branch.utils.ts`; `src/lib/server/` holds server-only helpers (`backend.ts`, `signup-session.ts`, `multi-tenant-auth.ts`)
 - `src/types/` — shared TypeScript types (`api.types.ts`, `common.types.ts`)
 - `src/styles/globals.css` — Tailwind v4 theme tokens defined as CSS variables here; `:lang(ar)` swaps `--font-sans` to Cairo
-- `src/public/` — static assets (Logo.png, Logo-icon.png); import via Next.js `Image` as static imports — **not** the root `public/`
+- `src/public/` — static assets (Logo.png, Logo-icon.png); import via Next.js `Image` as static imports — **not** the root `public/`. New static assets go here.
 - `src/i18n/routing.ts` — locale list (`en`, `ar`) and `defaultLocale`
 - `src/i18n/request.ts` — `getRequestConfig`; loads messages from `src/messages/{locale}.json`
 - `src/i18n/navigation.ts` — locale-aware `Link`, `redirect`, `useRouter`, `usePathname` via `createNavigation`

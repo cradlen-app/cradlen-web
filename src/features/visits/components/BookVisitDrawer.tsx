@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, X } from "lucide-react";
+import { ChevronDown, Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
-import { useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useStaff } from "@/features/staff/hooks/useStaff";
@@ -12,9 +12,12 @@ import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { usePatientSearch } from "../hooks/usePatientSearch";
+import { searchPatients } from "../lib/visits.api";
+import { mapApiPatientToPatient, pruneEmpty } from "../lib/visits.utils";
 import {
   makeBookVisitSchema,
   getDefaultBookVisitValues,
+  parseVitalNumber,
   type BookVisitFormValues,
 } from "../lib/visits.schemas";
 import { VISIT_TYPE, VISIT_PRIORITY } from "../lib/visits.constants";
@@ -22,12 +25,14 @@ import type {
   ApiVisitType,
   ApiVisitPriority,
   BookVisitRequest,
+  ChiefComplaintMeta,
+  VitalsInput,
 } from "../types/visits.api.types";
 import type { Patient } from "../types/visits.types";
 import { BookVisitPatientSearch } from "./BookVisitPatientSearch";
 import { BookVisitMetaSection } from "./BookVisitMetaSection";
 import { BookVisitPersonalInfoSection } from "./BookVisitPersonalInfoSection";
-import { fieldClass, SectionTitle, FieldError } from "./book-visit-shared";
+import { BookVisitIntakeSection } from "./BookVisitIntakeSection";
 
 type Props = {
   open: boolean;
@@ -67,6 +72,9 @@ export function BookVisitDrawer({
   const [searchInput, setSearchInput] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [intakeOpen, setIntakeOpen] = useState(false);
+  const [duplicateMatch, setDuplicateMatch] = useState<Patient | null>(null);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
 
   const { data: searchResults = [], isFetching: isSearching } = usePatientSearch(searchInput);
 
@@ -126,29 +134,71 @@ export function BookVisitDrawer({
     setValue("husbandName", "");
   }
 
+  function buildIntake(values: BookVisitFormValues) {
+    const meta = pruneEmpty<ChiefComplaintMeta>({
+      categories: values.chiefComplaintCategories?.length
+        ? values.chiefComplaintCategories
+        : undefined,
+      onset: values.chiefComplaintOnset,
+      duration: values.chiefComplaintDuration,
+      severity: values.chiefComplaintSeverity,
+    });
+    const vitals = pruneEmpty<VitalsInput>({
+      systolic_bp: parseVitalNumber(values.vitalsSystolicBp),
+      diastolic_bp: parseVitalNumber(values.vitalsDiastolicBp),
+      pulse: parseVitalNumber(values.vitalsPulse),
+      temperature_c: parseVitalNumber(values.vitalsTemperatureC),
+      respiratory_rate: parseVitalNumber(values.vitalsRespiratoryRate),
+      spo2: parseVitalNumber(values.vitalsSpo2),
+      weight_kg: parseVitalNumber(values.vitalsWeightKg),
+      height_cm: parseVitalNumber(values.vitalsHeightCm),
+    });
+    return pruneEmpty({
+      chief_complaint: values.chiefComplaint?.trim() || undefined,
+      chief_complaint_meta: meta,
+      vitals,
+    });
+  }
+
+  async function resolveDuplicate(nationalId?: string) {
+    if (!nationalId) return null;
+    try {
+      const res = await searchPatients(nationalId);
+      const matches = res.data.map(mapApiPatientToPatient);
+      const exact = matches.find((p) => p.nationalId === nationalId);
+      return exact ?? (matches.length === 1 ? matches[0] : null);
+    } catch {
+      return null;
+    }
+  }
+
   const onSubmit = handleSubmit(async (values) => {
     if (!branchId) {
       toast.error(t("create.errorNoBranch"));
       return;
     }
+    setDuplicateMatch(null);
+    setDuplicateError(null);
 
     let body: BookVisitRequest;
 
     const scheduledAt = values.scheduledAt?.trim() || new Date().toISOString();
     const isMedicalRep = values.visitType === VISIT_TYPE.MEDICAL_REP;
+    const intake = buildIntake(values) ?? {};
 
     if (values.patientMode === "existing" && values.patientId) {
       body = {
+        ...intake,
         patient_id: values.patientId,
         assigned_doctor_id: values.assignedDoctorId,
         visit_type: values.visitType,
         priority: values.priority,
         scheduled_at: scheduledAt,
-        notes: values.notes?.trim() || undefined,
         branch_id: branchId,
       };
     } else {
       body = {
+        ...intake,
         national_id: isMedicalRep ? (values.nationalId ?? "") : values.nationalId!,
         full_name: values.fullName!,
         date_of_birth: isMedicalRep ? (values.dateOfBirth ?? "") : values.dateOfBirth!,
@@ -160,7 +210,6 @@ export function BookVisitDrawer({
         visit_type: values.visitType,
         priority: values.priority,
         scheduled_at: scheduledAt,
-        notes: values.notes?.trim() || undefined,
         branch_id: branchId,
       };
     }
@@ -171,13 +220,25 @@ export function BookVisitDrawer({
       onOpenChange(false);
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        toast.error(t("create.errorDuplicatePatient"));
-      } else {
-        const message = error instanceof ApiError ? error.messages[0] : t("create.errorGeneric");
-        toast.error(message);
+        const match = await resolveDuplicate(values.nationalId?.trim());
+        if (match) {
+          setDuplicateMatch(match);
+        } else {
+          setDuplicateError(t("create.errors.nationalIdExists"));
+        }
+        return;
       }
+      const message = error instanceof ApiError ? error.messages[0] : t("create.errorGeneric");
+      toast.error(message);
     }
   });
+
+  function handleUseExistingPatient() {
+    if (duplicateMatch) {
+      handleSelectPatient(duplicateMatch);
+      setDuplicateMatch(null);
+    }
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -219,8 +280,34 @@ export function BookVisitDrawer({
             onClearSearch={handleClearSearch}
           />
 
-          <form onSubmit={onSubmit} className="mt-5 flex min-h-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pe-1">
+          {(duplicateMatch || duplicateError) && (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-2 text-xs text-amber-800">
+              <p className="font-medium">{t("create.errors.nationalIdExists")}</p>
+              {duplicateMatch ? (
+                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[11px] text-amber-700">
+                    {duplicateMatch.fullName}
+                    {duplicateMatch.nationalId ? ` · ${duplicateMatch.nationalId}` : ""}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleUseExistingPatient}
+                    className="inline-flex h-7 items-center rounded-full bg-amber-600 px-3 text-[11px] font-semibold text-white hover:bg-amber-600/90"
+                  >
+                    {t("create.errors.useExistingPatient")}
+                  </button>
+                </div>
+              ) : (
+                <p className="mt-1 text-[11px] text-amber-700">
+                  {t("create.errors.searchPatientsHint")}
+                </p>
+              )}
+            </div>
+          )}
+
+          <FormProvider {...form}>
+            <form onSubmit={onSubmit} className="mt-5 flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pe-1">
 
               {/* Visit Meta */}
               <BookVisitMetaSection
@@ -244,18 +331,28 @@ export function BookVisitDrawer({
                 isMarried={isMarried}
               />
 
-              {/* Notes */}
-              <section className="space-y-3">
-                <SectionTitle title={t("create.sectionNotes")} />
-                <label className="block">
-                  <textarea
-                    {...register("notes")}
-                    rows={3}
-                    className={cn(fieldClass, "h-auto resize-none border-b py-2")}
-                    placeholder={t("create.fields.notesPlaceholder")}
+              {/* Clinical intake (optional, collapsible) */}
+              <section>
+                <button
+                  type="button"
+                  onClick={() => setIntakeOpen((v) => !v)}
+                  className="flex w-full items-center justify-between rounded-lg border border-gray-100 bg-gray-50/60 px-3 py-2 text-xs font-medium text-brand-black transition-colors hover:bg-gray-100/60"
+                  aria-expanded={intakeOpen}
+                >
+                  <span>{t("create.intake.title")}</span>
+                  <ChevronDown
+                    className={cn(
+                      "size-3.5 text-gray-400 transition-transform",
+                      intakeOpen && "rotate-180",
+                    )}
+                    aria-hidden="true"
                   />
-                  <FieldError message={errors.notes?.message} />
-                </label>
+                </button>
+                {intakeOpen && (
+                  <div className="mt-3">
+                    <BookVisitIntakeSection />
+                  </div>
+                )}
               </section>
             </div>
 
@@ -287,7 +384,8 @@ export function BookVisitDrawer({
                 )}
               </button>
             </div>
-          </form>
+            </form>
+          </FormProvider>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

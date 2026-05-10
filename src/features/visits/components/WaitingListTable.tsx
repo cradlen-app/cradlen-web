@@ -175,7 +175,7 @@ export function WaitingListTable({
           <span>{t("columns.queue")}</span>
           <span>{t("columns.patient")}</span>
           <span>{t("columns.doctor")}</span>
-          <span>{t("columns.notes")}</span>
+          <span>{t("columns.chiefComplaint")}</span>
           <span>{t("columns.type")}</span>
           <span>{t("columns.priority")}</span>
           <span className="text-end">{t("columns.status")}</span>
@@ -197,7 +197,7 @@ export function WaitingListTable({
           </p>
         ) : (
           <ul>
-            {rows.map((visit, index) => (
+            {rows.map((visit) => (
               <li
                 key={visit.id}
                 className={cn(
@@ -206,7 +206,7 @@ export function WaitingListTable({
                 )}
               >
                 <span className="text-xs font-medium text-gray-500 tabular-nums">
-                  {visit.queueNumber ?? index + 1}
+                  {visit.queueNumber ?? "—"}
                 </span>
                 <p className="truncate text-xs font-medium text-brand-black">
                   {visit.patient.fullName}
@@ -215,7 +215,7 @@ export function WaitingListTable({
                   {visit.assignedDoctorName ?? "—"}
                 </span>
                 <span className="truncate text-xs text-gray-400 italic">
-                  {visit.notes ?? "—"}
+                  {visit.chiefComplaint?.trim() || visit.notes?.trim() || "—"}
                 </span>
                 <VisitTypeBadge type={visit.type} />
                 <VisitPriorityBadge priority={visit.priority} />
