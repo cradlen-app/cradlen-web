@@ -39,11 +39,39 @@ export function mapApiVisitToVisit(api: ApiVisit): Visit {
       ? `${doctorUser.first_name} ${doctorUser.last_name}`.trim()
       : undefined,
     notes: api.notes,
+    chiefComplaint: api.chief_complaint ?? null,
+    chiefComplaintMeta: api.chief_complaint_meta ?? null,
+    vitals: api.vitals ?? null,
     createdAt: api.created_at ?? "",
     scheduledAt: api.scheduled_at,
     startedAt: api.started_at,
     completedAt: api.completed_at,
   };
+}
+
+/**
+ * Strip undefined / empty-string / NaN values from an object, recursively.
+ * Returns undefined if the result is an empty object so callers can omit the key entirely.
+ */
+export function pruneEmpty<T extends Record<string, unknown>>(input: T): T | undefined {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value === undefined || value === null) continue;
+    if (typeof value === "string" && value.trim() === "") continue;
+    if (typeof value === "number" && Number.isNaN(value)) continue;
+    if (Array.isArray(value)) {
+      if (value.length === 0) continue;
+      out[key] = value;
+      continue;
+    }
+    if (typeof value === "object") {
+      const nested = pruneEmpty(value as Record<string, unknown>);
+      if (nested) out[key] = nested;
+      continue;
+    }
+    out[key] = value;
+  }
+  return Object.keys(out).length > 0 ? (out as T) : undefined;
 }
 
 export function mapApiPatientToPatient(api: ApiPatient): Patient {

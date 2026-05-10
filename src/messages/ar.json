@@ -956,6 +956,17 @@
       "unassigned": "غير معيّن",
       "notes": "الملاحظات",
       "noNotes": "لا توجد ملاحظات.",
+      "chiefComplaint": "الشكوى الرئيسية",
+      "noChiefComplaint": "لم يتم تسجيل شكوى رئيسية.",
+      "vitals": "العلامات الحيوية",
+      "vitalsBp": "ضغط الدم",
+      "vitalsPulse": "النبض",
+      "vitalsTemperature": "الحرارة",
+      "vitalsSpo2": "الأكسجين",
+      "vitalsRespiratoryRate": "معدل التنفس",
+      "vitalsWeight": "الوزن",
+      "vitalsHeight": "الطول",
+      "vitalsBmi": "مؤشر كتلة الجسم",
       "complete": "إنهاء الزيارة",
       "cancelVisit": "إلغاء الزيارة",
       "completedToast": "تم إنهاء الزيارة.",
@@ -976,10 +987,11 @@
         "emergency": "طارئ"
       },
       "columns": {
-        "queue": "الرقم",
+        "queue": "رقم الدور",
         "patient": "الاسم",
         "doctor": "الطبيب",
         "notes": "ملاحظات",
+        "chiefComplaint": "الشكوى الرئيسية",
         "type": "النوع",
         "priority": "الأولوية",
         "waitTime": "الانتظار",
@@ -1086,7 +1098,52 @@
         "husbandNameRequired": "اسم الزوج مطلوب",
         "patientRequired": "اختر مريضاً",
         "doctorRequired": "اختر طبيباً",
-        "notesTooLong": "يجب ألا تتجاوز الملاحظات 500 حرف"
+        "notesTooLong": "يجب ألا تتجاوز الملاحظات 500 حرف",
+        "invalidVital": "القيمة خارج النطاق المسموح.",
+        "nationalIdExists": "يوجد مريض مسجل بالفعل بهذا الرقم القومي.",
+        "useExistingPatient": "استخدم المريض الموجود",
+        "searchPatientsHint": "ابحث عن المريض بالأعلى ثم اختره للمتابعة."
+      },
+      "intake": {
+        "title": "السجل السريري (اختياري)",
+        "chiefComplaint": {
+          "title": "الشكوى الرئيسية",
+          "categoriesLabel": "التصنيفات",
+          "narrativeLabel": "الوصف",
+          "narrativePlaceholder": "صف شكوى المريض الأساسية…",
+          "onset": "البدء",
+          "duration": "المدة",
+          "severityLabel": "الشدة",
+          "severity": {
+            "mild": "خفيفة",
+            "moderate": "متوسطة",
+            "severe": "شديدة"
+          }
+        },
+        "categories": {
+          "PREGNANCY": "حمل",
+          "BLEEDING": "نزيف",
+          "PAIN": "ألم",
+          "INFECTION": "التهاب",
+          "CONTRACEPTION": "تنظيم النسل",
+          "INFERTILITY": "العقم",
+          "MENSTRUAL": "دورة شهرية",
+          "POSTPARTUM": "ما بعد الولادة",
+          "ROUTINE_CHECK": "فحص دوري",
+          "OTHER": "أخرى"
+        },
+        "vitals": {
+          "title": "العلامات الحيوية",
+          "systolic": "الضغط الانقباضي",
+          "diastolic": "الضغط الانبساطي",
+          "pulse": "النبض",
+          "temperature": "الحرارة",
+          "respiratoryRate": "معدل التنفس",
+          "spo2": "الأكسجين",
+          "weight": "الوزن",
+          "height": "الطول",
+          "bmi": "مؤشر كتلة الجسم: {value}"
+        }
       }
     },
     "actions": {
@@ -1096,7 +1153,32 @@
       "retry": "إعادة المحاولة",
       "close": "إغلاق",
       "cancelVisitTitle": "إلغاء هذه الزيارة؟",
-      "confirmCancel": "نعم، إلغاء"
+      "confirmCancel": "نعم، إلغاء",
+      "completeRequiresChiefComplaint": {
+        "title": "أضف الشكوى الرئيسية",
+        "description": "يجب إدخال الشكوى الرئيسية قبل إنهاء الزيارة.",
+        "label": "الشكوى الرئيسية",
+        "placeholder": "صف شكوى المريض الأساسية…",
+        "categoriesLabel": "التصنيفات (اختياري)",
+        "categories": {
+          "PREGNANCY": "حمل",
+          "BLEEDING": "نزيف",
+          "PAIN": "ألم",
+          "INFECTION": "التهاب",
+          "CONTRACEPTION": "تنظيم النسل",
+          "INFERTILITY": "العقم",
+          "MENSTRUAL": "دورة شهرية",
+          "POSTPARTUM": "ما بعد الولادة",
+          "ROUTINE_CHECK": "فحص دوري",
+          "OTHER": "أخرى"
+        },
+        "submit": "حفظ وإنهاء",
+        "cancel": "إلغاء",
+        "required": "الشكوى الرئيسية مطلوبة.",
+        "tooLong": "يجب ألا تتجاوز الشكوى 5000 حرف.",
+        "successToast": "تم إنهاء الزيارة.",
+        "genericError": "تعذر إنهاء الزيارة."
+      }
     }
   }
 }

@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { VISIT_PRIORITY, VISIT_TYPE } from "./visits.constants";
+import {
+  CC_META_CATEGORIES_MAX,
+  CC_META_FIELD_MAX,
+  CHIEF_COMPLAINT_CATEGORIES,
+  CHIEF_COMPLAINT_MAX,
+  VISIT_PRIORITY,
+  VISIT_TYPE,
+  VITAL_SEVERITY,
+} from "./visits.constants";
 
 // ── enums ─────────────────────────────────────────────────────────────────────
 
@@ -84,7 +92,54 @@ type Translator = (key: string) => string;
 
 const identity: Translator = (key) => key;
 
+// Vitals are kept as optional strings on the form; they're parsed/validated
+// at submit time. This avoids zod transform inference quirks with RHF.
+function vitalString(min: number, max: number, t: Translator) {
+  return z
+    .string()
+    .trim()
+    .optional()
+    .refine((value) => {
+      if (!value) return true;
+      const n = Number(value);
+      return Number.isFinite(n) && n >= min && n <= max;
+    }, t("create.errors.invalidVital"));
+}
+
+const optionalShortString = z.string().trim().max(CC_META_FIELD_MAX).optional();
+
+export function makeVisitIntakeSchema(t: Translator = identity) {
+  return z.object({
+    chiefComplaint: z.string().trim().max(CHIEF_COMPLAINT_MAX).optional(),
+    chiefComplaintCategories: z
+      .array(z.enum(CHIEF_COMPLAINT_CATEGORIES))
+      .max(CC_META_CATEGORIES_MAX)
+      .optional(),
+    chiefComplaintOnset: optionalShortString,
+    chiefComplaintDuration: optionalShortString,
+    chiefComplaintSeverity: z.enum(VITAL_SEVERITY).optional(),
+    vitalsSystolicBp: vitalString(60, 260, t),
+    vitalsDiastolicBp: vitalString(30, 200, t),
+    vitalsPulse: vitalString(20, 250, t),
+    vitalsTemperatureC: vitalString(30, 45, t),
+    vitalsRespiratoryRate: vitalString(5, 80, t),
+    vitalsSpo2: vitalString(0, 100, t),
+    vitalsWeightKg: vitalString(0, 400, t),
+    vitalsHeightCm: vitalString(30, 260, t),
+  });
+}
+
+export type VisitIntakeFormValues = z.infer<ReturnType<typeof makeVisitIntakeSchema>>;
+
+export function parseVitalNumber(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 export function makeBookVisitSchema(t: Translator = identity) {
+  const intake = makeVisitIntakeSchema(t).shape;
+
   return z
     .object({
       patientMode: z.enum(["existing", "new"]),
@@ -115,7 +170,9 @@ export function makeBookVisitSchema(t: Translator = identity) {
       priority: visitPrioritySchema,
       assignedDoctorId: z.string().trim().min(1, t("create.errors.doctorRequired")),
       scheduledAt: z.string().trim().optional(),
-      notes: z.string().trim().max(500, t("create.errors.notesTooLong")).optional(),
+
+      // structured intake (optional)
+      ...intake,
     })
     .superRefine((value, ctx) => {
       if (value.patientMode === "existing") {
@@ -188,6 +245,18 @@ export function getDefaultBookVisitValues(): BookVisitFormValues {
     priority: VISIT_PRIORITY.NORMAL,
     assignedDoctorId: "",
     scheduledAt: "",
-    notes: "",
+    chiefComplaint: "",
+    chiefComplaintCategories: [],
+    chiefComplaintOnset: "",
+    chiefComplaintDuration: "",
+    chiefComplaintSeverity: undefined,
+    vitalsSystolicBp: "",
+    vitalsDiastolicBp: "",
+    vitalsPulse: "",
+    vitalsTemperatureC: "",
+    vitalsRespiratoryRate: "",
+    vitalsSpo2: "",
+    vitalsWeightKg: "",
+    vitalsHeightCm: "",
   };
 }
