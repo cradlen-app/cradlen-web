@@ -72,7 +72,8 @@
       "Bash(awk '/^\\\\s*\"visits\": \\\\{/,/^\\\\s*\\\\},' src/messages/en.json)",
       "Bash(node -e \"const o=require\\('f:/Cradlen/cradlen-web/src/messages/en.json'\\);function walk\\(v,p\\){if\\(typeof v!=='object'||v==null\\)return console.log\\(p,'=',JSON.stringify\\(v\\)\\);for\\(const k of Object.keys\\(v\\)\\)walk\\(v[k],p?p+'.'+k:k\\)}const v=o.visits;function w\\(v,p\\){if\\(typeof v!=='object'||v==null\\){console.log\\(p,'=',JSON.stringify\\(v\\)\\);return}for\\(const k of Object.keys\\(v\\)\\)w\\(v[k],p?p+'.'+k:k\\)}w\\(v,'visits'\\)\")",
       "Bash(node -e \"const o=require\\('f:/Cradlen/cradlen-web/src/messages/en.json'\\);console.log\\(Object.keys\\(o.visits.actions\\).join\\('\\\\n'\\)\\)\")",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/ar.json','utf8'\\)\\); console.log\\('OK'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/ar.json','utf8'\\)\\); console.log\\('OK'\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/ar.json','utf8'\\)\\); console.log\\('json OK'\\)\")"
     ],
     "additionalDirectories": [
       "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard\\visits",

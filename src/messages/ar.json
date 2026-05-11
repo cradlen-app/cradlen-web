@@ -1134,15 +1134,18 @@
         },
         "vitals": {
           "title": "العلامات الحيوية",
+          "bloodPressure": "ضغط الدم",
           "systolic": "الضغط الانقباضي",
           "diastolic": "الضغط الانبساطي",
+          "systolicShort": "انقباضي",
+          "diastolicShort": "انبساطي",
           "pulse": "النبض",
           "temperature": "الحرارة",
           "respiratoryRate": "معدل التنفس",
           "spo2": "الأكسجين",
           "weight": "الوزن",
           "height": "الطول",
-          "bmi": "مؤشر كتلة الجسم: {value}"
+          "bmi": "BMI {value}"
         }
       }
     },

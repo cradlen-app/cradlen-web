@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Controller,
@@ -140,7 +140,13 @@ export function SurgeryFields({ register, control, errors, setValue }: BaseProps
   const { organizationId, branchId: activeBranchId, activeProfile } = useUserProfileContext();
   const branches = activeProfile?.branches ?? [];
 
-  const { data: doctors = [] } = useStaff(organizationId, undefined, { role: "DOCTOR" });
+  const { data: staffList = [] } = useStaff(organizationId, undefined, {
+    branchId: activeBranchId ?? undefined,
+  });
+  const doctors = useMemo(
+    () => staffList.filter((m) => m.isClinical),
+    [staffList],
+  );
 
   const { fields: participants, append, remove } = useFieldArray({
     control,

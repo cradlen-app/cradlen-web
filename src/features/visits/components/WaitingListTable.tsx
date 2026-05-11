@@ -205,9 +205,13 @@ export function WaitingListTable({
                   GRID,
                 )}
               >
-                <span className="text-xs font-medium text-gray-500 tabular-nums">
-                  {visit.queueNumber ?? "—"}
-                </span>
+                {visit.queueNumber != null ? (
+                  <span className="inline-flex h-6 min-w-7 items-center justify-center rounded-full bg-gray-100 px-1.5 text-[11px] font-semibold tabular-nums text-gray-700">
+                    {visit.queueNumber}
+                  </span>
+                ) : (
+                  <span className="text-xs text-gray-300 tabular-nums">—</span>
+                )}
                 <p className="truncate text-xs font-medium text-brand-black">
                   {visit.patient.fullName}
                 </p>

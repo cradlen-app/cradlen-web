@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
   CHIEF_COMPLAINT_CATEGORIES,
+  CHIEF_COMPLAINT_MAX,
   VITAL_SEVERITY,
   type ChiefComplaintCategory,
   type VitalSeverity,
@@ -30,18 +31,18 @@ export function BookVisitIntakeSection() {
     formState: { errors },
   } = useFormContext<BookVisitFormValues>();
 
-  const categories = useWatch({ control, name: "chiefComplaintCategories" }) ?? [];
+  const categories = (useWatch({ control, name: "chiefComplaintCategories" }) ?? []) as ChiefComplaintCategory[];
   const severity = useWatch({ control, name: "chiefComplaintSeverity" });
+  const chiefComplaintValue = useWatch({ control, name: "chiefComplaint" }) ?? "";
   const weightKg = useWatch({ control, name: "vitalsWeightKg" });
   const heightCm = useWatch({ control, name: "vitalsHeightCm" });
 
   const bmi = useMemo(() => computeBmi(weightKg, heightCm), [weightKg, heightCm]);
 
   function toggleCategory(category: ChiefComplaintCategory) {
-    const current = (categories as ChiefComplaintCategory[]) ?? [];
-    const next = current.includes(category)
-      ? current.filter((c) => c !== category)
-      : [...current, category];
+    const next = categories.includes(category)
+      ? categories.filter((c) => c !== category)
+      : [...categories, category];
     setValue("chiefComplaintCategories", next.length ? next : undefined, {
       shouldDirty: true,
     });
@@ -53,23 +54,26 @@ export function BookVisitIntakeSection() {
       <section className="space-y-3">
         <SectionTitle title={t("chiefComplaint.title")} />
 
+        {/* Categories */}
         <div>
-          <p className="mb-2 text-[11px] text-gray-400">{t("chiefComplaint.categoriesLabel")}</p>
-          <div className="flex flex-wrap gap-1.5">
+          <span className="text-xs font-medium text-brand-black">
+            {t("chiefComplaint.categoriesLabel")}
+          </span>
+          <div className="mt-2 flex flex-wrap gap-2">
             {CHIEF_COMPLAINT_CATEGORIES.map((cat) => {
-              const active = (categories as ChiefComplaintCategory[]).includes(cat);
+              const active = categories.includes(cat);
               return (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => toggleCategory(cat)}
+                  aria-pressed={active}
                   className={cn(
-                    "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                    "inline-flex h-8 items-center rounded-full border px-3 text-[11px] font-medium transition-colors",
                     active
                       ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
                       : "border-gray-200 bg-white text-gray-500 hover:border-brand-primary/30 hover:text-brand-black",
                   )}
-                  aria-pressed={active}
                 >
                   {t(`categories.${cat}`)}
                 </button>
@@ -78,21 +82,32 @@ export function BookVisitIntakeSection() {
           </div>
         </div>
 
+        {/* Narrative */}
         <label className="block">
-          <span className="text-[11px] text-gray-400">{t("chiefComplaint.narrativeLabel")}</span>
+          <span className="text-xs font-medium text-brand-black">
+            {t("chiefComplaint.narrativeLabel")}
+          </span>
           <textarea
             {...register("chiefComplaint")}
             rows={3}
-            maxLength={5000}
+            maxLength={CHIEF_COMPLAINT_MAX}
             placeholder={t("chiefComplaint.narrativePlaceholder")}
             className={cn(fieldClass, "h-auto resize-none border-b py-2")}
           />
-          <FieldError message={errors.chiefComplaint?.message} />
+          <div className="flex items-center justify-between pt-1">
+            <FieldError message={errors.chiefComplaint?.message} />
+            <span className="ms-auto text-[11px] text-gray-400 tabular-nums">
+              {chiefComplaintValue.length}/{CHIEF_COMPLAINT_MAX}
+            </span>
+          </div>
         </label>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {/* Onset / Duration */}
+        <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
           <label className="block">
-            <span className="text-[11px] text-gray-400">{t("chiefComplaint.onset")}</span>
+            <span className="text-xs font-medium text-brand-black">
+              {t("chiefComplaint.onset")}
+            </span>
             <input
               {...register("chiefComplaintOnset")}
               type="text"
@@ -101,7 +116,9 @@ export function BookVisitIntakeSection() {
             />
           </label>
           <label className="block">
-            <span className="text-[11px] text-gray-400">{t("chiefComplaint.duration")}</span>
+            <span className="text-xs font-medium text-brand-black">
+              {t("chiefComplaint.duration")}
+            </span>
             <input
               {...register("chiefComplaintDuration")}
               type="text"
@@ -109,53 +126,94 @@ export function BookVisitIntakeSection() {
               className={fieldClass}
             />
           </label>
-          <div>
-            <span className="text-[11px] text-gray-400">{t("chiefComplaint.severityLabel")}</span>
-            <div className="mt-1 grid grid-cols-3 gap-1">
-              {VITAL_SEVERITY.map((s) => {
-                const active = severity === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() =>
-                      setValue("chiefComplaintSeverity", active ? undefined : (s as VitalSeverity), {
-                        shouldDirty: true,
-                      })
-                    }
-                    className={cn(
-                      "h-8 rounded-md border text-[11px] font-medium transition-colors",
-                      active
-                        ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
-                        : "border-gray-200 bg-white text-gray-500 hover:border-brand-primary/30 hover:text-brand-black",
-                    )}
-                    aria-pressed={active}
-                  >
-                    {t(`chiefComplaint.severity.${s}`)}
-                  </button>
-                );
-              })}
-            </div>
+        </div>
+
+        {/* Severity — full-width segmented row */}
+        <div>
+          <span className="text-xs font-medium text-brand-black">
+            {t("chiefComplaint.severityLabel")}
+          </span>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {VITAL_SEVERITY.map((s) => {
+              const active = severity === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    setValue(
+                      "chiefComplaintSeverity",
+                      active ? undefined : (s as VitalSeverity),
+                      { shouldDirty: true },
+                    )
+                  }
+                  className={cn(
+                    "h-9 rounded-lg border px-3 text-xs font-medium transition-colors",
+                    active
+                      ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
+                      : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",
+                  )}
+                >
+                  {t(`chiefComplaint.severity.${s}`)}
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Vitals */}
       <section className="space-y-3">
-        <SectionTitle title={t("vitals.title")} />
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <SectionTitle title={t("vitals.title")} />
+          </div>
+          {bmi != null && (
+            <span className="inline-flex shrink-0 items-center rounded-full bg-brand-primary/10 px-2 py-0.5 text-[11px] font-medium text-brand-primary tabular-nums">
+              {t("vitals.bmi", { value: bmi.toFixed(1) })}
+            </span>
+          )}
+        </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <VitalField label={t("vitals.systolic")} unit="mmHg" name="vitalsSystolicBp" />
-          <VitalField label={t("vitals.diastolic")} unit="mmHg" name="vitalsDiastolicBp" />
-          <VitalField label={t("vitals.pulse")} unit="bpm" name="vitalsPulse" />
-          <VitalField
-            label={t("vitals.temperature")}
-            unit="°C"
-            step="0.1"
-            name="vitalsTemperatureC"
+        {/* Blood pressure (paired) */}
+        <div>
+          <span className="text-xs font-medium text-brand-black">
+            {t("vitals.bloodPressure")}
+            <span className="ms-1 text-[11px] text-gray-300">mmHg</span>
+          </span>
+          <div className="mt-1 flex items-center gap-2">
+            <input
+              {...register("vitalsSystolicBp")}
+              type="number"
+              step="1"
+              inputMode="numeric"
+              placeholder={t("vitals.systolicShort")}
+              className={cn(fieldClass, "min-w-0 flex-1")}
+              aria-label={t("vitals.systolic")}
+            />
+            <span className="text-sm text-gray-300">/</span>
+            <input
+              {...register("vitalsDiastolicBp")}
+              type="number"
+              step="1"
+              inputMode="numeric"
+              placeholder={t("vitals.diastolicShort")}
+              className={cn(fieldClass, "min-w-0 flex-1")}
+              aria-label={t("vitals.diastolic")}
+            />
+          </div>
+          <FieldError
+            message={
+              (errors.vitalsSystolicBp?.message as string | undefined) ??
+              (errors.vitalsDiastolicBp?.message as string | undefined)
+            }
           />
-          <VitalField label={t("vitals.respiratoryRate")} unit="rpm" name="vitalsRespiratoryRate" />
-          <VitalField label={t("vitals.spo2")} unit="%" name="vitalsSpo2" />
+        </div>
+
+        {/* Pulse / Weight / Height */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3">
+          <VitalField label={t("vitals.pulse")} unit="bpm" name="vitalsPulse" />
           <VitalField
             label={t("vitals.weight")}
             unit="kg"
@@ -169,26 +227,12 @@ export function BookVisitIntakeSection() {
             name="vitalsHeightCm"
           />
         </div>
-
-        {bmi != null && (
-          <p className="text-[11px] text-gray-500">
-            {t("vitals.bmi", { value: bmi.toFixed(1) })}
-          </p>
-        )}
       </section>
     </div>
   );
 }
 
-type VitalKey =
-  | "vitalsSystolicBp"
-  | "vitalsDiastolicBp"
-  | "vitalsPulse"
-  | "vitalsTemperatureC"
-  | "vitalsRespiratoryRate"
-  | "vitalsSpo2"
-  | "vitalsWeightKg"
-  | "vitalsHeightCm";
+type VitalKey = "vitalsPulse" | "vitalsWeightKg" | "vitalsHeightCm";
 
 function VitalField({
   label,
@@ -208,8 +252,9 @@ function VitalField({
   const fieldError = errors[name];
   return (
     <label className="block">
-      <span className="text-[11px] text-gray-400">
-        {label} <span className="text-gray-300">({unit})</span>
+      <span className="text-xs font-medium text-brand-black">
+        {label}
+        <span className="ms-1 text-[11px] text-gray-300">{unit}</span>
       </span>
       <input
         {...register(name)}
