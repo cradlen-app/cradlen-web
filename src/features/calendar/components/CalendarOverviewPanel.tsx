@@ -12,7 +12,7 @@ import type { CalendarEvent, CalendarParticipant } from "../types/calendar.types
 
 function useStaffNameMap() {
   const { organizationId } = useUserProfileContext();
-  const { data: staff = [] } = useStaff(organizationId, undefined, { role: "DOCTOR" });
+  const { data: staff = [] } = useStaff(organizationId, undefined);
   const map = new Map<string, string>();
   for (const s of staff) {
     const name = `${s.firstName} ${s.lastName}`.trim() || (s.email ?? s.id);

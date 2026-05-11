@@ -1134,15 +1134,18 @@
         },
         "vitals": {
           "title": "Vitals",
+          "bloodPressure": "Blood pressure",
           "systolic": "Systolic BP",
           "diastolic": "Diastolic BP",
+          "systolicShort": "Sys",
+          "diastolicShort": "Dia",
           "pulse": "Pulse",
           "temperature": "Temperature",
           "respiratoryRate": "Respiratory rate",
           "spo2": "SpO₂",
           "weight": "Weight",
           "height": "Height",
-          "bmi": "BMI: {value}"
+          "bmi": "BMI {value}"
         }
       }
     },
