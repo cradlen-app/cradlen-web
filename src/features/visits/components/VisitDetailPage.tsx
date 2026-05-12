@@ -12,8 +12,8 @@ import {
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Link } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
-import { getApiErrorMessage } from "@/lib/error";
+import { cn } from "@/common/utils/utils";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import { useVisit } from "../hooks/useVisit";
 import { CompleteVisitDialog } from "./CompleteVisitDialog";

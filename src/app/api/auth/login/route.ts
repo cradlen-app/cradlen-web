@@ -1,4 +1,4 @@
-import { profileSelectionResponse } from "@/lib/server/multi-tenant-auth";
+import { profileSelectionResponse } from "@/infrastructure/auth-transport/multi-tenant-auth";
 
 export function POST(request: Request) {
   return profileSelectionResponse("/auth/login", request);

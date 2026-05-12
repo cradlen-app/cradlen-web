@@ -23,7 +23,7 @@ import {
   type ExecutiveTitleCode,
   type StaffApiRole,
 } from "@/features/auth/lib/auth.constants";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import {
   type StaffCreateDirectFormValues,
   type StaffInviteFormValues,

@@ -8,7 +8,7 @@ import {
   getActiveProfile,
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";

@@ -1,4 +1,4 @@
-import { apiAuthFetch } from "@/lib/api";
+import { apiAuthFetch } from "@/infrastructure/http/api";
 import { mapApiVisitToScheduleEvent } from "./visits.utils";
 import type {
   ApiPatientSearchResponse,

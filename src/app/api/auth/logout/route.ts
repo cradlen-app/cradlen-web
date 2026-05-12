@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { backendFetch, clearAuthCookies } from "@/lib/server/backend";
+import { backendFetch, clearAuthCookies } from "@/infrastructure/auth-transport/backend";
 import {
   AUTH_REFRESH_TOKEN_COOKIE,
   AUTH_TOKEN_COOKIE,

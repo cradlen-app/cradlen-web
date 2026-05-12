@@ -7,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
-import { queryClient } from "@/lib/queryClient";
+import { cn } from "@/common/utils/utils";
+import { queryClient } from "@/infrastructure/query/queryClient";
 import {
   getProfilesFromAuthResponse,
   isOnboardingRedirectPath,

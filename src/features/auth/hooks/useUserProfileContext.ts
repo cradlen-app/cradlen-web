@@ -10,10 +10,8 @@ import {
 } from "@/features/auth/lib/current-user";
 import {
   canCreateVisit,
-  canManageStaff,
   canSearchPatients,
   canUseSettings,
-  canViewStaff,
   hasAnyStaffRole,
   isBranchManager,
   isClinical,
@@ -22,8 +20,9 @@ import {
   showsAssignedVisits,
   showsBranchAggregate,
 } from "@/features/auth/lib/permissions";
+import { staffCan } from "@/core/staff/api";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { formatBranchLocation } from "@/lib/branch.utils";
+import { formatBranchLocation } from "@/common/utils/branch.utils";
 
 /**
  * Centralises the extraction of user profile context used across dashboard
@@ -69,14 +68,14 @@ export function useUserProfileContext() {
     isReceptionist: isReceptionist(activeProfile),
     isClinical: isClinical(activeProfile),
     hasAnyStaffRole: hasAnyStaffRole(activeProfile),
-    canViewStaff: canViewStaff(activeProfile),
-    canManageStaff: canManageStaff(activeProfile),
+    canViewStaff: staffCan.read(activeProfile),
+    canManageStaff: staffCan.manage(activeProfile),
     canUseSettings: canUseSettings(activeProfile),
     canCreateVisit: canCreateVisit(activeProfile),
     canSearchPatients: canSearchPatients(activeProfile),
     showsAssignedVisits: showsAssignedVisits(activeProfile),
     showsBranchAggregate: showsBranchAggregate(activeProfile),
     /** @deprecated Use `canManageStaff` for staff-area gating. */
-    canManage: canManageStaff(activeProfile),
+    canManage: staffCan.manage(activeProfile),
   };
 }

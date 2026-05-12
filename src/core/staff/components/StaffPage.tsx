@@ -6,12 +6,9 @@ import { AlertDialog } from "radix-ui";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
-import {
-  canManageStaff as canManageStaffPerms,
-  canViewStaff,
-  isOwner as isOwnerPerm,
-} from "@/features/auth/lib/permissions";
-import { ApiError } from "@/lib/api";
+import { isOwner as isOwnerPerm } from "@/features/auth/lib/permissions";
+import { usePermission } from "@/kernel";
+import { ApiError } from "@/infrastructure/http/api";
 import {
   useDeactivateStaff,
   useUnassignStaffFromBranch,
@@ -90,8 +87,8 @@ export function StaffPage() {
     branchName,
   } = useUserProfileContext();
 
-  const canView = canViewStaff(activeProfile);
-  const canManage = canManageStaffPerms(activeProfile);
+  const canView = usePermission("staff.read");
+  const canManage = usePermission("staff.manage");
   const isOwner = isOwnerPerm(activeProfile);
 
   const { data: roleFilters = [] } = useStaffRoles(organizationId);

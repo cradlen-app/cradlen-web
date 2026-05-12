@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { VISIT_PRIORITY, VISIT_TYPE } from "../lib/visits.constants";
 import type { WaitingListFilter } from "../types/visits.types";
 

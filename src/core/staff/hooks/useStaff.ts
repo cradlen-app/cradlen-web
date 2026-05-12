@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { fetchAllStaff } from "../lib/staff.api";
 import { mapApiStaffToMember } from "../lib/staff.utils";
-import { queryKeys } from "@/lib/queryKeys";
+import { staffQueryKeys } from "../queryKeys";
 
 type UseStaffOptions = {
   q?: string;
@@ -21,7 +21,7 @@ export function useStaff(
 ) {
   const locale = useLocale();
   return useQuery({
-    queryKey: queryKeys.staff.list(organizationId ?? "", { q, roleId, branchId, role, scope }),
+    queryKey: staffQueryKeys.list(organizationId ?? "", { q, roleId, branchId, role, scope }),
     queryFn: async () => {
       const staff = await fetchAllStaff(organizationId!, { q, roleId, branchId, role, scope });
       return staff.map((member) => mapApiStaffToMember(member, locale));

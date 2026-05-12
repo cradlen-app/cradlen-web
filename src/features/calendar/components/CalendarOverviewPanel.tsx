@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
-import { useStaff } from "@/features/staff/hooks/useStaff";
+import { useStaff } from "@/core/staff/api";
 import { formatEventTime, localIsoDate } from "../lib/calendar.utils";
 import { TYPE_BAR_CLASS } from "./CalendarEventChip";
 import type { CalendarEvent, CalendarParticipant } from "../types/calendar.types";

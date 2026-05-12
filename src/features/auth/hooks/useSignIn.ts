@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiFetch, ApiError } from "@/lib/api";
+import { apiFetch, ApiError } from "@/infrastructure/http/api";
 import { toast } from "sonner";
 import type { LoginProfilesResponse, SignInRequest } from "../types/sign-in.types";
 

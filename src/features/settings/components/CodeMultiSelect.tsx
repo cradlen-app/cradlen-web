@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 interface Option {
   code: string;

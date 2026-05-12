@@ -6,7 +6,7 @@ import { Loader2, X, Stethoscope, Users, User, PalmtreeIcon } from "lucide-react
 import { Dialog } from "radix-ui";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useCreateCalendarEvent } from "../hooks/useCreateCalendarEvent";
 import {

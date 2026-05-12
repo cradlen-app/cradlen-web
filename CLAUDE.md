@@ -26,7 +26,7 @@ Requires Node.js 20+.
 - **React 19** + **TypeScript**
 - **Tailwind CSS v4** — configured via CSS imports in `src/styles/globals.css`, not `tailwind.config.js`
 - **shadcn/ui** (`radix-nova` style) — components live in `src/components/ui/`, added via `npx shadcn add <component>`
-- **TanStack Query v5** — `src/lib/queryClient.ts` holds the shared `QueryClient`; `src/lib/queryKeys.ts` is the centralized key factory — always use it for cache invalidation
+- **TanStack Query v5** — `src/infrastructure/query/queryClient.ts` holds the shared `QueryClient`; `src/lib/queryKeys.ts` is the centralized key factory — always use it for cache invalidation (will move to per-module ownership in Phase C)
 - **Zustand v5** — auth context, user, and flow state; all persisted stores use the `persist` middleware
 - **React Hook Form + Zod v4** — for forms and validation
 - **Lucide React** — icon library
@@ -88,7 +88,72 @@ Visits use a Socket.IO connection (`socket.io-client`) via `useVisitSocket`. The
 
 ## Key Conventions
 
-- Use `cn()` from `@/lib/utils` for conditional class names.
+- Use `cn()` from `@/common/utils/utils` for conditional class names.
 - shadcn components use `radix-ui` (not `@radix-ui/*` scoped packages) — import `Slot` from `radix-ui`, not `@radix-ui/react-slot`.
 - Tailwind v4 has no `tailwind.config.js` — extend the theme in `globals.css` using `@theme`.
-- Path alias `@/` maps to `src/`.
+- Path alias `@/` maps to `src/`. Layer aliases: `@/common/*`, `@/infrastructure/*`, `@/builder/*`, `@/core/*`, `@/plugins/*`, `@/kernel/*`.
+
+## Architecture: Modular Kernel + Plugin Layout
+
+The codebase is migrating from a flat `src/features/<feature>/` layout to a five-layer split that mirrors `cradlen-api`. Phase A (kernel skeleton) is in; Phase B (move shared `lib/` and `types/` into `common/` + `infrastructure/`) and Phase C (migrate `staff` to `core/staff/`) are upcoming.
+
+### Layers
+
+| Layer | Path | What lives here |
+|---|---|---|
+| common | `src/common/` | Pure types, utils, errors, constants, and `kernel-contracts/`. No imports from anywhere else in `src/`. |
+| infrastructure | `src/infrastructure/` | Talks to the outside world: `http/`, `query/`, `realtime/`, `auth-transport/`, `i18n/`, `storage/`, `logging/`, `monitoring/`, `config/`. |
+| builder | `src/builder/` | Frontend renderer + runtime for the backend's DSL (fields, sections, templates, workflows, rules). |
+| kernel | `src/kernel/` | Module registries + host hooks (`bootModules`, `usePluginNav`, `usePermission`, `KernelProvider`). Internal — external code imports only from `@/kernel`. |
+| core | `src/core/` | Domain modules: `auth/`, `org/`, `branch/`, `staff/`, `patient/`, `clinical/{journey,episode,visit,mmr}/`. Each exposes a `manifest.ts` and an `api.ts`. |
+| plugins | `src/plugins/` | Extensions (telemedicine, billing, lab-integration, sms-reminders, insurance-claims). Same manifest contract as core modules. |
+| features (legacy) | `src/features/` | Sunset path. Allowed to import from anywhere during migration. Each feature migrates to `core/` or `plugins/` in its own PR. |
+
+### Dependency rules
+
+```text
+common/                 → nothing in src/
+common/kernel-contracts → nothing in src/ (pure types)
+infrastructure/         → common
+builder/                → common, infrastructure
+kernel/                 → common (contracts), infrastructure (host plumbing only)
+core/                   → common, infrastructure, builder, @/kernel (host hooks only)
+plugins/                → common, common/kernel-contracts, kernel/events, core/*/api.ts
+features/ (legacy)      → anywhere (transitional)
+```
+
+### Where do I put X?
+
+| New code | Goes in |
+|---|---|
+| Shared TS type used by 2+ layers | `src/common/types/` |
+| Pure helper (`cn`, formatters, guards) | `src/common/utils/` |
+| Wraps `fetch`, sockets, cookies, env, Sentry | `src/infrastructure/<topic>/` |
+| Renders a dynamic field / section / template from backend DSL | `src/builder/` |
+| Domain feature (CRUD, hooks, components for an entity) | `src/core/<module>/` |
+| Third-party-ish extension (telemedicine, billing, etc.) | `src/plugins/<name>/` |
+| Cross-module accessor by id, sidebar item registration | `src/kernel/` |
+
+### Module manifest contract
+
+Every core module and plugin exports a `ModuleManifest` from `manifest.ts`. The kernel registers manifests at boot and exposes registries via `usePluginNav()` and `usePermission(id)`. Per-module `messages/{en,ar}.json` files contain **unwrapped** keys; the kernel wraps them under `manifest.i18nNamespace` at load time.
+
+Each module also exposes a public surface as one or two sibling files:
+
+- `api.ts` — data/types/hooks/predicates. Importable from server-side, test, and route-guard contexts. Must **not** re-export React client components.
+- `pages.ts` — top-level page components rendered by app routes. Imports React client modules; keep out of `api.ts` to avoid pulling client code into server bundles. (Add only if the module has page components.)
+
+The manifest deliberately does not reference `api.ts` or `pages.ts` so kernel boot stays usable from `getRequestConfig` and Vitest. See `src/core/staff/` for the canonical example.
+
+### Import surface for core / plugins
+
+External code may import only:
+
+- `@/core/<name>` — the barrel.
+- `@/core/<name>/api` — non-UI public surface.
+- `@/core/<name>/pages` — page components (when present).
+- `@/core/<name>/manifest` — the manifest (rarely needed outside the kernel boot list).
+
+Deep imports into module internals (`@/core/<name>/components/...`, `@/core/<name>/hooks/...`, etc.) are blocked by ESLint. The same rule applies to `@/plugins/<name>/...` and to `@/kernel/registry/...` / `@/kernel/host/...` — external code imports the kernel via the `@/kernel` barrel only.
+
+Until features migrate, `@/features/<feature>/...` deep imports remain allowed.

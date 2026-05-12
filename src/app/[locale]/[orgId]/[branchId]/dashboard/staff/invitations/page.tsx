@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import { setRequestLocale } from "next-intl/server";
 
 const StaffInvitationsPage = dynamic(
-  () => import("@/features/staff/components/StaffInvitationsPage").then((m) => m.StaffInvitationsPage),
+  () => import("@/core/staff/components/StaffInvitationsPage").then((m) => m.StaffInvitationsPage),
   { loading: () => null },
 );
 

@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
-import { queryClient } from "@/lib/queryClient";
+import { ApiError } from "@/infrastructure/http/api";
+import { queryClient } from "@/infrastructure/query/queryClient";
 import { Button } from "@/components/ui/button";
 import {
   clearPendingProfileSelection,
@@ -29,7 +29,7 @@ import { useUserStore } from "../store/userStore";
 import { BranchSelector } from "./BranchSelector";
 import { ProfileCard } from "./ProfileCard";
 import { SelectionLayout } from "./SelectionLayout";
-import type { UserBranch, UserProfile, UserRole } from "@/types/user.types";
+import type { UserBranch, UserProfile, UserRole } from "@/common/types/user.types";
 
 function getAutoBranchId(profile?: UserProfile | null) {
   const branches = getProfileBranches(profile ?? undefined);

@@ -73,7 +73,20 @@
       "Bash(node -e \"const o=require\\('f:/Cradlen/cradlen-web/src/messages/en.json'\\);function walk\\(v,p\\){if\\(typeof v!=='object'||v==null\\)return console.log\\(p,'=',JSON.stringify\\(v\\)\\);for\\(const k of Object.keys\\(v\\)\\)walk\\(v[k],p?p+'.'+k:k\\)}const v=o.visits;function w\\(v,p\\){if\\(typeof v!=='object'||v==null\\){console.log\\(p,'=',JSON.stringify\\(v\\)\\);return}for\\(const k of Object.keys\\(v\\)\\)w\\(v[k],p?p+'.'+k:k\\)}w\\(v,'visits'\\)\")",
       "Bash(node -e \"const o=require\\('f:/Cradlen/cradlen-web/src/messages/en.json'\\);console.log\\(Object.keys\\(o.visits.actions\\).join\\('\\\\n'\\)\\)\")",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/ar.json','utf8'\\)\\); console.log\\('OK'\\)\")",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/ar.json','utf8'\\)\\); console.log\\('json OK'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/en.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('f:/Cradlen/cradlen-web/src/messages/ar.json','utf8'\\)\\); console.log\\('json OK'\\)\")",
+      "Bash(Get-ChildItem -Path \"f:\\\\Cradlen\\\\cradlen-web\\\\src\\\\features\" -Directory)",
+      "Bash(git -C f:/Cradlen/cradlen-web ls-files src/features/staff src/lib src/types src/hooks src/components/common/Sidebar.tsx src/features/auth/lib/permissions.ts src/messages src/i18n src/app/[locale]/layout.tsx src/app/[locale]/[orgId]/[branchId]/dashboard/staff)",
+      "Bash(git -C f:/Cradlen/cradlen-web grep -l -E \"from ['\\\\\"]@/features/staff|from ['\\\\\"]@/lib/\\(api|queryClient|queryKeys|routes|utils|error|branch\\\\.utils|subscription-errors\\)|canViewStaff|canManageStaff|canEditStaffRoles\" -- 'src/**/*.ts' 'src/**/*.tsx')",
+      "Bash(git mv *)",
+      "Bash(rmdir src/types)",
+      "Bash(rmdir src/lib/server)",
+      "Bash(rm src/core/staff/.gitkeep)",
+      "Bash(rm -rf src/core/staff)",
+      "Bash(mv src/core/staff-moved src/core/staff)",
+      "Bash(mkdir -p src/core/staff/messages)",
+      "Bash(node -e \"try{require.resolve\\('eslint-plugin-import'\\);console.log\\('yes'\\)}catch\\(e\\){console.log\\('no'\\)}\")",
+      "Bash(node --check eslint.config.mjs)",
+      "Bash(grep -E \"^\\\\s*\\\\d|error|\\\\\\\\bproblems\\\\\\\\b\")"
     ],
     "additionalDirectories": [
       "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard\\visits",

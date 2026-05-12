@@ -2,7 +2,7 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { routing } from "@/i18n/routing";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/infrastructure/query/queryClient";
 
 const DEFAULT_API_BASE_URL = "https://api.cradlen.com/v1";
 

@@ -4,7 +4,7 @@ import {
   AUTH_SELECTION_TOKEN_COOKIE,
   AUTH_TOKEN_COOKIE,
 } from "@/features/auth/lib/auth.constants";
-import { backendFetch, readBackendJson } from "@/lib/server/backend";
+import { backendFetch, readBackendJson } from "@/infrastructure/auth-transport/backend";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();

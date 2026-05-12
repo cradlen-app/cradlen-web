@@ -1,10 +1,10 @@
 import {
   canAccessMedicine,
-  canViewStaff,
   hasAnyStaffRole,
   isOwner,
 } from "@/features/auth/lib/permissions";
-import type { UserProfile } from "@/types/user.types";
+import { staffCan } from "@/core/staff/api";
+import type { UserProfile } from "@/common/types/user.types";
 
 /**
  * Strips the /orgId/branchId prefix from a locale-stripped pathname.
@@ -47,7 +47,7 @@ export function canAccessRoute(
     canonicalPathname === "/dashboard/staff" ||
     canonicalPathname.startsWith("/dashboard/staff/")
   ) {
-    return canViewStaff(profile);
+    return staffCan.read(profile);
   }
 
   if (

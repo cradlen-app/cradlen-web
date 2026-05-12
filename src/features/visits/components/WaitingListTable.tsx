@@ -7,7 +7,7 @@ import { Dialog } from "radix-ui";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import type { Visit, VisitStatus } from "../types/visits.types";
 import { EditVisitDrawer } from "./EditVisitDrawer";

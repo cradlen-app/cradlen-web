@@ -1,6 +1,6 @@
-import { apiAuthFetch, apiFetch } from "@/lib/api";
-import type { ApiResponse } from "@/types/api.types";
-import type { EngagementType, ExecutiveTitle } from "@/types/user.types";
+import { apiAuthFetch, apiFetch } from "@/infrastructure/http/api";
+import type { ApiResponse } from "@/common/types/api.types";
+import type { EngagementType, ExecutiveTitle } from "@/common/types/user.types";
 import { queryKeys } from "@/lib/queryKeys";
 
 export type OrganizationBranch = {

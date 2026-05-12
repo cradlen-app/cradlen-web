@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useNotifications } from "../hooks/useNotifications";
 import { NotificationItem } from "./NotificationItem";
 import type { Notification, NotificationCategory } from "../types/notification.types";

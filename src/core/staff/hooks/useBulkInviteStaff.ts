@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ApiError } from "@/lib/api";
-import { queryKeys } from "@/lib/queryKeys";
+import { ApiError } from "@/infrastructure/http/api";
+import { staffQueryKeys } from "../queryKeys";
 import { bulkInviteStaff } from "../lib/staff.api";
 import type { BulkInviteStaffRequest } from "../types/staff.api.types";
 
@@ -20,7 +20,7 @@ export function useBulkInviteStaff() {
     }) => bulkInviteStaff(organizationId, data),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        queryKey: staffQueryKeys.byOrg(variables.organizationId),
       });
     },
     onError: (error) => {

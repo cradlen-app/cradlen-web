@@ -11,9 +11,9 @@ import {
   getDefaultBranch,
 } from "@/features/auth/lib/current-user";
 import { Link, useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
+import { ApiError } from "@/infrastructure/http/api";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import {
   useDeleteStaffInvitation,
   useResendStaffInvitation,

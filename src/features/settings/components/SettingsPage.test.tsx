@@ -3,8 +3,8 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderWithIntl } from "@/test/render";
-import type { CurrentUser, UserRole } from "@/types/user.types";
-import { ApiError, apiAuthFetch } from "@/lib/api";
+import type { CurrentUser, UserRole } from "@/common/types/user.types";
+import { ApiError, apiAuthFetch } from "@/infrastructure/http/api";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { SettingsPage } from "./SettingsPage";
@@ -25,7 +25,7 @@ vi.mock("@/features/auth/hooks/useCurrentUser", () => ({
   CURRENT_USER_QUERY_KEY: ["currentUser"],
 }));
 
-vi.mock("@/lib/api", () => {
+vi.mock("@/infrastructure/http/api", () => {
   class MockApiError extends Error {
     public messages: string[];
     constructor(

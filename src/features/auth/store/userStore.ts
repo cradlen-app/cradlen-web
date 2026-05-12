@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { CurrentUser } from "@/types/user.types";
+import type { CurrentUser } from "@/common/types/user.types";
 
 type UserState = {
   user: CurrentUser | null;

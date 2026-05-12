@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { ApiError } from "@/lib/api";
+import { ApiError } from "@/infrastructure/http/api";
 import { renderWithIntl } from "@/test/render";
 import {
   getProfilesFromAuthResponse,

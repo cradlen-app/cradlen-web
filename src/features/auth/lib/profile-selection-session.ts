@@ -1,4 +1,4 @@
-import type { UserProfile } from "@/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 
 const PROFILE_SELECTION_KEY = "cradlen-profile-selection";
 

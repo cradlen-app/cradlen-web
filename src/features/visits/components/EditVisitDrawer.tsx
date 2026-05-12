@@ -6,8 +6,8 @@ import { Dialog } from "radix-ui";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { useStaff } from "@/features/staff/hooks/useStaff";
-import { cn } from "@/lib/utils";
+import { useStaff } from "@/core/staff/api";
+import { cn } from "@/common/utils/utils";
 import { useUpdateVisit } from "../hooks/useUpdateVisit";
 import { VISIT_PRIORITY, VISIT_TYPE } from "../lib/visits.constants";
 import type {

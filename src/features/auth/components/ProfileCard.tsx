@@ -1,5 +1,5 @@
 import { Building2, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 type ProfileCardProps = {
   organizationName: string;
