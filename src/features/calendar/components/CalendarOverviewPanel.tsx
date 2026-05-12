@@ -3,16 +3,16 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
-import { useStaff } from "@/features/staff/hooks/useStaff";
+import { useStaff } from "@/core/staff/api";
 import { formatEventTime, localIsoDate } from "../lib/calendar.utils";
 import { TYPE_BAR_CLASS } from "./CalendarEventChip";
 import type { CalendarEvent, CalendarParticipant } from "../types/calendar.types";
 
 function useStaffNameMap() {
   const { organizationId } = useUserProfileContext();
-  const { data: staff = [] } = useStaff(organizationId, undefined, { role: "DOCTOR" });
+  const { data: staff = [] } = useStaff(organizationId, undefined);
   const map = new Map<string, string>();
   for (const s of staff) {
     const name = `${s.firstName} ${s.lastName}`.trim() || (s.email ?? s.id);

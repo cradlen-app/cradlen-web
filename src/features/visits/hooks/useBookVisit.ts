@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookVisit } from "../lib/visits.api";
 import { queryKeys } from "@/lib/queryKeys";
-import { getApiErrorMessage } from "@/lib/error";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { toast } from "sonner";
 import type { BookVisitRequest } from "../types/visits.api.types";
 

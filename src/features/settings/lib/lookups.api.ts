@@ -1,5 +1,5 @@
-import { apiAuthFetch } from "@/lib/api";
-import type { ApiResponse } from "@/types/api.types";
+import { apiAuthFetch } from "@/infrastructure/http/api";
+import type { ApiResponse } from "@/common/types/api.types";
 
 export type SpecialtyLookup = { code: string; name: string };
 export type JobFunctionLookup = {

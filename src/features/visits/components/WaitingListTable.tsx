@@ -7,7 +7,7 @@ import { Dialog } from "radix-ui";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import type { Visit, VisitStatus } from "../types/visits.types";
 import { EditVisitDrawer } from "./EditVisitDrawer";
@@ -205,9 +205,13 @@ export function WaitingListTable({
                   GRID,
                 )}
               >
-                <span className="text-xs font-medium text-gray-500 tabular-nums">
-                  {visit.queueNumber ?? "—"}
-                </span>
+                {visit.queueNumber != null ? (
+                  <span className="inline-flex h-6 min-w-7 items-center justify-center rounded-full bg-gray-100 px-1.5 text-[11px] font-semibold tabular-nums text-gray-700">
+                    {visit.queueNumber}
+                  </span>
+                ) : (
+                  <span className="text-xs text-gray-300 tabular-nums">—</span>
+                )}
                 <p className="truncate text-xs font-medium text-brand-black">
                   {visit.patient.fullName}
                 </p>

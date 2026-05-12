@@ -1,5 +1,5 @@
 import { STAFF_ROLE } from "./auth.constants";
-import type { CurrentUser, UserProfile, UserRole, UserSpecialty } from "@/types/user.types";
+import type { CurrentUser, UserProfile, UserRole, UserSpecialty } from "@/common/types/user.types";
 import { useAuthContextStore } from "../store/authContextStore";
 
 export function getProfileIsClinical(profile?: UserProfile): boolean {

@@ -16,7 +16,7 @@ import {
   getProfileSpecialtyNames,
 } from "@/features/auth/lib/current-user";
 import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
-import type { CurrentUser, UserProfile } from "@/types/user.types";
+import type { CurrentUser, UserProfile } from "@/common/types/user.types";
 import type { DrawerKey, SoftDeleteKey } from "./settings.types";
 import {
   formatEngagementType,

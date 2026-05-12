@@ -229,6 +229,11 @@ export const bookVisitSchema = makeBookVisitSchema();
 
 export type BookVisitFormValues = z.infer<typeof bookVisitSchema>;
 
+function getDefaultScheduledAtLocal(now = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
 export function getDefaultBookVisitValues(): BookVisitFormValues {
   return {
     patientMode: "new",
@@ -244,7 +249,7 @@ export function getDefaultBookVisitValues(): BookVisitFormValues {
     visitType: VISIT_TYPE.VISIT,
     priority: VISIT_PRIORITY.NORMAL,
     assignedDoctorId: "",
-    scheduledAt: "",
+    scheduledAt: getDefaultScheduledAtLocal(),
     chiefComplaint: "",
     chiefComplaintCategories: [],
     chiefComplaintOnset: "",

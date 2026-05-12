@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useLogout } from "@/components/common/hooks/useLogout";
-import type { CurrentUser } from "@/types/user.types";
+import type { CurrentUser } from "@/common/types/user.types";
 import { getActiveProfile, getProfileOrganization } from "../lib/current-user";
 
 // Defensive guard. The backend should filter inactive orgs at the JWT-strategy

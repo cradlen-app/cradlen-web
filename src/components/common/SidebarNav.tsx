@@ -2,11 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import type { LucideIcon } from "lucide-react";
 
 export type SidebarNavItem = {
   path: string;
+  /** Full i18n key (e.g. "nav.dashboard" or "staff.nav.label"). */
   key: string;
   icon: LucideIcon;
 };
@@ -18,7 +19,7 @@ type SidebarNavProps = {
 };
 
 export function SidebarNav({ items, collapsed, dashboardPath }: SidebarNavProps) {
-  const t = useTranslations("nav");
+  const t = useTranslations();
   const pathname = usePathname();
 
   return (

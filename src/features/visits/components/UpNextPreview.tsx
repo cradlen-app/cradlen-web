@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useWaitingList } from "../hooks/useWaitingList";
 import { formatWaitTime } from "../lib/visits.utils";
 import { VisitPriorityBadge, VisitTypeBadge } from "./VisitBadges";

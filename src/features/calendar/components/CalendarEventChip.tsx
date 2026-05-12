@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import type { CalendarEventType } from "../types/calendar.types";
 
 export const TYPE_CHIP_CLASS: Record<CalendarEventType, string> = {

@@ -3,7 +3,7 @@
 import { ClipboardList, HeartPulse, Repeat, Stethoscope } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useVisitStats } from "../hooks/useVisitStats";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 type Props = {
   branchId: string;

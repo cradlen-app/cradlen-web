@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiFetch, ApiError } from "@/lib/api";
+import { apiFetch, ApiError } from "@/infrastructure/http/api";
 import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import type {

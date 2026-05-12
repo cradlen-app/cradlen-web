@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Controller,
@@ -12,10 +12,10 @@ import {
 } from "react-hook-form";
 import { Loader2, Plus, Search, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 import { usePatientSearch } from "@/features/visits/hooks/usePatientSearch";
-import { useStaff } from "@/features/staff/hooks/useStaff";
+import { useStaff } from "@/core/staff/api";
 import type { NewEventFormValues } from "../lib/calendar.schemas";
 
 const labelClass = "block text-xs font-medium text-gray-600 mb-1";
@@ -140,7 +140,13 @@ export function SurgeryFields({ register, control, errors, setValue }: BaseProps
   const { organizationId, branchId: activeBranchId, activeProfile } = useUserProfileContext();
   const branches = activeProfile?.branches ?? [];
 
-  const { data: doctors = [] } = useStaff(organizationId, undefined, { role: "DOCTOR" });
+  const { data: staffList = [] } = useStaff(organizationId, undefined, {
+    branchId: activeBranchId ?? undefined,
+  });
+  const doctors = useMemo(
+    () => staffList.filter((m) => m.isClinical),
+    [staffList],
+  );
 
   const { fields: participants, append, remove } = useFieldArray({
     control,

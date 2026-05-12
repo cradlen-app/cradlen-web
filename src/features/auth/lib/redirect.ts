@@ -1,5 +1,5 @@
-import type { UserRole } from "@/types/user.types";
-import { buildDashboardUrl } from "@/lib/routes";
+import type { UserRole } from "@/common/types/user.types";
+import { buildDashboardUrl } from "@/infrastructure/http/routes";
 
 export function getSafeRedirectPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {

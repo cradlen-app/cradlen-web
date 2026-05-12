@@ -1,15 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { useStaff } from "@/features/staff/hooks/useStaff";
-import { ApiError } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { useStaff } from "@/core/staff/api";
+import { ApiError } from "@/infrastructure/http/api";
+import { cn } from "@/common/utils/utils";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { usePatientSearch } from "../hooks/usePatientSearch";
 import { searchPatients } from "../lib/visits.api";
@@ -63,10 +63,14 @@ export function BookVisitDrawer({
   ];
 
   const bookVisit = useBookVisit();
-  const { data: doctors = [] } = useStaff(
+  const { data: staffList = [] } = useStaff(
     organizationId ?? undefined,
     undefined,
-    { branchId: branchId ?? undefined, role: "DOCTOR" },
+    { branchId: branchId ?? undefined },
+  );
+  const doctors = useMemo(
+    () => staffList.filter((member) => member.isClinical),
+    [staffList],
   );
 
   const [searchInput, setSearchInput] = useState("");
@@ -99,6 +103,15 @@ export function BookVisitDrawer({
   const isMarried = useWatch({ control, name: "isMarried" });
   const patientMode = useWatch({ control, name: "patientMode" });
   const assignedDoctorId = useWatch({ control, name: "assignedDoctorId" });
+
+  // Auto-select the first available doctor once the list resolves, unless the
+  // user has already picked one.
+  useEffect(() => {
+    if (!assignedDoctorId && doctors.length > 0) {
+      setValue("assignedDoctorId", doctors[0].id, { shouldDirty: false });
+    }
+  }, [doctors, assignedDoctorId, setValue]);
+
   const selectedDoctor = doctors.find((d) => d.id === assignedDoctorId);
   const doctorHint =
     selectedDoctor?.specialties?.map((s) => s.name).join(", ") ||
@@ -182,7 +195,11 @@ export function BookVisitDrawer({
 
     let body: BookVisitRequest;
 
-    const scheduledAt = values.scheduledAt?.trim() || new Date().toISOString();
+    const scheduledRaw = values.scheduledAt?.trim();
+    const scheduledDate = scheduledRaw ? new Date(scheduledRaw) : new Date();
+    const scheduledAt = Number.isNaN(scheduledDate.getTime())
+      ? new Date().toISOString()
+      : scheduledDate.toISOString();
     const isMedicalRep = values.visitType === VISIT_TYPE.MEDICAL_REP;
     const intake = buildIntake(values) ?? {};
 
@@ -280,34 +297,35 @@ export function BookVisitDrawer({
             onClearSearch={handleClearSearch}
           />
 
-          {(duplicateMatch || duplicateError) && (
-            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-2 text-xs text-amber-800">
-              <p className="font-medium">{t("create.errors.nationalIdExists")}</p>
-              {duplicateMatch ? (
-                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[11px] text-amber-700">
-                    {duplicateMatch.fullName}
-                    {duplicateMatch.nationalId ? ` · ${duplicateMatch.nationalId}` : ""}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleUseExistingPatient}
-                    className="inline-flex h-7 items-center rounded-full bg-amber-600 px-3 text-[11px] font-semibold text-white hover:bg-amber-600/90"
-                  >
-                    {t("create.errors.useExistingPatient")}
-                  </button>
-                </div>
-              ) : (
-                <p className="mt-1 text-[11px] text-amber-700">
-                  {t("create.errors.searchPatientsHint")}
-                </p>
-              )}
-            </div>
-          )}
-
           <FormProvider {...form}>
             <form onSubmit={onSubmit} className="mt-5 flex min-h-0 flex-1 flex-col">
               <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pe-1">
+
+              {/* Duplicate national_id alert */}
+              {(duplicateMatch || duplicateError) && (
+                <div className="rounded-xl border border-amber-200/70 bg-amber-50/60 px-3 py-2.5 text-xs text-amber-800">
+                  <p className="font-medium">{t("create.errors.nationalIdExists")}</p>
+                  {duplicateMatch ? (
+                    <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[11px] text-amber-700">
+                        {duplicateMatch.fullName}
+                        {duplicateMatch.nationalId ? ` · ${duplicateMatch.nationalId}` : ""}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleUseExistingPatient}
+                        className="inline-flex h-7 items-center rounded-full bg-brand-primary px-3 text-[11px] font-semibold text-white hover:bg-brand-primary/90"
+                      >
+                        {t("create.errors.useExistingPatient")}
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-[11px] text-amber-700">
+                      {t("create.errors.searchPatientsHint")}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Visit Meta */}
               <BookVisitMetaSection
@@ -332,14 +350,17 @@ export function BookVisitDrawer({
               />
 
               {/* Clinical intake (optional, collapsible) */}
-              <section>
+              <section className="space-y-3">
                 <button
                   type="button"
                   onClick={() => setIntakeOpen((v) => !v)}
-                  className="flex w-full items-center justify-between rounded-lg border border-gray-100 bg-gray-50/60 px-3 py-2 text-xs font-medium text-brand-black transition-colors hover:bg-gray-100/60"
                   aria-expanded={intakeOpen}
+                  className="flex w-full items-center gap-4 text-start"
                 >
-                  <span>{t("create.intake.title")}</span>
+                  <p className="shrink-0 text-xs font-medium text-gray-400">
+                    {t("create.intake.title")}
+                  </p>
+                  <span className="h-px flex-1 bg-gray-200" />
                   <ChevronDown
                     className={cn(
                       "size-3.5 text-gray-400 transition-transform",
@@ -348,11 +369,7 @@ export function BookVisitDrawer({
                     aria-hidden="true"
                   />
                 </button>
-                {intakeOpen && (
-                  <div className="mt-3">
-                    <BookVisitIntakeSection />
-                  </div>
-                )}
+                {intakeOpen && <BookVisitIntakeSection />}
               </section>
             </div>
 

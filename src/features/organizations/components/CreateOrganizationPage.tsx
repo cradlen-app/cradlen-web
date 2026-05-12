@@ -12,7 +12,7 @@ import {
   getFormString,
   hasRequiredValues,
 } from "@/features/settings/components/settings.utils";
-import { getSubscriptionLimit } from "@/lib/subscription-errors";
+import { getSubscriptionLimit } from "@/common/errors/subscription-errors";
 
 function FieldGroup({
   icon,

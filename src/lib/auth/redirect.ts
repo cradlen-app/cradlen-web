@@ -1,4 +1,4 @@
-import type { UserProfile } from "@/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 
 export type OnboardingRequiredStep = "VERIFY_OTP" | "COMPLETE_ONBOARDING";
 

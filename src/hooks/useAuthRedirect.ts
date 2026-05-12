@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
+import { ApiError } from "@/infrastructure/http/api";
 import {
   clearPendingSignupSession,
   getPendingSignupEmail,

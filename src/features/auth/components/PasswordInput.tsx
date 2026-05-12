@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 type PasswordInputProps = {
   id: string;

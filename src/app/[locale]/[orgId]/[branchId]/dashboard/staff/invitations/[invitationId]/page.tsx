@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { StaffInvitationsPage } from "@/features/staff/components/StaffInvitationsPage";
+import { StaffInvitationsPage } from "@/core/staff/pages";
 
 type Props = {
   params: Promise<{

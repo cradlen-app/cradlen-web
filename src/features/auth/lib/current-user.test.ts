@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CurrentUser, UserProfile } from "@/types/user.types";
+import type { CurrentUser, UserProfile } from "@/common/types/user.types";
 import {
   getActiveProfile,
   getActiveRole,

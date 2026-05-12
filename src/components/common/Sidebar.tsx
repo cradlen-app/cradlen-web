@@ -22,7 +22,10 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { LucideIcon } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
+import type { NavItem } from "@/common/kernel-contracts";
+import { usePluginNav } from "@/kernel";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
@@ -31,47 +34,79 @@ import {
 } from "@/features/auth/lib/current-user";
 import {
   canAccessMedicine,
-  canViewStaff as canViewStaffPerm,
   hasAnyStaffRole,
   isOwner,
 } from "@/features/auth/lib/permissions";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import { canUseSettings } from "./sidebar-access";
 import { SidebarNav, type SidebarNavItem } from "./SidebarNav";
 import { useSidebarBranchSwitch } from "./hooks/useSidebarBranchSwitch";
 import { useLogout } from "./hooks/useLogout";
 
-const OWNER_NAV: SidebarNavItem[] = [
-  { path: "", key: "dashboard", icon: LayoutDashboard },
-  { path: "/visits", key: "visits", icon: ClipboardList },
-  { path: "/calendar", key: "calendar", icon: Calendar },
-  { path: "/patients", key: "patients", icon: Users },
-  { path: "/staff", key: "staff", icon: UserCheck },
-  { path: "/medicine", key: "medicine", icon: Pill },
-  { path: "/medical-rep", key: "medicalRep", icon: Briefcase },
-  { path: "/analytics", key: "analytics", icon: BarChart2 },
+/**
+ * Legacy nav items contributed by `features/*` that haven't migrated to
+ * the kernel manifest yet. Staff has migrated and is contributed by
+ * `@/core/staff/manifest` via `usePluginNav()` (order: 50).
+ *
+ * Each item carries an `order` used to interleave with plugin nav items
+ * at render time. As features migrate, their entries here are deleted
+ * and re-declared in their core/<module>/nav.ts.
+ */
+type OrderedNavItem = SidebarNavItem & { order: number };
+
+const OWNER_LEGACY_NAV: OrderedNavItem[] = [
+  { path: "", key: "nav.dashboard", icon: LayoutDashboard, order: 10 },
+  { path: "/visits", key: "nav.visits", icon: ClipboardList, order: 20 },
+  { path: "/calendar", key: "nav.calendar", icon: Calendar, order: 30 },
+  { path: "/patients", key: "nav.patients", icon: Users, order: 40 },
+  { path: "/medicine", key: "nav.medicine", icon: Pill, order: 60 },
+  { path: "/medical-rep", key: "nav.medicalRep", icon: Briefcase, order: 70 },
+  { path: "/analytics", key: "nav.analytics", icon: BarChart2, order: 80 },
 ];
 
-const BASE_NAV: SidebarNavItem[] = [
-  { path: "", key: "dashboard", icon: LayoutDashboard },
-  { path: "/visits", key: "visits", icon: ClipboardList },
-  { path: "/calendar", key: "calendar", icon: Calendar },
-  { path: "/patients", key: "patients", icon: Users },
+const BASE_LEGACY_NAV: OrderedNavItem[] = [
+  { path: "", key: "nav.dashboard", icon: LayoutDashboard, order: 10 },
+  { path: "/visits", key: "nav.visits", icon: ClipboardList, order: 20 },
+  { path: "/calendar", key: "nav.calendar", icon: Calendar, order: 30 },
+  { path: "/patients", key: "nav.patients", icon: Users, order: 40 },
 ];
 
-const STAFF_NAV_ITEM: SidebarNavItem = { path: "/staff", key: "staff", icon: UserCheck };
-const MEDICINE_NAV_ITEM: SidebarNavItem = { path: "/medicine", key: "medicine", icon: Pill };
+const MEDICINE_LEGACY_NAV: OrderedNavItem = {
+  path: "/medicine",
+  key: "nav.medicine",
+  icon: Pill,
+  order: 60,
+};
 
-import type { UserProfile } from "@/types/user.types";
-function buildNavForProfile(profile: UserProfile | undefined): SidebarNavItem[] {
-  if (isOwner(profile)) return OWNER_NAV;
-
-  const items = [...BASE_NAV];
-  if (canViewStaffPerm(profile)) items.push(STAFF_NAV_ITEM);
-  if (canAccessMedicine(profile)) items.push(MEDICINE_NAV_ITEM);
+import type { UserProfile } from "@/common/types/user.types";
+function buildLegacyNav(profile: UserProfile | undefined): OrderedNavItem[] {
+  if (isOwner(profile)) return OWNER_LEGACY_NAV;
+  const items = [...BASE_LEGACY_NAV];
+  if (canAccessMedicine(profile)) items.push(MEDICINE_LEGACY_NAV);
   return items;
+}
+
+function pluginToSidebarItem(item: NavItem): OrderedNavItem {
+  return {
+    path: item.path,
+    key: item.labelKey,
+    icon: item.icon as LucideIcon,
+    order: item.order ?? 999,
+  };
+}
+
+function mergeNav(
+  legacy: OrderedNavItem[],
+  pluginNav: readonly NavItem[],
+): SidebarNavItem[] {
+  const combined: OrderedNavItem[] = [
+    ...legacy,
+    ...pluginNav.map(pluginToSidebarItem),
+  ];
+  combined.sort((a, b) => a.order - b.order);
+  return combined.map(({ order: _o, ...rest }) => rest);
 }
 
 export function Sidebar() {
@@ -101,9 +136,11 @@ export function Sidebar() {
 
   const { handleLogout } = useLogout();
 
+  const pluginNav = usePluginNav();
+
   if (!hasAnyStaffRole(profile)) return null;
 
-  const navItems = buildNavForProfile(profile);
+  const navItems = mergeNav(buildLegacyNav(profile), pluginNav);
   const organization = getProfileOrganization(profile);
   const clinicName = organization?.name ?? "-";
   const clinicBranch = branch?.city

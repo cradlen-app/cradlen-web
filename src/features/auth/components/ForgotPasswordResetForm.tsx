@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Link, useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { ApiError } from "@/infrastructure/http/api";
+import { cn } from "@/common/utils/utils";
 import { PasswordInput } from "./PasswordInput";
 import {
   createForgotPasswordResetSchema,

@@ -9,7 +9,7 @@ import {
   extractTokens,
   readBackendJson,
   sessionResponse,
-} from "@/lib/server/backend";
+} from "@/infrastructure/auth-transport/backend";
 
 export async function POST() {
   const refreshToken = (await cookies()).get(AUTH_REFRESH_TOKEN_COOKIE)?.value;

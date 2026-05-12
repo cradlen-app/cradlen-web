@@ -12,8 +12,8 @@ import {
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Link } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
-import { getApiErrorMessage } from "@/lib/error";
+import { cn } from "@/common/utils/utils";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import { useVisit } from "../hooks/useVisit";
 import { CompleteVisitDialog } from "./CompleteVisitDialog";
@@ -137,7 +137,7 @@ export function VisitDetailPage({ visitId }: Props) {
               <VisitTypeBadge type={visit.type} />
               <VisitPriorityBadge priority={visit.priority} />
               {visit.queueNumber != null && (
-                <span className="text-xs text-gray-500 tabular-nums">
+                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-700 tabular-nums">
                   #{visit.queueNumber}
                 </span>
               )}
@@ -213,11 +213,11 @@ export function VisitDetailPage({ visitId }: Props) {
               : visit.notes?.trim() ?? t("noChiefComplaint")}
           </p>
           {visit.chiefComplaintMeta?.categories?.length ? (
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="mt-3 flex flex-wrap gap-2">
               {visit.chiefComplaintMeta.categories.map((c) => (
                 <span
                   key={c}
-                  className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600"
+                  className="inline-flex h-7 items-center rounded-full bg-brand-primary/10 px-3 text-[11px] font-medium text-brand-primary"
                 >
                   {c}
                 </span>
@@ -231,7 +231,7 @@ export function VisitDetailPage({ visitId }: Props) {
             <h2 className="mb-3 text-sm font-semibold text-brand-black">
               {t("vitals")}
             </h2>
-            <dl className="grid grid-cols-2 gap-y-3 sm:grid-cols-4">
+            <dl className="grid grid-cols-2 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
               <Field
                 label={t("vitalsBp")}
                 value={
@@ -243,26 +243,6 @@ export function VisitDetailPage({ visitId }: Props) {
               <Field
                 label={t("vitalsPulse")}
                 value={visit.vitals.pulse != null ? `${visit.vitals.pulse} bpm` : "—"}
-              />
-              <Field
-                label={t("vitalsTemperature")}
-                value={
-                  visit.vitals.temperature_c != null
-                    ? `${visit.vitals.temperature_c} °C`
-                    : "—"
-                }
-              />
-              <Field
-                label={t("vitalsSpo2")}
-                value={visit.vitals.spo2 != null ? `${visit.vitals.spo2} %` : "—"}
-              />
-              <Field
-                label={t("vitalsRespiratoryRate")}
-                value={
-                  visit.vitals.respiratory_rate != null
-                    ? `${visit.vitals.respiratory_rate} rpm`
-                    : "—"
-                }
               />
               <Field
                 label={t("vitalsWeight")}

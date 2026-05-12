@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { proxyAuthenticatedRequest } from "@/lib/server/backend";
+import { proxyAuthenticatedRequest } from "@/infrastructure/auth-transport/backend";
 
 type Context = {
   params: Promise<{ path?: string[] }>;

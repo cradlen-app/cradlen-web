@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { useStaff } from "@/features/staff/hooks/useStaff";
-import { cn } from "@/lib/utils";
+import { useStaff } from "@/core/staff/api";
+import { cn } from "@/common/utils/utils";
 import { useUpdateVisit } from "../hooks/useUpdateVisit";
 import { VISIT_PRIORITY, VISIT_TYPE } from "../lib/visits.constants";
 import type {
@@ -53,10 +53,14 @@ export function EditVisitDrawer({
   const t = useTranslations("visits");
   const updateVisit = useUpdateVisit();
 
-  const { data: doctors = [] } = useStaff(
+  const { data: staffList = [] } = useStaff(
     organizationId ?? undefined,
     undefined,
-    { branchId: branchId ?? undefined, role: "DOCTOR" },
+    { branchId: branchId ?? undefined },
+  );
+  const doctors = useMemo(
+    () => staffList.filter((member) => member.isClinical),
+    [staffList],
   );
 
   const { register, handleSubmit, reset, control, setValue } = useForm<FormValues>({
