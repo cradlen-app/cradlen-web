@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { STAFF_API_ROLE } from "@/features/auth/lib/auth.constants";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import type { StaffFilter } from "../types/staff.types";
 
 const STAFF_FILTERS = [

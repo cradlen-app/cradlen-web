@@ -1,5 +1,5 @@
-import { apiAuthFetch, apiFetch } from "@/lib/api";
-import type { ApiResponse } from "@/types/api.types";
+import { apiAuthFetch, apiFetch } from "@/infrastructure/http/api";
+import type { ApiResponse } from "@/common/types/api.types";
 import type {
   AcceptStaffInviteRequest,
   AcceptStaffInviteResponse,

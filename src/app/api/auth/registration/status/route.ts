@@ -1,4 +1,4 @@
-import { backendFetch, readBackendJson } from "@/lib/server/backend";
+import { backendFetch, readBackendJson } from "@/infrastructure/auth-transport/backend";
 import { AUTH_TOKEN_COOKIE } from "@/features/auth/lib/auth.constants";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";

@@ -2,7 +2,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { formatRelativeTime } from "../lib/utils";
 import type { Notification, NotificationCategory } from "../types/notification.types";
 

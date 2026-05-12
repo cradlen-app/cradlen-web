@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { VISIT_TYPE } from "../lib/visits.constants";
 import type { BookVisitFormValues } from "../lib/visits.schemas";
 import type { ApiVisitType } from "../types/visits.api.types";

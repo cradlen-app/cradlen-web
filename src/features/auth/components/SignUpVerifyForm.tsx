@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
+import { ApiError } from "@/infrastructure/http/api";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep2Schema } from "../lib/sign-up.schemas";
 import {

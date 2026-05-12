@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateVisitStatus } from "../lib/visits.api";
 import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/lib/error";
+import { getApiErrorMessage } from "@/common/errors/error";
 import type { VisitStatus } from "../types/visits.types";
 
 export function useUpdateVisitStatus() {

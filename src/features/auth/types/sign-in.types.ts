@@ -1,4 +1,4 @@
-import type { UserProfile } from "@/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 import type { OnboardingRequiredResponse } from "@/lib/auth/redirect";
 
 export type SignInRequest = { email: string; password: string };

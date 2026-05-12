@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { apiAuthFetch, ApiError } from "@/lib/api";
+import { apiAuthFetch, ApiError } from "@/infrastructure/http/api";
 import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import type {

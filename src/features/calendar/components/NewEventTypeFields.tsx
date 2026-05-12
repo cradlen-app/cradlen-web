@@ -12,10 +12,10 @@ import {
 } from "react-hook-form";
 import { Loader2, Plus, Search, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 import { usePatientSearch } from "@/features/visits/hooks/usePatientSearch";
-import { useStaff } from "@/features/staff/hooks/useStaff";
+import { useStaff } from "@/core/staff/api";
 import type { NewEventFormValues } from "../lib/calendar.schemas";
 
 const labelClass = "block text-xs font-medium text-gray-600 mb-1";

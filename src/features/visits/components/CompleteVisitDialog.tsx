@@ -5,8 +5,8 @@ import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { getApiErrorMessage } from "@/lib/error";
+import { cn } from "@/common/utils/utils";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { useUpdateVisit } from "../hooks/useUpdateVisit";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import {

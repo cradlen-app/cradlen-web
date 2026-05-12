@@ -12,7 +12,7 @@ import {
   normalizeApiRoleName,
 } from "../lib/staff.utils";
 import type { ApiStaffInvitation } from "../types/staff.api.types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 // ─── Shared helpers (also used by InvitationDetailsPanel) ────────────────────
 

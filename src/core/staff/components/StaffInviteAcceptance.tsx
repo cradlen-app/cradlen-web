@@ -7,9 +7,9 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError, apiAuthFetch } from "@/lib/api";
-import { queryKeys } from "@/lib/queryKeys";
-import { cn } from "@/lib/utils";
+import { ApiError, apiAuthFetch } from "@/infrastructure/http/api";
+import { staffQueryKeys } from "../queryKeys";
+import { cn } from "@/common/utils/utils";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useAvailableProfilesStore } from "@/features/auth/store/availableProfilesStore";
 import { setPendingProfileSelection } from "@/features/auth/lib/profile-selection-session";
@@ -18,8 +18,8 @@ import {
   getBranchId,
   getDefaultBranch,
 } from "@/features/auth/lib/current-user";
-import type { CurrentUser } from "@/types/user.types";
-import type { ApiResponse } from "@/types/api.types";
+import type { CurrentUser } from "@/common/types/user.types";
+import type { ApiResponse } from "@/common/types/api.types";
 import type { InvitationPreview } from "../types/staff.api.types";
 import {
   getInvitationPreview,
@@ -515,7 +515,7 @@ export function StaffInviteAcceptance() {
   const [step, setStep] = useState<"preview" | "accept">("preview");
 
   const previewQuery = useQuery({
-    queryKey: queryKeys.staff.invitationPreview(invitationId, token),
+    queryKey: staffQueryKeys.invitationPreview(invitationId, token),
     queryFn: () => getInvitationPreview(invitationId, token),
     enabled: hasParams,
     retry: false,

@@ -4,7 +4,7 @@ import {
   JOB_FUNCTION_CODE,
   STAFF_API_ROLE,
 } from "@/features/auth/lib/auth.constants";
-import type { UserProfile } from "@/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 import { canAccessRoute } from "./dashboard-access";
 
 function makeProfile(

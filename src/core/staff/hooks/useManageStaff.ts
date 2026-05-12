@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/lib/error";
-import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/common/errors/error";
+import { staffQueryKeys } from "../queryKeys";
 import { deactivateStaff, unassignStaffFromBranch, updateStaff } from "../lib/staff.api";
 import type { UpdateStaffRequest } from "../types/staff.api.types";
 
@@ -28,7 +28,7 @@ export function useUpdateStaff() {
       updateStaff(organizationId, staffId, data),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        queryKey: staffQueryKeys.byOrg(variables.organizationId),
       });
     },
     onError: (error) => {
@@ -45,7 +45,7 @@ export function useDeactivateStaff() {
       deactivateStaff(organizationId, staffId),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        queryKey: staffQueryKeys.byOrg(variables.organizationId),
       });
     },
     onError: (error) => {
@@ -63,7 +63,7 @@ export function useUnassignStaffFromBranch() {
       unassignStaffFromBranch(organizationId, staffId, branchId),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.staff.byOrg(variables.organizationId),
+        queryKey: staffQueryKeys.byOrg(variables.organizationId),
       });
     },
     onError: (error) => {

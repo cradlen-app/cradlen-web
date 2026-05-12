@@ -4,7 +4,7 @@ import { SIGNUP_TOKEN_COOKIE } from "@/features/auth/lib/auth.constants";
 import {
   clearSignupTokenCookie,
   setSignupTokenCookie,
-} from "@/lib/server/backend";
+} from "@/infrastructure/auth-transport/backend";
 
 function getObject(value: unknown) {
   return value && typeof value === "object"

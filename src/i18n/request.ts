@@ -1,7 +1,12 @@
 import { getRequestConfig } from "next-intl/server";
+
+import type { Locale } from "@/common/kernel-contracts";
+import { mergeMessages } from "@/infrastructure/i18n/mergeMessages";
+import { bootModules } from "@/kernel";
+
 import { routing } from "./routing";
 
-async function loadMessages(locale: string) {
+async function loadBaseMessages(locale: string) {
   switch (locale) {
     case "ar":
       return (await import("../messages/ar.json")).default;
@@ -16,8 +21,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
-  return {
-    locale,
-    messages: await loadMessages(locale),
-  };
+  const registry = bootModules();
+  const base = await loadBaseMessages(locale);
+  const messages = await mergeMessages(locale as Locale, base, registry);
+
+  return { locale, messages };
 });

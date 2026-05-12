@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ApiError } from "@/lib/api";
-import { getSubscriptionLimit } from "@/lib/subscription-errors";
+import { ApiError } from "@/infrastructure/http/api";
+import { getSubscriptionLimit } from "@/common/errors/subscription-errors";
 
 describe("getSubscriptionLimit", () => {
   it("returns null for non-ApiError values", () => {

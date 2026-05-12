@@ -7,8 +7,8 @@ import {
   fetchStaffInvitations,
   resendStaffInvitation,
 } from "../lib/staff.api";
-import { queryKeys } from "@/lib/queryKeys";
-import { getApiErrorMessage } from "@/lib/error";
+import { staffQueryKeys } from "../queryKeys";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { toast } from "sonner";
 import type {
   ApiStaffInvitation,
@@ -41,8 +41,8 @@ function unwrapInvitation(response: StaffInvitationResponse): ApiStaffInvitation
   return "data" in response ? response.data : response;
 }
 
-/** @deprecated Use `queryKeys.staff.invitations.all()` directly instead. */
-export const STAFF_INVITATIONS_QUERY_KEY = queryKeys.staff.invitations.all();
+/** @deprecated Use `staffQueryKeys.invitations.all()` directly instead. */
+export const STAFF_INVITATIONS_QUERY_KEY = staffQueryKeys.invitations.all();
 
 export function useStaffInvitations(
   organizationId: string | undefined,
@@ -52,7 +52,7 @@ export function useStaffInvitations(
   // filter on the client (see spec §4.3).
 ) {
   return useQuery<{ data: ApiStaffInvitation[]; meta?: StaffInvitationsMeta }>({
-    queryKey: queryKeys.staff.invitations.list(organizationId ?? "", { page, limit, status }),
+    queryKey: staffQueryKeys.invitations.list(organizationId ?? "", { page, limit, status }),
     queryFn: async () =>
       unwrapInvitations(
         await fetchStaffInvitations({
@@ -71,7 +71,7 @@ export function useStaffInvitation(
   invitationId: string | null,
 ) {
   return useQuery({
-    queryKey: queryKeys.staff.invitations.detail(organizationId ?? "", invitationId ?? ""),
+    queryKey: staffQueryKeys.invitations.detail(organizationId ?? "", invitationId ?? ""),
     queryFn: async () =>
       unwrapInvitation(await fetchStaffInvitation(organizationId!, invitationId!)),
     enabled: !!organizationId && !!invitationId,
@@ -92,9 +92,9 @@ export function useResendStaffInvitation() {
       resendStaffInvitation(organizationId, invitationId),
     onSuccess: async (_data, variables) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.invitations.all() }),
+        queryClient.invalidateQueries({ queryKey: staffQueryKeys.invitations.all() }),
         queryClient.invalidateQueries({
-          queryKey: queryKeys.staff.invitations.detail(
+          queryKey: staffQueryKeys.invitations.detail(
             variables.organizationId,
             variables.invitationId,
           ),
@@ -120,7 +120,7 @@ export function useDeleteStaffInvitation() {
       deleteStaffInvitation(organizationId, invitationId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.staff.invitations.all(),
+        queryKey: staffQueryKeys.invitations.all(),
       });
     },
     onError: (error) => {

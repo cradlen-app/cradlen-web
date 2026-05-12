@@ -1,4 +1,4 @@
-import type { UserBranch } from "@/types/user.types";
+import type { UserBranch } from "@/common/types/user.types";
 
 /**
  * Returns a formatted location string by joining the non-empty address, city,

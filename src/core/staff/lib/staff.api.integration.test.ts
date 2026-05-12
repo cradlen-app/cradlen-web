@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { apiAuthFetch, apiFetch } from "@/lib/api";
+import { apiAuthFetch, apiFetch } from "@/infrastructure/http/api";
 import {
   acceptStaffInvite,
   deactivateStaff,
@@ -12,7 +12,7 @@ import {
   updateStaff,
 } from "./staff.api";
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/infrastructure/http/api", () => ({
   apiAuthFetch: vi.fn(),
   apiFetch: vi.fn(),
 }));

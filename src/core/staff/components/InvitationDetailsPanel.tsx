@@ -4,7 +4,7 @@ import { Mail, RefreshCw, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { STAFF_INVITE_DAY_LABELS } from "../lib/staff-invite.schemas";
 import type { ApiStaffInvitation } from "../types/staff.api.types";
 import {

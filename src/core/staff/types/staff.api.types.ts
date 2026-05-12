@@ -262,7 +262,7 @@ export type AcceptStaffInviteRequest = {
 export type AcceptStaffInviteResponse = {
   data: {
     authenticated?: true;
-    profiles?: import("@/types/user.types").UserProfile[];
+    profiles?: import("@/common/types/user.types").UserProfile[];
   };
   meta?: Record<string, unknown>;
 };

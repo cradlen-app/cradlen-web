@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import {
   CHIEF_COMPLAINT_CATEGORIES,
   CHIEF_COMPLAINT_MAX,

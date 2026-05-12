@@ -6,7 +6,7 @@ import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useNotifications } from "../hooks/useNotifications";
 import { NotificationItem } from "./NotificationItem";
 import type { Notification } from "../types/notification.types";

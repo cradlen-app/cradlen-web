@@ -1,4 +1,4 @@
-import type { UserProfile } from "@/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 import type { AuthTokens } from "./sign-in.types";
 
 export type Step1Data = {

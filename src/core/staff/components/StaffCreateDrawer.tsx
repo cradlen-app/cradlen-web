@@ -19,9 +19,9 @@ import {
   STAFF_API_ROLE,
   type StaffApiRole,
 } from "@/features/auth/lib/auth.constants";
-import { canEditStaffRoles } from "@/features/auth/lib/permissions";
-import { ApiError } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { usePermission } from "@/kernel";
+import { ApiError } from "@/infrastructure/http/api";
+import { cn } from "@/common/utils/utils";
 import { useCreateStaffDirect } from "../hooks/useCreateStaffDirect";
 import { useInviteStaff } from "../hooks/useInviteStaff";
 import { useUpdateStaff } from "../hooks/useManageStaff";
@@ -123,7 +123,7 @@ export function StaffCreateDrawer({
   const createDirect = useCreateStaffDirect();
   const updateStaff = useUpdateStaff();
   const { activeProfile, isOwner: callerIsOwner } = useUserProfileContext();
-  const ownerCanEditRoles = canEditStaffRoles(activeProfile);
+  const ownerCanEditRoles = usePermission("staff.editRoles");
 
   const { data: roleFilters = [] } = useStaffRoles(organizationId);
   const { data: jobFunctionOptions = [] } = useJobFunctions();

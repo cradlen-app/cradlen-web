@@ -1,4 +1,4 @@
-import { ApiError } from "@/lib/api";
+import { ApiError } from "@/infrastructure/http/api";
 
 export type SubscriptionLimitResource = "branches" | "organizations" | string;
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useSpecialtiesLookup } from "@/features/settings/hooks/useSettingsLookups";
 
 interface SpecialtiesSelectProps {
