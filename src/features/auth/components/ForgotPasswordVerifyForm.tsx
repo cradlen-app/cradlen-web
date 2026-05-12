@@ -5,7 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
+import { ApiError } from "@/infrastructure/http/api";
 import {
   createForgotPasswordOtpSchema,
   type ForgotPasswordOtpData,

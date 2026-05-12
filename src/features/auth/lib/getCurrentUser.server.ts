@@ -5,9 +5,9 @@ import {
   backendFetch,
   extractTokens,
   readBackendJson,
-} from "@/lib/server/backend";
-import type { CurrentUser } from "@/types/user.types";
-import type { ApiResponse } from "@/types/api.types";
+} from "@/infrastructure/auth-transport/backend";
+import type { CurrentUser } from "@/common/types/user.types";
+import type { ApiResponse } from "@/common/types/api.types";
 import {
   AUTH_TOKEN_COOKIE,
   AUTH_REFRESH_TOKEN_COOKIE,

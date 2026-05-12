@@ -16,12 +16,12 @@ import { isOwner as isOwnerPerm } from "@/features/auth/lib/permissions";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUserStore } from "@/features/auth/store/userStore";
-import type { CurrentUser } from "@/types/user.types";
+import type { CurrentUser } from "@/common/types/user.types";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
-import { queryClient } from "@/lib/queryClient";
+import { ApiError } from "@/infrastructure/http/api";
+import { queryClient } from "@/infrastructure/query/queryClient";
 import { queryKeys } from "@/lib/queryKeys";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import {
   deleteBranch,
   deleteOrganization,

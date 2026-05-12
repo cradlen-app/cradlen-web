@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 const STATUS_STYLES: Record<string, string> = {
   ACTIVE: "bg-emerald-50 text-emerald-700",

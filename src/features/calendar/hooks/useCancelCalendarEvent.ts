@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cancelCalendarEvent } from "../lib/calendar.api";
 import { queryKeys } from "@/lib/queryKeys";
-import { getApiErrorMessage } from "@/lib/error";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { toast } from "sonner";
 
 export function useCancelCalendarEvent() {

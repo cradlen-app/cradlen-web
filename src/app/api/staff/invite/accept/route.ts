@@ -5,11 +5,11 @@ import {
   readBackendJson,
   sessionResponse,
   setSelectionTokenCookie,
-} from "@/lib/server/backend";
+} from "@/infrastructure/auth-transport/backend";
 import {
   extractSelectionToken,
   sanitizeProfileSelection,
-} from "@/lib/server/multi-tenant-auth";
+} from "@/infrastructure/auth-transport/multi-tenant-auth";
 
 export async function POST(request: Request) {
   const requestBody = await request.arrayBuffer();

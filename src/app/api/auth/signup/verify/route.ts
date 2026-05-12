@@ -1,9 +1,9 @@
-import { backendFetch, readBackendJson } from "@/lib/server/backend";
+import { backendFetch, readBackendJson } from "@/infrastructure/auth-transport/backend";
 import {
   getSignupTokenFromRequest,
   persistSignupTokenFromBody,
   sanitizeSignupTokenResponse,
-} from "@/lib/server/signup-session";
+} from "@/infrastructure/auth-transport/signup-session";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

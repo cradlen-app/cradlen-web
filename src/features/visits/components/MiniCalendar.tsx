@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 type Props = {
   selectedDate: string; // YYYY-MM-DD

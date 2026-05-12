@@ -4,10 +4,10 @@ import { useState, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/lib/api";
-import { queryClient } from "@/lib/queryClient";
+import { ApiError } from "@/infrastructure/http/api";
+import { queryClient } from "@/infrastructure/query/queryClient";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import {
   getProfilesFromAuthResponse,
@@ -36,7 +36,7 @@ import { useSelectProfile } from "../hooks/useSelectProfile";
 import { useAuthStore } from "../store/authStore";
 import { useAuthContextStore } from "../store/authContextStore";
 import { useAvailableProfilesStore } from "../store/availableProfilesStore";
-import type { UserProfile, UserRole } from "@/types/user.types";
+import type { UserProfile, UserRole } from "@/common/types/user.types";
 import type { Step3Data } from "../types/sign-up.types";
 
 function canAutoSelect(profiles: UserProfile[]): boolean {

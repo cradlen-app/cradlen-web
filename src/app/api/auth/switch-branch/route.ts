@@ -1,4 +1,4 @@
-import { switchBranchSession } from "@/lib/server/multi-tenant-auth";
+import { switchBranchSession } from "@/infrastructure/auth-transport/multi-tenant-auth";
 
 export function POST(request: Request) {
   return switchBranchSession(request);

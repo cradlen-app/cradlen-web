@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 import type { PatientFilter } from "../types/patients.types";
 
 const PATIENT_FILTERS: PatientFilter[] = ["all", "ACTIVE", "COMPLETED", "CANCELLED"];

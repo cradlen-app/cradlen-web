@@ -7,12 +7,13 @@ import { Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/hooks/useCurrentUser";
-import { ApiError } from "@/lib/api";
-import { getSubscriptionLimit } from "@/lib/subscription-errors";
-import { queryClient } from "@/lib/queryClient";
+import { ApiError } from "@/infrastructure/http/api";
+import { getSubscriptionLimit } from "@/common/errors/subscription-errors";
+import { queryClient } from "@/infrastructure/query/queryClient";
 import { queryKeys } from "@/lib/queryKeys";
-import { cn } from "@/lib/utils";
-import type { CurrentUser, UserProfile } from "@/types/user.types";
+import { staffQueryKeys } from "@/core/staff/api";
+import { cn } from "@/common/utils/utils";
+import type { CurrentUser, UserProfile } from "@/common/types/user.types";
 import {
   createBranch,
   updateBranch,
@@ -177,7 +178,7 @@ export function ProfileForm({
       const orgId = profile.organization.id;
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.staff.byOrg(orgId) }),
+        queryClient.invalidateQueries({ queryKey: staffQueryKeys.byOrg(orgId) }),
       ]);
     } catch (error) {
       if (error instanceof ApiError && error.status === 400) {

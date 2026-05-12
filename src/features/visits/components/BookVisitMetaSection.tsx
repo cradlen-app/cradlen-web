@@ -3,8 +3,8 @@
 import { Stethoscope } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { UseFormRegister, UseFormSetValue, FieldErrors } from "react-hook-form";
-import { cn } from "@/lib/utils";
-import type { StaffMember } from "@/features/staff/types/staff.types";
+import { cn } from "@/common/utils/utils";
+import type { StaffMember } from "@/core/staff/api";
 import { VISIT_PRIORITY } from "../lib/visits.constants";
 import type { BookVisitFormValues } from "../lib/visits.schemas";
 import type { ApiVisitType, ApiVisitPriority } from "../types/visits.api.types";

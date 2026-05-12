@@ -5,7 +5,7 @@ import {
   type JobFunctionCode,
   type StaffApiRole,
 } from "./auth.constants";
-import type { UserProfile } from "@/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 
 function profileApiRoleNames(profile?: UserProfile): Set<string> {
   const names = new Set<string>();
@@ -73,25 +73,9 @@ export function isClinical(profile?: UserProfile): boolean {
   return CLINICAL_JOB_FUNCTIONS.some((c) => codes.has(c));
 }
 
-/** Per backend spec §2: OWNER, BRANCH_MANAGER, or RECEPTIONIST may view staff. */
-export function canViewStaff(profile?: UserProfile): boolean {
-  return isOwner(profile) || isBranchManager(profile) || isReceptionist(profile);
-}
-
-/** Only OWNER + BRANCH_MANAGER can create/edit/delete staff or invitations. */
-export function canManageStaff(profile?: UserProfile): boolean {
-  return isOwner(profile) || isBranchManager(profile);
-}
-
-/** Only OWNER may edit role_ids or soft-delete an entire staff profile. */
-export function canEditStaffRoles(profile?: UserProfile): boolean {
-  return isOwner(profile);
-}
-
-/** Only OWNER may delete a staff profile from the organization. */
-export function canDeleteStaff(profile?: UserProfile): boolean {
-  return isOwner(profile);
-}
+// Staff-area permissions moved to their owning module:
+//   `staffCan.{read,manage,editRoles,delete}` (pure helpers) and the
+//   `staff.{read,manage,editRoles,delete}` kernel ids from `@/core/staff/api`.
 
 /** Settings access — every staff member can view their own profile. Owner gates org-level fields inside the page. */
 export function canUseSettings(profile?: UserProfile): boolean {

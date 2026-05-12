@@ -20,7 +20,7 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveRole } from "@/features/auth/lib/current-user";
 import { useUserStore } from "@/features/auth/store/userStore";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 type NavItem = {
   href: string;

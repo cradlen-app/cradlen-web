@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { backendFetch, readBackendJson } from "@/lib/server/backend";
+import { backendFetch, readBackendJson } from "@/infrastructure/auth-transport/backend";
 
 export async function POST(request: Request) {
   const requestBody = await request.arrayBuffer();

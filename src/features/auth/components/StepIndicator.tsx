@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/utils";
 
 type StepIndicatorProps = {
   currentStep: 1 | 2 | 3;

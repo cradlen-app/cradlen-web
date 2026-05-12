@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { UserProfile } from "@/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 import { AUTH_SELECTION_TOKEN_MAX_AGE } from "../lib/auth.constants";
 
 const TTL_MS = AUTH_SELECTION_TOKEN_MAX_AGE * 1000;

@@ -4,7 +4,7 @@ import {
   clearResetTokenCookie,
   readBackendJson,
   setResetTokenCookie,
-} from "@/lib/server/backend";
+} from "@/infrastructure/auth-transport/backend";
 import { RESET_TOKEN_MAX_AGE } from "@/features/auth/lib/auth.constants";
 
 export async function POST(request: NextRequest) {

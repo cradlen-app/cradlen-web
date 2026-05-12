@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { normalizeRoleName } from "@/features/auth/lib/current-user";
-import type { EngagementType, ExecutiveTitle } from "@/types/user.types";
+import type { EngagementType, ExecutiveTitle } from "@/common/types/user.types";
 
 export type SettingsT = ReturnType<typeof useTranslations>;
 export type SettingsLocale = "en" | "ar";

@@ -19,8 +19,8 @@ import {
   getValidAvailableProfiles,
   useAvailableProfilesStore,
 } from "@/features/auth/store/availableProfilesStore";
-import { queryClient } from "@/lib/queryClient";
-import type { UserBranch, UserProfile } from "@/types/user.types";
+import { queryClient } from "@/infrastructure/query/queryClient";
+import type { UserBranch, UserProfile } from "@/common/types/user.types";
 
 export type WorkspaceGroup = {
   profile: UserProfile;

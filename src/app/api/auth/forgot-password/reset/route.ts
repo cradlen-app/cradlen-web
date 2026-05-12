@@ -5,7 +5,7 @@ import {
   clearResetTokenCookie,
   getResetTokenFromRequest,
   readBackendJson,
-} from "@/lib/server/backend";
+} from "@/infrastructure/auth-transport/backend";
 
 export async function POST(request: NextRequest) {
   const resetToken = getResetTokenFromRequest(request);
