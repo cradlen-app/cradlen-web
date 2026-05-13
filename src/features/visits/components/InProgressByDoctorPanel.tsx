@@ -5,10 +5,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
-import {
-  useBranchInProgress,
-  type DoctorGroup,
-} from "../hooks/useBranchInProgress";
+import { type DoctorGroup } from "../hooks/useBranchInProgress";
+import { useUnifiedBranchInProgress } from "../hooks/useUnifiedBranchInProgress";
 import type { Visit } from "../types/visits.types";
 import {
   VisitPriorityBadge,
@@ -159,7 +157,7 @@ export function InProgressByDoctorPanel({
   filterDoctorId,
 }: Props) {
   const t = useTranslations("visits.inProgress");
-  const { groups, isLoading } = useBranchInProgress(branchId);
+  const { groups, isLoading } = useUnifiedBranchInProgress(branchId);
 
   if (!branchId || !organizationId) return null;
 

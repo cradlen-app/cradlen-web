@@ -1,9 +1,9 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { fetchVisitStats } from "../lib/visits.api";
 import { mapApiStatsToStats } from "../lib/visits.utils";
-import { queryKeys } from "@/lib/queryKeys";
 
 type Params = {
   branchId: string;
@@ -18,6 +18,5 @@ export function useVisitStats({ branchId, date, assignedToMe }: Params) {
       const res = await fetchVisitStats({ branchId, date, assignedToMe });
       return mapApiStatsToStats(res.data);
     },
-    staleTime: 0,
   });
 }

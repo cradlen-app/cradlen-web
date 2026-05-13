@@ -1,9 +1,9 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { fetchTodaysSchedule } from "../lib/visits.api";
 import { mapApiScheduleEvent } from "../lib/visits.utils";
-import { queryKeys } from "@/lib/queryKeys";
 
 type Params = {
   branchId: string;
@@ -18,6 +18,5 @@ export function useTodaysSchedule({ branchId, date, assignedToMe }: Params) {
       const res = await fetchTodaysSchedule({ branchId, date, assignedToMe });
       return res.data.map(mapApiScheduleEvent);
     },
-    staleTime: 0,
   });
 }

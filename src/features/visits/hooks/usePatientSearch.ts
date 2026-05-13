@@ -1,10 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { searchPatients } from "../lib/visits.api";
 import { mapApiPatientToPatient } from "../lib/visits.utils";
-import { queryKeys } from "@/lib/queryKeys";
 
 export function usePatientSearch(rawSearch: string) {
   const [debouncedSearch, setDebouncedSearch] = useState(rawSearch);
@@ -21,6 +21,5 @@ export function usePatientSearch(rawSearch: string) {
       return res.data.map(mapApiPatientToPatient);
     },
     enabled: debouncedSearch.trim().length >= 2,
-    staleTime: 0,
   });
 }
