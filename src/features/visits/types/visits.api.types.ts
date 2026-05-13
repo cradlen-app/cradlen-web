@@ -23,11 +23,30 @@ export type ApiPatient = {
   address?: string;
   husband_name?: string;
   is_married?: boolean;
+  marital_status?:
+    | "SINGLE"
+    | "MARRIED"
+    | "DIVORCED"
+    | "WIDOWED"
+    | "SEPARATED"
+    | "ENGAGED"
+    | "UNKNOWN";
   active_episodes?: { id: string; name: string; order: number }[];
   last_visit_date?: string;
   next_visit_date?: string;
   active_journey_name?: string;
   journey_status?: string;
+  guardian_links?: Array<{
+    id: string;
+    relation_to_patient: string;
+    is_primary: boolean;
+    guardian: {
+      id: string;
+      full_name: string;
+      national_id: string | null;
+      phone_number: string | null;
+    };
+  }>;
 };
 
 export type VitalsInput = {
@@ -255,6 +274,11 @@ export type UpdateMedicalRepVisitRequest = {
   priority?: ApiVisitPriority;
   notes?: string;
   medication_ids?: string[];
+  full_name?: string;
+  national_id?: string;
+  phone_number?: string;
+  email?: string;
+  company_name?: string;
 };
 
 export type UpdateMedicalRepVisitStatusRequest = {

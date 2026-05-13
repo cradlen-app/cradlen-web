@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useTranslations } from "next-intl";
@@ -14,17 +14,23 @@ import {
 } from "@/builder/runtime/TemplateExecutionContext";
 import { TemplateRenderer } from "@/builder/renderer/TemplateRenderer";
 import { buildSubmission } from "@/builder/templates/submission-builder";
+import { buildInitialValues } from "@/builder/templates/initial-values-builder";
 import {
   mapServerFieldErrors,
   validateTemplate,
 } from "@/builder/validator/client-validator";
 import type { FormTemplateDto } from "@/builder/templates/template.types";
+import { usePatient } from "@/features/patients/hooks/usePatient";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { useBookMedicalRepVisit } from "../hooks/useBookMedicalRepVisit";
+import { useUpdateVisit, type UpdateVisitRequest } from "../hooks/useUpdateVisit";
+import { useUpdateMedRepVisit } from "../hooks/useUpdateMedRepVisit";
 import type {
   BookMedicalRepVisitRequest,
   BookVisitRequest,
+  UpdateMedicalRepVisitRequest,
 } from "../types/visits.api.types";
+import type { Visit } from "../types/visits.types";
 
 const TEMPLATE_CODE = "book_visit";
 // OBGYN is the only valid extension today; pediatrics ships later. When the FE
@@ -37,6 +43,8 @@ type Props = {
   branchId: string | null | undefined;
   organizationId: string | null | undefined;
   branchName?: string;
+  /** When set, the drawer enters edit mode: prefills from the visit + PATCHes on submit. */
+  editingVisit?: Visit | null;
 };
 
 export function BookVisitDrawer({
@@ -44,6 +52,7 @@ export function BookVisitDrawer({
   onOpenChange,
   branchId,
   branchName,
+  editingVisit,
 }: Props) {
   const t = useTranslations("visits");
   const {
@@ -51,6 +60,31 @@ export function BookVisitDrawer({
     isLoading,
     isError,
   } = useFormTemplate(TEMPLATE_CODE, open, TEMPLATE_EXTENSION);
+
+  const isEdit = !!editingVisit;
+  const patientId =
+    isEdit && editingVisit?.kind !== "medical_rep"
+      ? editingVisit?.patient.id
+      : undefined;
+  const { data: patientResp, isLoading: patientLoading } = usePatient(patientId);
+  const fullPatient = patientResp?.data;
+
+  const filteredTemplate = useMemo(
+    () => (isEdit && template ? stripDiscriminatorSections(template) : template),
+    [template, isEdit],
+  );
+
+  const initial = useMemo(() => {
+    if (!isEdit || !editingVisit || !template) return undefined;
+    // For patient visits we wait for the full patient fetch so identity +
+    // spouse fields can be prefilled. For medical-rep we have everything on
+    // the visit row already.
+    if (editingVisit.kind !== "medical_rep" && !fullPatient) return undefined;
+    return buildInitialValues(template, editingVisit, fullPatient);
+  }, [isEdit, editingVisit, template, fullPatient]);
+
+  const waitingForPrefill = isEdit && !initial;
+  const loading = isLoading || (isEdit && patientLoading);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -65,10 +99,10 @@ export function BookVisitDrawer({
         >
           <div className="flex items-center justify-between gap-4">
             <Dialog.Title className="text-lg font-medium text-brand-black">
-              {t("create.title")}
+              {isEdit ? t("editVisit.title") : t("create.title")}
             </Dialog.Title>
             <Dialog.Description className="sr-only">
-              {t("create.description")}
+              {isEdit ? t("editVisit.description") : t("create.description")}
             </Dialog.Description>
             <Dialog.Close
               className="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-black"
@@ -78,27 +112,32 @@ export function BookVisitDrawer({
             </Dialog.Close>
           </div>
 
-          {isLoading ? (
+          {loading || waitingForPrefill ? (
             <div className="flex flex-1 items-center justify-center">
               <Loader2
                 className="size-5 animate-spin text-brand-primary"
                 aria-hidden="true"
               />
             </div>
-          ) : isError || !template ? (
+          ) : isError || !filteredTemplate ? (
             <div className="flex flex-1 items-center justify-center text-xs text-red-500">
               {t("create.errorGeneric")}
             </div>
           ) : (
             <TemplateExecutionContextProvider
-              template={template}
-              initialSystemValues={{ visitor_type: "PATIENT" }}
+              template={filteredTemplate}
+              initialSystemValues={
+                initial?.systemValues ?? { visitor_type: "PATIENT" }
+              }
+              initialFormValues={initial?.formValues}
+              initialSearchState={initial?.searchState}
             >
               <DrawerBody
-                template={template}
+                template={filteredTemplate}
                 branchId={branchId}
                 branchName={branchName}
                 onClose={() => onOpenChange(false)}
+                editingVisit={editingVisit ?? null}
               />
             </TemplateExecutionContextProvider>
           )}
@@ -108,28 +147,61 @@ export function BookVisitDrawer({
   );
 }
 
+function stripDiscriminatorSections(
+  template: FormTemplateDto,
+): FormTemplateDto {
+  return {
+    ...template,
+    sections: template.sections.filter((section) => {
+      const onlyHasDiscriminator =
+        section.fields.length > 0 &&
+        section.fields.every(
+          (f) =>
+            f.binding?.namespace === "SYSTEM" &&
+            f.config?.logic?.is_discriminator === true,
+        );
+      return !onlyHasDiscriminator;
+    }),
+  };
+}
+
 interface BodyProps {
   template: FormTemplateDto;
   branchId: string | null | undefined;
   branchName?: string;
   onClose: () => void;
+  editingVisit: Visit | null;
 }
 
-function DrawerBody({ template, branchId, branchName, onClose }: BodyProps) {
+function DrawerBody({
+  template,
+  branchId,
+  branchName,
+  onClose,
+  editingVisit,
+}: BodyProps) {
   const t = useTranslations("visits");
   const { state } = useTemplateExecution();
   const bookVisit = useBookVisit();
   const bookMedicalRepVisit = useBookMedicalRepVisit();
+  const updateVisit = useUpdateVisit();
+  const updateMedRepVisit = useUpdateMedRepVisit();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const isEdit = !!editingVisit;
   const isMedicalRep = state.systemValues.visitor_type === "MEDICAL_REP";
-  const submitPending = isMedicalRep
-    ? bookMedicalRepVisit.isPending
-    : bookVisit.isPending;
+
+  const submitPending = isEdit
+    ? isMedicalRep
+      ? updateMedRepVisit.isPending
+      : updateVisit.isPending
+    : isMedicalRep
+      ? bookMedicalRepVisit.isPending
+      : bookVisit.isPending;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!branchId) {
+    if (!isEdit && !branchId) {
       toast.error(t("create.errorNoBranch"));
       return;
     }
@@ -145,7 +217,8 @@ function DrawerBody({ template, branchId, branchName, onClose }: BodyProps) {
     }
 
     const body = buildSubmission(template, snapshot);
-    body.branch_id = branchId;
+
+    if (!isEdit) body.branch_id = branchId;
 
     // Normalize scheduled_at to a full ISO timestamp (the DATETIME input
     // emits `YYYY-MM-DDTHH:mm` from datetime-local).
@@ -158,6 +231,30 @@ function DrawerBody({ template, branchId, branchName, onClose }: BodyProps) {
     }
 
     try {
+      if (isEdit && editingVisit) {
+        // Identity-search hosts (full_name etc.) submit the typed text via
+        // their create-namespace binding. The URL identifies the visit; strip
+        // any LOOKUP id that might still be present.
+        delete body.patient_id;
+        delete body.medical_rep_id;
+
+        if (isMedicalRep) {
+          await updateMedRepVisit.mutateAsync({
+            visitId: editingVisit.id,
+            body: body as unknown as UpdateMedicalRepVisitRequest,
+          });
+        } else {
+          await updateVisit.mutateAsync({
+            visitId: editingVisit.id,
+            body: body as unknown as UpdateVisitRequest,
+            branchId: editingVisit.branchId,
+          });
+        }
+        toast.success(t("editVisit.savedToast"));
+        onClose();
+        return;
+      }
+
       if (isMedicalRep) {
         await bookMedicalRepVisit.mutateAsync(
           body as unknown as BookMedicalRepVisitRequest,
@@ -202,7 +299,7 @@ function DrawerBody({ template, branchId, branchName, onClose }: BodyProps) {
           </span>
         ) : null}
         <Dialog.Close className="inline-flex h-9 items-center rounded-full border border-gray-200 px-4 text-xs font-medium text-gray-600 hover:bg-gray-50">
-          {t("create.cancelButton")}
+          {isEdit ? t("editVisit.cancel") : t("create.cancelButton")}
         </Dialog.Close>
         <button
           type="submit"
@@ -215,8 +312,10 @@ function DrawerBody({ template, branchId, branchName, onClose }: BodyProps) {
           {submitPending ? (
             <>
               <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-              {t("create.submitting")}
+              {isEdit ? t("editVisit.submit") : t("create.submitting")}
             </>
+          ) : isEdit ? (
+            t("editVisit.submit")
           ) : (
             t("create.submitButton")
           )}
