@@ -56,12 +56,15 @@ export interface FieldConfig {
     /**
      * Marks a (visible) field as an entity-search autocomplete. The resolved id
      * lands in the field named by `idTarget`; sibling fields listed in
-     * `fillFields` are populated from the picked raw payload.
+     * `fillFields` are populated from the picked raw payload. When
+     * `allowCreate` is true, the typed text is preserved at the host field's
+     * own binding so the backend can take the "new entity" branch.
      */
     searchEntity?: {
       kind: string;
       idTarget: string;
       fillFields?: Record<string, string>;
+      allowCreate?: boolean;
     };
     [key: string]: unknown;
   };

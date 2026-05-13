@@ -20,6 +20,7 @@ export function EntitySearchInput({
     searchEntity?.kind ?? (field.config?.logic?.entity as string | undefined);
   const idTarget = searchEntity?.idTarget;
   const fillFields = searchEntity?.fillFields;
+  const allowCreate = searchEntity?.allowCreate === true;
   const placeholder = (field.config?.ui?.placeholder as string | undefined) ?? "Search…";
   const setFieldValue = useSetFieldValue();
 
@@ -134,19 +135,29 @@ export function EntitySearchInput({
           placeholder={placeholder}
           disabled={disabled}
           onChange={(e) => {
+            const next = e.target.value;
             if (entry.resolvedEntityId) {
               patchSearch(field.code, {
                 resolvedEntityId: null,
-                transientValue: e.target.value,
+                transientValue: next,
               });
+              // The user is editing over a previously-picked entity — drop the
+              // resolved id so the LOOKUP slot doesn't carry a stale value.
+              if (idTarget) setFieldValue(idTarget, null);
             } else {
-              patchSearch(field.code, { transientValue: e.target.value });
+              patchSearch(field.code, { transientValue: next });
             }
+            // Lookup-or-create: mirror the typed value into formValues so the
+            // submission builder serializes it at the host field's binding.path.
+            if (allowCreate) setFieldValue(field.code, next);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => {
-            // If user typed but never selected, clear transient on close (state-reset rule).
+            // Lookup-or-create fields keep the typed value as the create payload.
+            if (allowCreate) return;
+            // Pure-lookup: if user typed but never selected, clear transient on
+            // close (state-reset rule).
             if (!entry.resolvedEntityId && entry.transientValue.trim().length > 0) {
               // Small delay so click-to-select can fire first.
               setTimeout(() => {
