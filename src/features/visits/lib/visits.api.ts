@@ -21,10 +21,21 @@ export type PaginationParams = { page?: number; limit?: number };
 export type UpdateVisitRequest = VisitIntake & {
   assigned_doctor_id?: string;
   branch_id?: string;
-  visit_type?: ApiVisit["visit_type"];
+  appointment_type?: ApiVisit["visit_type"];
   priority?: ApiVisit["priority"];
   scheduled_at?: string;
   notes?: string;
+  full_name?: string;
+  national_id?: string;
+  date_of_birth?: string;
+  phone_number?: string;
+  address?: string;
+  marital_status?: "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED" | "SEPARATED" | "ENGAGED" | "UNKNOWN";
+  husband_name?: string;
+  spouse_full_name?: string;
+  spouse_national_id?: string;
+  spouse_phone_number?: string;
+  spouse_guardian_id?: string;
 };
 
 function appendPagination(search: URLSearchParams, params: PaginationParams) {
