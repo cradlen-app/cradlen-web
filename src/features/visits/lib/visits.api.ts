@@ -1,5 +1,3 @@
-// TEMP: Not consumed during kernel refactor. Hooks return mock data via visits.mock.ts.
-// Restore consumers in the hook files when re-integrating with the backend.
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import { mapApiVisitToScheduleEvent } from "./visits.utils";
 import type {
@@ -10,6 +8,8 @@ import type {
   ApiVisitResponse,
   ApiVisitStatsResponse,
   ApiVisitStatus,
+  BookMedicalRepVisitRequest,
+  BookMedicalRepVisitResponse,
   BookVisitRequest,
   BookVisitResponse,
   UpdateVisitStatusRequest,
@@ -122,6 +122,13 @@ export function searchPatients(search: string) {
 
 export function bookVisit(body: BookVisitRequest) {
   return apiAuthFetch<BookVisitResponse>("/visits/book", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function bookMedicalRepVisit(body: BookMedicalRepVisitRequest) {
+  return apiAuthFetch<BookMedicalRepVisitResponse>("/medical-rep-visits/book", {
     method: "POST",
     body: JSON.stringify(body),
   });

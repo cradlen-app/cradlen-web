@@ -6,6 +6,7 @@ import { cn } from "@/common/utils/utils";
 import { fieldClass, FieldShell } from "../field-shell";
 import { getEntitySearchFn, type EntityResult } from "../entity.registry";
 import { useSearchEntry, usePatchSearch } from "../../runtime/useSearchState";
+import { useSetFieldValue } from "../../runtime/useFieldState";
 import type { FieldInputProps } from "../input-props";
 
 export function EntitySearchInput({
@@ -14,8 +15,13 @@ export function EntitySearchInput({
   disabled,
   error,
 }: FieldInputProps) {
-  const entityKind = field.config?.logic?.entity as string | undefined;
+  const searchEntity = field.config?.ui?.searchEntity;
+  const entityKind =
+    searchEntity?.kind ?? (field.config?.logic?.entity as string | undefined);
+  const idTarget = searchEntity?.idTarget;
+  const fillFields = searchEntity?.fillFields;
   const placeholder = (field.config?.ui?.placeholder as string | undefined) ?? "Search…";
+  const setFieldValue = useSetFieldValue();
 
   const entry = useSearchEntry(field.code);
   const patchSearch = usePatchSearch();
@@ -79,6 +85,20 @@ export function EntitySearchInput({
       transientValue: result.label,
       suggestions: [],
     });
+    if (idTarget) {
+      // Visible field carrying `ui.searchEntity`: write the picked id into the
+      // paired hidden `*_id` field, and the readable name into this field's
+      // own value so the submission body carries both.
+      setFieldValue(idTarget, result.id);
+      setFieldValue(field.code, result.label);
+    }
+    if (fillFields && result.raw && typeof result.raw === "object") {
+      const raw = result.raw as Record<string, unknown>;
+      for (const [localCode, sourceProp] of Object.entries(fillFields)) {
+        const v = raw[sourceProp];
+        if (v !== undefined) setFieldValue(localCode, v);
+      }
+    }
     setOpen(false);
   }
 
@@ -88,6 +108,15 @@ export function EntitySearchInput({
       transientValue: "",
       suggestions: [],
     });
+    if (idTarget) {
+      setFieldValue(idTarget, null);
+      setFieldValue(field.code, "");
+    }
+    if (fillFields) {
+      for (const localCode of Object.keys(fillFields)) {
+        setFieldValue(localCode, null);
+      }
+    }
     setOpen(true);
   }
 

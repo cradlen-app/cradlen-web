@@ -1,9 +1,13 @@
 "use client";
 
 import { fieldClass, FieldShell } from "../field-shell";
+import { useDefaultValue } from "../../runtime/useDefaultValue";
 import type { FieldInputProps } from "../input-props";
 
+const EMPTY_OPTIONS: never[] = [];
+
 export function DateInput({ field, value, onChange, required, disabled, error }: FieldInputProps) {
+  useDefaultValue(field, EMPTY_OPTIONS);
   return (
     <FieldShell label={field.label} required={required} error={error}>
       <input
@@ -25,6 +29,7 @@ export function DateTimeInput({
   disabled,
   error,
 }: FieldInputProps) {
+  useDefaultValue(field, EMPTY_OPTIONS);
   return (
     <FieldShell label={field.label} required={required} error={error}>
       <input

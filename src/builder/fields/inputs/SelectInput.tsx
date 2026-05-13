@@ -164,7 +164,7 @@ export function SelectInput({ field, value, onChange, required, disabled, error 
                   const isActive = idx === activeIndex;
                   return (
                     <button
-                      key={opt.code}
+                      key={opt.code ?? `__opt-${idx}`}
                       type="button"
                       data-idx={idx}
                       role="option"

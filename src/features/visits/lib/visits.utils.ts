@@ -1,5 +1,6 @@
 import { VISIT_PRIORITY, VISIT_TYPE } from "./visits.constants";
 import type {
+  ApiMedicalRep,
   ApiPatient,
   ApiPatientListItem,
   ApiScheduleEvent,
@@ -16,11 +17,61 @@ import type {
   WaitingListFilter,
 } from "../types/visits.types";
 
+type ApiMedRepVisitForMapping = {
+  id: string;
+  branch_id: string;
+  medical_rep_id: string;
+  assigned_doctor_id: string;
+  scheduled_at: string;
+  status: string;
+  priority: string;
+  notes?: string | null;
+  checked_in_at?: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+  created_at?: string;
+  medical_rep?: ApiMedicalRep | null;
+};
+
+export function mapApiMedRepVisitToVisit(api: ApiMedRepVisitForMapping): Visit {
+  const rep = api.medical_rep;
+  const displayName = rep
+    ? rep.company_name
+      ? `${rep.full_name} · ${rep.company_name}`
+      : rep.full_name
+    : "Medical rep";
+  return {
+    id: api.id,
+    kind: "medical_rep",
+    branchId: api.branch_id,
+    patient: {
+      id: rep?.id ?? api.medical_rep_id,
+      firstName: "",
+      lastName: "",
+      fullName: displayName,
+      phone: rep?.phone_number ?? undefined,
+    },
+    type: "MEDICAL_REP",
+    status: api.status as Visit["status"],
+    priority: api.priority as Visit["priority"],
+    assignedDoctorId: api.assigned_doctor_id,
+    notes: api.notes ?? undefined,
+    chiefComplaint: null,
+    chiefComplaintMeta: null,
+    vitals: null,
+    createdAt: api.created_at ?? "",
+    scheduledAt: api.scheduled_at,
+    startedAt: api.started_at ?? undefined,
+    completedAt: api.completed_at ?? undefined,
+  };
+}
+
 export function mapApiVisitToVisit(api: ApiVisit): Visit {
   const patient = api.episode?.journey?.patient;
   const doctorUser = api.assigned_doctor?.user;
   return {
     id: api.id,
+    kind: "patient",
     branchId: api.branch_id ?? "",
     queueNumber: api.queue_number,
     patient: {

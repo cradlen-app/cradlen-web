@@ -1,13 +1,22 @@
-// TEMP: API integration disabled during kernel refactor. Restore from git history when re-integrating.
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { bookMedicalRepVisit } from "../lib/visits.api";
+import { queryKeys } from "@/lib/queryKeys";
+import type {
+  BookMedicalRepVisitRequest,
+  BookMedicalRepVisitResponse,
+} from "../types/visits.api.types";
 
 export function useBookMedicalRepVisit() {
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (_body: Record<string, unknown>) => {
-      await new Promise((r) => setTimeout(r, 300));
-      return { data: { id: `mock-${Date.now()}` } };
+    mutationFn: (
+      body: BookMedicalRepVisitRequest,
+    ): Promise<BookMedicalRepVisitResponse> => bookMedicalRepVisit(body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.visits.all() });
+      qc.invalidateQueries({ queryKey: queryKeys.calendar.all() });
     },
   });
 }

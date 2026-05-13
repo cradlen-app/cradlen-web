@@ -74,7 +74,11 @@ export function FieldRenderer({ field, error, fullWidth }: Props) {
     return null;
   }
 
-  const Input = INPUT_BY_TYPE[field.type];
+  // Fields tagged with `ui.searchEntity` render as autocompletes regardless of
+  // declared type (template v2 keeps the visible name field typed `TEXT`).
+  const Input = field.config?.ui?.searchEntity
+    ? EntitySearchInput
+    : INPUT_BY_TYPE[field.type];
   if (!Input) {
     return (
       <div className="col-span-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-700">
