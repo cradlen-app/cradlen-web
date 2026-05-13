@@ -32,8 +32,13 @@ export type VisitPatient = {
   address?: string;
   isMarried?: boolean;
   husbandName?: string;
+  maritalStatus?: string;
   activeEpisodes?: { id: string; name: string; order: number }[];
   code?: string;
+  /** Medical-rep visits only. */
+  companyName?: string;
+  /** Medical-rep visits only. */
+  email?: string;
 };
 
 export type Patient = {

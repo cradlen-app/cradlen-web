@@ -58,6 +58,7 @@ export const queryKeys = {
     list: (branchId: string, opts: { search?: string; journeyStatus?: string }) =>
       ["patients", branchId, opts.search, opts.journeyStatus] as const,
     search: (query: string) => ["patients", "search", query] as const,
+    byId: (id: string) => ["patients", "byId", id] as const,
   },
 
   // ── Notifications ─────────────────────────────────────────────────────────

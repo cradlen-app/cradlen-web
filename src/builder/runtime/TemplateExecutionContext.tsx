@@ -74,6 +74,7 @@ interface ProviderProps {
   template: FormTemplateDto;
   initialSystemValues?: Record<string, unknown>;
   initialFormValues?: Record<string, unknown>;
+  initialSearchState?: Record<string, SearchEntry>;
   children: ReactNode;
 }
 
@@ -81,11 +82,12 @@ export function TemplateExecutionContextProvider({
   template,
   initialSystemValues = {},
   initialFormValues = {},
+  initialSearchState = {},
   children,
 }: ProviderProps) {
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     formValues: initialFormValues,
-    searchState: {},
+    searchState: initialSearchState,
     systemValues: initialSystemValues,
   }));
 

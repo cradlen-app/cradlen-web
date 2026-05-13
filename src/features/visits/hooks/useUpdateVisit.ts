@@ -8,10 +8,21 @@ import type { VisitIntake } from "../types/visits.api.types";
 export type UpdateVisitRequest = VisitIntake & {
   assigned_doctor_id?: string;
   branch_id?: string;
-  appointment_type?: ApiUpdateRequest["visit_type"];
+  appointment_type?: ApiUpdateRequest["appointment_type"];
   priority?: ApiUpdateRequest["priority"];
   scheduled_at?: string;
   notes?: string | null;
+  full_name?: string;
+  national_id?: string;
+  date_of_birth?: string;
+  phone_number?: string;
+  address?: string;
+  marital_status?: "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED" | "SEPARATED" | "ENGAGED" | "UNKNOWN";
+  husband_name?: string;
+  spouse_full_name?: string;
+  spouse_national_id?: string;
+  spouse_phone_number?: string;
+  spouse_guardian_id?: string;
 };
 
 export function useUpdateVisit() {
