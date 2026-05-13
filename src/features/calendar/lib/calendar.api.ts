@@ -1,3 +1,5 @@
+// TEMP: Not consumed during kernel refactor. Hooks return mock data via calendar.mock.ts.
+// Restore consumers in the hook files when re-integrating with the backend.
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import { mapApiCalendarEvent, mapApiConflict } from "./calendar.utils";
 import type {

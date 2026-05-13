@@ -62,6 +62,12 @@ export const queryKeys = {
     branches: (organizationId: string) => ["branches", organizationId] as const,
   },
 
+  // ── Form templates ────────────────────────────────────────────────────────
+  formTemplates: {
+    byCode: (code: string, extension?: string | null) =>
+      ["form-templates", code, extension ?? null] as const,
+  },
+
   // ── Lookups ───────────────────────────────────────────────────────────────
   // Seeded reference data — long staleTime in the consuming hook.
   lookups: {

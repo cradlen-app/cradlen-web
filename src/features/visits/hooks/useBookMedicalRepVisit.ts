@@ -3,11 +3,11 @@
 
 import { useMutation } from "@tanstack/react-query";
 
-export function useCancelCalendarEvent() {
+export function useBookMedicalRepVisit() {
   return useMutation({
-    mutationFn: async (id: string) => {
-      await new Promise((r) => setTimeout(r, 200));
-      return { id };
+    mutationFn: async (_body: Record<string, unknown>) => {
+      await new Promise((r) => setTimeout(r, 300));
+      return { data: { id: `mock-${Date.now()}` } };
     },
   });
 }
