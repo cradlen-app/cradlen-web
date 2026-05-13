@@ -1,24 +1,17 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { cancelVisit } from "../lib/visits.api";
 import { queryKeys } from "@/lib/queryKeys";
-import { getApiErrorMessage } from "@/common/errors/error";
-import { toast } from "sonner";
+import { cancelVisit } from "../lib/visits.api";
 
 export function useCancelVisit() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ branchId, visitId }: { branchId: string; visitId: string }) =>
       cancelVisit({ branchId, visitId }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.visits.all(),
-        refetchType: "all",
-      });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, "Failed to cancel visit"));
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: queryKeys.visits.all() });
+      qc.invalidateQueries({ queryKey: queryKeys.visits.byId(vars.visitId) });
     },
   });
 }

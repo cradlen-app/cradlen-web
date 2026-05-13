@@ -1,14 +1,12 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateVisitStatus } from "../lib/visits.api";
 import { queryKeys } from "@/lib/queryKeys";
-import { toast } from "sonner";
-import { getApiErrorMessage } from "@/common/errors/error";
+import { updateVisitStatus } from "../lib/visits.api";
 import type { VisitStatus } from "../types/visits.types";
 
 export function useUpdateVisitStatus() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({
       visitId,
@@ -16,16 +14,12 @@ export function useUpdateVisitStatus() {
     }: {
       visitId: string;
       status: VisitStatus;
-      branchId: string;
+      branchId?: string;
     }) => updateVisitStatus({ visitId, body: { status } }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.visits.all(),
-        refetchType: "all",
-      });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, "Failed to update visit status"));
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: queryKeys.visits.all() });
+      qc.invalidateQueries({ queryKey: queryKeys.visits.byId(vars.visitId) });
+      qc.invalidateQueries({ queryKey: queryKeys.calendar.all() });
     },
   });
 }

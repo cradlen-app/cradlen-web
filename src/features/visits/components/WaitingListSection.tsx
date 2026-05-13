@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useWaitingList } from "../hooks/useWaitingList";
+import { useUnifiedWaitingList } from "../hooks/useUnifiedWaitingList";
 import { BookVisitDrawer } from "./BookVisitDrawer";
 import { WaitingListTable } from "./WaitingListTable";
 
@@ -31,7 +31,7 @@ export function WaitingListSection({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerKey, setDrawerKey] = useState(0);
 
-  const query = useWaitingList({
+  const query = useUnifiedWaitingList({
     branchId,
     assignedToMe,
     page,

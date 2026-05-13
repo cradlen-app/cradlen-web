@@ -54,8 +54,12 @@ export type Patient = {
   journeyStatus?: string;
 };
 
+export type VisitKind = "patient" | "medical_rep";
+
 export type Visit = {
   id: string;
+  /** Discriminates patient visits from medical-rep visits in unified lists. Defaults to "patient" when omitted. */
+  kind?: VisitKind;
   branchId: string;
   queueNumber?: number;
   patient: VisitPatient;

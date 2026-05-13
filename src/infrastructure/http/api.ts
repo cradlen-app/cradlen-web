@@ -162,6 +162,23 @@ function getPathWithoutLocale(pathname: string) {
   return pathname === "/" ? "/" : pathname.replace(/\/$/, "");
 }
 
+// Routes that don't need an authenticated user. A 401 from these pages
+// must NOT trigger a sign-in redirect, otherwise the redirectTo param
+// gets re-encoded each cycle and the URL grows unbounded.
+const PUBLIC_AUTH_PATH_PREFIXES = [
+  "/sign-in",
+  "/sign-up",
+  "/forgot-password",
+  "/invitations/accept",
+  "/patient",
+];
+
+function isPublicAuthPath(pathWithoutLocale: string) {
+  return PUBLIC_AUTH_PATH_PREFIXES.some(
+    (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(p + "/"),
+  );
+}
+
 function clearSessionAndRedirect() {
   useAuthStore.getState().clearSession();
   useAuthContextStore.getState().clearContext();
@@ -169,8 +186,11 @@ function clearSessionAndRedirect() {
   queryClient.clear();
 
   if (typeof window !== "undefined") {
+    const pathWithoutLocale = getPathWithoutLocale(window.location.pathname);
+    if (isPublicAuthPath(pathWithoutLocale)) return;
+
     const locale = getClientLocale(window.location.pathname);
-    const pathWithSearch = `${getPathWithoutLocale(window.location.pathname)}${window.location.search}`;
+    const pathWithSearch = `${pathWithoutLocale}${window.location.search}`;
     const redirectTo =
       pathWithSearch && pathWithSearch !== "/"
         ? `?redirectTo=${encodeURIComponent(pathWithSearch)}`

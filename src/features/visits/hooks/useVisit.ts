@@ -1,9 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { fetchVisit } from "../lib/visits.api";
 import { mapApiVisitToVisit } from "../lib/visits.utils";
-import { queryKeys } from "@/lib/queryKeys";
 
 export function useVisit(visitId: string | null | undefined) {
   return useQuery({
@@ -13,6 +13,5 @@ export function useVisit(visitId: string | null | undefined) {
       return mapApiVisitToVisit(res.data);
     },
     enabled: !!visitId,
-    staleTime: 0,
   });
 }

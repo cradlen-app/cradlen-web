@@ -8,6 +8,8 @@ import type {
   ApiVisitResponse,
   ApiVisitStatsResponse,
   ApiVisitStatus,
+  BookMedicalRepVisitRequest,
+  BookMedicalRepVisitResponse,
   BookVisitRequest,
   BookVisitResponse,
   UpdateVisitStatusRequest,
@@ -120,6 +122,13 @@ export function searchPatients(search: string) {
 
 export function bookVisit(body: BookVisitRequest) {
   return apiAuthFetch<BookVisitResponse>("/visits/book", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function bookMedicalRepVisit(body: BookMedicalRepVisitRequest) {
+  return apiAuthFetch<BookMedicalRepVisitResponse>("/medical-rep-visits/book", {
     method: "POST",
     body: JSON.stringify(body),
   });

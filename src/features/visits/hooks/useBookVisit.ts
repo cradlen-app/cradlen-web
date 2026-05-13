@@ -3,22 +3,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookVisit } from "../lib/visits.api";
 import { queryKeys } from "@/lib/queryKeys";
-import { getApiErrorMessage } from "@/common/errors/error";
-import { toast } from "sonner";
-import type { BookVisitRequest } from "../types/visits.api.types";
+import type {
+  BookVisitRequest,
+  BookVisitResponse,
+} from "../types/visits.api.types";
 
 export function useBookVisit() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: BookVisitRequest) => bookVisit(body),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.visits.all(),
-        refetchType: "all",
-      });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, "Failed to book visit"));
+    mutationFn: (body: BookVisitRequest): Promise<BookVisitResponse> =>
+      bookVisit(body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.visits.all() });
+      qc.invalidateQueries({ queryKey: queryKeys.calendar.all() });
     },
   });
 }
