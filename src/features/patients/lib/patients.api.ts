@@ -2,8 +2,13 @@ import { apiAuthFetch } from "@/infrastructure/http/api";
 import type {
   ApiJourneyStatus,
   ApiJourneyType,
+  ApiPatient,
   ApiPatientListResponse,
 } from "@/features/visits/types/visits.api.types";
+
+export function fetchPatientById(id: string) {
+  return apiAuthFetch<{ data: ApiPatient }>(`/patients/${id}`);
+}
 
 type FetchBranchPatientsParams = {
   search?: string;

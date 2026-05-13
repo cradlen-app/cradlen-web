@@ -12,7 +12,7 @@ import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import { useUpdateMedRepVisitStatus } from "../hooks/useUpdateMedRepVisitStatus";
 import type { Visit, VisitStatus } from "../types/visits.types";
 import type { ApiMedicalRepVisitStatus } from "../types/visits.api.types";
-import { EditVisitDrawer } from "./EditVisitDrawer";
+import { BookVisitDrawer } from "./BookVisitDrawer";
 import {
   VisitPriorityBadge,
   VisitStatusBadge,
@@ -277,12 +277,12 @@ export function WaitingListTable({
           </ul>
         )}
       </div>
-      <EditVisitDrawer
+      <BookVisitDrawer
         open={!!editVisit}
         onOpenChange={(open) => !open && setEditVisit(null)}
-        visit={editVisit}
+        editingVisit={editVisit}
         organizationId={organizationId}
-        branchId={branchId}
+        branchId={editVisit?.branchId ?? branchId}
       />
     </div>
   );

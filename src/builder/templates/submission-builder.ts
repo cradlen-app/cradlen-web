@@ -10,7 +10,11 @@ export interface ExecutionSnapshot {
   formValues: Record<string, unknown>;
   searchState: Record<
     string,
-    { resolvedEntityId: { id: string; label: string } | null }
+    {
+      transientValue?: string;
+      suggestions?: unknown[];
+      resolvedEntityId: { id: string; label: string } | null;
+    }
   >;
   systemValues: Record<string, unknown>;
 }
