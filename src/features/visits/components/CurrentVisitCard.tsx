@@ -7,7 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/infrastructure/http/api";
 import { cn } from "@/common/utils/utils";
-import { useMyCurrentVisit } from "../hooks/useCurrentVisit";
+import { useUnifiedMyCurrentVisit } from "../hooks/useUnifiedCurrentVisit";
 import { useStartVisit } from "../hooks/useStartVisit";
 import type { Visit } from "../types/visits.types";
 import {
@@ -105,7 +105,7 @@ function CurrentVisitRow({
 
 export function CurrentVisitCard({ branchId, organizationId }: Props) {
   const t = useTranslations("visits.currentVisit");
-  const { data: visit, isLoading } = useMyCurrentVisit();
+  const { data: visit, isLoading } = useUnifiedMyCurrentVisit();
 
   return (
     <section

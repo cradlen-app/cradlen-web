@@ -6,6 +6,7 @@ import { apiAuthFetch } from "@/infrastructure/http/api";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import type { FieldOption, FormFieldDto } from "../templates/template.types";
 import { interpolateUrl } from "./url-interpolation";
+import { useTemplateExecution } from "./TemplateExecutionContext";
 
 /**
  * Minimal staff-list shape consumed by the doctor-picker mapper. Mirrors a
@@ -13,13 +14,22 @@ import { interpolateUrl } from "./url-interpolation";
  * doesn't depend on `@/core/staff` internals.
  */
 type StaffRow = {
-  staff_id: string;
+  profile_id: string;
   first_name: string;
   last_name: string;
   email: string;
 };
 
 type StaffListResponse = { data: StaffRow[] };
+
+type MedicationRow = {
+  id: string;
+  name: string;
+  generic_name?: string | null;
+  strength?: string | null;
+};
+
+type MedicationListResponse = { data: MedicationRow[] };
 
 export interface DynamicOption extends FieldOption {
   /** Raw payload row, so downstream hooks (e.g. specialty auto-fill) avoid a second fetch. */
@@ -57,9 +67,29 @@ function pickMapper(url: string): Mapper {
         return list.map((member) => {
           const name = `${member.first_name ?? ""} ${member.last_name ?? ""}`.trim();
           return {
-            code: member.staff_id,
+            code: member.profile_id,
             label: name.length > 0 ? name : member.email,
             raw: member,
+          };
+        });
+      },
+    };
+  }
+
+  if (/\/medications(\?|$)/.test(url)) {
+    return {
+      finalizeUrl: (u) =>
+        u.includes("page=") || u.includes("limit=")
+          ? u
+          : `${u}${u.includes("?") ? "&" : "?"}page=1&limit=100`,
+      mapResponse: (payload) => {
+        const list = (payload as MedicationListResponse | undefined)?.data ?? [];
+        return list.map((med) => {
+          const suffix = med.strength ? ` (${med.strength})` : "";
+          return {
+            code: med.id,
+            label: `${med.name}${suffix}`,
+            raw: med,
           };
         });
       },
@@ -82,14 +112,48 @@ export function useDynamicOptions(field: FormFieldDto): DynamicOptionsResult {
   const optionsSource = field.config?.ui?.optionsSource;
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
+  const { state } = useTemplateExecution();
+
+  // Form-derived placeholders (e.g. `{medical_rep_id}`) — extract the keys
+  // referenced in the template so we only depend on the values that matter.
+  const formVarKeys = useMemo(() => {
+    if (!optionsSource) return [] as string[];
+    const matches = optionsSource.matchAll(/\{(\w+)\}/g);
+    const keys: string[] = [];
+    for (const m of matches) {
+      const k = m[1];
+      if (k !== "org_id" && k !== "branch_id" && !keys.includes(k)) keys.push(k);
+    }
+    return keys;
+  }, [optionsSource]);
+
+  // Stable signature of the form-derived placeholder values; changing only
+  // these keys triggers a re-resolution (not unrelated form edits).
+  const formVarsSignature = formVarKeys
+    .map((k) => {
+      const v = state.formValues[k];
+      return `${k}=${typeof v === "string" ? v : v == null ? "" : String(v)}`;
+    })
+    .join("&");
+
+  const formVars = useMemo(() => {
+    const out: Record<string, string | null | undefined> = {};
+    for (const k of formVarKeys) {
+      const v = state.formValues[k];
+      out[k] = typeof v === "string" ? v : v == null ? null : String(v);
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formVarsSignature]);
 
   const resolvedUrl = useMemo(() => {
     if (!optionsSource) return null;
     return interpolateUrl(optionsSource, {
       org_id: organizationId,
       branch_id: branchId,
+      ...formVars,
     });
-  }, [optionsSource, organizationId, branchId]);
+  }, [optionsSource, organizationId, branchId, formVars]);
 
   const mapper = useMemo(
     () => (resolvedUrl ? pickMapper(resolvedUrl) : null),

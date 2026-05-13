@@ -9,7 +9,9 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
+import { useUpdateMedRepVisitStatus } from "../hooks/useUpdateMedRepVisitStatus";
 import type { Visit, VisitStatus } from "../types/visits.types";
+import type { ApiMedicalRepVisitStatus } from "../types/visits.api.types";
 import { EditVisitDrawer } from "./EditVisitDrawer";
 import {
   VisitPriorityBadge,
@@ -36,18 +38,31 @@ const NEXT_STATUSES: Partial<Record<VisitStatus, VisitStatus[]>> = {
 
 function StatusSelect({ visit }: { visit: Visit }) {
   const t = useTranslations("visits");
-  const updateStatus = useUpdateVisitStatus();
+  const updatePatientStatus = useUpdateVisitStatus();
+  const updateMedRepStatus = useUpdateMedRepVisitStatus();
   const [pendingCancel, setPendingCancel] = useState(false);
+
+  const isMedRep = visit.kind === "medical_rep";
+  const isPending = isMedRep
+    ? updateMedRepStatus.isPending
+    : updatePatientStatus.isPending;
 
   const isTerminal = TERMINAL_STATUSES.includes(visit.status);
   const nextOptions = NEXT_STATUSES[visit.status] ?? [];
 
   async function commit(status: VisitStatus) {
-    await updateStatus.mutateAsync({
-      visitId: visit.id,
-      status,
-      branchId: visit.branchId,
-    });
+    if (isMedRep) {
+      await updateMedRepStatus.mutateAsync({
+        visitId: visit.id,
+        status: status as ApiMedicalRepVisitStatus,
+      });
+    } else {
+      await updatePatientStatus.mutateAsync({
+        visitId: visit.id,
+        status,
+        branchId: visit.branchId,
+      });
+    }
   }
 
   function handleChange(next: VisitStatus) {
@@ -68,7 +83,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
         <select
           value={visit.status}
           onChange={(e) => handleChange(e.target.value as VisitStatus)}
-          disabled={updateStatus.isPending}
+          disabled={isPending}
           className={cn(
             "appearance-none rounded-full border border-gray-200 bg-white py-1 ps-2.5 pe-7 text-[11px] font-medium text-gray-700 outline-none",
             "focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/20",
@@ -117,7 +132,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
                 }}
                 className="inline-flex h-8 items-center gap-1.5 rounded-full bg-red-500 px-3 text-xs font-semibold text-white hover:bg-red-500/90"
               >
-                {updateStatus.isPending && (
+                {isPending && (
                   <Loader2 className="size-3 animate-spin" aria-hidden="true" />
                 )}
                 {t("actions.confirmCancel")}

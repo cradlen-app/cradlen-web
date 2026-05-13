@@ -163,6 +163,86 @@ describe("buildSubmission", () => {
     expect(body.patient_id).toBe("p-1");
   });
 
+  it("suppresses entity-search host + fillFields when its LOOKUP id is resolved", () => {
+    // Mirrors the medical-rep flow: picking an existing rep auto-fills
+    // identity fields, but the API rejects mixed payloads. Only the id ships.
+    const template: FormTemplateDto = {
+      id: "tpl",
+      code: "book_visit",
+      name: "Book visit",
+      description: null,
+      scope: "BOOK_VISIT",
+      version: 1,
+      activated_at: null,
+      specialty_id: null,
+      sections: [
+        {
+          id: "s",
+          code: "medical_rep_info",
+          name: "Medical rep",
+          order: 0,
+          config: {},
+          fields: [
+            {
+              id: "f-id",
+              code: "medical_rep_id",
+              label: "Medical rep id",
+              type: "ENTITY_SEARCH",
+              order: 0,
+              required: false,
+              binding: { namespace: "LOOKUP", path: "medical_rep_id" },
+              config: {},
+            },
+            {
+              id: "f-name",
+              code: "rep_full_name",
+              label: "Full name",
+              type: "TEXT",
+              order: 1,
+              required: false,
+              binding: { namespace: "MEDICAL_REP", path: "full_name" },
+              config: {
+                ui: {
+                  searchEntity: {
+                    kind: "medical_rep",
+                    idTarget: "medical_rep_id",
+                    fillFields: { rep_national_id: "national_id" },
+                  },
+                },
+              },
+            },
+            {
+              id: "f-natid",
+              code: "rep_national_id",
+              label: "National ID",
+              type: "TEXT",
+              order: 2,
+              required: false,
+              binding: { namespace: "MEDICAL_REP", path: "national_id" },
+              config: {},
+            },
+          ],
+        },
+      ],
+    };
+    const snapshot: ExecutionSnapshot = {
+      systemValues: { visitor_type: "MEDICAL_REP" },
+      formValues: {
+        // EntitySearchInput mirrors the picked id into the idTarget formValue.
+        medical_rep_id: "rep-1",
+        rep_full_name: "Rep One",
+        rep_national_id: "123",
+      },
+      searchState: {
+        rep_full_name: { resolvedEntityId: { id: "rep-1", label: "Rep One" } },
+      },
+    };
+    const body = buildSubmission(template, snapshot);
+    expect(body.medical_rep_id).toBe("rep-1");
+    expect(body).not.toHaveProperty("full_name");
+    expect(body).not.toHaveProperty("national_id");
+  });
+
   it("skips fields inside a hidden section", () => {
     const snapshot: ExecutionSnapshot = {
       systemValues: { visitor_type: "MEDICAL_REP" },

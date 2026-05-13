@@ -38,11 +38,23 @@ export function useDefaultValue(
         if (!first) return;
         setFieldValue(field.code, first.code);
         appliedRef.current = true;
+      } else if (def.kind === "now") {
+        // Emit the local-time format that `<input type="datetime-local">` and
+        // `<input type="date">` consume: `YYYY-MM-DDTHH:mm` or `YYYY-MM-DD`.
+        const now = new Date();
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const ymd = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+        const value =
+          field.type === "DATE"
+            ? ymd
+            : `${ymd}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        setFieldValue(field.code, value);
+        appliedRef.current = true;
       }
       return;
     }
 
     setFieldValue(field.code, def);
     appliedRef.current = true;
-  }, [def, value, resolvedOptions, field.code, setFieldValue]);
+  }, [def, value, resolvedOptions, field.code, field.type, setFieldValue]);
 }

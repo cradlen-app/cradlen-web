@@ -1,10 +1,11 @@
-// TEMP: API integration disabled during kernel refactor. Restore from git history when re-integrating.
 "use client";
 
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Visit } from "../types/visits.types";
 import { queryKeys } from "@/lib/queryKeys";
-import { mockInProgressByDoctor } from "../lib/visits.mock";
+import { fetchBranchInProgress } from "../lib/visits.api";
+import { mapApiVisitToVisit } from "../lib/visits.utils";
+import type { Visit } from "../types/visits.types";
 
 export type DoctorGroup = {
   doctorId: string;
@@ -13,13 +14,36 @@ export type DoctorGroup = {
   visits: Visit[];
 };
 
+function groupByDoctor(visits: Visit[]): DoctorGroup[] {
+  const map = new Map<string, DoctorGroup>();
+  for (const v of visits) {
+    const doctorId = v.assignedDoctorId ?? "unassigned";
+    const doctorName = v.assignedDoctorName ?? "Unassigned";
+    const existing = map.get(doctorId);
+    if (existing) existing.visits.push(v);
+    else map.set(doctorId, { doctorId, doctorName, visits: [v] });
+  }
+  return Array.from(map.values());
+}
+
 export function useBranchInProgress(branchId: string | null | undefined) {
   const query = useQuery({
     queryKey: queryKeys.visits.branchInProgress(branchId ?? ""),
-    queryFn: async (): Promise<DoctorGroup[]> => mockInProgressByDoctor,
+    queryFn: async () => {
+      const res = await fetchBranchInProgress({
+        branchId: branchId!,
+        page: 1,
+        limit: 100,
+      });
+      return res.data.map(mapApiVisitToVisit);
+    },
     enabled: !!branchId,
-    staleTime: Infinity,
   });
 
-  return { ...query, groups: query.data ?? [] };
+  const groups = useMemo(
+    () => (query.data ? groupByDoctor(query.data) : []),
+    [query.data],
+  );
+
+  return { ...query, groups };
 }

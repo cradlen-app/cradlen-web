@@ -21,7 +21,10 @@ import {
 import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { useBookMedicalRepVisit } from "../hooks/useBookMedicalRepVisit";
-import type { BookVisitRequest } from "../types/visits.api.types";
+import type {
+  BookMedicalRepVisitRequest,
+  BookVisitRequest,
+} from "../types/visits.api.types";
 
 const TEMPLATE_CODE = "book_visit";
 // OBGYN is the only valid extension today; pediatrics ships later. When the FE
@@ -156,7 +159,9 @@ function DrawerBody({ template, branchId, branchName, onClose }: BodyProps) {
 
     try {
       if (isMedicalRep) {
-        await bookMedicalRepVisit.mutateAsync(body);
+        await bookMedicalRepVisit.mutateAsync(
+          body as unknown as BookMedicalRepVisitRequest,
+        );
       } else {
         await bookVisit.mutateAsync(body as unknown as BookVisitRequest);
       }
@@ -164,17 +169,23 @@ function DrawerBody({ template, branchId, branchName, onClose }: BodyProps) {
       onClose();
     } catch (error) {
       if (error instanceof ApiError) {
-        const details = (
-          error.body as
-            | { error?: { details?: { fields?: Record<string, string[]> } } }
-            | undefined
-        )?.error?.details?.fields;
+        const apiBody = error.body as
+          | {
+              error?: {
+                message?: string;
+                details?: { fields?: Record<string, string[]> };
+              };
+            }
+          | undefined;
+        const details = apiBody?.error?.details?.fields;
         if (details) {
           setErrors(mapServerFieldErrors(template, details));
           return;
         }
+        toast.error(apiBody?.error?.message ?? t("create.errorGeneric"));
+        return;
       }
-      // Error toast already surfaced by the mutation's onError.
+      toast.error(t("create.errorGeneric"));
     }
   }
 

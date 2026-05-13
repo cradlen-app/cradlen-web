@@ -9,10 +9,12 @@ import { toast } from "sonner";
 import { useStaff } from "@/core/staff/api";
 import { cn } from "@/common/utils/utils";
 import { useUpdateVisit } from "../hooks/useUpdateVisit";
+import { useUpdateMedRepVisit } from "../hooks/useUpdateMedRepVisit";
 import { VISIT_PRIORITY, VISIT_TYPE } from "../lib/visits.constants";
 import type {
   ApiVisitPriority,
   ApiVisitType,
+  UpdateMedicalRepVisitRequest,
 } from "../types/visits.api.types";
 import type { Visit } from "../types/visits.types";
 
@@ -52,6 +54,9 @@ export function EditVisitDrawer({
 }: Props) {
   const t = useTranslations("visits");
   const updateVisit = useUpdateVisit();
+  const updateMedRepVisit = useUpdateMedRepVisit();
+  const isMedRep = visit?.kind === "medical_rep";
+  const isPending = isMedRep ? updateMedRepVisit.isPending : updateVisit.isPending;
 
   const { data: staffList = [] } = useStaff(
     organizationId ?? undefined,
@@ -90,6 +95,37 @@ export function EditVisitDrawer({
 
   async function onSubmit(values: FormValues) {
     if (!visit) return;
+
+    if (isMedRep) {
+      const body: UpdateMedicalRepVisitRequest = {};
+      if (
+        values.assignedDoctorId &&
+        values.assignedDoctorId !== visit.assignedDoctorId
+      ) {
+        body.assigned_doctor_id = values.assignedDoctorId;
+      }
+      if (values.priority !== visit.priority) body.priority = values.priority;
+      if (values.scheduledAt) {
+        const iso = new Date(values.scheduledAt).toISOString();
+        if (iso !== visit.scheduledAt) body.scheduled_at = iso;
+      }
+      if ((values.notes ?? "") !== (visit.notes ?? "")) body.notes = values.notes;
+
+      if (Object.keys(body).length === 0) {
+        onOpenChange(false);
+        return;
+      }
+
+      try {
+        await updateMedRepVisit.mutateAsync({ visitId: visit.id, body });
+        toast.success(t("editVisit.savedToast"));
+        onOpenChange(false);
+      } catch {
+        // toast handled in hook
+      }
+      return;
+    }
+
     const body: Record<string, string> = {};
     if (values.assignedDoctorId && values.assignedDoctorId !== visit.assignedDoctorId) {
       body.assigned_doctor_id = values.assignedDoctorId;
@@ -190,33 +226,35 @@ export function EditVisitDrawer({
               />
             </label>
 
-            <div>
-              <span className="text-xs font-medium text-brand-black">
-                {t("create.fields.visitType")}
-              </span>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {typeOptions.map((opt) => {
-                  const isActive = visitType === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() =>
-                        setValue("visitType", opt.value, { shouldDirty: true })
-                      }
-                      className={cn(
-                        "h-9 rounded-lg border px-2 text-xs font-medium transition-colors",
-                        isActive
-                          ? "border-brand-primary bg-brand-primary text-white"
-                          : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",
-                      )}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
+            {isMedRep ? null : (
+              <div>
+                <span className="text-xs font-medium text-brand-black">
+                  {t("create.fields.visitType")}
+                </span>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  {typeOptions.map((opt) => {
+                    const isActive = visitType === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() =>
+                          setValue("visitType", opt.value, { shouldDirty: true })
+                        }
+                        className={cn(
+                          "h-9 rounded-lg border px-2 text-xs font-medium transition-colors",
+                          isActive
+                            ? "border-brand-primary bg-brand-primary text-white"
+                            : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",
+                        )}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             <div>
               <span className="text-xs font-medium text-brand-black">
@@ -266,10 +304,10 @@ export function EditVisitDrawer({
               </Dialog.Close>
               <button
                 type="submit"
-                disabled={updateVisit.isPending}
+                disabled={isPending}
                 className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand-primary px-4 text-xs font-semibold text-white hover:bg-brand-primary/90 disabled:opacity-60"
               >
-                {updateVisit.isPending && (
+                {isPending && (
                   <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
                 )}
                 {t("editVisit.submit")}

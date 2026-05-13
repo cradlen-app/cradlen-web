@@ -47,7 +47,22 @@ export interface FieldConfig {
      * - Literal (`string` / `number` / `boolean`): applied on mount.
      * - `{ kind: "first_option" }`: applied once the options resolve.
      */
-    default?: string | number | boolean | { kind: "first_option" };
+    default?:
+      | string
+      | number
+      | boolean
+      | { kind: "first_option" }
+      | { kind: "now" };
+    /**
+     * Marks a (visible) field as an entity-search autocomplete. The resolved id
+     * lands in the field named by `idTarget`; sibling fields listed in
+     * `fillFields` are populated from the picked raw payload.
+     */
+    searchEntity?: {
+      kind: string;
+      idTarget: string;
+      fillFields?: Record<string, string>;
+    };
     [key: string]: unknown;
   };
   validation?: {

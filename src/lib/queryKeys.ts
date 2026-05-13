@@ -24,11 +24,30 @@ export const queryKeys = {
       opts: { page: number; limit: number },
     ) => ["visits", branchId, "waiting-list", opts] as const,
     branchInProgress: (branchId: string) =>
-      ["visits", branchId, "in-progress"] as const,
+      ["visits", "v2", branchId, "in-progress"] as const,
     myWaitingList: (opts: { page: number; limit: number }) =>
       ["visits", "my-waiting-list", opts] as const,
     myCurrent: () => ["visits", "my-current"] as const,
     byId: (visitId: string) => ["visits", "detail", visitId] as const,
+  },
+
+  // ── Medical-rep visits ────────────────────────────────────────────────────
+  medicalRepVisits: {
+    /** Broad key — matches all medical-rep visit queries. */
+    all: () => ["medical-rep-visits"] as const,
+    branch: (branchId: string) =>
+      ["medical-rep-visits", branchId] as const,
+    branchWaitingList: (
+      branchId: string,
+      opts: { page: number; limit: number },
+    ) => ["medical-rep-visits", branchId, "waiting-list", opts] as const,
+    branchInProgress: (branchId: string) =>
+      ["medical-rep-visits", branchId, "in-progress"] as const,
+    myWaitingList: (opts: { page: number; limit: number }) =>
+      ["medical-rep-visits", "my-waiting-list", opts] as const,
+    myCurrent: () => ["medical-rep-visits", "my-current"] as const,
+    byId: (visitId: string) =>
+      ["medical-rep-visits", "detail", visitId] as const,
   },
 
   // Staff namespace moved to its owning module — see `@/core/staff/api`

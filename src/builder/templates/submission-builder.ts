@@ -104,6 +104,35 @@ export function buildSubmission(
   const ctx = evaluationContext(snapshot);
   const body: Record<string, unknown> = {};
 
+  // When an entity-search field has a resolved LOOKUP id (e.g. an existing
+  // medical rep was picked), the identity fields it auto-filled must NOT be
+  // submitted alongside the id — the API rejects mixed payloads on the
+  // medical-rep route. Build a set of suppressed field codes.
+  const suppressedByResolvedLookup = new Set<string>();
+  for (const section of template.sections) {
+    for (const field of section.fields) {
+      const search = field.config?.ui?.searchEntity as
+        | {
+            idTarget?: string;
+            fillFields?: Record<string, string>;
+          }
+        | undefined;
+      if (!search?.idTarget) continue;
+      const resolved =
+        snapshot.searchState[field.code]?.resolvedEntityId ??
+        snapshot.searchState[search.idTarget]?.resolvedEntityId;
+      if (!resolved?.id) continue;
+      // The search-host field carries the human-readable name and gets
+      // submitted via its MEDICAL_REP / PATIENT binding — suppress it.
+      suppressedByResolvedLookup.add(field.code);
+      if (search.fillFields) {
+        for (const localCode of Object.keys(search.fillFields)) {
+          suppressedByResolvedLookup.add(localCode);
+        }
+      }
+    }
+  }
+
   for (const section of template.sections) {
     if (!isSectionVisible(section, ctx)) continue;
 
@@ -117,12 +146,24 @@ export function buildSubmission(
       if (ns === "SYSTEM" || ns === "COMPUTED") continue;
 
       if (ns === "LOOKUP") {
-        const resolved = snapshot.searchState[field.code]?.resolvedEntityId;
-        if (resolved?.id) {
-          placeValue({ body, namespace: ns, path, value: resolved.id });
+        // Resolved id may come from this field's own searchState (when it's
+        // an ENTITY_SEARCH rendered directly) or from formValues (when this
+        // field is a hidden idTarget written by another field's ENTITY_SEARCH).
+        const resolvedFromSearch =
+          snapshot.searchState[field.code]?.resolvedEntityId?.id;
+        const resolvedFromForm = snapshot.formValues[field.code];
+        const id =
+          resolvedFromSearch ??
+          (typeof resolvedFromForm === "string" && resolvedFromForm.length > 0
+            ? resolvedFromForm
+            : undefined);
+        if (id) {
+          placeValue({ body, namespace: ns, path, value: id });
         }
         continue;
       }
+
+      if (suppressedByResolvedLookup.has(field.code)) continue;
 
       const value = snapshot.formValues[field.code];
       if (isEmpty(value)) continue;

@@ -3,10 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
 import {
-  fetchBranchWaitingList,
-  fetchMyWaitingList,
-} from "../lib/visits.api";
-import { mapApiVisitToVisit } from "../lib/visits.utils";
+  fetchMedRepBranchWaitingList,
+  fetchMedRepMyWaitingList,
+} from "../lib/medical-rep.api";
+import { mapApiMedRepVisitToVisit } from "../lib/visits.utils";
 import type { WaitingListPage } from "../types/visits.types";
 
 type Params = {
@@ -16,7 +16,7 @@ type Params = {
   limit?: number;
 };
 
-export function useWaitingList({
+export function useMedRepWaitingList({
   branchId,
   assignedToMe,
   page,
@@ -24,15 +24,18 @@ export function useWaitingList({
 }: Params) {
   const enabled = assignedToMe ? true : !!branchId;
   const queryKey = assignedToMe
-    ? queryKeys.visits.myWaitingList({ page, limit })
-    : queryKeys.visits.branchWaitingList(branchId ?? "", { page, limit });
+    ? queryKeys.medicalRepVisits.myWaitingList({ page, limit })
+    : queryKeys.medicalRepVisits.branchWaitingList(branchId ?? "", {
+        page,
+        limit,
+      });
 
   return useQuery({
     queryKey,
     queryFn: async (): Promise<WaitingListPage> => {
       const res = assignedToMe
-        ? await fetchMyWaitingList({ page, limit })
-        : await fetchBranchWaitingList({
+        ? await fetchMedRepMyWaitingList({ page, limit })
+        : await fetchMedRepBranchWaitingList({
             branchId: branchId!,
             page,
             limit,
@@ -43,7 +46,7 @@ export function useWaitingList({
         res.meta.total_pages ??
         Math.max(1, Math.ceil(total / Math.max(1, limit)));
       return {
-        rows: res.data.map(mapApiVisitToVisit),
+        rows: res.data.map(mapApiMedRepVisitToVisit),
         page: res.meta.page,
         total,
         totalPages,
