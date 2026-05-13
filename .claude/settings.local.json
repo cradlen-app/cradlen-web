@@ -86,11 +86,19 @@
       "Bash(mkdir -p src/core/staff/messages)",
       "Bash(node -e \"try{require.resolve\\('eslint-plugin-import'\\);console.log\\('yes'\\)}catch\\(e\\){console.log\\('no'\\)}\")",
       "Bash(node --check eslint.config.mjs)",
-      "Bash(grep -E \"^\\\\s*\\\\d|error|\\\\\\\\bproblems\\\\\\\\b\")"
+      "Bash(grep -E \"^\\\\s*\\\\d|error|\\\\\\\\bproblems\\\\\\\\b\")",
+      "Bash(tee /tmp/tsc.out)",
+      "Bash(echo \"---EXIT: $?\")",
+      "Bash(echo \"TSC EXIT: $?\")",
+      "Bash(find \"f:\\\\Cradlen\\\\cradlen-web\\\\src\\\\app\\\\[locale]\\\\[orgId]\\\\[branchId]\\\\dashboard\" -type f -name \"*.tsx\" 2>nul)",
+      "Bash(find \"f:\\\\Cradlen\\\\cradlen-web\\\\src\\\\features\\\\visits\" -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) 2>nul | head -30)",
+      "Bash(find \"f:\\\\Cradlen\\\\cradlen-web\\\\src\\\\features\\\\calendar\" -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) 2>nul)",
+      "Bash(find \"f:\\\\Cradlen\\\\cradlen-web\\\\src\\\\features\\\\dashboard-home\" -type f -name \"*.tsx\" 2>nul)"
     ],
     "additionalDirectories": [
       "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard\\visits",
-      "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard"
+      "f:\\Cradlen\\cradlen-web\\src\\app\\[locale]\\[orgId]\\[branchId]\\dashboard",
+      "f:\\Cradlen\\cradlen-web"
     ]
   }
 }

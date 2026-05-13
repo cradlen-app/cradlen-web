@@ -1,10 +1,10 @@
+// TEMP: API integration disabled during kernel refactor. Restore from git history when re-integrating.
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchBranchWaitingList, fetchMyWaitingList } from "../lib/visits.api";
-import { mapApiVisitToVisit } from "../lib/visits.utils";
 import type { WaitingListPage } from "../types/visits.types";
 import { queryKeys } from "@/lib/queryKeys";
+import { mockWaitingList } from "../lib/visits.mock";
 
 type Params = {
   branchId: string | null | undefined;
@@ -26,22 +26,11 @@ export function useWaitingList({
 
   return useQuery({
     queryKey,
-    queryFn: async (): Promise<WaitingListPage> => {
-      const res = assignedToMe
-        ? await fetchMyWaitingList({ page, limit })
-        : await fetchBranchWaitingList({ branchId: branchId!, page, limit });
-      const meta = res.meta;
-      return {
-        rows: res.data.map(mapApiVisitToVisit),
-        page: meta?.page ?? page,
-        totalPages: meta?.totalPages ?? meta?.total_pages ?? 1,
-        total: meta?.total ?? res.data.length,
-      };
-    },
+    queryFn: async (): Promise<WaitingListPage> => ({
+      ...mockWaitingList,
+      page,
+    }),
     enabled,
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
+    staleTime: Infinity,
   });
 }
