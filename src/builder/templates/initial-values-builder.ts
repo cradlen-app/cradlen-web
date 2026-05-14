@@ -225,6 +225,8 @@ function readVisitPath(path: string, visit: Visit): unknown {
         : undefined;
     case "notes":
       return visit.notes;
+    case "care_path_code":
+      return visit.carePathCode;
     default:
       return undefined;
   }
