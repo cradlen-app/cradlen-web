@@ -67,6 +67,11 @@ export function useSpecialtyAutoFill(): void {
   useEffect(() => {
     if (doctorFields.length === 0) return;
     if (!systemFieldCodes.has(SPECIALTY_CODE_FIELD)) return;
+    // The book-visit flow now puts the specialty picker BEFORE the doctor
+    // picker. Don't overwrite a user-chosen specialty from a doctor's first
+    // specialty — that would flip the discriminator and wipe the form.
+    const existing = state.systemValues[SPECIALTY_CODE_FIELD];
+    if (typeof existing === "string" && existing.length > 0) return;
 
     let resolvedFromField: string | null = null;
     for (const { field, queryUrl } of doctorFields) {
