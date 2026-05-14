@@ -80,7 +80,12 @@ export function BookVisitDrawer({
     // spouse fields can be prefilled. For medical-rep we have everything on
     // the visit row already.
     if (editingVisit.kind !== "medical_rep" && !fullPatient) return undefined;
-    return buildInitialValues(template, editingVisit, fullPatient);
+    return buildInitialValues(
+      template,
+      editingVisit,
+      fullPatient,
+      TEMPLATE_EXTENSION,
+    );
   }, [isEdit, editingVisit, template, fullPatient]);
 
   const waitingForPrefill = isEdit && !initial;
