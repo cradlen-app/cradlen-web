@@ -48,6 +48,9 @@ export function useDiscriminatorReset(): void {
       resetAfterDiscriminator(state.systemValues);
     }
     // We only react to systemValues for the watched discriminator codes.
+    // Discriminators bound to formValues (e.g. would-be `care_path_code`) are
+    // intentionally NOT supported here — wiping formValues would also wipe the
+    // discriminator that triggered the reset, causing an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.systemValues]);
 }
