@@ -57,7 +57,7 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <Navbar />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden lg:pb-3">
         {mobileOpen && (
           <div
             className="fixed inset-0 top-16 z-30 bg-black/40 lg:hidden"

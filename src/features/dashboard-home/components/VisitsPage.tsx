@@ -81,7 +81,7 @@ export function VisitsPage() {
             isDoctor={showAssigned}
           />
         </section>
-        <aside>
+        <aside className="hidden lg:block">
           <VisitsOverviewPanel
             branchId={branchId}
             selectedDate={selectedDate}
