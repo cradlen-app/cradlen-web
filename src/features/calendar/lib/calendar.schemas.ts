@@ -28,6 +28,7 @@ export const procedureEventSchema = baseEventSchema.and(
     event_type: z.literal("PROCEDURE"),
     procedure_id: z.string().uuid("Procedure is required"),
     patient_id: z.string().uuid().optional().or(z.literal("")),
+    assistant_profile_ids: z.array(z.string().uuid()).max(20).optional(),
   }),
 );
 

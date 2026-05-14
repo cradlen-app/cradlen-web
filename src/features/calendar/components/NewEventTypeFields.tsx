@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   type Control,
   type FieldErrors,
   type UseFormRegister,
   type UseFormSetValue,
+  type UseFormWatch,
 } from "react-hook-form";
-import { Loader2, Search, X } from "lucide-react";
+import { Loader2, Plus, Search, Trash2, X } from "lucide-react";
 import { cn } from "@/common/utils/utils";
+import { Button } from "@/components/ui/button";
+import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 import { usePatientSearch } from "@/features/visits/hooks/usePatientSearch";
+import { useStaff } from "@/core/staff/api";
 import { useProcedures } from "../hooks/useProcedures";
 import type { NewEventFormValues } from "../lib/calendar.schemas";
 
@@ -24,6 +28,8 @@ type BaseProps = {
   errors: FieldErrors<NewEventFormValues>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setValue: UseFormSetValue<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  watch: UseFormWatch<any>;
 };
 
 // ── Procedure picker ──────────────────────────────────────────────────────
@@ -249,9 +255,117 @@ function PatientSearchField({
   );
 }
 
+// ── Assistants multi-picker ────────────────────────────────────────────────
+
+function AssistantsField({
+  setValue,
+  watch,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setValue: UseFormSetValue<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  watch: UseFormWatch<any>;
+}) {
+  const t = useTranslations("calendar");
+  const { organizationId, branchId, currentUserStaffId } =
+    useUserProfileContext();
+
+  const { data: staffList = [] } = useStaff(organizationId, undefined, {
+    branchId: branchId ?? undefined,
+  });
+
+  // Doctors only, exclude self (the event owner / primary)
+  const doctors = useMemo(
+    () =>
+      staffList.filter(
+        (m) => m.isClinical && m.id !== currentUserStaffId,
+      ),
+    [staffList, currentUserStaffId],
+  );
+
+  const selected = (watch("assistant_profile_ids") as string[] | undefined) ?? [];
+
+  function addRow() {
+    setValue("assistant_profile_ids", [...selected, ""], {
+      shouldValidate: false,
+    });
+  }
+
+  function setRow(idx: number, value: string) {
+    const next = [...selected];
+    next[idx] = value;
+    setValue("assistant_profile_ids", next, { shouldValidate: false });
+  }
+
+  function removeRow(idx: number) {
+    const next = selected.filter((_, i) => i !== idx);
+    setValue("assistant_profile_ids", next, { shouldValidate: false });
+  }
+
+  return (
+    <div>
+      <label className={labelClass}>{t("form.assistants")}</label>
+
+      {selected.length === 0 ? (
+        <p className="mb-2 text-xs text-gray-400">
+          {t("form.noAssistants")}
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {selected.map((profileId, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <select
+                value={profileId}
+                onChange={(e) => setRow(idx, e.target.value)}
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-brand-black focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/10 transition-colors"
+              >
+                <option value="">{t("form.selectDoctor")}</option>
+                {doctors.map((d) => {
+                  const name =
+                    `${d.firstName} ${d.lastName}`.trim() || d.email || d.id;
+                  const taken =
+                    selected.includes(d.id) && d.id !== profileId;
+                  return (
+                    <option key={d.id} value={d.id} disabled={taken}>
+                      {name}
+                      {d.specialties?.length
+                        ? ` — ${d.specialties.map((s) => s.name).join(", ")}`
+                        : ""}
+                    </option>
+                  );
+                })}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => removeRow(idx)}
+                className="shrink-0 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label={t("form.removeAssistant")}
+              >
+                <Trash2 className="size-4" aria-hidden />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-2"
+        onClick={addRow}
+      >
+        <Plus className="me-1 size-3" aria-hidden />
+        {t("form.addAssistant")}
+      </Button>
+    </div>
+  );
+}
+
 // ── Procedure-event fields ─────────────────────────────────────────────────
 
-export function ProcedureFields({ errors, setValue }: BaseProps) {
+export function ProcedureFields({ errors, setValue, watch }: BaseProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errs = errors as any;
   return (
@@ -261,6 +375,7 @@ export function ProcedureFields({ errors, setValue }: BaseProps) {
         error={errs?.procedure_id?.message}
       />
       <PatientSearchField setValue={setValue} error={errs?.patient_id?.message} />
+      <AssistantsField setValue={setValue} watch={watch} />
     </div>
   );
 }

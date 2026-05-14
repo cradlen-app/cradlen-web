@@ -16,9 +16,10 @@ import { CalendarOverviewPanel } from "./CalendarOverviewPanel";
 import { NewEventDrawer } from "./NewEventDrawer";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { monthWindowFrom, todayIso } from "../lib/calendar.utils";
+import type { CalendarEvent } from "../types/calendar.types";
 
 function todayDate() {
-  const t = todayIso(); // "YYYY-MM-DD"
+  const t = todayIso();
   const [yyyy, mm] = t.split("-").map(Number);
   return { year: yyyy, month: mm - 1 };
 }
@@ -31,6 +32,7 @@ type CalendarContentProps = {
   onSelectDate: (date: string) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  onEditEvent: (event: CalendarEvent) => void;
 };
 
 function CalendarContent({
@@ -41,6 +43,7 @@ function CalendarContent({
   onSelectDate,
   onPrevMonth,
   onNextMonth,
+  onEditEvent,
 }: CalendarContentProps) {
   const { from, to } = monthWindowFrom(viewYear, viewMonth);
   const { data: events } = useCalendarEvents({ branchId, from, to });
@@ -59,7 +62,11 @@ function CalendarContent({
         />
       </section>
       <aside className="flex min-h-0 min-w-0 flex-col">
-        <CalendarOverviewPanel events={events} selectedDate={selectedDate} />
+        <CalendarOverviewPanel
+          events={events}
+          selectedDate={selectedDate}
+          onEditEvent={onEditEvent}
+        />
       </aside>
     </>
   );
@@ -82,6 +89,7 @@ export function CalendarPage() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerKey, setDrawerKey] = useState(0);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [selectedDate, setSelectedDate] = useState(todayIso);
 
   const initial = todayDate();
@@ -106,28 +114,35 @@ export function CalendarPage() {
     }
   }
 
-  function handleOpenDrawer() {
+  function handleOpenCreate() {
+    setEditingEvent(null);
     setDrawerKey((k) => k + 1);
     setDrawerOpen(true);
   }
 
-  const canCreate = isOwner(profile) || isBranchManager(profile) || isClinical(profile);
+  function handleOpenEdit(event: CalendarEvent) {
+    setEditingEvent(event);
+    setDrawerKey((k) => k + 1);
+    setDrawerOpen(true);
+  }
+
+  function handleDrawerChange(open: boolean) {
+    setDrawerOpen(open);
+    if (!open) setEditingEvent(null);
+  }
+
+  const canCreate =
+    isOwner(profile) || isBranchManager(profile) || isClinical(profile);
 
   return (
     <main className="flex h-full flex-col gap-6 overflow-hidden p-6">
-      {/* Header */}
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-brand-black">
-          {t("title")}
-        </h1>
+        <h1 className="text-xl font-semibold text-brand-black">{t("title")}</h1>
         {canCreate && (
-          <Button onClick={handleOpenDrawer}>
-            {t("newEvent")}
-          </Button>
+          <Button onClick={handleOpenCreate}>{t("newEvent")}</Button>
         )}
       </header>
 
-      {/* Calendar grid + overview */}
       <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-1 gap-6 lg:grid-cols-[1fr_300px] lg:grid-rows-1">
         <Suspense fallback={<CalendarContentSkeleton />}>
           <CalendarContent
@@ -138,17 +153,18 @@ export function CalendarPage() {
             onSelectDate={setSelectedDate}
             onPrevMonth={goPrev}
             onNextMonth={goNext}
+            onEditEvent={handleOpenEdit}
           />
         </Suspense>
       </div>
 
-      {/* New event drawer */}
       <NewEventDrawer
         key={drawerKey}
         open={drawerOpen}
-        onOpenChange={setDrawerOpen}
+        onOpenChange={handleDrawerChange}
         defaultDate={selectedDate}
         branchId={branchId}
+        event={editingEvent}
       />
     </main>
   );

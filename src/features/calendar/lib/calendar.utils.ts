@@ -125,6 +125,10 @@ export function mapApiCalendarEvent(api: ApiCalendarEvent): CalendarEvent {
     procedureName: api.procedure_name,
     patientId: api.patient_id,
     patientName: api.patient_full_name,
+    assistants: (api.assistants ?? []).map((a) => ({
+      profileId: a.profile_id,
+      fullName: a.full_name,
+    })),
     createdAt: api.created_at,
     updatedAt: api.updated_at,
   };
