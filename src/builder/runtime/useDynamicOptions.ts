@@ -76,6 +76,28 @@ function pickMapper(url: string): Mapper {
     };
   }
 
+  if (/\/organizations\/[^/]+\/specialties(\?|$)/.test(url)) {
+    return {
+      finalizeUrl: (u) => u,
+      mapResponse: (payload) => {
+        const list =
+          (payload as { data?: Array<{ id: string; code: string; name: string }> })?.data ?? [];
+        return list.map((s) => ({ code: s.code, label: s.name, raw: s }));
+      },
+    };
+  }
+
+  if (/\/care-paths(\?|$)/.test(url)) {
+    return {
+      finalizeUrl: (u) => u,
+      mapResponse: (payload) => {
+        const list =
+          (payload as { data?: Array<{ id: string; code: string; name: string }> })?.data ?? [];
+        return list.map((c) => ({ code: c.code, label: c.name, raw: c }));
+      },
+    };
+  }
+
   if (/\/medications(\?|$)/.test(url)) {
     return {
       finalizeUrl: (u) =>
@@ -128,10 +150,12 @@ export function useDynamicOptions(field: FormFieldDto): DynamicOptionsResult {
   }, [optionsSource]);
 
   // Stable signature of the form-derived placeholder values; changing only
-  // these keys triggers a re-resolution (not unrelated form edits).
+  // these keys triggers a re-resolution (not unrelated form edits). Placeholder
+  // values may live in `systemValues` (SYSTEM-bound discriminators like
+  // `specialty_code`) or `formValues` — read systemValues first.
   const formVarsSignature = formVarKeys
     .map((k) => {
-      const v = state.formValues[k];
+      const v = state.systemValues[k] ?? state.formValues[k];
       return `${k}=${typeof v === "string" ? v : v == null ? "" : String(v)}`;
     })
     .join("&");
@@ -139,7 +163,7 @@ export function useDynamicOptions(field: FormFieldDto): DynamicOptionsResult {
   const formVars = useMemo(() => {
     const out: Record<string, string | null | undefined> = {};
     for (const k of formVarKeys) {
-      const v = state.formValues[k];
+      const v = state.systemValues[k] ?? state.formValues[k];
       out[k] = typeof v === "string" ? v : v == null ? null : String(v);
     }
     return out;
