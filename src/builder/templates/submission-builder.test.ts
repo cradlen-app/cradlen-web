@@ -123,6 +123,26 @@ function makeTemplate(): FormTemplateDto {
             binding: { namespace: "SYSTEM", path: "visitor_type" },
             config: { logic: { is_discriminator: true } },
           },
+          {
+            id: "f-specialty-code",
+            code: "specialty_code",
+            label: "Specialty",
+            type: "SELECT",
+            order: 1,
+            required: true,
+            binding: { namespace: "SYSTEM", path: "specialty_code" },
+            config: { logic: { is_discriminator: true } },
+          },
+          {
+            id: "f-system-noise",
+            code: "ui_only_toggle",
+            label: "UI toggle",
+            type: "SELECT",
+            order: 2,
+            required: false,
+            binding: { namespace: "SYSTEM", path: "ui_only_toggle" },
+            config: {},
+          },
         ],
       },
     ],
@@ -130,9 +150,13 @@ function makeTemplate(): FormTemplateDto {
 }
 
 describe("buildSubmission", () => {
-  it("places PATIENT, INTAKE (nested), and GUARDIAN bindings; skips SYSTEM + COMPUTED", () => {
+  it("places PATIENT/INTAKE/GUARDIAN bindings + SYSTEM discriminators; skips non-discriminator SYSTEM + COMPUTED", () => {
     const snapshot: ExecutionSnapshot = {
-      systemValues: { visitor_type: "PATIENT" },
+      systemValues: {
+        visitor_type: "PATIENT",
+        specialty_code: "OBGYN",
+        ui_only_toggle: "ON",
+      },
       formValues: {
         full_name: "Aisha",
         spouse_full_name: "Omar",
@@ -146,9 +170,22 @@ describe("buildSubmission", () => {
       full_name: "Aisha",
       spouse_full_name: "Omar",
       vitals: { systolic_bp: 120 },
+      visitor_type: "PATIENT",
+      specialty_code: "OBGYN",
     });
-    expect(body).not.toHaveProperty("visitor_type");
+    expect(body).not.toHaveProperty("ui_only_toggle");
     expect(body.vitals as Record<string, unknown>).not.toHaveProperty("bmi");
+  });
+
+  it("omits SYSTEM discriminators whose systemValues are empty", () => {
+    const snapshot: ExecutionSnapshot = {
+      systemValues: { visitor_type: "PATIENT", specialty_code: "" },
+      formValues: {},
+      searchState: {},
+    };
+    const body = buildSubmission(makeTemplate(), snapshot);
+    expect(body.visitor_type).toBe("PATIENT");
+    expect(body).not.toHaveProperty("specialty_code");
   });
 
   it("submits resolved LOOKUP id", () => {

@@ -65,6 +65,19 @@ export interface FieldConfig {
       idTarget: string;
       fillFields?: Record<string, string>;
       allowCreate?: boolean;
+      /**
+       * Resolves a sibling ENTITY_SEARCH field from the picked raw payload.
+       * Keyed by the target search field's `code`. Used e.g. to pre-resolve
+       * the spouse guardian when a patient is selected.
+       */
+      fillEntitySearches?: Record<
+        string,
+        {
+          idSource: string;
+          labelSource: string;
+          fillFields?: Record<string, string>;
+        }
+      >;
     };
     [key: string]: unknown;
   };

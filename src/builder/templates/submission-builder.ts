@@ -98,7 +98,9 @@ function placeValue({ body, namespace, path, value }: PlaceArgs): void {
  * - Section + field `visible` predicates are evaluated; hidden values are skipped.
  * - LOOKUP submits the resolved entity id (or nothing).
  * - GUARDIAN flattens to `spouse_<path>`.
- * - SYSTEM and COMPUTED are never submitted.
+ * - SYSTEM fields with `logic.is_discriminator` are submitted at their
+ *   `binding.path` (e.g. `visitor_type`, `specialty_code`) using the value
+ *   from `systemValues`. Other SYSTEM and all COMPUTED fields are skipped.
  * - Empty values are skipped (`undefined`, `null`, empty string, empty array).
  */
 export function buildSubmission(
@@ -147,7 +149,14 @@ export function buildSubmission(
       const path = field.binding?.path;
       if (!ns || !path) continue;
 
-      if (ns === "SYSTEM" || ns === "COMPUTED") continue;
+      if (ns === "SYSTEM") {
+        if (field.config?.logic?.is_discriminator === true) {
+          const value = snapshot.systemValues[field.code];
+          if (!isEmpty(value)) body[path] = value;
+        }
+        continue;
+      }
+      if (ns === "COMPUTED") continue;
 
       if (ns === "LOOKUP") {
         // Resolved id may come from this field's own searchState (when it's
