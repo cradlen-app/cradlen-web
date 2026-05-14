@@ -1,6 +1,11 @@
 export type CalendarEventType = "DAY_OFF" | "PROCEDURE" | "MEETING" | "GENERIC";
 export type CalendarVisibility = "PRIVATE" | "ORGANIZATION";
 
+export type CalendarAssistant = {
+  profileId: string;
+  fullName: string;
+};
+
 export type CalendarEvent = {
   id: string;
   profileId: string;
@@ -17,6 +22,7 @@ export type CalendarEvent = {
   procedureName: string | null;
   patientId: string | null;
   patientName: string | null;
+  assistants: CalendarAssistant[];
   createdAt: string;
   updatedAt: string;
 };

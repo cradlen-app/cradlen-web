@@ -1,8 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, X, Stethoscope, Users, User, PalmtreeIcon, Lock, Building2 } from "lucide-react";
+import {
+  Loader2,
+  X,
+  Stethoscope,
+  Users,
+  User,
+  PalmtreeIcon,
+  Lock,
+  Building2,
+} from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
@@ -11,6 +20,7 @@ import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileConte
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useCreateCalendarEvent } from "../hooks/useCreateCalendarEvent";
+import { useUpdateCalendarEvent } from "../hooks/useUpdateCalendarEvent";
 import {
   dayOffEventSchema,
   procedureEventSchema,
@@ -19,10 +29,14 @@ import {
   type NewEventFormValues,
 } from "../lib/calendar.schemas";
 import type {
+  CalendarEvent,
   CalendarEventType,
   CalendarVisibility,
 } from "../types/calendar.types";
-import type { CreateCalendarEventRequest } from "../types/calendar.api.types";
+import type {
+  CreateCalendarEventRequest,
+  UpdateCalendarEventRequest,
+} from "../types/calendar.api.types";
 import { ProcedureFields } from "./NewEventTypeFields";
 
 const labelClass = "block text-xs font-medium text-gray-600 mb-1";
@@ -88,7 +102,17 @@ function schemaForType(type: CalendarEventType) {
   }
 }
 
-function defaultValuesForType(type: CalendarEventType, branchId?: string) {
+function toDatetimeLocal(iso: string): string {
+  // datetime-local needs `YYYY-MM-DDTHH:MM` in *local* time
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function defaultValuesForType(
+  type: CalendarEventType,
+  branchId?: string,
+): NewEventFormValues {
   const base = {
     title: "",
     description: "",
@@ -99,9 +123,37 @@ function defaultValuesForType(type: CalendarEventType, branchId?: string) {
     branch_id: branchId ?? "",
   };
   if (type === "PROCEDURE") {
-    return { ...base, event_type: "PROCEDURE" as const, procedure_id: "", patient_id: "" };
+    return {
+      ...base,
+      event_type: "PROCEDURE" as const,
+      procedure_id: "",
+      patient_id: "",
+      assistant_profile_ids: [],
+    };
   }
   return { ...base, event_type: type } as NewEventFormValues;
+}
+
+function valuesFromEvent(event: CalendarEvent): NewEventFormValues {
+  const base = {
+    title: event.title,
+    description: event.description ?? "",
+    start_at: toDatetimeLocal(event.startsAt),
+    end_at: toDatetimeLocal(event.endsAt),
+    all_day: event.allDay,
+    visibility: event.visibility,
+    branch_id: event.branchId ?? "",
+  };
+  if (event.type === "PROCEDURE") {
+    return {
+      ...base,
+      event_type: "PROCEDURE" as const,
+      procedure_id: event.procedureId ?? "",
+      patient_id: event.patientId ?? "",
+      assistant_profile_ids: event.assistants.map((a) => a.profileId),
+    };
+  }
+  return { ...base, event_type: event.type } as NewEventFormValues;
 }
 
 type Props = {
@@ -109,6 +161,8 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   defaultDate?: string;
   branchId?: string;
+  /** When set, drawer opens in edit mode for this event. */
+  event?: CalendarEvent | null;
 };
 
 export function NewEventDrawer({
@@ -116,18 +170,23 @@ export function NewEventDrawer({
   onOpenChange,
   defaultDate,
   branchId,
+  event,
 }: Props) {
   const t = useTranslations("calendar");
   const { activeProfile } = useUserProfileContext();
   const branches = activeProfile?.branches ?? [];
 
-  const [selectedType, setSelectedType] = useState<CalendarEventType>("DAY_OFF");
-  const [step, setStep] = useState<"type" | "form">("type");
+  const isEdit = !!event;
+  const initialType: CalendarEventType = event?.type ?? "DAY_OFF";
+  const [selectedType, setSelectedType] = useState<CalendarEventType>(initialType);
+  const [step, setStep] = useState<"type" | "form">(isEdit ? "form" : "type");
 
   const form = useForm<NewEventFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schemaForType(selectedType)) as any,
-    defaultValues: defaultValuesForType(selectedType, branchId),
+    defaultValues: event
+      ? valuesFromEvent(event)
+      : defaultValuesForType(selectedType, branchId),
     mode: "onSubmit",
   });
 
@@ -141,18 +200,38 @@ export function NewEventDrawer({
     reset,
   } = form;
 
+  // Re-sync form when the event prop changes (edit a different event)
+  useEffect(() => {
+    if (event) {
+      setSelectedType(event.type);
+      setStep("form");
+      reset(valuesFromEvent(event));
+    }
+  }, [event, reset]);
+
   const currentVisibility = watch("visibility") as CalendarVisibility | undefined;
 
-  const mutation = useCreateCalendarEvent({
+  const createMut = useCreateCalendarEvent({
     onSuccess: () => {
       toast.success(t("form.success"));
       handleClose();
     },
     onError: (err) => {
-      const msg = err instanceof Error ? err.message : t("form.error");
-      toast.error(msg);
+      toast.error(err instanceof Error ? err.message : t("form.error"));
     },
   });
+
+  const updateMut = useUpdateCalendarEvent({
+    onSuccess: () => {
+      toast.success(t("form.updateSuccess"));
+      handleClose();
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : t("form.error"));
+    },
+  });
+
+  const isPending = createMut.isPending || updateMut.isPending;
 
   function handleTypeSelect(type: CalendarEventType) {
     setSelectedType(type);
@@ -161,14 +240,22 @@ export function NewEventDrawer({
 
   function handleClose() {
     onOpenChange(false);
-    setStep("type");
-    setSelectedType("DAY_OFF");
-    reset(defaultValuesForType("DAY_OFF", branchId));
+    setStep(isEdit ? "form" : "type");
+    if (!isEdit) {
+      setSelectedType("DAY_OFF");
+      reset(defaultValuesForType("DAY_OFF", branchId));
+    }
   }
 
   const onSubmit = handleSubmit(async (values) => {
-    const body = buildRequest(values);
-    await mutation.mutateAsync(body);
+    if (isEdit && event) {
+      await updateMut.mutateAsync({
+        id: event.id,
+        body: buildUpdateRequest(values, event),
+      });
+    } else {
+      await createMut.mutateAsync(buildCreateRequest(values));
+    }
   });
 
   return (
@@ -181,7 +268,7 @@ export function NewEventDrawer({
         >
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
             <Dialog.Title className="text-sm font-semibold text-brand-black">
-              {t("form.title")}
+              {isEdit ? t("form.editTitle") : t("form.title")}
             </Dialog.Title>
             <Dialog.Close asChild>
               <button
@@ -195,12 +282,12 @@ export function NewEventDrawer({
           </div>
 
           <span id="new-event-desc" className="sr-only">
-            {t("form.title")}
+            {isEdit ? t("form.editTitle") : t("form.title")}
           </span>
 
           <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto px-5 py-5">
-              {step === "type" ? (
+              {step === "type" && !isEdit ? (
                 <TypePicker
                   t={t}
                   selected={selectedType}
@@ -229,7 +316,9 @@ export function NewEventDrawer({
                       <input
                         {...register("start_at")}
                         type="datetime-local"
-                        defaultValue={defaultDate ? `${defaultDate}T08:00` : undefined}
+                        defaultValue={
+                          !isEdit && defaultDate ? `${defaultDate}T08:00` : undefined
+                        }
                         className={inputClass}
                       />
                       {errors?.start_at && (
@@ -241,7 +330,9 @@ export function NewEventDrawer({
                       <input
                         {...register("end_at")}
                         type="datetime-local"
-                        defaultValue={defaultDate ? `${defaultDate}T09:00` : undefined}
+                        defaultValue={
+                          !isEdit && defaultDate ? `${defaultDate}T09:00` : undefined
+                        }
                         className={inputClass}
                       />
                       {errors?.end_at && (
@@ -252,7 +343,11 @@ export function NewEventDrawer({
 
                   {/* All day */}
                   <label className="flex items-center gap-2 text-sm text-brand-black">
-                    <input type="checkbox" {...register("all_day")} className="size-4 accent-brand-primary" />
+                    <input
+                      type="checkbox"
+                      {...register("all_day")}
+                      className="size-4 accent-brand-primary"
+                    />
                     {t("form.allDay")}
                   </label>
 
@@ -322,6 +417,8 @@ export function NewEventDrawer({
                       errors={errors as any}
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       setValue={setValue as any}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      watch={watch as any}
                     />
                   )}
                 </div>
@@ -329,7 +426,7 @@ export function NewEventDrawer({
             </div>
 
             <div className="flex items-center justify-between border-t border-gray-100 px-5 py-4">
-              {step === "form" ? (
+              {step === "form" && !isEdit ? (
                 <button
                   type="button"
                   onClick={() => setStep("type")}
@@ -341,7 +438,7 @@ export function NewEventDrawer({
                 <span />
               )}
 
-              {step === "type" ? (
+              {step === "type" && !isEdit ? (
                 <Button
                   type="button"
                   onClick={() => setStep("form")}
@@ -350,12 +447,14 @@ export function NewEventDrawer({
                   {t("form.next")}
                 </Button>
               ) : (
-                <Button type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? (
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? (
                     <>
                       <Loader2 className="me-2 size-4 animate-spin" aria-hidden />
-                      {t("form.saving")}
+                      {isEdit ? t("form.updating") : t("form.saving")}
                     </>
+                  ) : isEdit ? (
+                    t("form.update")
                   ) : (
                     t("form.save")
                   )}
@@ -449,9 +548,9 @@ function VisibilityCard({
   );
 }
 
-// ── Build API request from form values ──────────────────────────────────────
+// ── Request builders ───────────────────────────────────────────────────────
 
-function buildRequest(values: NewEventFormValues): CreateCalendarEventRequest {
+function buildCreateRequest(values: NewEventFormValues): CreateCalendarEventRequest {
   const base: CreateCalendarEventRequest = {
     event_type: values.event_type,
     title: values.title,
@@ -468,8 +567,38 @@ function buildRequest(values: NewEventFormValues): CreateCalendarEventRequest {
       ...base,
       procedure_id: values.procedure_id,
       patient_id: values.patient_id?.trim() || undefined,
+      assistant_profile_ids:
+        (values.assistant_profile_ids ?? []).filter(Boolean).length > 0
+          ? (values.assistant_profile_ids ?? []).filter(Boolean)
+          : undefined,
     };
   }
   return base;
 }
 
+function buildUpdateRequest(
+  values: NewEventFormValues,
+  event: CalendarEvent,
+): UpdateCalendarEventRequest {
+  // For edit we send the full set every time; the backend treats it as a PATCH.
+  // Locked: event_type — backend type swaps would invalidate relations.
+  const base: UpdateCalendarEventRequest = {
+    title: values.title,
+    description: values.description?.trim() || "",
+    start_at: new Date(values.start_at).toISOString(),
+    end_at: new Date(values.end_at).toISOString(),
+    all_day: values.all_day,
+    visibility: values.visibility,
+    branch_id: values.branch_id?.trim() || undefined,
+  };
+
+  if (event.type === "PROCEDURE" && values.event_type === "PROCEDURE") {
+    return {
+      ...base,
+      procedure_id: values.procedure_id,
+      patient_id: values.patient_id?.trim() || undefined,
+      assistant_profile_ids: (values.assistant_profile_ids ?? []).filter(Boolean),
+    };
+  }
+  return base;
+}
