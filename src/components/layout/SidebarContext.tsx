@@ -8,6 +8,7 @@ type SidebarCtx = {
   mobileOpen: boolean;
   openMobile: () => void;
   closeMobile: () => void;
+  toggleMobile: () => void;
 };
 
 const SidebarContext = createContext<SidebarCtx | null>(null);
@@ -23,6 +24,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
         mobileOpen,
         openMobile: () => setMobileOpen(true),
         closeMobile: () => setMobileOpen(false),
+        toggleMobile: () => setMobileOpen((v) => !v),
       }}
     >
       {children}

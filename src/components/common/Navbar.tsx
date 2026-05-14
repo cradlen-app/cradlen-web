@@ -76,7 +76,7 @@ function IconButton({
 export function Navbar() {
   const t = useTranslations("nav");
   const tRoles = useTranslations("common.roles");
-  const { openMobile } = useSidebar();
+  const { toggleMobile } = useSidebar();
   const { data: user } = useCurrentUser();
 
   const profile = getActiveProfile(user);
@@ -92,27 +92,20 @@ export function Navbar() {
       {/* Hamburger — mobile only */}
       <button
         type="button"
-        onClick={openMobile}
+        onClick={toggleMobile}
         aria-label={t("openMenu")}
         className="size-9 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150 lg:hidden shrink-0"
       >
         <Menu className="size-5" />
       </button>
 
-      {/* Logo — icon on mobile, full logo on desktop */}
+      {/* Logo */}
       <Link
         href="/"
         aria-label="Cradlen home"
         className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 w-30 shrink-0 inline-flex"
       >
-        {" "}
-        <Image
-          src={LogoIcon}
-          alt="CRADLEN"
-          height={30}
-          className="w-auto lg:hidden"
-        />
-        <Image src={Logo} alt="CRADLEN" className="hidden w-auto lg:block" />
+        <Image src={Logo} alt="CRADLEN" className="w-auto" />
       </Link>
 
       {/* Right section */}
@@ -125,9 +118,9 @@ export function Navbar() {
           <Mail className="size-5" />
         </IconButton>
 
-        <div className="w-px h-5 bg-gray-200 mx-1.5" />
+        <div className="hidden lg:block w-px h-5 bg-gray-200 mx-1.5" />
 
-        <div className="flex items-center gap-2.5 h-10 ps-1 pe-3.5 rounded-full border border-transparent">
+        <div className="hidden lg:flex items-center gap-2.5 h-10 ps-1 pe-3.5 rounded-full border border-transparent">
           <UserAvatar
             name={displayName}
             avatarUrl={undefined}
