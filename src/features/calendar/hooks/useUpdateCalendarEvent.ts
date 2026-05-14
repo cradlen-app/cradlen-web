@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
-import { createCalendarEvent } from "../lib/calendar.api";
-import type { CreateCalendarEventRequest } from "../types/calendar.api.types";
+import { updateCalendarEvent } from "../lib/calendar.api";
+import type { UpdateCalendarEventRequest } from "../types/calendar.api.types";
 import type { CalendarEvent } from "../types/calendar.types";
 
 type Options = {
@@ -11,11 +11,13 @@ type Options = {
   onError?: (error: unknown) => void;
 };
 
-export function useCreateCalendarEvent({ onSuccess, onError }: Options = {}) {
+type Vars = { id: string; body: UpdateCalendarEventRequest };
+
+export function useUpdateCalendarEvent({ onSuccess, onError }: Options = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: CreateCalendarEventRequest) => createCalendarEvent(body),
+    mutationFn: ({ id, body }: Vars) => updateCalendarEvent(id, body),
     onSuccess: (event) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.calendar.all() });
       onSuccess?.(event);
