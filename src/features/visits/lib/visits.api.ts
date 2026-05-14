@@ -21,7 +21,7 @@ export type PaginationParams = { page?: number; limit?: number };
 export type UpdateVisitRequest = VisitIntake & {
   assigned_doctor_id?: string;
   branch_id?: string;
-  appointment_type?: ApiVisit["visit_type"];
+  appointment_type?: ApiVisit["appointment_type"];
   priority?: ApiVisit["priority"];
   scheduled_at?: string;
   notes?: string;

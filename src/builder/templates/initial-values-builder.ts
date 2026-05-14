@@ -24,6 +24,7 @@ interface InitialSnapshot {
 
 type SpouseGuardian =
   | {
+      id?: string;
       full_name?: string;
       national_id?: string | null;
       phone_number?: string | null;
@@ -48,19 +49,45 @@ export function buildInitialValues(
       if (value === undefined || value === null) continue;
       formValues[field.code] = value;
 
-      // If the field carries searchEntity config, also seed the transient text
-      // so EntitySearchInput renders the value (it reads from searchState).
-      if (field.config?.ui?.searchEntity && typeof value === "string") {
+      // If the field carries searchEntity config, seed it as an already-resolved
+      // entity so EntitySearchInput renders the label without firing a search.
+      // Also write the paired LOOKUP id so submission carries it.
+      const searchEntity = field.config?.ui?.searchEntity as
+        | { idTarget?: string; kind?: string }
+        | undefined;
+      if (searchEntity && typeof value === "string") {
+        const resolvedId = resolveEntityId(searchEntity.kind, visit, patient, spouse);
         searchState[field.code] = {
           transientValue: value,
           suggestions: [],
-          resolvedEntityId: null,
+          resolvedEntityId: resolvedId ? { id: resolvedId, label: value } : null,
         };
+        if (resolvedId && searchEntity.idTarget) {
+          formValues[searchEntity.idTarget] = resolvedId;
+        }
       }
     }
   }
 
   return { formValues, searchState, systemValues };
+}
+
+function resolveEntityId(
+  kind: string | undefined,
+  visit: Visit,
+  patient: ApiPatient | null | undefined,
+  spouse: SpouseGuardian,
+): string | undefined {
+  switch (kind) {
+    case "patient":
+      return patient?.id ?? visit.patient.id ?? undefined;
+    case "guardian":
+      return spouse?.id ?? undefined;
+    case "medical_rep":
+      return visit.patient.id ?? undefined;
+    default:
+      return undefined;
+  }
 }
 
 function pickSpouseGuardian(patient?: ApiPatient | null): SpouseGuardian {
@@ -69,6 +96,7 @@ function pickSpouseGuardian(patient?: ApiPatient | null): SpouseGuardian {
   );
   return link?.guardian
     ? {
+        id: link.guardian.id,
         full_name: link.guardian.full_name,
         national_id: link.guardian.national_id,
         phone_number: link.guardian.phone_number,

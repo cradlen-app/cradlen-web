@@ -26,15 +26,21 @@ type ApiMedRepVisitForMapping = {
   status: string;
   priority: string;
   notes?: string | null;
+  queue_number?: number | null;
   checked_in_at?: string | null;
   started_at?: string | null;
   completed_at?: string | null;
   created_at?: string;
   medical_rep?: ApiMedicalRep | null;
+  assigned_doctor?: {
+    id: string;
+    user: { id: string; first_name: string; last_name: string };
+  };
 };
 
 export function mapApiMedRepVisitToVisit(api: ApiMedRepVisitForMapping): Visit {
   const rep = api.medical_rep;
+  const doctorUser = api.assigned_doctor?.user;
   const displayName = rep
     ? rep.company_name
       ? `${rep.full_name} · ${rep.company_name}`
@@ -44,6 +50,7 @@ export function mapApiMedRepVisitToVisit(api: ApiMedRepVisitForMapping): Visit {
     id: api.id,
     kind: "medical_rep",
     branchId: api.branch_id,
+    queueNumber: api.queue_number ?? undefined,
     patient: {
       id: rep?.id ?? api.medical_rep_id,
       firstName: "",
@@ -57,7 +64,10 @@ export function mapApiMedRepVisitToVisit(api: ApiMedRepVisitForMapping): Visit {
     type: "MEDICAL_REP",
     status: api.status as Visit["status"],
     priority: api.priority as Visit["priority"],
-    assignedDoctorId: api.assigned_doctor_id,
+    assignedDoctorId: api.assigned_doctor?.id ?? api.assigned_doctor_id,
+    assignedDoctorName: doctorUser
+      ? `${doctorUser.first_name} ${doctorUser.last_name}`.trim()
+      : undefined,
     notes: api.notes ?? undefined,
     chiefComplaint: null,
     chiefComplaintMeta: null,
@@ -85,7 +95,7 @@ export function mapApiVisitToVisit(api: ApiVisit): Visit {
       phone: undefined,
       address: undefined,
     },
-    type: api.visit_type,
+    type: api.appointment_type,
     status: api.status,
     priority: api.priority,
     assignedDoctorId: api.assigned_doctor?.id,
@@ -183,8 +193,8 @@ export function mapApiVisitToScheduleEvent(api: ApiVisit): ApiScheduleEvent {
   return {
     id: api.id,
     branch_id: api.branch_id ?? "",
-    title: api.episode?.journey?.patient?.full_name ?? api.visit_type,
-    kind: VISIT_KIND_MAP[api.visit_type] ?? "visit",
+    title: api.episode?.journey?.patient?.full_name ?? api.appointment_type,
+    kind: VISIT_KIND_MAP[api.appointment_type] ?? "visit",
     patient_name: api.episode?.journey?.patient?.full_name,
     doctor_ids: api.assigned_doctor?.id ? [api.assigned_doctor.id] : undefined,
     doctor_names: doctorUser
