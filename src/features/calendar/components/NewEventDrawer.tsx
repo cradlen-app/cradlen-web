@@ -2,34 +2,28 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, X, Stethoscope, Users, User, PalmtreeIcon } from "lucide-react";
+import { Loader2, X, Stethoscope, Users, User, PalmtreeIcon, Lock, Building2 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useCreateCalendarEvent } from "../hooks/useCreateCalendarEvent";
 import {
-  surgeryEventSchema,
+  dayOffEventSchema,
+  procedureEventSchema,
   meetingEventSchema,
-  personalEventSchema,
-  leaveEventSchema,
+  genericEventSchema,
   type NewEventFormValues,
-  type SurgeryEventFormValues,
-  type MeetingEventFormValues,
-  type PersonalEventFormValues,
-  type LeaveEventFormValues,
 } from "../lib/calendar.schemas";
-import type { CalendarEventType } from "../types/calendar.types";
+import type {
+  CalendarEventType,
+  CalendarVisibility,
+} from "../types/calendar.types";
 import type { CreateCalendarEventRequest } from "../types/calendar.api.types";
-import { ConflictDialog } from "./ConflictDialog";
-import {
-  SurgeryFields,
-  MeetingFields,
-  LeaveFields,
-  PersonalFields,
-} from "./NewEventTypeFields";
-import type { Conflict } from "../types/calendar.types";
+import { ProcedureFields } from "./NewEventTypeFields";
 
 const labelClass = "block text-xs font-medium text-gray-600 mb-1";
 const inputClass =
@@ -45,58 +39,69 @@ type EventTypeCard = {
 
 const EVENT_TYPE_CARDS: EventTypeCard[] = [
   {
-    type: "SURGERY",
+    type: "DAY_OFF",
+    icon: <PalmtreeIcon className="size-5" aria-hidden />,
+    color: "text-amber-500",
+    bgColor:
+      "bg-amber-50 border-amber-200 data-[selected=true]:border-amber-500 data-[selected=true]:bg-amber-50",
+  },
+  {
+    type: "PROCEDURE",
     icon: <Stethoscope className="size-5" aria-hidden />,
     color: "text-red-500",
-    bgColor: "bg-red-50 border-red-200 data-[selected=true]:border-red-500 data-[selected=true]:bg-red-50",
+    bgColor:
+      "bg-red-50 border-red-200 data-[selected=true]:border-red-500 data-[selected=true]:bg-red-50",
   },
   {
     type: "MEETING",
     icon: <Users className="size-5" aria-hidden />,
     color: "text-brand-primary",
-    bgColor: "bg-green-50 border-green-200 data-[selected=true]:border-brand-primary data-[selected=true]:bg-green-50",
+    bgColor:
+      "bg-green-50 border-green-200 data-[selected=true]:border-brand-primary data-[selected=true]:bg-green-50",
   },
   {
-    type: "PERSONAL",
+    type: "GENERIC",
     icon: <User className="size-5" aria-hidden />,
-    color: "text-amber-500",
-    bgColor: "bg-amber-50 border-amber-200 data-[selected=true]:border-amber-500 data-[selected=true]:bg-amber-50",
-  },
-  {
-    type: "LEAVE",
-    icon: <PalmtreeIcon className="size-5" aria-hidden />,
     color: "text-gray-500",
-    bgColor: "bg-gray-50 border-gray-200 data-[selected=true]:border-gray-500 data-[selected=true]:bg-gray-100",
+    bgColor:
+      "bg-gray-50 border-gray-200 data-[selected=true]:border-gray-500 data-[selected=true]:bg-gray-100",
   },
 ];
 
+const DEFAULT_VISIBILITY: Record<CalendarEventType, CalendarVisibility> = {
+  DAY_OFF: "ORGANIZATION",
+  PROCEDURE: "ORGANIZATION",
+  MEETING: "PRIVATE",
+  GENERIC: "PRIVATE",
+};
+
 function schemaForType(type: CalendarEventType) {
   switch (type) {
-    case "SURGERY": return surgeryEventSchema;
-    case "MEETING": return meetingEventSchema;
-    case "PERSONAL": return personalEventSchema;
-    case "LEAVE": return leaveEventSchema;
+    case "DAY_OFF":
+      return dayOffEventSchema;
+    case "PROCEDURE":
+      return procedureEventSchema;
+    case "MEETING":
+      return meetingEventSchema;
+    case "GENERIC":
+      return genericEventSchema;
   }
 }
 
-function defaultValuesForType(type: CalendarEventType) {
+function defaultValuesForType(type: CalendarEventType, branchId?: string) {
   const base = {
     title: "",
     description: "",
-    starts_at: "",
-    ends_at: "",
+    start_at: "",
+    end_at: "",
     all_day: false,
+    visibility: DEFAULT_VISIBILITY[type],
+    branch_id: branchId ?? "",
   };
-  switch (type) {
-    case "SURGERY":
-      return { ...base, type: "SURGERY" as const, branch_id: "", patient_id: "", details: { surgery_name: "", surgery_type: "", operating_room: "", pre_op_notes: "" }, participants: [] };
-    case "MEETING":
-      return { ...base, type: "MEETING" as const, details: { location: "", virtual_link: "", agenda: "" }, participants: [] };
-    case "PERSONAL":
-      return { ...base, type: "PERSONAL" as const };
-    case "LEAVE":
-      return { ...base, type: "LEAVE" as const, details: { reason: "" } };
+  if (type === "PROCEDURE") {
+    return { ...base, event_type: "PROCEDURE" as const, procedure_id: "", patient_id: "" };
   }
+  return { ...base, event_type: type } as NewEventFormValues;
 }
 
 type Props = {
@@ -106,149 +111,265 @@ type Props = {
   branchId?: string;
 };
 
-export function NewEventDrawer({ open, onOpenChange, defaultDate, branchId }: Props) {
+export function NewEventDrawer({
+  open,
+  onOpenChange,
+  defaultDate,
+  branchId,
+}: Props) {
   const t = useTranslations("calendar");
-  const [selectedType, setSelectedType] = useState<CalendarEventType>("SURGERY");
+  const { activeProfile } = useUserProfileContext();
+  const branches = activeProfile?.branches ?? [];
+
+  const [selectedType, setSelectedType] = useState<CalendarEventType>("DAY_OFF");
   const [step, setStep] = useState<"type" | "form">("type");
-  const [pendingConflicts, setPendingConflicts] = useState<Conflict[]>([]);
 
   const form = useForm<NewEventFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schemaForType(selectedType)) as any,
-    defaultValues: defaultValuesForType(selectedType),
+    defaultValues: defaultValuesForType(selectedType, branchId),
     mode: "onSubmit",
   });
 
-  const { register, handleSubmit, control, setValue, formState: { errors }, reset } = form;
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    formState: { errors },
+    reset,
+  } = form;
+
+  const currentVisibility = watch("visibility") as CalendarVisibility | undefined;
 
   const mutation = useCreateCalendarEvent({
-    onSuccess: (conflicts) => {
-      if (conflicts.length > 0) {
-        setPendingConflicts(conflicts);
-      } else {
-        handleClose();
-      }
+    onSuccess: () => {
+      toast.success(t("form.success"));
+      handleClose();
+    },
+    onError: (err) => {
+      const msg = err instanceof Error ? err.message : t("form.error");
+      toast.error(msg);
     },
   });
 
   function handleTypeSelect(type: CalendarEventType) {
     setSelectedType(type);
-    reset(defaultValuesForType(type));
+    reset(defaultValuesForType(type, branchId));
   }
 
   function handleClose() {
     onOpenChange(false);
-    setPendingConflicts([]);
     setStep("type");
-    reset(defaultValuesForType("SURGERY"));
-    setSelectedType("SURGERY");
+    setSelectedType("DAY_OFF");
+    reset(defaultValuesForType("DAY_OFF", branchId));
   }
 
   const onSubmit = handleSubmit(async (values) => {
-    const body = buildRequest(values, branchId);
+    const body = buildRequest(values);
     await mutation.mutateAsync(body);
   });
 
   return (
-    <>
-      <Dialog.Root open={open} onOpenChange={(v) => !v && handleClose()}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-          <Dialog.Content
-            className="fixed inset-y-0 inset-e-0 z-40 flex w-full max-w-md flex-col bg-white shadow-2xl focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right"
-            aria-describedby="new-event-desc"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-              <Dialog.Title className="text-sm font-semibold text-brand-black">
-                {t("form.title")}
-              </Dialog.Title>
-              <Dialog.Close asChild>
-                <button
-                  type="button"
-                  className="inline-flex size-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-brand-black transition-colors"
-                  aria-label={t("form.close")}
-                >
-                  <X className="size-4" aria-hidden />
-                </button>
-              </Dialog.Close>
+    <Dialog.Root open={open} onOpenChange={(v) => !v && handleClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content
+          className="fixed inset-y-0 inset-e-0 z-40 flex w-full max-w-md flex-col bg-white shadow-2xl focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right"
+          aria-describedby="new-event-desc"
+        >
+          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+            <Dialog.Title className="text-sm font-semibold text-brand-black">
+              {t("form.title")}
+            </Dialog.Title>
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                className="inline-flex size-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-brand-black transition-colors"
+                aria-label={t("form.close")}
+              >
+                <X className="size-4" aria-hidden />
+              </button>
+            </Dialog.Close>
+          </div>
+
+          <span id="new-event-desc" className="sr-only">
+            {t("form.title")}
+          </span>
+
+          <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-5 py-5">
+              {step === "type" ? (
+                <TypePicker
+                  t={t}
+                  selected={selectedType}
+                  onSelect={handleTypeSelect}
+                />
+              ) : (
+                <div className="space-y-4">
+                  {/* Title */}
+                  <div>
+                    <label className={labelClass}>{t("form.name")} *</label>
+                    <input
+                      {...register("title")}
+                      className={inputClass}
+                      placeholder={t(`types.${selectedType}`)}
+                      autoFocus
+                    />
+                    {errors?.title && (
+                      <p className={errorClass}>{errors.title.message}</p>
+                    )}
+                  </div>
+
+                  {/* Date/Time */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelClass}>{t("form.startsAt")} *</label>
+                      <input
+                        {...register("start_at")}
+                        type="datetime-local"
+                        defaultValue={defaultDate ? `${defaultDate}T08:00` : undefined}
+                        className={inputClass}
+                      />
+                      {errors?.start_at && (
+                        <p className={errorClass}>{errors.start_at.message}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className={labelClass}>{t("form.endsAt")} *</label>
+                      <input
+                        {...register("end_at")}
+                        type="datetime-local"
+                        defaultValue={defaultDate ? `${defaultDate}T09:00` : undefined}
+                        className={inputClass}
+                      />
+                      {errors?.end_at && (
+                        <p className={errorClass}>{errors.end_at.message}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* All day */}
+                  <label className="flex items-center gap-2 text-sm text-brand-black">
+                    <input type="checkbox" {...register("all_day")} className="size-4 accent-brand-primary" />
+                    {t("form.allDay")}
+                  </label>
+
+                  {/* Branch */}
+                  <div>
+                    <label className={labelClass}>{t("form.branch")}</label>
+                    <select {...register("branch_id")} className={inputClass}>
+                      <option value="">{t("form.orgWide")}</option>
+                      {branches.map((b) => (
+                        <option
+                          key={b.branch_id ?? b.id}
+                          value={b.branch_id ?? b.id}
+                        >
+                          {b.name ?? b.city}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Visibility */}
+                  <div>
+                    <label className={labelClass}>{t("form.visibility")}</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <VisibilityCard
+                        active={currentVisibility === "ORGANIZATION"}
+                        icon={<Building2 className="size-4" aria-hidden />}
+                        label={t("visibility.ORGANIZATION")}
+                        hint={t("visibility.ORGANIZATION_hint")}
+                        onClick={() =>
+                          setValue("visibility", "ORGANIZATION", {
+                            shouldValidate: false,
+                          })
+                        }
+                      />
+                      <VisibilityCard
+                        active={currentVisibility === "PRIVATE"}
+                        icon={<Lock className="size-4" aria-hidden />}
+                        label={t("visibility.PRIVATE")}
+                        hint={t("visibility.PRIVATE_hint")}
+                        onClick={() =>
+                          setValue("visibility", "PRIVATE", {
+                            shouldValidate: false,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className={labelClass}>{t("form.description")}</label>
+                    <textarea
+                      {...register("description")}
+                      className={cn(inputClass, "min-h-15 resize-y")}
+                      placeholder={t("form.descriptionPlaceholder")}
+                    />
+                  </div>
+
+                  {/* Type-specific fields */}
+                  {selectedType === "PROCEDURE" && (
+                    <ProcedureFields
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      register={register as any}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      control={control as any}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      errors={errors as any}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      setValue={setValue as any}
+                    />
+                  )}
+                </div>
+              )}
             </div>
 
-            <span id="new-event-desc" className="sr-only">{t("form.title")}</span>
+            <div className="flex items-center justify-between border-t border-gray-100 px-5 py-4">
+              {step === "form" ? (
+                <button
+                  type="button"
+                  onClick={() => setStep("type")}
+                  className="text-sm text-gray-500 hover:text-brand-black transition-colors"
+                >
+                  ← {t("form.back")}
+                </button>
+              ) : (
+                <span />
+              )}
 
-            {/* Body */}
-            <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto px-5 py-5">
-                {step === "type" ? (
-                  <TypePicker
-                    t={t}
-                    selected={selectedType}
-                    onSelect={handleTypeSelect}
-                  />
-                ) : (
-                  <EventForm
-                    type={selectedType}
-                    register={register}
-                    control={control}
-                    errors={errors}
-                    setValue={setValue}
-                    defaultDate={defaultDate}
-                    t={t}
-                  />
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between border-t border-gray-100 px-5 py-4">
-                {step === "form" ? (
-                  <button
-                    type="button"
-                    onClick={() => setStep("type")}
-                    className="text-sm text-gray-500 hover:text-brand-black transition-colors"
-                  >
-                    ← {t("form.back")}
-                  </button>
-                ) : (
-                  <span />
-                )}
-
-                {step === "type" ? (
-                  <Button
-                    type="button"
-                    onClick={() => setStep("form")}
-                    className="ms-auto"
-                  >
-                    {t("form.next")}
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={mutation.isPending}>
-                    {mutation.isPending ? (
-                      <>
-                        <Loader2 className="me-2 size-4 animate-spin" aria-hidden />
-                        {t("form.saving")}
-                      </>
-                    ) : (
-                      t("form.save")
-                    )}
-                  </Button>
-                )}
-              </div>
-            </form>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-
-      <ConflictDialog
-        open={pendingConflicts.length > 0}
-        conflicts={pendingConflicts}
-        onConfirm={handleClose}
-        onCancel={() => setPendingConflicts([])}
-      />
-    </>
+              {step === "type" ? (
+                <Button
+                  type="button"
+                  onClick={() => setStep("form")}
+                  className="ms-auto"
+                >
+                  {t("form.next")}
+                </Button>
+              ) : (
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? (
+                    <>
+                      <Loader2 className="me-2 size-4 animate-spin" aria-hidden />
+                      {t("form.saving")}
+                    </>
+                  ) : (
+                    t("form.save")
+                  )}
+                </Button>
+              )}
+            </div>
+          </form>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
-// ── Type picker step ───────────────────────────────────────────────────────────
+// ── Type picker ────────────────────────────────────────────────────────────
 
 function TypePicker({
   t,
@@ -287,153 +408,68 @@ function TypePicker({
   );
 }
 
-// ── Form step ──────────────────────────────────────────────────────────────────
+// ── Visibility toggle card ─────────────────────────────────────────────────
 
-function EventForm({
-  type,
-  register,
-  control,
-  errors,
-  setValue,
-  defaultDate,
-  t,
+function VisibilityCard({
+  active,
+  icon,
+  label,
+  hint,
+  onClick,
 }: {
-  type: CalendarEventType;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  register: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  errors: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setValue: any;
-  defaultDate?: string;
-  t: ReturnType<typeof useTranslations<"calendar">>;
+  active: boolean;
+  icon: React.ReactNode;
+  label: string;
+  hint: string;
+  onClick: () => void;
 }) {
   return (
-    <div className="space-y-4">
-      {/* Title */}
-      <div>
-        <label className={labelClass}>{t("form.name")} *</label>
-        <input
-          {...register("title")}
-          className={inputClass}
-          placeholder={t(`types.${type}`)}
-          autoFocus
-        />
-        {errors?.title && (
-          <p className={errorClass}>{errors.title.message}</p>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-start gap-1 rounded-lg border-2 px-3 py-2 text-start transition-all",
+        active
+          ? "border-brand-primary bg-brand-primary/5"
+          : "border-gray-200 bg-white hover:border-gray-300",
+      )}
+      aria-pressed={active}
+    >
+      <span
+        className={cn(
+          "flex items-center gap-1.5 text-xs font-medium",
+          active ? "text-brand-primary" : "text-brand-black",
         )}
-      </div>
-
-      {/* Date/Time */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className={labelClass}>{t("form.startsAt")} *</label>
-          <input
-            {...register("starts_at")}
-            type="datetime-local"
-            defaultValue={defaultDate ? `${defaultDate}T08:00` : undefined}
-            className={inputClass}
-          />
-          {errors?.starts_at && (
-            <p className={errorClass}>{errors.starts_at.message}</p>
-          )}
-        </div>
-        <div>
-          <label className={labelClass}>{t("form.endsAt")} *</label>
-          <input
-            {...register("ends_at")}
-            type="datetime-local"
-            defaultValue={defaultDate ? `${defaultDate}T09:00` : undefined}
-            className={inputClass}
-          />
-          {errors?.ends_at && (
-            <p className={errorClass}>{errors.ends_at.message}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Description */}
-      <div>
-        <label className={labelClass}>{t("form.description")}</label>
-        <textarea
-          {...register("description")}
-          className={cn(inputClass, "min-h-15 resize-y")}
-          placeholder="Optional notes..."
-        />
-      </div>
-
-      {/* Type-specific fields */}
-      {type === "SURGERY" && (
-        <SurgeryFields register={register} control={control} errors={errors} setValue={setValue} />
-      )}
-      {type === "MEETING" && (
-        <MeetingFields register={register} control={control} errors={errors} setValue={setValue} />
-      )}
-      {type === "LEAVE" && <LeaveFields register={register} />}
-      {type === "PERSONAL" && <PersonalFields />}
-    </div>
+      >
+        {icon}
+        {label}
+      </span>
+      <span className="text-[11px] text-gray-500">{hint}</span>
+    </button>
   );
 }
 
-// ── Build API request from form values ─────────────────────────────────────────
+// ── Build API request from form values ──────────────────────────────────────
 
-function buildRequest(values: NewEventFormValues, branchId?: string): CreateCalendarEventRequest {
-  const base = {
-    type: values.type,
+function buildRequest(values: NewEventFormValues): CreateCalendarEventRequest {
+  const base: CreateCalendarEventRequest = {
+    event_type: values.event_type,
     title: values.title,
-    description: values.description || undefined,
-    starts_at: new Date(values.starts_at).toISOString(),
-    ends_at: new Date(values.ends_at).toISOString(),
-    all_day: values.all_day,
-    branch_id: branchId,
+    description: values.description?.trim() || undefined,
+    start_at: new Date(values.start_at).toISOString(),
+    end_at: new Date(values.end_at).toISOString(),
+    all_day: values.all_day || undefined,
+    visibility: values.visibility,
+    branch_id: values.branch_id?.trim() || undefined,
   };
 
-  if (values.type === "SURGERY") {
-    const v = values as SurgeryEventFormValues;
+  if (values.event_type === "PROCEDURE") {
     return {
       ...base,
-      branch_id: v.branch_id,
-      patient_id: v.patient_id,
-      details: {
-        surgery_name: v.details.surgery_name,
-        surgery_type: v.details.surgery_type || undefined,
-        operating_room: v.details.operating_room || undefined,
-        pre_op_notes: v.details.pre_op_notes || undefined,
-        expected_duration_minutes: v.details.expected_duration_minutes,
-      },
-      participants: v.participants.map((p) => ({
-        profile_id: p.profile_id,
-        role: p.role as "PRIMARY_DOCTOR" | "ASSISTANT",
-      })),
+      procedure_id: values.procedure_id,
+      patient_id: values.patient_id?.trim() || undefined,
     };
   }
-
-  if (values.type === "MEETING") {
-    const v = values as MeetingEventFormValues;
-    return {
-      ...base,
-      details: {
-        location: v.details.location || undefined,
-        virtual_link: v.details.virtual_link || undefined,
-        agenda: v.details.agenda || undefined,
-      },
-      participants: (v.participants ?? []).map((p) => ({
-        profile_id: p.profile_id,
-        role: "ATTENDEE" as const,
-      })),
-    };
-  }
-
-  if (values.type === "LEAVE") {
-    const v = values as LeaveEventFormValues;
-    return {
-      ...base,
-      details: { reason: v.details.reason || undefined },
-    };
-  }
-
-  // PERSONAL
   return base;
 }
+

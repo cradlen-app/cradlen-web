@@ -2,17 +2,17 @@ import { cn } from "@/common/utils/utils";
 import type { CalendarEventType } from "../types/calendar.types";
 
 export const TYPE_CHIP_CLASS: Record<CalendarEventType, string> = {
-  SURGERY: "bg-red-500 text-white",
+  DAY_OFF: "bg-amber-500 text-white",
+  PROCEDURE: "bg-red-500 text-white",
   MEETING: "bg-brand-primary text-white",
-  PERSONAL: "bg-amber-500 text-white",
-  LEAVE: "bg-gray-400 text-white",
+  GENERIC: "bg-gray-400 text-white",
 };
 
 export const TYPE_BAR_CLASS: Record<CalendarEventType, string> = {
-  SURGERY: "bg-red-500",
+  DAY_OFF: "bg-amber-500",
+  PROCEDURE: "bg-red-500",
   MEETING: "bg-brand-primary",
-  PERSONAL: "bg-amber-500",
-  LEAVE: "bg-gray-400",
+  GENERIC: "bg-gray-400",
 };
 
 type Props = {
@@ -22,7 +22,12 @@ type Props = {
   className?: string;
 };
 
-export function CalendarEventChip({ title, type, isContinuation, className }: Props) {
+export function CalendarEventChip({
+  title,
+  type,
+  isContinuation,
+  className,
+}: Props) {
   return (
     <span
       className={cn(

@@ -1,7 +1,7 @@
-import type { ApiCalendarEvent, ApiCalendarParticipant, ApiConflict } from "../types/calendar.api.types";
-import type { CalendarEvent, CalendarParticipant, Conflict } from "../types/calendar.types";
+import type { ApiCalendarEvent } from "../types/calendar.api.types";
+import type { CalendarEvent } from "../types/calendar.types";
 
-// ── Grid builder (extracted from MiniCalendar) ────────────────────────────────
+// ── Grid builder ────────────────────────────────────────────────────────────
 
 export type GridCell = {
   day: number;
@@ -69,16 +69,15 @@ export function localIsoDate(utcIso: string): string {
   return toIsoDate(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-// ── Month window helpers ───────────────────────────────────────────────────────
+// ── Month window helpers ─────────────────────────────────────────────────────
 
 export function monthWindowFrom(year: number, month: number) {
-  const from = `${year}-${String(month + 1).padStart(2, "0")}-01T00:00:00Z`;
-  const lastDay = new Date(year, month + 1, 0).getDate();
-  const to = `${year}-${String(month + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}T23:59:59Z`;
+  const from = new Date(year, month, 1, 0, 0, 0, 0).toISOString();
+  const to = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
   return { from, to };
 }
 
-// ── Grouping ──────────────────────────────────────────────────────────────────
+// ── Grouping ────────────────────────────────────────────────────────────────
 
 export function groupEventsByDate(
   events: CalendarEvent[],
@@ -97,7 +96,7 @@ export function groupEventsByDate(
   return map;
 }
 
-// ── Time formatting ────────────────────────────────────────────────────────────
+// ── Time formatting ──────────────────────────────────────────────────────────
 
 export function formatEventTime(startsAt: string, endsAt: string): string {
   const fmt = (iso: string) => {
@@ -107,41 +106,26 @@ export function formatEventTime(startsAt: string, endsAt: string): string {
   return `${fmt(startsAt)} – ${fmt(endsAt)}`;
 }
 
-// ── API → UI mappers ───────────────────────────────────────────────────────────
-
-function mapParticipant(p: ApiCalendarParticipant): CalendarParticipant {
-  return { id: p.id, profileId: p.profile_id, role: p.role, name: p.name };
-}
+// ── API → UI mapper ──────────────────────────────────────────────────────────
 
 export function mapApiCalendarEvent(api: ApiCalendarEvent): CalendarEvent {
   return {
     id: api.id,
+    profileId: api.profile_id,
     organizationId: api.organization_id,
     branchId: api.branch_id,
-    createdById: api.created_by_id,
-    patientId: api.patient_id,
-    patientName: api.patient?.full_name ?? null,
-    type: api.type,
+    type: api.event_type,
+    visibility: api.visibility,
     title: api.title,
     description: api.description,
-    startsAt: api.starts_at,
-    endsAt: api.ends_at,
+    startsAt: api.start_at,
+    endsAt: api.end_at,
     allDay: api.all_day,
-    status: api.status,
-    details: api.details,
-    participants: api.participants.map(mapParticipant),
+    procedureId: api.procedure_id,
+    procedureName: api.procedure_name,
+    patientId: api.patient_id,
+    patientName: api.patient_full_name,
     createdAt: api.created_at,
     updatedAt: api.updated_at,
-  };
-}
-
-export function mapApiConflict(api: ApiConflict): Conflict {
-  return {
-    profileId: api.profile_id,
-    kind: api.kind,
-    refId: api.ref_id,
-    startsAt: api.starts_at,
-    endsAt: api.ends_at,
-    summary: api.summary,
   };
 }
