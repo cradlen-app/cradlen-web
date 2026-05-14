@@ -20,6 +20,7 @@ export function EntitySearchInput({
     searchEntity?.kind ?? (field.config?.logic?.entity as string | undefined);
   const idTarget = searchEntity?.idTarget;
   const fillFields = searchEntity?.fillFields;
+  const fillEntitySearches = searchEntity?.fillEntitySearches;
   const allowCreate = searchEntity?.allowCreate === true;
   const placeholder = (field.config?.ui?.placeholder as string | undefined) ?? "Search…";
   const setFieldValue = useSetFieldValue();
@@ -93,11 +94,34 @@ export function EntitySearchInput({
       setFieldValue(idTarget, result.id);
       setFieldValue(field.code, result.label);
     }
-    if (fillFields && result.raw && typeof result.raw === "object") {
+    if ((fillFields || fillEntitySearches) && result.raw && typeof result.raw === "object") {
       const raw = result.raw as Record<string, unknown>;
-      for (const [localCode, sourceProp] of Object.entries(fillFields)) {
-        const v = raw[sourceProp];
-        if (v !== undefined) setFieldValue(localCode, v);
+      if (fillFields) {
+        for (const [localCode, sourceProp] of Object.entries(fillFields)) {
+          const v = raw[sourceProp];
+          if (v !== undefined) setFieldValue(localCode, v);
+        }
+      }
+      if (fillEntitySearches) {
+        for (const [targetCode, spec] of Object.entries(fillEntitySearches)) {
+          const nestedId = raw[spec.idSource];
+          const nestedLabel = raw[spec.labelSource];
+          if (typeof nestedId === "string" && nestedId.length > 0) {
+            const label = typeof nestedLabel === "string" ? nestedLabel : "";
+            patchSearch(targetCode, {
+              resolvedEntityId: { id: nestedId, label },
+              transientValue: label,
+              suggestions: [],
+            });
+            setFieldValue(targetCode, label);
+            if (spec.fillFields) {
+              for (const [localCode, sourceProp] of Object.entries(spec.fillFields)) {
+                const v = raw[sourceProp];
+                if (v !== undefined) setFieldValue(localCode, v);
+              }
+            }
+          }
+        }
       }
     }
     setOpen(false);
@@ -116,6 +140,21 @@ export function EntitySearchInput({
     if (fillFields) {
       for (const localCode of Object.keys(fillFields)) {
         setFieldValue(localCode, null);
+      }
+    }
+    if (fillEntitySearches) {
+      for (const [targetCode, spec] of Object.entries(fillEntitySearches)) {
+        patchSearch(targetCode, {
+          resolvedEntityId: null,
+          transientValue: "",
+          suggestions: [],
+        });
+        setFieldValue(targetCode, "");
+        if (spec.fillFields) {
+          for (const localCode of Object.keys(spec.fillFields)) {
+            setFieldValue(localCode, null);
+          }
+        }
       }
     }
     setOpen(true);
