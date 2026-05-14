@@ -1,9 +1,8 @@
-// TEMP: API integration disabled during kernel refactor. Restore from git history when re-integrating.
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
-import { mockCalendarEvents } from "../lib/calendar.mock";
+import { fetchCalendarEvents } from "../lib/calendar.api";
 
 type Params = {
   branchId?: string;
@@ -14,7 +13,7 @@ type Params = {
 export function useCalendarEvents({ branchId, from, to }: Params) {
   return useSuspenseQuery({
     queryKey: queryKeys.calendar.events(branchId, from, to),
-    queryFn: async () => mockCalendarEvents,
-    staleTime: Infinity,
+    queryFn: () => fetchCalendarEvents({ from, to, branchId }),
+    staleTime: 60 * 1000,
   });
 }
