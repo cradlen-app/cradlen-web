@@ -99,14 +99,20 @@ function pickSpouseGuardian(patient?: ApiPatient | null): SpouseGuardian {
   const link = patient?.guardian_links?.find(
     (l) => l.relation_to_patient === "SPOUSE",
   );
-  return link?.guardian
-    ? {
-        id: link.guardian.id,
-        full_name: link.guardian.full_name,
-        national_id: link.guardian.national_id,
-        phone_number: link.guardian.phone_number,
-      }
-    : undefined;
+  if (link?.guardian) {
+    return {
+      id: link.guardian.id,
+      full_name: link.guardian.full_name,
+      national_id: link.guardian.national_id,
+      phone_number: link.guardian.phone_number,
+    };
+  }
+  // Legacy fallback: patient.husband_name predates the Guardian model. No id —
+  // submission will upsert a Guardian + PatientGuardian link on save.
+  if (patient?.husband_name) {
+    return { full_name: patient.husband_name };
+  }
+  return undefined;
 }
 
 function readValue(
