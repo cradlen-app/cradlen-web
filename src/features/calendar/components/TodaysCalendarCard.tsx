@@ -1,12 +1,13 @@
 "use client";
 
 import { Building2, Lock } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import {
   formatEventTime,
   localIsoDate,
+  todayIso,
 } from "../lib/calendar.utils";
 import { TYPE_BAR_CLASS } from "./CalendarEventChip";
 import type { CalendarEvent, CalendarEventType } from "../types/calendar.types";
@@ -119,8 +120,19 @@ export function TodaysCalendarCardSkeleton({ bare }: { bare?: boolean }) {
 
 export function TodaysCalendarCard({ date, branchId, bare }: Props) {
   const t = useTranslations("calendar");
+  const locale = useLocale();
   const { from, to } = dayWindow(date);
   const { data: events } = useCalendarEvents({ branchId, from, to });
+
+  const isToday = date === todayIso();
+  const [yyyy, mm, dd] = date.split("-").map(Number);
+  const title = isToday
+    ? t("todaysCalendar")
+    : new Intl.DateTimeFormat(locale, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }).format(new Date(yyyy, mm - 1, dd));
 
   // Defensive: the window catches overlaps; trim to events touching this date.
   const dayEvents = events.filter((e) => {
@@ -132,9 +144,7 @@ export function TodaysCalendarCard({ date, branchId, bare }: Props) {
   const inner = (
     <>
       <header className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-brand-black">
-          {t("todaysCalendar")}
-        </h2>
+        <h2 className="text-sm font-semibold text-brand-black">{title}</h2>
       </header>
 
       <div className="space-y-2.5">
@@ -153,7 +163,7 @@ export function TodaysCalendarCard({ date, branchId, bare }: Props) {
 
   return (
     <section
-      aria-label={t("todaysCalendar")}
+      aria-label={title}
       className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
     >
       {inner}
