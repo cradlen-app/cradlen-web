@@ -35,6 +35,7 @@ export function buildInitialValues(
   template: FormTemplateDto,
   visit: Visit,
   patient?: ApiPatient | null,
+  specialtyCode?: string,
 ): InitialSnapshot {
   const spouse = pickSpouseGuardian(patient);
   const formValues: Record<string, unknown> = {};
@@ -42,6 +43,10 @@ export function buildInitialValues(
   const systemValues: Record<string, unknown> = {
     visitor_type: visit.kind === "medical_rep" ? "MEDICAL_REP" : "PATIENT",
   };
+  // Seed every SYSTEM-bound discriminator the template carries so the
+  // first_option default never fires after mount — that would change a watched
+  // discriminator and wipe the prefilled formValues via discriminator-reset.
+  if (specialtyCode) systemValues.specialty_code = specialtyCode;
 
   for (const section of template.sections) {
     for (const field of section.fields) {
@@ -188,10 +193,13 @@ function readGuardianPath(
 function readMedRepPath(path: string, visit: Visit): unknown {
   const vp = visit.patient;
   switch (path) {
+    case "rep_full_name":
     case "full_name":
       return vp.fullName;
+    case "rep_national_id":
     case "national_id":
       return vp.nationalId;
+    case "rep_phone_number":
     case "phone_number":
       return vp.phone;
     case "email":
