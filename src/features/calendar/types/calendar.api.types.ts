@@ -16,6 +16,7 @@ export type ApiCalendarEvent = {
   patient_id: string | null;
   procedure_name: string | null;
   patient_full_name: string | null;
+  assistants: Array<{ profile_id: string; full_name: string }>;
   created_at: string;
   updated_at: string;
 };
@@ -46,6 +47,7 @@ export type CreateCalendarEventRequest = {
   branch_id?: string;
   procedure_id?: string;
   patient_id?: string;
+  assistant_profile_ids?: string[];
 };
 
 export type UpdateCalendarEventRequest = Partial<CreateCalendarEventRequest>;

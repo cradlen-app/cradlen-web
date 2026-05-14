@@ -516,6 +516,7 @@
     "overview": "Overview",
     "todaysSchedule": "Today's Schedule",
     "empty": "No events scheduled",
+    "todaysCalendar": "Today's Calendar",
     "allDay": "All day",
     "more": "more",
     "patientLabel": "Patient",
@@ -534,6 +535,7 @@
     },
     "form": {
       "title": "Calendar / New event",
+      "editTitle": "Edit event",
       "chooseType": "Choose event type",
       "eventType": "Event Type",
       "startsAt": "Start",
@@ -551,13 +553,24 @@
       "patient": "Patient (optional)",
       "patientPlaceholder": "Search by name, national ID or phone...",
       "patientNotFound": "No patient found.",
+      "assistants": "Assistants",
+      "noAssistants": "No assistants added.",
+      "addAssistant": "Add assistant",
+      "removeAssistant": "Remove assistant",
+      "selectDoctor": "Select doctor",
       "save": "Save",
       "saving": "Saving...",
+      "update": "Update",
+      "updating": "Updating...",
+      "updateSuccess": "Event updated.",
       "next": "Next",
       "back": "Back",
-      "close": "Close new event form",
+      "close": "Close event form",
       "success": "Event created.",
-      "error": "Failed to create event. Please try again."
+      "error": "Failed to save event. Please try again."
+    },
+    "edit": {
+      "action": "Edit event"
     },
     "delete": {
       "action": "Delete event",
