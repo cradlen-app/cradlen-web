@@ -101,6 +101,7 @@ export type ApiVisit = {
     id: string;
     journey: {
       patient: { id: string; full_name: string };
+      care_path?: { code: string } | null;
     };
   };
 };
