@@ -23,7 +23,7 @@ export function VisitsOverviewPanel({
   const t = useTranslations("visits");
 
   return (
-    <aside className="w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:flex lg:flex-col lg:h-[calc(100vh-9rem)]">
+    <aside className="w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:flex lg:flex-col lg:h-[calc(100vh-15rem)]">
       <p className="border-b border-gray-100 px-4 py-3 text-center text-sm font-semibold text-brand-black shrink-0">
         {t("overviewTitle")}
       </p>
