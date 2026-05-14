@@ -21,10 +21,10 @@ type Props = {
 };
 
 const GRID =
-  "grid-cols-[36px_minmax(0,1.4fr)_minmax(0,1fr)_auto] sm:grid-cols-[36px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_auto]";
+  "grid-cols-[32px_minmax(96px,1.4fr)_72px_auto] sm:grid-cols-[36px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_auto]";
 
 const GRID_ACTIONS =
-  "grid-cols-[36px_minmax(0,1.5fr)_minmax(0,1fr)_88px_auto_auto] sm:grid-cols-[36px_minmax(0,1.5fr)_minmax(0,1fr)_88px_84px_auto_auto]";
+  "grid-cols-[32px_minmax(96px,1.4fr)_minmax(72px,1fr)_72px_auto_auto] sm:grid-cols-[36px_minmax(0,1.5fr)_minmax(0,1fr)_88px_84px_auto_auto]";
 
 function DoctorTable({
   group,
@@ -60,7 +60,7 @@ function DoctorTable({
       )}
 
       <div className="overflow-x-auto">
-      <div className={cn("overflow-hidden rounded-xl border border-gray-100", showStartButton && "sm:min-w-160")}>
+      <div className={cn("overflow-hidden rounded-xl border border-gray-100", showStartButton ? "min-w-[420px] sm:min-w-160" : "min-w-[320px]")}>
         <div
           className={cn(
             "grid gap-2 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400",

@@ -146,7 +146,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
 }
 
 const GRID =
-  "grid-cols-[36px_minmax(0,1.5fr)_minmax(0,1fr)_88px_minmax(80px,124px)_32px] sm:grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.5fr)_88px_84px_124px_32px]";
+  "grid-cols-[32px_minmax(80px,1.4fr)_minmax(72px,1fr)_72px_minmax(84px,108px)_28px] sm:grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.5fr)_88px_84px_124px_32px]";
 
 export function WaitingListTable({
   rows,
@@ -180,7 +180,7 @@ export function WaitingListTable({
 
   return (
     <div className="overflow-x-auto">
-      <div className="overflow-hidden rounded-xl border border-gray-100 sm:min-w-155">
+      <div className="overflow-hidden rounded-xl border border-gray-100 min-w-[460px] sm:min-w-155">
         <div
           className={cn(
             "grid gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400",
