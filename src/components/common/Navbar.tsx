@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Search, Upload, Mail, Menu } from "lucide-react";
+import { Mail, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
@@ -75,15 +75,20 @@ function IconButton({
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const tRoles = useTranslations("common.roles");
   const { openMobile } = useSidebar();
   const { data: user } = useCurrentUser();
 
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
-  const subLabel = profile?.job_title || getProfilePrimaryRole(profile) || "";
+  const jobFunctionName = profile?.job_functions?.[0]?.name;
+  const primaryRole = getProfilePrimaryRole(profile);
+  const roleLabel =
+    primaryRole && primaryRole !== "unknown" ? tRoles(primaryRole) : "";
+  const subLabel = profile?.job_title || jobFunctionName || roleLabel;
 
   return (
-    <header className="h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0 ">
+    <header className="relative h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0 ">
       {/* Hamburger — mobile only */}
       <button
         type="button"
@@ -98,7 +103,7 @@ export function Navbar() {
       <Link
         href="/"
         aria-label="Cradlen home"
-        className="w-30 shrink-0 inline-flex"
+        className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 w-30 shrink-0 inline-flex"
       >
         {" "}
         <Image
@@ -110,29 +115,8 @@ export function Navbar() {
         <Image src={Logo} alt="CRADLEN" className="hidden w-auto lg:block" />
       </Link>
 
-      {/* Search */}
-      <div className="hidden sm:flex flex-1 min-w-sm max-w-md relative ms-2">
-        <input
-          type="text"
-          placeholder={t("searchPlaceholder")}
-          className="w-full h-9 text-center rounded-full bg-white border border-gray-200 ps-4 pe-10 text-sm text-brand-black placeholder:text-gray-400 outline-none focus:bg-white focus:border-brand-primary/60 focus:ring-2 focus:ring-brand-primary/12 transition-all duration-200"
-        />
-        <Search className="absolute inset-e-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-400 pointer-events-none" />
-      </div>
-
       {/* Right section */}
       <div className="flex items-center gap-1">
-        {/* Upload — hidden on small screens */}
-        <button
-          type="button"
-          className="hidden sm:flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium text-gray-500 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150"
-        >
-          <Upload className="size-4" />
-          <span>{t("upload")}</span>
-        </button>
-
-        <div className="hidden sm:block w-px h-5 bg-gray-200 mx-1.5" />
-
         {/* Notification */}
         <NotificationDropdown />
 
