@@ -79,7 +79,7 @@ export type VisitIntake = {
 
 export type ApiVisit = {
   id: string;
-  visit_type: ApiVisitType;
+  appointment_type: ApiVisitType;
   priority: ApiVisitPriority;
   status: ApiVisitStatus;
   scheduled_at?: string;
@@ -179,7 +179,7 @@ export type ApiPatientListResponse = {
 export type BookVisitExistingPatientRequest = VisitIntake & {
   patient_id: string;
   assigned_doctor_id: string;
-  visit_type: ApiVisitType;
+  appointment_type: ApiVisitType;
   priority: ApiVisitPriority;
   scheduled_at: string;
   branch_id?: string;
@@ -195,7 +195,7 @@ export type BookVisitNewPatientRequest = VisitIntake & {
   is_married: boolean;
   husband_name?: string;
   assigned_doctor_id: string;
-  visit_type: ApiVisitType;
+  appointment_type: ApiVisitType;
   priority: ApiVisitPriority;
   scheduled_at: string;
   branch_id?: string;
@@ -250,11 +250,16 @@ export type ApiMedicalRepVisit = {
   status: ApiMedicalRepVisitStatus;
   priority: ApiVisitPriority;
   notes: string | null;
+  queue_number?: number | null;
   checked_in_at?: string | null;
   started_at?: string | null;
   completed_at?: string | null;
   created_at?: string;
   medical_rep?: ApiMedicalRep | null;
+  assigned_doctor?: {
+    id: string;
+    user: { id: string; first_name: string; last_name: string };
+  };
   medications?: { medication_id: string }[];
 };
 
