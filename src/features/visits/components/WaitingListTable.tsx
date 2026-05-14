@@ -146,7 +146,7 @@ function StatusSelect({ visit }: { visit: Visit }) {
 }
 
 const GRID =
-  "grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.5fr)_88px_84px_124px_32px]";
+  "grid-cols-[36px_minmax(0,1.5fr)_minmax(0,1fr)_88px_minmax(80px,124px)_32px] sm:grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.5fr)_88px_84px_124px_32px]";
 
 export function WaitingListTable({
   rows,
@@ -180,7 +180,7 @@ export function WaitingListTable({
 
   return (
     <div className="overflow-x-auto">
-      <div className="overflow-hidden rounded-xl border border-gray-100 min-w-155">
+      <div className="overflow-hidden rounded-xl border border-gray-100 sm:min-w-155">
         <div
           className={cn(
             "grid gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400",
@@ -190,9 +190,9 @@ export function WaitingListTable({
           <span>{t("columns.queue")}</span>
           <span>{t("columns.patient")}</span>
           <span>{t("columns.doctor")}</span>
-          <span>{t("columns.chiefComplaint")}</span>
+          <span className="hidden sm:block">{t("columns.chiefComplaint")}</span>
           <span>{t("columns.type")}</span>
-          <span>{t("columns.priority")}</span>
+          <span className="hidden sm:block">{t("columns.priority")}</span>
           <span className="text-end">{t("columns.status")}</span>
           <span />
         </div>
@@ -233,11 +233,13 @@ export function WaitingListTable({
                 <span className="truncate text-xs text-gray-500">
                   {visit.assignedDoctorName ?? "—"}
                 </span>
-                <span className="truncate text-xs text-gray-400 italic">
+                <span className="hidden truncate text-xs text-gray-400 italic sm:block">
                   {visit.chiefComplaint?.trim() || visit.notes?.trim() || "—"}
                 </span>
                 <VisitTypeBadge type={visit.type} />
-                <VisitPriorityBadge priority={visit.priority} />
+                <span className="hidden sm:inline-flex">
+                  <VisitPriorityBadge priority={visit.priority} />
+                </span>
                 <div className="flex items-center justify-end">
                   {isDoctor && visit.status === "IN_PROGRESS" ? (
                     <Button
