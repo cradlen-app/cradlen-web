@@ -7,6 +7,7 @@ import {
   Lock,
   Building2,
   Trash2,
+  Pencil,
   Loader2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -21,9 +22,10 @@ import type { CalendarEvent } from "../types/calendar.types";
 type EntryProps = {
   event: CalendarEvent;
   canManage: boolean;
+  onEdit?: (event: CalendarEvent) => void;
 };
 
-function OverviewEntry({ event, canManage }: EntryProps) {
+function OverviewEntry({ event, canManage, onEdit }: EntryProps) {
   const t = useTranslations("calendar");
   const [expanded, setExpanded] = useState(false);
 
@@ -34,12 +36,20 @@ function OverviewEntry({ event, canManage }: EntryProps) {
   });
 
   const hasDetails =
-    !!event.description || !!event.procedureName || !!event.patientName;
+    !!event.description ||
+    !!event.procedureName ||
+    !!event.patientName ||
+    event.assistants.length > 0;
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
     if (!window.confirm(t("delete.confirm"))) return;
     deleteMut.mutate(event.id);
+  }
+
+  function handleEdit(e: React.MouseEvent) {
+    e.stopPropagation();
+    onEdit?.(event);
   }
 
   return (
@@ -85,19 +95,29 @@ function OverviewEntry({ event, canManage }: EntryProps) {
 
         <div className="flex items-center gap-1">
           {canManage && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleteMut.isPending}
-              className="mt-0.5 shrink-0 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-              aria-label={t("delete.action")}
-            >
-              {deleteMut.isPending ? (
-                <Loader2 className="size-3.5 animate-spin" aria-hidden />
-              ) : (
-                <Trash2 className="size-3.5" aria-hidden />
-              )}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="mt-0.5 shrink-0 text-gray-400 hover:text-brand-primary transition-colors"
+                aria-label={t("edit.action")}
+              >
+                <Pencil className="size-3.5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteMut.isPending}
+                className="mt-0.5 shrink-0 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                aria-label={t("delete.action")}
+              >
+                {deleteMut.isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                ) : (
+                  <Trash2 className="size-3.5" aria-hidden />
+                )}
+              </button>
+            </>
           )}
           {hasDetails && (
             <button
@@ -124,6 +144,12 @@ function OverviewEntry({ event, canManage }: EntryProps) {
           {event.patientName && (
             <Detail label={t("patientLabel")} value={event.patientName} />
           )}
+          {event.assistants.length > 0 && (
+            <Detail
+              label={t("form.assistants")}
+              value={event.assistants.map((a) => a.fullName).join(", ")}
+            />
+          )}
           {event.description && (
             <Detail label={t("notes")} value={event.description} />
           )}
@@ -145,13 +171,17 @@ function Detail({ label, value }: { label: string; value: string }) {
 type Props = {
   events: CalendarEvent[];
   selectedDate: string;
+  onEditEvent?: (event: CalendarEvent) => void;
 };
 
-export function CalendarOverviewPanel({ events, selectedDate }: Props) {
+export function CalendarOverviewPanel({
+  events,
+  selectedDate,
+  onEditEvent,
+}: Props) {
   const t = useTranslations("calendar");
   const locale = useLocale();
   const { currentUserStaffId } = useUserProfileContext();
-  const ownerProfileId = currentUserStaffId;
 
   const dayEvents = events.filter(
     (e) => localIsoDate(e.startsAt) === selectedDate,
@@ -183,7 +213,8 @@ export function CalendarOverviewPanel({ events, selectedDate }: Props) {
               <OverviewEntry
                 key={event.id}
                 event={event}
-                canManage={event.profileId === ownerProfileId}
+                canManage={event.profileId === currentUserStaffId}
+                onEdit={onEditEvent}
               />
             ))
           ) : (

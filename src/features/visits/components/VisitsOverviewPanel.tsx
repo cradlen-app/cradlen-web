@@ -2,6 +2,10 @@
 
 import { Suspense } from "react";
 import { useTranslations } from "next-intl";
+import {
+  TodaysCalendarCard,
+  TodaysCalendarCardSkeleton,
+} from "@/features/calendar/components/TodaysCalendarCard";
 import { MiniCalendar } from "./MiniCalendar";
 import { TodaysScheduleCard, TodaysScheduleCardSkeleton } from "./TodaysScheduleCard";
 
@@ -30,7 +34,7 @@ export function VisitsOverviewPanel({
         <MiniCalendar selectedDate={selectedDate} onSelect={onSelect} bare />
       </div>
 
-      <div className="p-4">
+      <div className="border-b border-gray-100 p-4">
         {branchId ? (
           <Suspense fallback={<TodaysScheduleCardSkeleton bare />}>
             <TodaysScheduleCard
@@ -43,6 +47,16 @@ export function VisitsOverviewPanel({
         ) : (
           <TodaysScheduleCardSkeleton bare />
         )}
+      </div>
+
+      <div className="p-4">
+        <Suspense fallback={<TodaysCalendarCardSkeleton bare />}>
+          <TodaysCalendarCard
+            date={selectedDate}
+            branchId={branchId ?? undefined}
+            bare
+          />
+        </Suspense>
       </div>
     </aside>
   );
