@@ -10,12 +10,12 @@ type PatientsTableProps = {
 };
 
 const COLUMNS = [
-  "name",
-  "phone",
-  "address",
-  "lastVisit",
-  "journey",
-  "journeyStatus",
+  { key: "name", className: "" },
+  { key: "phone", className: "" },
+  { key: "address", className: "" },
+  { key: "lastVisit", className: "hidden sm:table-cell" },
+  { key: "journey", className: "hidden sm:table-cell" },
+  { key: "journeyStatus", className: "hidden sm:table-cell" },
 ] as const;
 
 function PatientAvatar({ name }: { name: string }) {
@@ -43,15 +43,18 @@ export function PatientsTable({
 
   return (
     <div className="overflow-x-auto bg-white px-4">
-      <table className="w-full min-w-215 text-sm">
+      <table className="w-full min-w-105 text-sm sm:min-w-215">
         <thead>
           <tr className="border-b border-gray-100">
             {COLUMNS.map((col) => (
               <th
-                key={col}
-                className="pb-3 pt-4 pe-4 text-start text-xs font-medium text-gray-400 last:pe-0"
+                key={col.key}
+                className={cn(
+                  "pb-3 pt-4 pe-4 text-start text-xs font-medium text-gray-400 last:pe-0",
+                  col.className,
+                )}
               >
-                {t(`columns.${col}`)}
+                {t(`columns.${col.key}`)}
               </th>
             ))}
           </tr>
@@ -88,15 +91,15 @@ export function PatientsTable({
                   {patient.address ?? "—"}
                 </span>
               </td>
-              <td className="py-3 pe-4 text-brand-black">
+              <td className="hidden py-3 pe-4 text-brand-black sm:table-cell">
                 {patient.lastVisitDate ?? "—"}
               </td>
-              <td className="py-3 pe-4 text-brand-black">
+              <td className="hidden py-3 pe-4 text-brand-black sm:table-cell">
                 {patient.journeyType
                   ? t(`journeyType.${patient.journeyType}`)
                   : "—"}
               </td>
-              <td className="py-3">
+              <td className="hidden py-3 sm:table-cell">
                 {patient.journeyStatus ? (
                   <JourneyStatusBadge status={patient.journeyStatus} />
                 ) : (
