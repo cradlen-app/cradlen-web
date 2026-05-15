@@ -24,7 +24,7 @@ export default function Footer() {
           <Image src={Logo} alt="CRADLEN" className="h-6 w-auto" />
         </Link>
 
-        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <nav className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <a
             href="#"
             className="text-sm text-gray-500 transition-colors hover:text-brand-primary"

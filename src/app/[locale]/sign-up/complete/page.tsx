@@ -17,17 +17,17 @@ export default async function SignUpCompletePage({ params }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <header className="flex items-center justify-between px-8 py-5">
+      <header className="flex items-center justify-between gap-3 px-4 py-4 sm:px-8 sm:py-5">
         <Link
           href="/"
           aria-label="Cradlen home"
-          className="w-30 shrink-0 inline-flex"
+          className="inline-flex w-24 shrink-0 sm:w-30"
         >
-          <Image src={Logo} alt="CRADLEN" loading="eager" className="w-auto" />
+          <Image src={Logo} alt="CRADLEN" loading="eager" className="h-auto w-full" />
         </Link>
         <Link
           href="/sign-in"
-          className="text-base text-brand-secondary transition-opacity hover:opacity-80"
+          className="text-end text-sm text-brand-secondary transition-opacity hover:opacity-80 sm:text-base"
         >
           {t("alreadyHaveAccount")}
         </Link>
