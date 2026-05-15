@@ -17,7 +17,7 @@ import {
 import { createSignInSchema, type SignInFormData } from "../lib/sign-in.schemas";
 import { useSignIn } from "../hooks/useSignIn";
 import { useSelectProfile } from "../hooks/useSelectProfile";
-import { getSafeRedirectPath, getDefaultRouteForRole } from "../lib/redirect";
+import { getSafeRedirectPath, resolveDefaultRouteAfterAuth } from "../lib/redirect";
 import {
   clearPendingProfileSelection,
   setPendingProfileSelection,
@@ -28,7 +28,6 @@ import {
   getProfileOrganizationId,
   getProfileBranches,
   getProfileId,
-  getProfileRoles,
 } from "../lib/current-user";
 import { useAuthStore } from "../store/authStore";
 import { useAuthContextStore } from "../store/authContextStore";
@@ -101,10 +100,14 @@ export function SignInForm() {
                 profileId: selRes.data.profile_id || profileId,
               });
               queryClient.clear();
-              const role = getProfileRoles(profile)[0] ?? "unknown";
               const resolvedOrgId = selRes.data.organization_id || organizationId;
               const resolvedBranchId = selRes.data.branch_id ?? branchId;
-              router.replace(redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId, profile));
+              const defaultRoute = await resolveDefaultRouteAfterAuth(
+                resolvedOrgId,
+                resolvedBranchId,
+                profile,
+              );
+              router.replace(redirectTo ?? defaultRoute);
               return;
             } catch {
               // Fall through to normal /select-profile flow

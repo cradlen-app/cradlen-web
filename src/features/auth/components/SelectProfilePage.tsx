@@ -21,7 +21,7 @@ import {
   getProfileId,
   getProfileRoles,
 } from "../lib/current-user";
-import { getDefaultRouteForRole, getSafeRedirectPath } from "../lib/redirect";
+import { resolveDefaultRouteAfterAuth, getSafeRedirectPath } from "../lib/redirect";
 import { useSelectProfile } from "../hooks/useSelectProfile";
 import { useAuthStore } from "../store/authStore";
 import { useAuthContextStore } from "../store/authContextStore";
@@ -29,7 +29,7 @@ import { useUserStore } from "../store/userStore";
 import { BranchSelector } from "./BranchSelector";
 import { ProfileCard } from "./ProfileCard";
 import { SelectionLayout } from "./SelectionLayout";
-import type { UserBranch, UserProfile, UserRole } from "@/common/types/user.types";
+import type { UserBranch, UserProfile } from "@/common/types/user.types";
 
 function getAutoBranchId(profile?: UserProfile | null) {
   const branches = getProfileBranches(profile ?? undefined);
@@ -143,11 +143,13 @@ export function SelectProfilePage() {
 
       const resolvedOrgId = response.data.organization_id || organizationId;
       const resolvedBranchId = response.data.branch_id ?? branchId;
-      const role = getProfileRoles(selectedProfile)[0] ?? ("unknown" as UserRole);
       const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
-      router.replace(
-        redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId, selectedProfile),
+      const defaultRoute = await resolveDefaultRouteAfterAuth(
+        resolvedOrgId,
+        resolvedBranchId,
+        selectedProfile,
       );
+      router.replace(redirectTo ?? defaultRoute);
     } catch (error) {
       setIsAutoProceeding(false);
       if (isSessionExpiredError(error)) {
