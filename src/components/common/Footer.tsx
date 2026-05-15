@@ -13,15 +13,15 @@ export default function Footer() {
   const t = useTranslations("auth.signUp");
 
   return (
-    <footer className="border-t border-gray-200 bg-inherit px-6 py-1 md:px-8">
+    <footer className="border-t border-gray-200 bg-inherit px-6 py-4 md:px-8">
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link
           href="/"
           aria-label="Cradlen home"
           className="inline-flex items-center gap-2"
         >
-          <Image src={LogoIcon} alt="" aria-hidden className="h-5 w-auto" />
-          <Image src={Logo} alt="CRADLEN" className="h-4 w-auto" />
+          <Image src={LogoIcon} alt="" aria-hidden className="h-7 w-auto" />
+          <Image src={Logo} alt="CRADLEN" className="h-7 w-auto" />
         </Link>
 
         <nav className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -47,7 +47,7 @@ export default function Footer() {
         </nav>
       </div>
 
-      <div className="mt-2 border-t border-gray-100 pt-2 text-center text-xs text-gray-500 sm:text-center">
+      <div className="mt-2 border-t border-gray-100 pt-4 text-center text-xs text-gray-500 sm:text-center">
         © {t("copyright")}
       </div>
     </footer>
