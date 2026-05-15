@@ -198,7 +198,7 @@ export function CalendarPage() {
     isOwner(profile) || isBranchManager(profile) || isClinical(profile);
 
   return (
-    <main className="flex h-full flex-col gap-6 overflow-hidden p-6">
+    <main className="flex min-h-full flex-col gap-4 p-4 lg:h-full lg:gap-6 lg:overflow-hidden lg:p-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-brand-black">{t("title")}</h1>
         {canCreate && (
@@ -206,7 +206,7 @@ export function CalendarPage() {
         )}
       </header>
 
-      <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-1 gap-6 lg:grid-cols-[1fr_300px] lg:grid-rows-1">
+      <div className="grid grid-cols-1 gap-4 lg:min-h-0 lg:flex-1 lg:auto-rows-fr lg:grid-cols-[1fr_300px] lg:grid-rows-1 lg:gap-6">
         <Suspense fallback={<CalendarContentSkeleton />}>
           <CalendarContent
             branchId={branchId}

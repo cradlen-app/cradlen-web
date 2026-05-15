@@ -67,7 +67,7 @@ export function CalendarGrid({
   }, [locale, weekStartsOn]);
 
   return (
-    <section className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+    <section className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden lg:h-full">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
         <button
