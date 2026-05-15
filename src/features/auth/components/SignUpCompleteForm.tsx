@@ -19,9 +19,8 @@ import {
   getProfileOrganizationId,
   getProfileBranches,
   getProfileId,
-  getProfileRoles,
 } from "../lib/current-user";
-import { getDefaultRouteForRole } from "../lib/redirect";
+import { resolveDefaultRouteAfterAuth } from "../lib/redirect";
 import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
@@ -36,7 +35,7 @@ import { useSelectProfile } from "../hooks/useSelectProfile";
 import { useAuthStore } from "../store/authStore";
 import { useAuthContextStore } from "../store/authContextStore";
 import { useAvailableProfilesStore } from "../store/availableProfilesStore";
-import type { UserProfile, UserRole } from "@/common/types/user.types";
+import type { UserProfile } from "@/common/types/user.types";
 import type { Step3Data } from "../types/sign-up.types";
 
 function canAutoSelect(profiles: UserProfile[]): boolean {
@@ -119,10 +118,14 @@ export function SignUpCompleteForm() {
             });
             clearPendingProfileSelection();
             queryClient.clear();
-            const role = getProfileRoles(profile)[0] ?? ("unknown" as UserRole);
             const resolvedOrgId = selectionRes.data.organization_id || organizationId;
             const resolvedBranchId = selectionRes.data.branch_id ?? branchId;
-            router.replace(getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId, profile));
+            const defaultRoute = await resolveDefaultRouteAfterAuth(
+              resolvedOrgId,
+              resolvedBranchId,
+              profile,
+            );
+            router.replace(defaultRoute);
             return;
           } catch {
             // Fall through to manual /select-profile so the user can retry.
