@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { LogOut, Pencil, ShieldCheck, UserX } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/common/utils/utils";
 import {
   getRoleTranslationKey,
   getStaffFullName,
@@ -41,6 +42,8 @@ type Props = {
   onDeactivate?: (member: StaffMember) => void;
   onEdit?: (member: StaffMember) => void;
   onUnassignFromBranch?: (member: StaffMember) => void;
+  className?: string;
+  emptyClassName?: string;
 };
 
 export function StaffOverview({
@@ -52,13 +55,20 @@ export function StaffOverview({
   onDeactivate,
   onEdit,
   onUnassignFromBranch,
+  className,
+  emptyClassName,
 }: Props) {
   const t = useTranslations("staff.overview");
   const staffT = useTranslations("staff");
 
   if (!member) {
     return (
-      <div className="w-64 shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3 py-10">
+      <div
+        className={cn(
+          "w-64 shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3 py-10",
+          emptyClassName,
+        )}
+      >
         <span className="size-12 rounded-full bg-brand-primary/8 flex items-center justify-center">
           <ShieldCheck className="size-5 text-brand-primary/40" strokeWidth={1.5} />
         </span>
@@ -78,7 +88,12 @@ export function StaffOverview({
   const specialtiesLabel = getStaffSpecialtiesLabel(member);
 
   return (
-    <aside className="w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:w-72">
+    <aside
+      className={cn(
+        "w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:w-72",
+        className,
+      )}
+    >
       <p className="px-4 py-3 text-lg font-medium text-brand-black border-b border-gray-100 text-center">
         {t("title")}
       </p>

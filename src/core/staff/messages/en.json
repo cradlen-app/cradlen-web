@@ -46,6 +46,11 @@
     "notAvailable": "Not Available"
   },
   "showResults": "show {count} of {total} results",
+  "pagination": {
+    "prev": "Previous page",
+    "next": "Next page",
+    "pageOf": "Page {page} of {total}"
+  },
   "create": {
     "title": "Staff / New Staff",
     "description": "Invite a new staff member and assign their account, role, and working schedule.",
