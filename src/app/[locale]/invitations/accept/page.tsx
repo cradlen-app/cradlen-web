@@ -15,7 +15,7 @@ export default async function InvitationAcceptPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="flex items-center justify-between px-8 py-5">
+      <header className="flex items-center justify-between gap-3 px-4 py-4 sm:px-8 sm:py-5">
         <Link href="/" aria-label="Cradlen home" className="inline-flex">
           <Image
             src={Logo}

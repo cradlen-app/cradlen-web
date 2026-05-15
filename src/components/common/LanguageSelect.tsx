@@ -11,8 +11,8 @@ type Props = {
 };
 
 const languages: Array<{ value: Locale; label: string }> = [
-  { value: "en", label: "English" },
-  { value: "ar", label: "العربيه" },
+  { value: "en", label: "En" },
+  { value: "ar", label: "ع" },
 ];
 
 export default function LanguageSelect({ currentLocale }: Props) {
