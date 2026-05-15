@@ -104,7 +104,7 @@ export function SignInForm() {
               const role = getProfileRoles(profile)[0] ?? "unknown";
               const resolvedOrgId = selRes.data.organization_id || organizationId;
               const resolvedBranchId = selRes.data.branch_id ?? branchId;
-              router.replace(redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
+              router.replace(redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId, profile));
               return;
             } catch {
               // Fall through to normal /select-profile flow
