@@ -38,9 +38,9 @@ export function StaffToolbar({
   }));
 
   return (
-    <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+    <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:gap-3">
       {/* Mobile: dropdown */}
-      <div className="w-full sm:hidden">
+      <div className="w-36 shrink-0 sm:hidden">
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
@@ -120,7 +120,7 @@ export function StaffToolbar({
         ))}
       </div>
 
-      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+      <div className="flex flex-1 flex-wrap items-center gap-2 sm:w-auto sm:flex-none">
         {scope && onScopeChange && (
           <div className="flex rounded-full bg-gray-50 p-1" role="tablist">
             {(["org", "mine"] as const).map((value) => (
@@ -143,7 +143,7 @@ export function StaffToolbar({
           </div>
         )}
 
-        <label className="relative block w-full sm:w-64">
+        <label className="relative block min-w-0 flex-1 sm:w-64 sm:flex-none">
           <span className="sr-only">{t("searchPlaceholder")}</span>
           <input
             type="search"
