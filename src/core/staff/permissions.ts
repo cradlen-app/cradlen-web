@@ -58,7 +58,10 @@ function isBranchManager(profile: Profile): boolean {
 }
 
 function isReceptionist(profile: Profile): boolean {
-  return profileJobFunctionCodes(profile).has(JOB_FUNCTION_CODE.RECEPTIONIST);
+  if (profileJobFunctionCodes(profile).has(JOB_FUNCTION_CODE.RECEPTIONIST)) {
+    return true;
+  }
+  return profileApiRoleNames(profile).has("RECEPTION");
 }
 
 /** Per backend spec §2: OWNER, BRANCH_MANAGER, or RECEPTIONIST may view staff. */
