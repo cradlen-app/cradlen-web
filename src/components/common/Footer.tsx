@@ -14,21 +14,17 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-gray-200 bg-white px-6 py-5 md:px-8">
-      <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-        <Link href="/" aria-label="Cradlen home" className="inline-flex">
-          <Image
-            src={LogoIcon}
-            alt="CRADLEN"
-            className="block h-6 w-auto sm:hidden"
-          />
-          <Image
-            src={Logo}
-            alt="CRADLEN"
-            className="hidden h-7 w-auto sm:block"
-          />
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <Link
+          href="/"
+          aria-label="Cradlen home"
+          className="inline-flex items-center gap-2"
+        >
+          <Image src={LogoIcon} alt="" aria-hidden className="h-7 w-auto" />
+          <Image src={Logo} alt="CRADLEN" className="h-6 w-auto" />
         </Link>
 
-        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <a
             href="#"
             className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
@@ -51,7 +47,7 @@ export default function Footer() {
         </nav>
       </div>
 
-      <div className="mt-5 border-t border-gray-100 pt-4 text-center text-xs text-gray-500">
+      <div className="mt-5 border-t border-gray-100 pt-4 text-center text-xs text-gray-500 sm:text-center">
         © {t("copyright")}
       </div>
     </footer>
