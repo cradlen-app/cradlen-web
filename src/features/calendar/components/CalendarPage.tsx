@@ -1,7 +1,9 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Dialog } from "radix-ui";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import {
@@ -11,6 +13,7 @@ import {
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { CalendarGrid } from "./CalendarGrid";
 import { CalendarOverviewPanel } from "./CalendarOverviewPanel";
 import { NewEventDrawer } from "./NewEventDrawer";
@@ -33,6 +36,9 @@ type CalendarContentProps = {
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onEditEvent: (event: CalendarEvent) => void;
+  mobileOverviewOpen: boolean;
+  onMobileOverviewChange: (open: boolean) => void;
+  footerHeight: number;
 };
 
 function CalendarContent({
@@ -44,7 +50,11 @@ function CalendarContent({
   onPrevMonth,
   onNextMonth,
   onEditEvent,
+  mobileOverviewOpen,
+  onMobileOverviewChange,
+  footerHeight,
 }: CalendarContentProps) {
+  const t = useTranslations("calendar");
   const { from, to } = monthWindowFrom(viewYear, viewMonth);
   const { data: events } = useCalendarEvents({ branchId, from, to });
 
@@ -61,13 +71,45 @@ function CalendarContent({
           onNextMonth={onNextMonth}
         />
       </section>
-      <aside className="flex min-h-0 min-w-0 flex-col">
+      <aside className="hidden min-h-0 min-w-0 flex-col lg:flex">
         <CalendarOverviewPanel
           events={events}
           selectedDate={selectedDate}
           onEditEvent={onEditEvent}
         />
       </aside>
+
+      <Dialog.Root open={mobileOverviewOpen} onOpenChange={onMobileOverviewChange}>
+        <Dialog.Portal>
+          <Dialog.Overlay
+            style={{ top: "4rem", bottom: footerHeight }}
+            className="fixed inset-x-0 z-50 bg-black/40 lg:hidden"
+          />
+          <Dialog.Content
+            aria-describedby={undefined}
+            style={{ top: "4rem", bottom: footerHeight }}
+            className="fixed inset-x-0 z-50 flex flex-col bg-white outline-none lg:hidden"
+          >
+            <Dialog.Title className="sr-only">{t("overview")}</Dialog.Title>
+            <Dialog.Close
+              aria-label={t("close")}
+              className="absolute inset-e-3 top-3 z-10 inline-flex size-8 items-center justify-center rounded-full bg-white/90 text-gray-500 shadow-sm transition-colors hover:bg-gray-100 hover:text-brand-black"
+            >
+              <X className="size-4" aria-hidden="true" />
+            </Dialog.Close>
+            <div className="flex-1 overflow-y-auto">
+              <CalendarOverviewPanel
+                events={events}
+                selectedDate={selectedDate}
+                onEditEvent={(ev) => {
+                  onMobileOverviewChange(false);
+                  onEditEvent(ev);
+                }}
+              />
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </>
   );
 }
@@ -95,6 +137,27 @@ export function CalendarPage() {
   const initial = todayDate();
   const [viewYear, setViewYear] = useState(initial.year);
   const [viewMonth, setViewMonth] = useState(initial.month);
+
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const [mobileOverviewOpen, setMobileOverviewOpen] = useState(false);
+
+  const [footerHeight, setFooterHeight] = useState(0);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+    const update = () =>
+      setFooterHeight(footer.getBoundingClientRect().height);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(footer);
+    return () => ro.disconnect();
+  }, []);
+
+  function handleSelectDate(date: string) {
+    setSelectedDate(date);
+    if (!isDesktop) setMobileOverviewOpen(true);
+  }
 
   function goPrev() {
     if (viewMonth === 0) {
@@ -150,10 +213,13 @@ export function CalendarPage() {
             viewYear={viewYear}
             viewMonth={viewMonth}
             selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
+            onSelectDate={handleSelectDate}
             onPrevMonth={goPrev}
             onNextMonth={goNext}
             onEditEvent={handleOpenEdit}
+            mobileOverviewOpen={mobileOverviewOpen}
+            onMobileOverviewChange={setMobileOverviewOpen}
+            footerHeight={footerHeight}
           />
         </Suspense>
       </div>
