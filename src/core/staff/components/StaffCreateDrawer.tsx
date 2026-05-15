@@ -125,10 +125,10 @@ export function StaffCreateDrawer({
   const { activeProfile, isOwner: callerIsOwner } = useUserProfileContext();
   const ownerCanEditRoles = usePermission("staff.editRoles");
 
-  const { data: roleFilters = [] } = useStaffRoles(organizationId);
-  const { data: jobFunctionOptions = [] } = useJobFunctions();
-  const { data: specialtyOptions = [] } = useSpecialties();
-  const { data: branchListResponse } = useOrgBranches(organizationId);
+  const { data: roleFilters = [] } = useStaffRoles(organizationId, open);
+  const { data: jobFunctionOptions = [] } = useJobFunctions(open);
+  const { data: specialtyOptions = [] } = useSpecialties(open);
+  const { data: branchListResponse } = useOrgBranches(organizationId, open);
   const branchOptions = useMemo(
     () => branchListResponse?.data ?? [],
     [branchListResponse],

@@ -216,7 +216,7 @@ export function StaffPage() {
 
   return (
     <>
-      <div className="flex h-full flex-col gap-4 p-4 lg:flex-row lg:p-6">
+      <div className="relative flex h-full flex-col gap-4 p-4 lg:flex-row lg:p-6">
         <section className="flex min-w-0 flex-1 flex-col gap-4">
           <StaffHeader
             canManage={canManage}
@@ -312,19 +312,17 @@ export function StaffPage() {
           className="hidden lg:flex lg:flex-col"
           emptyClassName="hidden lg:flex"
         />
-      </div>
 
-      <Dialog.Root
-        open={isMobileOverviewOpen}
-        onOpenChange={(open) => {
-          if (!open) setMobileOverviewOpen(false);
-        }}
-      >
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40 lg:hidden" />
+        <Dialog.Root
+          open={isMobileOverviewOpen}
+          onOpenChange={(open) => {
+            if (!open) setMobileOverviewOpen(false);
+          }}
+        >
+          <Dialog.Overlay className="absolute inset-0 z-30 bg-black/40 lg:hidden" />
           <Dialog.Content
             aria-describedby={undefined}
-            className="fixed inset-0 z-61 flex flex-col bg-white outline-none lg:hidden"
+            className="absolute inset-0 z-40 flex flex-col bg-white outline-none lg:hidden"
           >
             <Dialog.Title className="sr-only">{overviewT("title")}</Dialog.Title>
             <Dialog.Close
@@ -347,8 +345,8 @@ export function StaffPage() {
               />
             </div>
           </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+        </Dialog.Root>
+      </div>
 
       <StaffCreateDrawer
         branchId={branchId}
