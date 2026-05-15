@@ -517,6 +517,7 @@
     "title": "Calendar",
     "newEvent": "+ New Event",
     "overview": "Overview",
+    "close": "Close",
     "todaysSchedule": "Today's Schedule",
     "empty": "No events scheduled",
     "todaysCalendar": "Today's Calendar",
