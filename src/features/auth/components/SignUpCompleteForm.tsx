@@ -122,7 +122,7 @@ export function SignUpCompleteForm() {
             const role = getProfileRoles(profile)[0] ?? ("unknown" as UserRole);
             const resolvedOrgId = selectionRes.data.organization_id || organizationId;
             const resolvedBranchId = selectionRes.data.branch_id ?? branchId;
-            router.replace(getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId));
+            router.replace(getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId, profile));
             return;
           } catch {
             // Fall through to manual /select-profile so the user can retry.
