@@ -53,6 +53,11 @@
     "noBranch": "No branch selected. Please select a branch to view patients.",
     "noResults": "No patients match the current filter.",
     "showResults": "show {count} of {total} results",
+    "pagination": {
+      "prev": "Previous page",
+      "next": "Next page",
+      "pageOf": "Page {page} of {total}"
+    },
     "columns": {
       "name": "Name",
       "phone": "Phone",
