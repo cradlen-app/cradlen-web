@@ -13,7 +13,7 @@ export default function Footer() {
   const t = useTranslations("auth.signUp");
 
   return (
-    <footer className="border-t border-gray-200 bg-white px-6 py-5 md:px-8">
+    <footer className="border-t border-gray-200 bg-inherit px-6 py-5 md:px-8">
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link
           href="/"

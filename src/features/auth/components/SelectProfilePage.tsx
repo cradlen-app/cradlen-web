@@ -146,7 +146,7 @@ export function SelectProfilePage() {
       const role = getProfileRoles(selectedProfile)[0] ?? ("unknown" as UserRole);
       const redirectTo = getSafeRedirectPath(searchParams.get("redirectTo"));
       router.replace(
-        redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId),
+        redirectTo ?? getDefaultRouteForRole(role, resolvedOrgId, resolvedBranchId, selectedProfile),
       );
     } catch (error) {
       setIsAutoProceeding(false);
