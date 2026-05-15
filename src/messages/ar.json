@@ -53,6 +53,11 @@
     "noBranch": "لم يتم تحديد فرع. يرجى اختيار فرع لعرض المرضى.",
     "noResults": "لا يوجد مرضى يطابقون التصفية الحالية.",
     "showResults": "عرض {count} من {total} نتيجة",
+    "pagination": {
+      "prev": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "pageOf": "صفحة {page} من {total}"
+    },
     "columns": {
       "name": "الاسم",
       "phone": "الهاتف",
@@ -512,6 +517,7 @@
     "title": "التقويم",
     "newEvent": "+ حدث جديد",
     "overview": "نظرة عامة",
+    "close": "إغلاق",
     "todaysSchedule": "جدول اليوم",
     "empty": "لا توجد أحداث مجدولة",
     "todaysCalendar": "تقويم اليوم",
