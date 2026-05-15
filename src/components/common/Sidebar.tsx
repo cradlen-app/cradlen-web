@@ -144,10 +144,7 @@ export function Sidebar() {
 
   if (!hasAnyStaffRole(profile)) return null;
 
-  const filteredPluginNav = isReceptionist(profile)
-    ? pluginNav.filter((item) => item.id !== "staff")
-    : pluginNav;
-  const navItems = mergeNav(buildLegacyNav(profile), filteredPluginNav);
+  const navItems = mergeNav(buildLegacyNav(profile), pluginNav);
   const organization = getProfileOrganization(profile);
   const clinicName = organization?.name ?? "-";
   const clinicBranch = branch?.city
