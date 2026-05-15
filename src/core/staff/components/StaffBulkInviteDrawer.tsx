@@ -78,7 +78,7 @@ export function StaffBulkInviteDrawer({
   const bulkT = useTranslations("staff.create.bulk");
   const bulkMutation = useBulkInviteStaff();
   const resendMutation = useResendStaffInvitation();
-  const { data: roleFilters = [] } = useStaffRoles(organizationId);
+  const { data: roleFilters = [] } = useStaffRoles(organizationId, open);
   const defaultRoleId =
     roleFilters.find((r) => r.role === "STAFF")?.id ?? roleFilters[0]?.id ?? "";
 
