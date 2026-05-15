@@ -16,7 +16,13 @@ type StaffTableProps = {
   onSelect: (member: StaffMember) => void;
 };
 
-const columns = ["name", "role", "specialty", "phone", "status"] as const;
+const columns = [
+  { key: "name", className: "" },
+  { key: "role", className: "" },
+  { key: "specialty", className: "hidden sm:table-cell" },
+  { key: "phone", className: "" },
+  { key: "status", className: "" },
+] as const;
 
 export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
   const t = useTranslations("staff");
@@ -31,15 +37,18 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white px-4">
-      <table className="w-full min-w-180 text-sm">
+      <table className="w-full min-w-105 text-sm sm:min-w-180">
         <thead>
           <tr className="border-b border-gray-100">
             {columns.map((column) => (
               <th
-                key={column}
-                className="pb-3 pt-4 pe-4 text-start text-xs font-medium text-gray-400 last:pe-0"
+                key={column.key}
+                className={cn(
+                  "pb-3 pt-4 pe-4 text-start text-xs font-medium text-gray-400 last:pe-0",
+                  column.className,
+                )}
               >
-                {t(`columns.${column}`)}
+                {t(`columns.${column.key}`)}
               </th>
             ))}
           </tr>
@@ -91,7 +100,9 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
                     )}
                   </div>
                 </td>
-                <td className="py-3 pe-4 text-brand-black">{specialtiesLabel || "-"}</td>
+                <td className="hidden py-3 pe-4 text-brand-black sm:table-cell">
+                  {specialtiesLabel || "-"}
+                </td>
                 <td className="py-3 pe-4 text-brand-black">{member.phone}</td>
                 <td className="py-3">
                   <StaffStatusBadge status={member.status} />

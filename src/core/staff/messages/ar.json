@@ -46,6 +46,11 @@
     "notAvailable": "غير متاح"
   },
   "showResults": "عرض {count} من {total} نتيجة",
+  "pagination": {
+    "prev": "الصفحة السابقة",
+    "next": "الصفحة التالية",
+    "pageOf": "صفحة {page} من {total}"
+  },
   "create": {
     "title": "الموظفون / موظف جديد",
     "description": "دعوة موظف جديد وتحديد حسابه ودوره وجدول عمله.",
