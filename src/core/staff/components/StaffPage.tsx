@@ -1,6 +1,9 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Dialog } from "radix-ui";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTranslations } from "next-intl";
 import { AlertDialog } from "radix-ui";
 import { toast } from "sonner";
@@ -28,10 +31,13 @@ const StaffBulkInviteDrawer = dynamic(
   () => import("./StaffBulkInviteDrawer").then((m) => m.StaffBulkInviteDrawer),
   { loading: () => null },
 );
+import { cn } from "@/common/utils/utils";
 import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
 import { StaffTable } from "./StaffTable";
 import { StaffToolbar } from "./StaffToolbar";
+
+const PAGE_SIZE = 11;
 
 function StaffTableSkeleton() {
   return (
@@ -120,6 +126,26 @@ export function StaffPage() {
 
   const { filteredStaff, selectedId, selectedMember, setSelectedId, totalStaff } =
     useStaffDirectory({ filter, search: deferredSearch, staff });
+
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(filteredStaff.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter, deferredSearch, scope]);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
+
+  const pagedStaff = useMemo(
+    () => filteredStaff.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredStaff, page],
+  );
+
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const [mobileOverviewOpen, setMobileOverviewOpen] = useState(false);
+  const isMobileOverviewOpen = !isDesktop && mobileOverviewOpen && !!selectedMember;
 
   const { data: editingMemberDetail } = useStaffMember(
     organizationId,
@@ -222,18 +248,54 @@ export function StaffPage() {
                 </div>
               ) : (
                 <StaffTable
-                  members={filteredStaff}
+                  members={pagedStaff}
                   selectedId={selectedId}
-                  onSelect={(member) => setSelectedId(member.id)}
+                  onSelect={(member) => {
+                    setSelectedId(member.id);
+                    if (!isDesktop) setMobileOverviewOpen(true);
+                  }}
                 />
               )}
             </div>
 
-            <div className="border-t border-gray-100 px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 px-4 py-3">
               <p className="text-xs text-gray-400">
                 {!isLoading &&
-                  t("showResults", { count: filteredStaff.length, total: totalStaff })}
+                  t("showResults", { count: pagedStaff.length, total: totalStaff })}
               </p>
+              {!isLoading && pageCount > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    aria-label={t("pagination.prev")}
+                    className={cn(
+                      "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
+                      "hover:border-brand-primary/40 hover:text-brand-primary",
+                      "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
+                    )}
+                  >
+                    <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+                  </button>
+                  <span className="px-1.5 text-xs tabular-nums text-gray-500">
+                    {t("pagination.pageOf", { page, total: pageCount })}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                    disabled={page >= pageCount}
+                    aria-label={t("pagination.next")}
+                    className={cn(
+                      "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
+                      "hover:border-brand-primary/40 hover:text-brand-primary",
+                      "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
+                    )}
+                  >
+                    <ChevronRight className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -247,8 +309,46 @@ export function StaffPage() {
           onDeactivate={setDeactivatingMember}
           onEdit={setEditingMember}
           onUnassignFromBranch={setUnassigningMember}
+          className="hidden lg:flex lg:flex-col"
+          emptyClassName="hidden lg:flex"
         />
       </div>
+
+      <Dialog.Root
+        open={isMobileOverviewOpen}
+        onOpenChange={(open) => {
+          if (!open) setMobileOverviewOpen(false);
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40 lg:hidden" />
+          <Dialog.Content
+            aria-describedby={undefined}
+            className="fixed inset-0 z-61 flex flex-col bg-white outline-none lg:hidden"
+          >
+            <Dialog.Title className="sr-only">{overviewT("title")}</Dialog.Title>
+            <Dialog.Close
+              aria-label={overviewT("cancel")}
+              className="absolute end-3 top-3 z-10 inline-flex size-8 items-center justify-center rounded-full bg-white/90 text-gray-500 shadow-sm transition-colors hover:bg-gray-100 hover:text-brand-black"
+            >
+              <X className="size-4" aria-hidden="true" />
+            </Dialog.Close>
+            <div className="flex-1 overflow-y-auto">
+              <StaffOverview
+                canManage={canManage}
+                canDelete={isOwner}
+                currentBranchId={branchId}
+                currentUserStaffId={currentUserStaffId}
+                member={selectedMember}
+                onDeactivate={setDeactivatingMember}
+                onEdit={setEditingMember}
+                onUnassignFromBranch={setUnassigningMember}
+                className="rounded-none border-0 shadow-none"
+              />
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       <StaffCreateDrawer
         branchId={branchId}
