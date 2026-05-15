@@ -36,6 +36,7 @@ import {
   canAccessMedicine,
   hasAnyStaffRole,
   isOwner,
+  isReceptionist,
 } from "@/features/auth/lib/permissions";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/common/utils/utils";
@@ -85,6 +86,9 @@ function buildLegacyNav(profile: UserProfile | undefined): OrderedNavItem[] {
   if (isOwner(profile)) return OWNER_LEGACY_NAV;
   const items = [...BASE_LEGACY_NAV];
   if (canAccessMedicine(profile)) items.push(MEDICINE_LEGACY_NAV);
+  if (isReceptionist(profile)) {
+    return items.filter((item) => item.path !== "");
+  }
   return items;
 }
 
@@ -140,7 +144,10 @@ export function Sidebar() {
 
   if (!hasAnyStaffRole(profile)) return null;
 
-  const navItems = mergeNav(buildLegacyNav(profile), pluginNav);
+  const filteredPluginNav = isReceptionist(profile)
+    ? pluginNav.filter((item) => item.id !== "staff")
+    : pluginNav;
+  const navItems = mergeNav(buildLegacyNav(profile), filteredPluginNav);
   const organization = getProfileOrganization(profile);
   const clinicName = organization?.name ?? "-";
   const clinicBranch = branch?.city
