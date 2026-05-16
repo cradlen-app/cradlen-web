@@ -11,13 +11,13 @@ type Props = {
 
 export function OverviewTab({ visit }: Props) {
   return (
-    <section className="h-full overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
+    <section className="h-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="grid h-full grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
         <PatientSummaryCard
           patientId={visit.patient.id}
           fallbackFullName={visit.patient.fullName}
         />
-        <div className="flex flex-col gap-6 divide-y divide-gray-100 p-5">
+        <div className="flex h-full flex-col gap-6 divide-y divide-gray-100 overflow-y-auto p-5">
           <VisitsHistoryList />
           <div className="pt-6">
             <VisitChartsPanel />
