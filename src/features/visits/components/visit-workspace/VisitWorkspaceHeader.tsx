@@ -37,12 +37,15 @@ export function VisitWorkspaceHeader({
   onCancel,
 }: Props) {
   const t = useTranslations("visits.workspace.header");
-  const patientsHref = `/${organizationId}/${branchId}/dashboard/patients` as const;
+  const patientsHref =
+    `/${organizationId}/${branchId}/dashboard/patients` as const;
 
   return (
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-semibold text-brand-black">{t("title")}</h1>
+        <h1 className="text-2xl font-semibold text-brand-black">
+          {t("title")}
+        </h1>
         <nav
           aria-label={t("breadcrumbAria")}
           className="mt-1 flex flex-wrap items-center gap-1 text-xs text-gray-500"
@@ -53,21 +56,21 @@ export function VisitWorkspaceHeader({
           >
             {t("crumbPatients")}
           </Link>
-          <ChevronRight className="size-3 text-gray-300 rtl:rotate-180" aria-hidden="true" />
-          <span className="font-medium text-gray-600">{shortVisitId(visit.id)}</span>
-          <ChevronRight className="size-3 text-gray-300 rtl:rotate-180" aria-hidden="true" />
-          <span className="text-brand-primary">{t(`crumbVisit.${visit.type}`)}</span>
+          <ChevronRight
+            className="size-3 text-gray-300 rtl:rotate-180"
+            aria-hidden="true"
+          />
+          <span className="font-medium text-gray-600">
+            {shortVisitId(visit.id)}
+          </span>
+          <ChevronRight
+            className="size-3 text-gray-300 rtl:rotate-180"
+            aria-hidden="true"
+          />
+          <span className="text-brand-primary">
+            {t(`crumbVisit.${visit.type}`)}
+          </span>
         </nav>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <VisitStatusBadge status={visit.status} />
-          <VisitTypeBadge type={visit.type} />
-          <VisitPriorityBadge priority={visit.priority} />
-          {visit.queueNumber != null && (
-            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-700 tabular-nums">
-              #{visit.queueNumber}
-            </span>
-          )}
-        </div>
       </div>
 
       <div className="flex items-center gap-2">

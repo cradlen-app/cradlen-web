@@ -12,7 +12,7 @@ type Props = {
 export function OverviewTab({ visit }: Props) {
   return (
     <section className="h-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="grid h-full grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
+      <div className="grid h-full grid-cols-1 md:grid-cols-[320px_minmax(0,1fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
         <PatientSummaryCard
           patientId={visit.patient.id}
           fallbackFullName={visit.patient.fullName}

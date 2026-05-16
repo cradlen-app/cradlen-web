@@ -67,18 +67,18 @@ export function VisitsHistoryList() {
             <div className="flex w-24 flex-none flex-col items-center">
               <div className="flex items-center gap-1 text-xs font-medium text-gray-600 whitespace-nowrap">
                 <span>{formatDate(entry.date, locale)}</span>
-                <Calendar className="size-3.5 text-gray-400" aria-hidden="true" />
               </div>
               {index < MOCK_HISTORY.length - 1 && (
-                <div className="mt-2 w-px flex-1 bg-gray-200" aria-hidden="true" />
+                <div
+                  className="mt-2 w-px flex-1 bg-gray-200"
+                  aria-hidden="true"
+                />
               )}
             </div>
 
             <div
               className={
-                index < MOCK_HISTORY.length - 1
-                  ? "flex-1 pb-6"
-                  : "flex-1"
+                index < MOCK_HISTORY.length - 1 ? "flex-1 pb-6" : "flex-1"
               }
             >
               <article className="rounded-xl border border-gray-100 p-4">
@@ -136,7 +136,7 @@ export function VisitsHistoryList() {
         ))}
       </ol>
 
-      <div className="mt-6 flex justify-center">
+      <div className="my-6 flex justify-center">
         <button
           type="button"
           onClick={() => {

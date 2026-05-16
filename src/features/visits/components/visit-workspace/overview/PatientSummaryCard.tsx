@@ -59,13 +59,13 @@ export function PatientSummaryCard({ patientId, fallbackFullName }: Props) {
           {handleFromName(fullName, patient?.id ?? patientId)}
         </p>
         <dl className="mt-5 w-full space-y-3 text-sm">
-          <Row label={t("age")} value={age != null ? t("ageValue", { value: age }) : "—"} />
+          <Row
+            label={t("age")}
+            value={age != null ? t("ageValue", { value: age }) : "—"}
+          />
           <Row label={t("phoneNumber")} value={patient?.phone_number ?? "—"} />
           <Row label={t("address")} value={patient?.address ?? "—"} />
-          <div
-            className="!my-3 border-t border-gray-100"
-            aria-hidden="true"
-          />
+          <div className="border-gray-100" aria-hidden="true" />
           <Row
             label={t("maritalStatus")}
             value={
