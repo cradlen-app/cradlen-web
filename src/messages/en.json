@@ -621,6 +621,85 @@
       "cancel": "Cancel",
       "savedToast": "Visit updated."
     },
+    "workspace": {
+      "tabsAria": "Visit sections",
+      "tabs": {
+        "overview": "Overview",
+        "history": "History",
+        "examination": "Examination"
+      },
+      "header": {
+        "title": "Visits",
+        "breadcrumbAria": "Visit breadcrumb",
+        "crumbPatients": "patients",
+        "crumbVisit": {
+          "VISIT": "new visit",
+          "FOLLOW_UP": "follow-up",
+          "MEDICAL_REP": "medical rep"
+        },
+        "complete": "Mark complete",
+        "cancelVisit": "Cancel visit"
+      },
+      "patient": {
+        "unknown": "Unknown patient",
+        "age": "Age",
+        "ageValue": "{value} years",
+        "phoneNumber": "Phone Number",
+        "address": "Address",
+        "maritalStatus": "Marital Status",
+        "bloodGroup": "Blood group / RH",
+        "maritalStatusValue": {
+          "SINGLE": "single",
+          "MARRIED": "married",
+          "DIVORCED": "divorced",
+          "WIDOWED": "widowed",
+          "SEPARATED": "separated",
+          "ENGAGED": "engaged",
+          "UNKNOWN": "—"
+        }
+      },
+      "history": {
+        "title": "Visits History",
+        "emptyTitle": "No past visits yet",
+        "emptyBody": "Past visits for this patient will appear here once recorded."
+      },
+      "rail": {
+        "redFlags": {
+          "title": "Red Flags",
+          "empty": "No red flags yet for this patient."
+        },
+        "alerts": {
+          "title": "Alerts",
+          "empty": "No active alerts."
+        },
+        "compliments": {
+          "title": "Repeated Compliments",
+          "empty": "No repeated findings recorded yet."
+        },
+        "comments": {
+          "title": "Comments",
+          "empty": "No comments on this visit yet."
+        }
+      },
+      "charts": {
+        "title": "Charts",
+        "bloodPressure": {
+          "title": "Blood pressure Chart",
+          "lastReading": "Last Reading:"
+        },
+        "empty": "Chart data will appear here once vitals are recorded."
+      },
+      "comingSoon": {
+        "history": {
+          "title": "History form coming soon",
+          "body": "The patient history form will load here from your specialty template once it's published."
+        },
+        "examination": {
+          "title": "Examination form coming soon",
+          "body": "The encounter examination form will load here from your specialty template once it's published."
+        }
+      }
+    },
     "detail": {
       "back": "Back to visits",
       "loadError": "Could not load this visit.",
