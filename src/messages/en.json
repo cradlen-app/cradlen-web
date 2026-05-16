@@ -660,8 +660,16 @@
       },
       "history": {
         "title": "Visits History",
-        "emptyTitle": "No past visits yet",
-        "emptyBody": "Past visits for this patient will appear here once recorded."
+        "loadMore": "Load more",
+        "visitDetails": "Visit Details",
+        "diagnosis": "Diagnosis",
+        "medications": "Medications",
+        "investigations": "Investigations",
+        "statusNormal": "Normal",
+        "typeLabel": {
+          "VISIT": "Visit",
+          "FOLLOW_UP": "Follow-up"
+        }
       },
       "rail": {
         "redFlags": {
@@ -685,9 +693,12 @@
         "title": "Charts",
         "bloodPressure": {
           "title": "Blood pressure Chart",
-          "lastReading": "Last Reading:"
+          "lastReading": "Last Reading :"
         },
-        "empty": "Chart data will appear here once vitals are recorded."
+        "status": "Status",
+        "statusHigh": "High",
+        "bp": "BP",
+        "unit": "Unit: {unit}"
       },
       "comingSoon": {
         "history": {
