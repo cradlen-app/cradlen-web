@@ -101,8 +101,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col gap-6 p-6">
+    <main className="space-y-6 p-6">
       <VisitWorkspaceHeader
+        visit={visit}
+        organizationId={organizationId}
+        branchId={branchId}
         canComplete={!!canComplete}
         canCancel={canCancel}
         isMutating={updateStatus.isPending}
@@ -110,12 +113,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
         onCancel={handleCancel}
       />
 
-      <div className="grid flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
         <Tabs
           value={activeTab}
           defaultValue="overview"
           onValueChange={(v) => setActiveTab(v as TabValue)}
-          className="flex h-full flex-col"
         >
           <TabsList aria-label={t("tabsAria")}>
             <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
@@ -123,13 +125,13 @@ export function VisitWorkspacePage({ visitId }: Props) {
             <TabsTrigger value="examination">{t("tabs.examination")}</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-6 flex-1">
+          <TabsContent value="overview" className="mt-6">
             <OverviewTab visit={visit} />
           </TabsContent>
-          <TabsContent value="history" className="mt-6 flex-1">
+          <TabsContent value="history" className="mt-6">
             <HistoryTab />
           </TabsContent>
-          <TabsContent value="examination" className="mt-6 flex-1">
+          <TabsContent value="examination" className="mt-6">
             <ExaminationTab />
           </TabsContent>
         </Tabs>
