@@ -75,7 +75,7 @@ function IconButton({
 
 export function Navbar() {
   const t = useTranslations("nav");
-  const tRoles = useTranslations("common.roles");
+  const tRoles = useTranslations("settings.roles");
   const { toggleMobile } = useSidebar();
   const { data: user } = useCurrentUser();
 
