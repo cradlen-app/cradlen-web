@@ -43,7 +43,7 @@ export function PatientSummaryCard({ patientId, fallbackFullName }: Props) {
   const age = ageFromDob(patient?.date_of_birth);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-xl">
       <div className="h-16 bg-brand-primary" aria-hidden="true" />
       <div className="-mt-8 flex flex-col items-center px-6 pb-6">
         <div
