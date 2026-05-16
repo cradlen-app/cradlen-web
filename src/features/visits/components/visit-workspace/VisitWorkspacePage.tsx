@@ -126,13 +126,13 @@ export function VisitWorkspacePage({ visitId }: Props) {
             <TabsTrigger value="examination">{t("tabs.examination")}</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-6 min-h-0 flex-1 overflow-hidden">
+          <TabsContent value="overview" className="min-h-0 flex-1 overflow-hidden">
             <OverviewTab visit={visit} />
           </TabsContent>
-          <TabsContent value="history" className="mt-6 min-h-0 flex-1 overflow-y-auto">
+          <TabsContent value="history" className="min-h-0 flex-1 overflow-y-auto">
             <HistoryTab />
           </TabsContent>
-          <TabsContent value="examination" className="mt-6 min-h-0 flex-1 overflow-y-auto">
+          <TabsContent value="examination" className="min-h-0 flex-1 overflow-y-auto">
             <ExaminationTab />
           </TabsContent>
         </Tabs>
