@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 export function VisitChartsPanel() {
   const t = useTranslations("visits.workspace.charts");
   return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <section>
       <header className="flex items-center gap-2">
         <LineChart className="size-4 text-brand-primary" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-brand-black">{t("title")}</h2>
