@@ -7,7 +7,7 @@ import { mapApiStaffToMember } from "../lib/staff.utils";
 import { staffQueryKeys } from "../queryKeys";
 
 type UseStaffOptions = {
-  q?: string;
+  search?: string;
   roleId?: string;
   branchId?: string;
   role?: string;
@@ -17,13 +17,25 @@ type UseStaffOptions = {
 export function useStaff(
   organizationId: string | undefined,
   _legacyBranchId: string | undefined,
-  { q, roleId, branchId, role, scope }: UseStaffOptions = {},
+  { search, roleId, branchId, role, scope }: UseStaffOptions = {},
 ) {
   const locale = useLocale();
   return useQuery({
-    queryKey: staffQueryKeys.list(organizationId ?? "", { q, roleId, branchId, role, scope }),
+    queryKey: staffQueryKeys.list(organizationId ?? "", {
+      search,
+      roleId,
+      branchId,
+      role,
+      scope,
+    }),
     queryFn: async () => {
-      const staff = await fetchAllStaff(organizationId!, { q, roleId, branchId, role, scope });
+      const staff = await fetchAllStaff(organizationId!, {
+        search,
+        roleId,
+        branchId,
+        role,
+        scope,
+      });
       return staff.map((member) => mapApiStaffToMember(member, locale));
     },
     enabled: !!organizationId,

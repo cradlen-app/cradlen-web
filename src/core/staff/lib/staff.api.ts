@@ -29,7 +29,7 @@ import type {
 type FetchStaffOptions = {
   limit?: number;
   page?: number;
-  q?: string;
+  search?: string;
   roleId?: string;
   branchId?: string;
   role?: string;
@@ -68,11 +68,11 @@ export async function fetchSpecialties(): Promise<ApiStaffSpecialty[]> {
 
 export function fetchStaff(
   organizationId: string,
-  { page = 1, limit = 100, q, roleId, branchId, role, scope }: FetchStaffOptions,
+  { page = 1, limit = 100, search, roleId, branchId, role, scope }: FetchStaffOptions,
 ) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  const search = q?.trim();
-  if (search) params.set("q", search);
+  const trimmedSearch = search?.trim();
+  if (trimmedSearch) params.set("search", trimmedSearch);
   if (roleId) params.set("role_id", roleId);
   if (branchId) params.set("branch_id", branchId);
   if (role) params.set("role", role);

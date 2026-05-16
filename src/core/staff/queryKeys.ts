@@ -15,7 +15,7 @@ export const staffQueryKeys = {
   list: (
     organizationId: string,
     opts: {
-      q?: string;
+      search?: string;
       roleId?: string;
       branchId?: string;
       role?: string;
@@ -25,7 +25,7 @@ export const staffQueryKeys = {
     [
       "staff",
       organizationId,
-      opts.q,
+      opts.search,
       opts.roleId,
       opts.branchId,
       opts.role,
