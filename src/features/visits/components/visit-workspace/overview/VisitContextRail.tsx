@@ -33,7 +33,7 @@ const TONES: Record<RailSection["tone"], string> = {
 export function VisitContextRail() {
   const t = useTranslations("visits.workspace.rail");
   return (
-    <aside className="divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <aside className="h-full divide-y divide-gray-100 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
       {SECTIONS.map(({ key, icon: Icon, tone }) => (
         <section key={key} className="p-4">
           <header className="flex items-center gap-2">
