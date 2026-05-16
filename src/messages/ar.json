@@ -621,6 +621,85 @@
       "cancel": "إلغاء",
       "savedToast": "تم تحديث الزيارة."
     },
+    "workspace": {
+      "tabsAria": "أقسام الزيارة",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "history": "التاريخ المرضي",
+        "examination": "الفحص"
+      },
+      "header": {
+        "title": "الزيارات",
+        "breadcrumbAria": "مسار الزيارة",
+        "crumbPatients": "المرضى",
+        "crumbVisit": {
+          "VISIT": "زيارة جديدة",
+          "FOLLOW_UP": "متابعة",
+          "MEDICAL_REP": "مندوب طبي"
+        },
+        "complete": "إنهاء الزيارة",
+        "cancelVisit": "إلغاء الزيارة"
+      },
+      "patient": {
+        "unknown": "مريض غير معروف",
+        "age": "العمر",
+        "ageValue": "{value} سنة",
+        "phoneNumber": "رقم الهاتف",
+        "address": "العنوان",
+        "maritalStatus": "الحالة الاجتماعية",
+        "bloodGroup": "فصيلة الدم / RH",
+        "maritalStatusValue": {
+          "SINGLE": "أعزب",
+          "MARRIED": "متزوج",
+          "DIVORCED": "مطلق",
+          "WIDOWED": "أرمل",
+          "SEPARATED": "منفصل",
+          "ENGAGED": "مخطوب",
+          "UNKNOWN": "—"
+        }
+      },
+      "history": {
+        "title": "سجل الزيارات",
+        "emptyTitle": "لا توجد زيارات سابقة بعد",
+        "emptyBody": "ستظهر الزيارات السابقة لهذا المريض هنا بمجرد تسجيلها."
+      },
+      "rail": {
+        "redFlags": {
+          "title": "تحذيرات",
+          "empty": "لا توجد تحذيرات لهذا المريض بعد."
+        },
+        "alerts": {
+          "title": "تنبيهات",
+          "empty": "لا توجد تنبيهات نشطة."
+        },
+        "compliments": {
+          "title": "نتائج متكررة",
+          "empty": "لم تُسجَّل نتائج متكررة بعد."
+        },
+        "comments": {
+          "title": "ملاحظات",
+          "empty": "لا توجد ملاحظات على هذه الزيارة بعد."
+        }
+      },
+      "charts": {
+        "title": "الرسوم البيانية",
+        "bloodPressure": {
+          "title": "مخطط ضغط الدم",
+          "lastReading": "آخر قراءة:"
+        },
+        "empty": "ستظهر بيانات الرسم البياني هنا عند تسجيل العلامات الحيوية."
+      },
+      "comingSoon": {
+        "history": {
+          "title": "نموذج التاريخ المرضي قريبًا",
+          "body": "سيُحمَّل نموذج التاريخ المرضي هنا من قالب تخصصك فور نشره."
+        },
+        "examination": {
+          "title": "نموذج الفحص قريبًا",
+          "body": "سيُحمَّل نموذج فحص الزيارة هنا من قالب تخصصك فور نشره."
+        }
+      }
+    },
     "detail": {
       "back": "العودة إلى الزيارات",
       "loadError": "تعذّر تحميل هذه الزيارة.",
