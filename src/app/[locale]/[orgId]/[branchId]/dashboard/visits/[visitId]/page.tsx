@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { VisitDetailPage } from "@/features/visits/components/VisitDetailPage";
+import { VisitWorkspacePage } from "@/features/visits/components/visit-workspace/VisitWorkspacePage";
 
 type Props = {
   params: Promise<{
@@ -14,5 +14,5 @@ export default async function VisitDetailRoutePage({ params }: Props) {
   const { locale, visitId } = await params;
   setRequestLocale(locale);
 
-  return <VisitDetailPage visitId={visitId} />;
+  return <VisitWorkspacePage visitId={visitId} />;
 }
