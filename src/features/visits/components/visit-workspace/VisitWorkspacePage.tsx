@@ -16,6 +16,7 @@ import { useUpdateVisitStatus } from "../../hooks/useUpdateVisitStatus";
 import { useVisit } from "../../hooks/useVisit";
 import { CompleteVisitDialog } from "../CompleteVisitDialog";
 import { VisitWorkspaceHeader } from "./VisitWorkspaceHeader";
+import { VisitContextRail } from "./overview/VisitContextRail";
 import { ExaminationTab } from "./tabs/ExaminationTab";
 import { HistoryTab } from "./tabs/HistoryTab";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -112,27 +113,31 @@ export function VisitWorkspacePage({ visitId }: Props) {
         onCancel={handleCancel}
       />
 
-      <Tabs
-        value={activeTab}
-        defaultValue="overview"
-        onValueChange={(v) => setActiveTab(v as TabValue)}
-      >
-        <TabsList aria-label={t("tabsAria")}>
-          <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
-          <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
-          <TabsTrigger value="examination">{t("tabs.examination")}</TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
+        <Tabs
+          value={activeTab}
+          defaultValue="overview"
+          onValueChange={(v) => setActiveTab(v as TabValue)}
+        >
+          <TabsList aria-label={t("tabsAria")}>
+            <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
+            <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
+            <TabsTrigger value="examination">{t("tabs.examination")}</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="overview" className="mt-6">
-          <OverviewTab visit={visit} />
-        </TabsContent>
-        <TabsContent value="history" className="mt-6">
-          <HistoryTab />
-        </TabsContent>
-        <TabsContent value="examination" className="mt-6">
-          <ExaminationTab />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="overview" className="mt-6">
+            <OverviewTab visit={visit} />
+          </TabsContent>
+          <TabsContent value="history" className="mt-6">
+            <HistoryTab />
+          </TabsContent>
+          <TabsContent value="examination" className="mt-6">
+            <ExaminationTab />
+          </TabsContent>
+        </Tabs>
+
+        <VisitContextRail />
+      </div>
 
       <CompleteVisitDialog
         open={completeDialogOpen}

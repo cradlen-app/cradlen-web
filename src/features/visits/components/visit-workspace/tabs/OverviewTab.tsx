@@ -3,7 +3,6 @@
 import type { Visit } from "../../../types/visits.types";
 import { PatientSummaryCard } from "../overview/PatientSummaryCard";
 import { VisitChartsPanel } from "../overview/VisitChartsPanel";
-import { VisitContextRail } from "../overview/VisitContextRail";
 import { VisitsHistoryList } from "../overview/VisitsHistoryList";
 
 type Props = {
@@ -12,16 +11,19 @@ type Props = {
 
 export function OverviewTab({ visit }: Props) {
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1fr)]">
-      <PatientSummaryCard
-        patientId={visit.patient.id}
-        fallbackFullName={visit.patient.fullName}
-      />
-      <div className="flex flex-col gap-6">
-        <VisitsHistoryList />
-        <VisitChartsPanel />
+    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
+        <PatientSummaryCard
+          patientId={visit.patient.id}
+          fallbackFullName={visit.patient.fullName}
+        />
+        <div className="flex flex-col gap-6 divide-y divide-gray-100 p-5">
+          <VisitsHistoryList />
+          <div className="pt-6">
+            <VisitChartsPanel />
+          </div>
+        </div>
       </div>
-      <VisitContextRail />
-    </div>
+    </section>
   );
 }
