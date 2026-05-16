@@ -30,8 +30,6 @@ export type VisitPatient = {
   dateOfBirth?: string;
   phone?: string;
   address?: string;
-  isMarried?: boolean;
-  husbandName?: string;
   maritalStatus?: string;
   activeEpisodes?: { id: string; name: string; order: number }[];
   code?: string;
@@ -48,8 +46,7 @@ export type Patient = {
   dateOfBirth?: string;
   phoneNumber?: string;
   address?: string;
-  isMarried?: boolean;
-  husbandName?: string;
+  maritalStatus?: string;
   activeEpisodes?: { id: string; name: string; order: number }[];
   lastVisitDate?: string;
   nextVisitDate?: string;

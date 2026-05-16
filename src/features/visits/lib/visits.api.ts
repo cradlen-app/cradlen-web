@@ -31,7 +31,6 @@ export type UpdateVisitRequest = VisitIntake & {
   phone_number?: string;
   address?: string;
   marital_status?: "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED" | "SEPARATED" | "ENGAGED" | "UNKNOWN";
-  husband_name?: string;
   spouse_full_name?: string;
   spouse_national_id?: string;
   spouse_phone_number?: string;

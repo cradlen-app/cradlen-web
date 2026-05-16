@@ -161,8 +161,21 @@ export function makeBookVisitSchema(t: Translator = identity) {
         .optional()
         .refine(isValidOptionalPhone, t("create.errors.invalidPhone")),
       address: z.string().trim().optional(),
-      isMarried: z.boolean().optional(),
-      husbandName: z.string().trim().optional(),
+      maritalStatus: z
+        .enum([
+          "SINGLE",
+          "MARRIED",
+          "DIVORCED",
+          "WIDOWED",
+          "SEPARATED",
+          "ENGAGED",
+          "UNKNOWN",
+        ])
+        .optional(),
+      spouseFullName: z.string().trim().optional(),
+      spouseNationalId: z.string().trim().optional(),
+      spousePhoneNumber: z.string().trim().optional(),
+      spouseGuardianId: z.string().trim().optional(),
       company: z.string().trim().optional(),
 
       // visit fields
@@ -213,11 +226,14 @@ export function makeBookVisitSchema(t: Translator = identity) {
               message: t("create.errors.dobRequired"),
             });
           }
-          if (value.isMarried && !value.husbandName?.trim()) {
+          if (
+            value.maritalStatus === "MARRIED" &&
+            !value.spouseFullName?.trim()
+          ) {
             ctx.addIssue({
               code: "custom",
-              path: ["husbandName"],
-              message: t("create.errors.husbandNameRequired"),
+              path: ["spouseFullName"],
+              message: t("create.errors.spouseFullNameRequired"),
             });
           }
         }
@@ -243,8 +259,11 @@ export function getDefaultBookVisitValues(): BookVisitFormValues {
     dateOfBirth: "",
     phoneNumber: "",
     address: "",
-    isMarried: false,
-    husbandName: "",
+    maritalStatus: undefined,
+    spouseFullName: "",
+    spouseNationalId: "",
+    spousePhoneNumber: "",
+    spouseGuardianId: "",
     company: "",
     visitType: VISIT_TYPE.VISIT,
     priority: VISIT_PRIORITY.NORMAL,
