@@ -28,13 +28,13 @@ describe("staff api helpers", () => {
     await fetchStaff("org-1", {
       page: 2,
       limit: 25,
-      q: "cardio",
+      search: "cardio",
       roleId: "role-1",
       scope: "mine",
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/organizations/org-1/staff?page=2&limit=25&q=cardio&role_id=role-1&scope=mine",
+      "/organizations/org-1/staff?page=2&limit=25&search=cardio&role_id=role-1&scope=mine",
     );
   });
 

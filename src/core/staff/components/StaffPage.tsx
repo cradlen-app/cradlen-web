@@ -111,7 +111,7 @@ export function StaffPage() {
     isLoading: isStaffLoading,
     isError: isStaffError,
   } = useStaff(organizationId, branchId, {
-    q: deferredSearch,
+    search: deferredSearch,
     roleId: selectedRoleId,
     scope: isOwner ? scope : undefined,
   });

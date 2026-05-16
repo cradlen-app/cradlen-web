@@ -107,11 +107,6 @@ function pickSpouseGuardian(patient?: ApiPatient | null): SpouseGuardian {
       phone_number: link.guardian.phone_number,
     };
   }
-  // Legacy fallback: patient.husband_name predates the Guardian model. No id —
-  // submission will upsert a Guardian + PatientGuardian link on save.
-  if (patient?.husband_name) {
-    return { full_name: patient.husband_name };
-  }
   return undefined;
 }
 
@@ -167,13 +162,7 @@ function readPatientPath(
     case "address":
       return p?.address ?? vp.address;
     case "marital_status":
-      return (
-        p?.marital_status ??
-        vp.maritalStatus ??
-        (vp.isMarried || p?.is_married ? "MARRIED" : undefined)
-      );
-    case "husband_name":
-      return p?.husband_name ?? vp.husbandName;
+      return p?.marital_status ?? vp.maritalStatus;
     default:
       return undefined;
   }
@@ -186,7 +175,7 @@ function readGuardianPath(
 ): unknown {
   switch (path) {
     case "full_name":
-      return spouse?.full_name ?? visit.patient.husbandName;
+      return spouse?.full_name;
     case "national_id":
       return spouse?.national_id ?? undefined;
     case "phone_number":

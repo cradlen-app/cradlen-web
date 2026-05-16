@@ -261,7 +261,7 @@ export const mockPatients: Patient[] = [
     nationalId: "29403121234567",
     dateOfBirth: "1994-03-12",
     phoneNumber: "+20 100 1234567",
-    isMarried: true,
+    maritalStatus: "MARRIED",
   },
   {
     id: "p-2",
@@ -269,7 +269,7 @@ export const mockPatients: Patient[] = [
     nationalId: "28912091234568",
     dateOfBirth: "1989-12-09",
     phoneNumber: "+20 101 7654321",
-    isMarried: true,
+    maritalStatus: "MARRIED",
   },
   {
     id: "p-3",
@@ -277,7 +277,7 @@ export const mockPatients: Patient[] = [
     nationalId: "29611031234569",
     dateOfBirth: "1996-11-03",
     phoneNumber: "+20 102 5556677",
-    isMarried: false,
+    maritalStatus: "SINGLE",
   },
   {
     id: "p-4",
@@ -285,7 +285,7 @@ export const mockPatients: Patient[] = [
     nationalId: "29202221234570",
     dateOfBirth: "1992-02-22",
     phoneNumber: "+20 103 4445566",
-    isMarried: true,
+    maritalStatus: "MARRIED",
   },
   {
     id: "p-5",
@@ -293,7 +293,7 @@ export const mockPatients: Patient[] = [
     nationalId: "29508181234571",
     dateOfBirth: "1995-08-18",
     phoneNumber: "+20 104 3334455",
-    isMarried: false,
+    maritalStatus: "SINGLE",
   },
 ];
 
