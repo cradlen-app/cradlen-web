@@ -62,7 +62,10 @@ export function PatientSummaryCard({ patientId, fallbackFullName }: Props) {
           <Row label={t("age")} value={age != null ? t("ageValue", { value: age }) : "—"} />
           <Row label={t("phoneNumber")} value={patient?.phone_number ?? "—"} />
           <Row label={t("address")} value={patient?.address ?? "—"} />
-          <div className="pt-2" aria-hidden="true" />
+          <div
+            className="!my-3 border-t border-gray-100"
+            aria-hidden="true"
+          />
           <Row
             label={t("maritalStatus")}
             value={
@@ -71,7 +74,7 @@ export function PatientSummaryCard({ patientId, fallbackFullName }: Props) {
                 : "—"
             }
           />
-          <Row label={t("bloodGroup")} value="—" />
+          <Row label={t("bloodGroup")} value="A+" />
         </dl>
       </div>
     </section>

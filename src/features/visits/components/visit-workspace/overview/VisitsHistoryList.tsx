@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, ExternalLink } from "lucide-react";
+import { Calendar, Clock, Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 type VisitHistoryType = "VISIT" | "FOLLOW_UP";
@@ -41,7 +41,9 @@ const MOCK_HISTORY: MockVisitHistoryEntry[] = [
 function formatDate(iso: string, locale: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale, {
+  // Force DMY ordering for English so we get "30 Sep 2025" rather than "Sep 30, 2025".
+  const formatLocale = locale.startsWith("en") ? "en-GB" : locale;
+  return new Intl.DateTimeFormat(formatLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -94,9 +96,9 @@ export function VisitsHistoryList() {
                   <a
                     href="#"
                     onClick={(e) => e.preventDefault()}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-brand-primary"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-primary/80"
                   >
-                    <ExternalLink className="size-3" aria-hidden="true" />
+                    <Eye className="size-3.5" aria-hidden="true" />
                     {t("visitDetails")}
                   </a>
                 </header>
