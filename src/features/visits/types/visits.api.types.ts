@@ -21,8 +21,6 @@ export type ApiPatient = {
   date_of_birth?: string;
   phone_number?: string;
   address?: string;
-  husband_name?: string;
-  is_married?: boolean;
   marital_status?:
     | "SINGLE"
     | "MARRIED"
@@ -164,7 +162,6 @@ export type ApiPatientListItem = {
   date_of_birth?: string;
   phone_number?: string;
   address?: string;
-  husband_name?: string;
   last_visit_date?: string | null;
   created_at: string;
   updated_at: string;
@@ -193,8 +190,6 @@ export type BookVisitNewPatientRequest = VisitIntake & {
   date_of_birth: string;
   phone_number: string;
   address?: string;
-  is_married: boolean;
-  husband_name?: string;
   assigned_doctor_id: string;
   appointment_type: ApiVisitType;
   priority: ApiVisitPriority;

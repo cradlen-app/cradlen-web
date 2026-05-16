@@ -21,7 +21,7 @@ export function usePatients(branchId: string | undefined, params: UsePatientsPar
       const res = await fetchBranchPatients(branchId!, {
         search: params.search || undefined,
         journey_status: params.journeyStatus,
-        limit: 50,
+        limit: 11,
       });
       return {
         patients: res.data.map(mapApiPatientListItemToPatient),
