@@ -964,7 +964,22 @@
       "hideSection": "إخفاء مجموعة الأقسام",
       "versionLabel": "نسخة {version}",
       "addRow": "+ إضافة صف",
-      "removeRow": "إزالة"
+      "removeRow": "إزالة",
+      "notes": {
+        "button": "ملاحظات",
+        "empty": "لا توجد ملاحظات بعد",
+        "placeholder": "اكتب ملاحظة لهذا القسم…",
+        "save": "حفظ الملاحظة",
+        "delete": "حذف",
+        "savedToast": "تم حفظ الملاحظة.",
+        "deletedToast": "تم حذف الملاحظة.",
+        "errorToast": "تعذر حفظ الملاحظة.",
+        "redactedHint": "{count} ملاحظات من عيادات أخرى (مخفية)",
+        "visibility": {
+          "private": "خاص",
+          "shared": "مشاركة عامة"
+        }
+      }
     },
     "empty": {
       "noSpecialtyTitle": "لا يوجد تخصص لهذه الزيارة",
