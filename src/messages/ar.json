@@ -960,8 +960,8 @@
       "staleVersion": "تم تحديث السجل من جهة أخرى. سيتم تحميل أحدث نسخة.",
       "loading": "جاري تحميل السجل…",
       "loadError": "تعذر تحميل السجل.",
-      "showSection": "إظهار القسم",
-      "hideSection": "إخفاء القسم",
+      "showSection": "إظهار مجموعة الأقسام",
+      "hideSection": "إخفاء مجموعة الأقسام",
       "versionLabel": "نسخة {version}",
       "addRow": "+ إضافة صف",
       "removeRow": "إزالة"
