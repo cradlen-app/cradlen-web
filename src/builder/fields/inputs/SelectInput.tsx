@@ -9,7 +9,59 @@ import { useDefaultValue } from "../../runtime/useDefaultValue";
 import type { FieldInputProps } from "../input-props";
 import type { FieldOption } from "../../templates/template.types";
 
-export function SelectInput({ field, value, onChange, required, disabled, error }: FieldInputProps) {
+/**
+ * Segmented-variant SELECT — horizontal pill buttons. Used for short fixed
+ * option sets (e.g. Examination "Case path": General GYN | Pregnancy |
+ * Surgery | Infertility). Static options only; no dynamic fetching. Kept
+ * as a sibling component so each variant has its own hook order.
+ */
+function SegmentedSelect({
+  field,
+  value,
+  onChange,
+  required,
+  disabled,
+  error,
+}: FieldInputProps) {
+  const options: FieldOption[] =
+    (field.config?.validation?.options as FieldOption[] | undefined) ?? [];
+  useDefaultValue(field, options);
+  const selectedCode = typeof value === "string" ? value : "";
+  return (
+    <FieldShell label={field.label} required={required} error={error}>
+      <div
+        role="radiogroup"
+        aria-label={field.label}
+        className="inline-flex flex-wrap gap-2 py-1"
+      >
+        {options.map((opt) => {
+          const isSelected = opt.code === selectedCode;
+          return (
+            <button
+              key={opt.code}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              disabled={disabled}
+              onClick={() => onChange(isSelected && !required ? null : opt.code)}
+              className={cn(
+                "rounded-md px-4 py-2 text-xs font-medium transition-colors",
+                isSelected
+                  ? "bg-brand-primary text-white"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100",
+                disabled && "cursor-not-allowed opacity-50",
+              )}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </FieldShell>
+  );
+}
+
+function DropdownSelect({ field, value, onChange, required, disabled, error }: FieldInputProps) {
   const dynamic = useDynamicOptions(field);
   const options: FieldOption[] = useMemo(() => {
     if (dynamic.enabled) {
@@ -194,4 +246,14 @@ export function SelectInput({ field, value, onChange, required, disabled, error 
       </div>
     </FieldShell>
   );
+}
+
+/**
+ * Dispatches on `field.config.ui.variant`. Default = dropdown with
+ * type-ahead + keyboard nav. `variant: "segmented"` = horizontal pill row.
+ */
+export function SelectInput(props: FieldInputProps) {
+  const variant = props.field.config?.ui?.variant as string | undefined;
+  if (variant === "segmented") return <SegmentedSelect {...props} />;
+  return <DropdownSelect {...props} />;
 }
