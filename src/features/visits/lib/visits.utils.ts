@@ -103,6 +103,7 @@ export function mapApiVisitToVisit(api: ApiVisit): Visit {
       ? `${doctorUser.first_name} ${doctorUser.last_name}`.trim()
       : undefined,
     carePathCode: api.episode?.journey?.care_path?.code ?? undefined,
+    specialtyCode: api.specialty_code ?? null,
     notes: api.notes,
     chiefComplaint: api.chief_complaint ?? null,
     chiefComplaintMeta: api.chief_complaint_meta ?? null,

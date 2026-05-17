@@ -951,5 +951,26 @@
         "genericError": "تعذر إنهاء الزيارة."
       }
     }
+  },
+  "patient_history": {
+    "workspace": {
+      "save": "حفظ",
+      "saved": "تم حفظ السجل.",
+      "saveError": "تعذر حفظ السجل.",
+      "staleVersion": "تم تحديث السجل من جهة أخرى. سيتم تحميل أحدث نسخة.",
+      "loading": "جاري تحميل السجل…",
+      "loadError": "تعذر تحميل السجل.",
+      "showSection": "إظهار القسم",
+      "hideSection": "إخفاء القسم",
+      "versionLabel": "نسخة {version}",
+      "addRow": "+ إضافة صف",
+      "removeRow": "إزالة"
+    },
+    "empty": {
+      "noSpecialtyTitle": "لا يوجد تخصص لهذه الزيارة",
+      "noSpecialtyBody": "يجب تحديد التخصص عند حجز الزيارة لعرض نموذج السجل المرضي.",
+      "noTemplateTitle": "لا يوجد نموذج سجل مرضي",
+      "noTemplateBody": "لم يتم نشر نموذج سجل مرضي لتخصص {specialty} حتى الآن."
+    }
   }
 }

@@ -951,5 +951,26 @@
         "genericError": "Could not complete the visit."
       }
     }
+  },
+  "patient_history": {
+    "workspace": {
+      "save": "Save",
+      "saved": "History saved.",
+      "saveError": "Could not save history.",
+      "staleVersion": "Someone else updated this history. Reloading the latest version.",
+      "loading": "Loading history…",
+      "loadError": "Could not load history.",
+      "showSection": "Show section",
+      "hideSection": "Hide section",
+      "versionLabel": "v{version}",
+      "addRow": "+ Add row",
+      "removeRow": "Remove"
+    },
+    "empty": {
+      "noSpecialtyTitle": "No specialty for this visit",
+      "noSpecialtyBody": "A specialty must be selected at booking before a patient history form can be shown.",
+      "noTemplateTitle": "No history form configured",
+      "noTemplateBody": "No patient-history form is published for the {specialty} specialty yet."
+    }
   }
 }
