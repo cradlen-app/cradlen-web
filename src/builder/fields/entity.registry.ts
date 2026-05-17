@@ -62,10 +62,33 @@ async function searchGuardiansByQuery(query: string): Promise<EntityResult[]> {
   }));
 }
 
+interface MedicationListItem {
+  id: string;
+  code: string;
+  name: string;
+  generic_name?: string | null;
+  form?: string | null;
+  strength?: string | null;
+}
+
+async function searchMedicationsByQuery(query: string): Promise<EntityResult[]> {
+  const params = new URLSearchParams({ search: query, limit: "20" });
+  const res = await apiAuthFetch<{ data: MedicationListItem[] }>(
+    `/medications?${params.toString()}`,
+  );
+  return res.data.map((m) => ({
+    id: m.id,
+    label: m.name,
+    subtitle: [m.strength, m.form, m.generic_name].filter(Boolean).join(" · "),
+    raw: m,
+  }));
+}
+
 export const ENTITY_REGISTRY: Record<string, EntitySearchFn> = {
   patient: searchPatientsByQuery,
   medical_rep: searchMedicalReps,
   guardian: searchGuardiansByQuery,
+  medication: searchMedicationsByQuery,
 };
 
 export function getEntitySearchFn(kind: string): EntitySearchFn | undefined {
