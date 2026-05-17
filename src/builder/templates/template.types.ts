@@ -13,7 +13,8 @@ export type BindingNamespace =
   | "MEDICAL_REP"
   | "LOOKUP"
   | "SYSTEM"
-  | "COMPUTED";
+  | "COMPUTED"
+  | "PATIENT_OBGYN_HISTORY";
 
 export type FormFieldType =
   | "TEXT"
@@ -121,6 +122,7 @@ export interface FormSectionDto {
   code: string;
   name: string;
   order: number;
+  is_repeatable?: boolean;
   config: SectionConfig;
   fields: FormFieldDto[];
 }

@@ -71,6 +71,7 @@ export type Visit = {
   assignedDoctorId?: string;
   assignedDoctorName?: string;
   carePathCode?: string;
+  specialtyCode?: string | null;
   notes?: string;
   chiefComplaint?: string | null;
   chiefComplaintMeta?: ChiefComplaintMeta | null;
