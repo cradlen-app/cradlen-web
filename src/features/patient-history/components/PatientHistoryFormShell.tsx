@@ -9,9 +9,12 @@ import { useTemplateExecution } from "@/builder/runtime/TemplateExecutionContext
 import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { buildPatientHistorySubmission } from "../lib/history-submission";
 import type { SectionVisibility } from "../lib/section-visibility";
+import { slugifyGroup } from "../lib/slug";
+import { SectionNotesButton } from "./SectionNotesButton";
 
 interface Props {
   template: FormTemplateDto;
+  patientId: string;
   version: number;
   visibility: SectionVisibility;
   onSave: (body: Record<string, unknown>) => Promise<void>;
@@ -20,6 +23,7 @@ interface Props {
 
 export function PatientHistoryFormShell({
   template,
+  patientId,
   version,
   visibility,
   onSave,
@@ -32,14 +36,21 @@ export function PatientHistoryFormShell({
   const renderGroupHeaderSlot = (groupName: string) => {
     const isHidden = visibility.isHidden(groupName);
     return (
-      <button
-        type="button"
-        aria-label={isHidden ? t("showSection") : t("hideSection")}
-        onClick={() => visibility.toggle(groupName)}
-        className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
-      >
-        {isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
-      </button>
+      <div className="flex items-center gap-1">
+        <SectionNotesButton
+          patientId={patientId}
+          sectionCode={slugifyGroup(groupName)}
+          groupName={groupName}
+        />
+        <button
+          type="button"
+          aria-label={isHidden ? t("showSection") : t("hideSection")}
+          onClick={() => visibility.toggle(groupName)}
+          className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
+        >
+          {isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </div>
     );
   };
 

@@ -64,13 +64,19 @@ export function toInitialHistoryState(
   for (const section of template.sections) {
     if (section.is_repeatable) {
       const arr = envelope[section.code];
+      const trailingEmpty: RepeatableRow = { rowKey: newRowKey(), values: {} };
       if (!Array.isArray(arr)) {
-        repeatableRows[section.code] = [];
+        // No prior rows — start with one empty row ready for typing.
+        repeatableRows[section.code] = [trailingEmpty];
         continue;
       }
-      repeatableRows[section.code] = arr.map((raw) =>
-        rowFromApi(raw as Record<string, unknown>, section.fields),
-      );
+      // Hydrated rows + one trailing empty row (matches the target UX).
+      repeatableRows[section.code] = [
+        ...arr.map((raw) =>
+          rowFromApi(raw as Record<string, unknown>, section.fields),
+        ),
+        trailingEmpty,
+      ];
       continue;
     }
     // Singleton section — pull each field's value by its binding path.

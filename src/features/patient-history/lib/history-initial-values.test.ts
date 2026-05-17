@@ -72,7 +72,7 @@ describe("toInitialHistoryState", () => {
     expect(init.formValues).toEqual({ age_at_menarche: 13 });
   });
 
-  it("loads repeatable rows under section.code and preserves server ids", () => {
+  it("loads repeatable rows under section.code, preserves server ids, and appends one empty trailing row", () => {
     const env = {
       patient_id: "p1",
       version: 1,
@@ -83,7 +83,8 @@ describe("toInitialHistoryState", () => {
       ],
     };
     const init = toInitialHistoryState(env, template);
-    expect(init.repeatableRows.medications).toHaveLength(2);
+    // 2 hydrated rows + 1 trailing empty row
+    expect(init.repeatableRows.medications).toHaveLength(3);
     expect(init.repeatableRows.medications[0]).toMatchObject({
       id: "m1",
       values: { drug_name: "Aspirin", medication_id: "cat-1", indication: "Pain" },
@@ -98,7 +99,22 @@ describe("toInitialHistoryState", () => {
       id: "m2",
       values: { drug_name: "Folate" },
     });
-    // No resolved id on row 2 → no search state for drug_name.
-    expect(init.repeatableRows.medications[1].searchState).toBeUndefined();
+    // The trailing empty row has no id and empty values.
+    const tail = init.repeatableRows.medications[2];
+    expect(tail.id).toBeUndefined();
+    expect(tail.values).toEqual({});
+  });
+
+  it("seeds a single empty row when the envelope has no entries for a repeatable section", () => {
+    const env = {
+      patient_id: "p1",
+      version: 1,
+      updated_at: "x",
+      // medications absent
+    };
+    const init = toInitialHistoryState(env, template);
+    expect(init.repeatableRows.medications).toHaveLength(1);
+    expect(init.repeatableRows.medications[0].values).toEqual({});
+    expect(init.repeatableRows.medications[0].id).toBeUndefined();
   });
 });
