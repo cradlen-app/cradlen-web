@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { FormTemplateDto } from "@/builder/templates/template.types";
+import type {
+  FormFieldDto,
+  FormTemplateDto,
+} from "@/builder/templates/template.types";
 import { toInitialHistoryState } from "./history-initial-values";
 
 function field(
@@ -7,7 +10,7 @@ function field(
   type: "TEXT" | "NUMBER" | "DATE" | "ENTITY_SEARCH" | "SELECT",
   path: string,
   extra: Record<string, unknown> = {},
-) {
+): FormFieldDto {
   return {
     id: `f-${code}`,
     code,

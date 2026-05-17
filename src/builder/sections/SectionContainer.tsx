@@ -36,7 +36,7 @@ export function SectionContainer({
           className={
             layout === "stack"
               ? "space-y-2"
-              : "grid grid-cols-2 gap-x-8 gap-y-3"
+              : "grid grid-cols-12 gap-x-6 gap-y-3"
           }
         >
           {children}

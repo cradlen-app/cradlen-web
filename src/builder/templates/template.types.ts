@@ -36,6 +36,10 @@ export type FieldOption = { code: string; label: string };
 export interface FieldConfig {
   ui?: {
     placeholder?: string;
+    /** 1..12 column span inside the section's 12-col grid. */
+    colSpan?: number;
+    /** Input-variant hint. e.g. MULTISELECT can render as 'checkboxes' instead of pill toggles. */
+    variant?: string;
     derivedFrom?: string[];
     /**
      * URL template (optionally with `/v1` prefix) to fetch SELECT options from.
@@ -100,7 +104,11 @@ export interface FieldConfig {
 }
 
 export interface SectionConfig {
-  ui?: Record<string, unknown>;
+  ui?: {
+    /** Top-level group title for nesting sections under one heading. */
+    group?: string;
+    [key: string]: unknown;
+  };
   validation?: Record<string, unknown>;
   logic?: { predicates?: Predicate[] };
   [key: string]: unknown;
