@@ -1,20 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
+import type { ReactNode } from "react";
 import { applyEffect } from "../rules/predicate.evaluator";
 import { useEvaluationContext } from "../runtime/TemplateExecutionContext";
 import { useDiscriminatorReset } from "../runtime/useDiscriminatorReset";
 import { useSpecialtyAutoFill } from "../runtime/useSpecialtyAutoFill";
 import { SectionContainer } from "../sections/SectionContainer";
 import { FieldRenderer, FULL_WIDTH_TYPES } from "./FieldRenderer";
+import { RepeatableSectionRenderer } from "./RepeatableSectionRenderer";
 import type { FormSectionDto, FormTemplateDto } from "../templates/template.types";
 
 interface Props {
   template: FormTemplateDto;
   errors?: Record<string, string>;
+  /** Optional slot rendered next to each section title (e.g. visibility toggle). */
+  renderSectionHeaderSlot?: (section: FormSectionDto) => ReactNode;
+  /** Section codes the consumer wants visually collapsed (header only). */
+  collapsedSectionCodes?: ReadonlySet<string>;
 }
 
-export function TemplateRenderer({ template, errors }: Props) {
+export function TemplateRenderer({
+  template,
+  errors,
+  renderSectionHeaderSlot,
+  collapsedSectionCodes,
+}: Props) {
   useDiscriminatorReset();
   useSpecialtyAutoFill();
   const ctx = useEvaluationContext();
@@ -45,25 +56,39 @@ export function TemplateRenderer({ template, errors }: Props) {
 
   return (
     <div className="space-y-5">
-      {visibleSections.map((section) => (
-        <SectionContainer key={section.id} title={section.name}>
-          {section.fields
-            .slice()
-            .filter((f) => !hiddenIdTargets.has(f.code))
-            .sort((a, b) => a.order - b.order)
-            .map((field) => (
-              <FieldRenderer
-                key={field.id}
-                field={field}
-                error={errors?.[field.code]}
-                fullWidth={
-                  FULL_WIDTH_TYPES.has(field.type) ||
-                  Boolean(field.config?.ui?.searchEntity)
-                }
-              />
-            ))}
-        </SectionContainer>
-      ))}
+      {visibleSections.map((section) => {
+        const collapsed = collapsedSectionCodes?.has(section.code) ?? false;
+        const headerSlot = renderSectionHeaderSlot?.(section);
+        return (
+          <SectionContainer
+            key={section.id}
+            title={section.name}
+            headerSlot={headerSlot}
+            collapsed={collapsed}
+            layout={section.is_repeatable ? "stack" : "grid"}
+          >
+            {section.is_repeatable ? (
+              <RepeatableSectionRenderer section={section} errors={errors} />
+            ) : (
+              section.fields
+                .slice()
+                .filter((f) => !hiddenIdTargets.has(f.code))
+                .sort((a, b) => a.order - b.order)
+                .map((field) => (
+                  <FieldRenderer
+                    key={field.id}
+                    field={field}
+                    error={errors?.[field.code]}
+                    fullWidth={
+                      FULL_WIDTH_TYPES.has(field.type) ||
+                      Boolean(field.config?.ui?.searchEntity)
+                    }
+                  />
+                ))
+            )}
+          </SectionContainer>
+        );
+      })}
     </div>
   );
 }
