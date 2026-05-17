@@ -24,6 +24,7 @@ export function MultiSelectInput({
     return (field.config?.validation?.options as FieldOption[] | undefined) ?? [];
   }, [dynamic.enabled, dynamic.options, field.config?.validation?.options]);
   const selected = Array.isArray(value) ? (value as string[]) : [];
+  const variant = field.config?.ui?.variant;
 
   function toggle(code: string) {
     if (disabled) return;
@@ -44,6 +45,30 @@ export function MultiSelectInput({
         <p className="pt-1.5 text-[11px] text-red-500">Failed to load options</p>
       ) : options.length === 0 ? (
         <p className="pt-1.5 text-[11px] text-gray-400">No options</p>
+      ) : variant === "checkboxes" ? (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1.5">
+          {options.map((opt, idx) => {
+            const checked = selected.includes(opt.code);
+            return (
+              <label
+                key={opt.code ?? `__opt-${idx}`}
+                className={cn(
+                  "flex items-center gap-2 text-xs text-brand-black",
+                  disabled && "cursor-not-allowed opacity-50",
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggle(opt.code)}
+                  disabled={disabled}
+                  className="size-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+                />
+                <span>{opt.label}</span>
+              </label>
+            );
+          })}
+        </div>
       ) : (
         <div className="flex flex-wrap gap-1.5 pt-1.5">
           {options.map((opt, idx) => {

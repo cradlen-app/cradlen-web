@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 import type { ExecutionState } from "@/builder/runtime/TemplateExecutionContext";
-import type { FormTemplateDto } from "@/builder/templates/template.types";
+import type {
+  FormFieldDto,
+  FormTemplateDto,
+} from "@/builder/templates/template.types";
 import { buildPatientHistorySubmission } from "./history-submission";
 
 function field(
   code: string,
   type: "TEXT" | "NUMBER" | "DATE" | "SELECT",
   path: string,
-) {
+): FormFieldDto {
   return {
     id: `f-${code}`,
     code,
@@ -172,7 +175,7 @@ describe("buildPatientHistorySubmission", () => {
               required: false,
               binding: { namespace: "PATIENT_OBGYN_HISTORY", path: "growth.height_cm" },
               config: {},
-            },
+            } satisfies FormFieldDto,
           ],
         },
       ],
