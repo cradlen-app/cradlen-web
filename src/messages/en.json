@@ -960,8 +960,8 @@
       "staleVersion": "Someone else updated this history. Reloading the latest version.",
       "loading": "Loading history…",
       "loadError": "Could not load history.",
-      "showSection": "Show section",
-      "hideSection": "Hide section",
+      "showSection": "Show section group",
+      "hideSection": "Hide section group",
       "versionLabel": "v{version}",
       "addRow": "+ Add row",
       "removeRow": "Remove"

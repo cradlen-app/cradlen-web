@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { RepeatableRowScope, useTemplateExecution } from "../runtime/TemplateExecutionContext";
-import { FieldRenderer, FULL_WIDTH_TYPES } from "./FieldRenderer";
+import { FieldRenderer } from "./FieldRenderer";
 import type { FormSectionDto } from "../templates/template.types";
 
 interface Props {
@@ -53,16 +53,12 @@ export function RepeatableSectionRenderer({ section, errors }: Props) {
             )}
           </div>
           <RepeatableRowScope sectionCode={section.code} rowKey={row.rowKey}>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+            <div className="grid grid-cols-12 gap-x-6 gap-y-3">
               {sortedFields.map((field) => (
                 <FieldRenderer
                   key={field.id}
                   field={field}
                   error={errors?.[`${section.code}.${idx}.${field.code}`]}
-                  fullWidth={
-                    FULL_WIDTH_TYPES.has(field.type) ||
-                    Boolean(field.config?.ui?.searchEntity)
-                  }
                 />
               ))}
             </div>

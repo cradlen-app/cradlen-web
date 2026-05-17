@@ -7,24 +7,35 @@ import { useEvaluationContext } from "../runtime/TemplateExecutionContext";
 import { useDiscriminatorReset } from "../runtime/useDiscriminatorReset";
 import { useSpecialtyAutoFill } from "../runtime/useSpecialtyAutoFill";
 import { SectionContainer } from "../sections/SectionContainer";
-import { FieldRenderer, FULL_WIDTH_TYPES } from "./FieldRenderer";
+import { FieldRenderer } from "./FieldRenderer";
 import { RepeatableSectionRenderer } from "./RepeatableSectionRenderer";
+import { groupSections } from "./group-sections";
 import type { FormSectionDto, FormTemplateDto } from "../templates/template.types";
 
 interface Props {
   template: FormTemplateDto;
   errors?: Record<string, string>;
-  /** Optional slot rendered next to each section title (e.g. visibility toggle). */
+  /**
+   * Optional slot rendered next to each TOP-LEVEL group title (e.g. an
+   * eye-icon visibility toggle). Used when the template's sections carry a
+   * `config.ui.group` annotation.
+   */
+  renderGroupHeaderSlot?: (groupName: string) => ReactNode;
+  /** Group names the consumer wants visually collapsed (header only). */
+  collapsedGroups?: ReadonlySet<string>;
+  /**
+   * Optional slot next to each ATOMIC section title. Used by templates that
+   * don't carry group annotations (e.g. the book-visit drawer).
+   */
   renderSectionHeaderSlot?: (section: FormSectionDto) => ReactNode;
-  /** Section codes the consumer wants visually collapsed (header only). */
-  collapsedSectionCodes?: ReadonlySet<string>;
 }
 
 export function TemplateRenderer({
   template,
   errors,
+  renderGroupHeaderSlot,
+  collapsedGroups,
   renderSectionHeaderSlot,
-  collapsedSectionCodes,
 }: Props) {
   useDiscriminatorReset();
   useSpecialtyAutoFill();
@@ -54,39 +65,62 @@ export function TemplateRenderer({
     [template.sections, ctx],
   );
 
+  const groups = useMemo(() => groupSections(visibleSections), [visibleSections]);
+
   return (
-    <div className="space-y-5">
-      {visibleSections.map((section) => {
-        const collapsed = collapsedSectionCodes?.has(section.code) ?? false;
-        const headerSlot = renderSectionHeaderSlot?.(section);
+    <div className="space-y-8">
+      {groups.map((group, gIdx) => {
+        const groupCollapsed =
+          group.name !== null && (collapsedGroups?.has(group.name) ?? false);
+        const groupHeaderSlot =
+          group.name !== null ? renderGroupHeaderSlot?.(group.name) : undefined;
+
         return (
-          <SectionContainer
-            key={section.id}
-            title={section.name}
-            headerSlot={headerSlot}
-            collapsed={collapsed}
-            layout={section.is_repeatable ? "stack" : "grid"}
+          <div
+            key={group.name ?? `__ungrouped-${gIdx}`}
+            className={
+              gIdx > 0 ? "border-t border-gray-100 pt-6 space-y-5" : "space-y-5"
+            }
           >
-            {section.is_repeatable ? (
-              <RepeatableSectionRenderer section={section} errors={errors} />
-            ) : (
-              section.fields
-                .slice()
-                .filter((f) => !hiddenIdTargets.has(f.code))
-                .sort((a, b) => a.order - b.order)
-                .map((field) => (
-                  <FieldRenderer
-                    key={field.id}
-                    field={field}
-                    error={errors?.[field.code]}
-                    fullWidth={
-                      FULL_WIDTH_TYPES.has(field.type) ||
-                      Boolean(field.config?.ui?.searchEntity)
-                    }
-                  />
-                ))
-            )}
-          </SectionContainer>
+            {group.name ? (
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-brand-black">
+                  {group.name}
+                </h2>
+                {groupHeaderSlot}
+              </div>
+            ) : null}
+
+            {!groupCollapsed &&
+              group.sections.map((section) => (
+                <SectionContainer
+                  key={section.id}
+                  title={section.name}
+                  headerSlot={
+                    group.name === null
+                      ? renderSectionHeaderSlot?.(section)
+                      : undefined
+                  }
+                  layout={section.is_repeatable ? "stack" : "grid"}
+                >
+                  {section.is_repeatable ? (
+                    <RepeatableSectionRenderer section={section} errors={errors} />
+                  ) : (
+                    section.fields
+                      .slice()
+                      .filter((f) => !hiddenIdTargets.has(f.code))
+                      .sort((a, b) => a.order - b.order)
+                      .map((field) => (
+                        <FieldRenderer
+                          key={field.id}
+                          field={field}
+                          error={errors?.[field.code]}
+                        />
+                      ))
+                  )}
+                </SectionContainer>
+              ))}
+          </div>
         );
       })}
     </div>

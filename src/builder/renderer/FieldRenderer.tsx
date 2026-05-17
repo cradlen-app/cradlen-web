@@ -39,11 +39,41 @@ const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
 interface Props {
   field: FormFieldDto;
   error?: string;
-  /** When true, the field spans both columns of the section grid. */
-  fullWidth?: boolean;
 }
 
-export function FieldRenderer({ field, error, fullWidth }: Props) {
+/** Tailwind `col-span-N` class for every valid N (avoids dynamic class names). */
+const COL_SPAN_CLASS: Record<number, string> = {
+  1: "col-span-1",
+  2: "col-span-2",
+  3: "col-span-3",
+  4: "col-span-4",
+  5: "col-span-5",
+  6: "col-span-6",
+  7: "col-span-7",
+  8: "col-span-8",
+  9: "col-span-9",
+  10: "col-span-10",
+  11: "col-span-11",
+  12: "col-span-12",
+};
+
+function resolveColSpan(field: FormFieldDto): number {
+  const explicit = field.config?.ui?.colSpan;
+  if (typeof explicit === "number" && explicit >= 1 && explicit <= 12) {
+    return explicit;
+  }
+  // Defaults: TEXTAREA/ENTITY_SEARCH are always full-width. MULTISELECT is
+  // full-width unless rendered as a compact checkbox row (variant=checkboxes).
+  if (field.type === "TEXTAREA") return 12;
+  if (field.type === "ENTITY_SEARCH" || field.config?.ui?.searchEntity) return 12;
+  if (field.type === "MULTISELECT") {
+    return field.config?.ui?.variant === "checkboxes" ? 12 : 12;
+  }
+  // Default half-row for plain inputs.
+  return 6;
+}
+
+export function FieldRenderer({ field, error }: Props) {
   const ctx = useEvaluationContext();
   const value = useFieldValue(field.code);
   const setFieldValue = useSetFieldValue();
@@ -81,7 +111,7 @@ export function FieldRenderer({ field, error, fullWidth }: Props) {
     : INPUT_BY_TYPE[field.type];
   if (!Input) {
     return (
-      <div className="col-span-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-700">
+      <div className="col-span-12 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-700">
         Unsupported field type: {field.type} ({field.code})
       </div>
     );
@@ -94,8 +124,10 @@ export function FieldRenderer({ field, error, fullWidth }: Props) {
     void patchSearch;
   };
 
+  const span = resolveColSpan(field);
+
   return (
-    <div className={fullWidth ? "col-span-2" : undefined}>
+    <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>
       <Input
         field={field}
         value={value}

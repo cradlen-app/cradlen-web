@@ -2,9 +2,12 @@
 
 import { useCallback, useState } from "react";
 
-// localStorage key — one entry per profile. Future: when a user_preferences
-// API lands, swap the storage backend without touching consumers.
-const KEY = (profileId: string) => `patientHistory.hiddenSections.${profileId}`;
+// Visibility for patient-history GROUPS (e.g. "Gynecological History").
+// The public API keeps the legacy "section visibility" name to minimise
+// churn at call sites, but the stored set holds group names. localStorage
+// key is per-profile; replace the backend later with a user-preferences
+// API without touching consumers.
+const KEY = (profileId: string) => `patientHistory.hiddenGroups.${profileId}`;
 
 function readFromStorage(profileId: string | null | undefined): Set<string> {
   if (!profileId || typeof window === "undefined") return new Set();
@@ -30,8 +33,8 @@ function writeToStorage(profileId: string, hidden: Set<string>): void {
 
 export interface SectionVisibility {
   hidden: ReadonlySet<string>;
-  toggle: (sectionCode: string) => void;
-  isHidden: (sectionCode: string) => boolean;
+  toggle: (key: string) => void;
+  isHidden: (key: string) => boolean;
 }
 
 export function useSectionVisibility(
@@ -40,11 +43,11 @@ export function useSectionVisibility(
   const [hidden, setHidden] = useState<Set<string>>(() => readFromStorage(profileId));
 
   const toggle = useCallback(
-    (sectionCode: string) => {
+    (key: string) => {
       setHidden((prev) => {
         const next = new Set(prev);
-        if (next.has(sectionCode)) next.delete(sectionCode);
-        else next.add(sectionCode);
+        if (next.has(key)) next.delete(key);
+        else next.add(key);
         if (profileId) writeToStorage(profileId, next);
         return next;
       });
@@ -52,7 +55,7 @@ export function useSectionVisibility(
     [profileId],
   );
 
-  const isHidden = useCallback((sectionCode: string) => hidden.has(sectionCode), [hidden]);
+  const isHidden = useCallback((key: string) => hidden.has(key), [hidden]);
 
   return { hidden, toggle, isHidden };
 }

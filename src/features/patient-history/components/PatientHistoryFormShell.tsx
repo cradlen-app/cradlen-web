@@ -6,7 +6,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TemplateRenderer } from "@/builder/renderer/TemplateRenderer";
 import { useTemplateExecution } from "@/builder/runtime/TemplateExecutionContext";
-import type { FormSectionDto, FormTemplateDto } from "@/builder/templates/template.types";
+import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { buildPatientHistorySubmission } from "../lib/history-submission";
 import type { SectionVisibility } from "../lib/section-visibility";
 
@@ -29,14 +29,14 @@ export function PatientHistoryFormShell({
   const execution = useTemplateExecution();
   const [errors, setErrors] = useState<Record<string, string> | undefined>(undefined);
 
-  const renderHeaderSlot = (section: FormSectionDto) => {
-    const isHidden = visibility.isHidden(section.code);
+  const renderGroupHeaderSlot = (groupName: string) => {
+    const isHidden = visibility.isHidden(groupName);
     return (
       <button
         type="button"
         aria-label={isHidden ? t("showSection") : t("hideSection")}
-        onClick={() => visibility.toggle(section.code)}
-        className="rounded p-1 text-gray-400 hover:text-gray-600"
+        onClick={() => visibility.toggle(groupName)}
+        className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
       >
         {isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
@@ -49,8 +49,6 @@ export function PatientHistoryFormShell({
     try {
       await onSave(body);
     } catch (err) {
-      // The HistoryTab handles stale-version + toast; field-level error map is
-      // optional for now — wire when the API surfaces details.
       if (err && typeof err === "object" && "body" in err) {
         const apiBody = (err as { body?: unknown }).body;
         if (apiBody && typeof apiBody === "object" && "error" in apiBody) {
@@ -74,16 +72,16 @@ export function PatientHistoryFormShell({
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto pb-24">
+    <div className="flex h-full min-w-0 flex-col overflow-x-hidden">
+      <div className="min-w-0 flex-1 overflow-y-auto px-1 pb-24">
         <TemplateRenderer
           template={template}
           errors={errors}
-          renderSectionHeaderSlot={renderHeaderSlot}
-          collapsedSectionCodes={visibility.hidden}
+          renderGroupHeaderSlot={renderGroupHeaderSlot}
+          collapsedGroups={visibility.hidden}
         />
       </div>
-      <div className="sticky bottom-0 -mx-6 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-6 py-3 backdrop-blur">
+      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
         <span className="text-[11px] text-gray-400">
           {t("versionLabel", { version })}
         </span>
