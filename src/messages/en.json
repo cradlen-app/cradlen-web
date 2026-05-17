@@ -964,7 +964,22 @@
       "hideSection": "Hide section group",
       "versionLabel": "v{version}",
       "addRow": "+ Add row",
-      "removeRow": "Remove"
+      "removeRow": "Remove",
+      "notes": {
+        "button": "Notes",
+        "empty": "No notes yet",
+        "placeholder": "Write a note for this section…",
+        "save": "Save note",
+        "delete": "Delete",
+        "savedToast": "Note saved.",
+        "deletedToast": "Note deleted.",
+        "errorToast": "Could not save the note.",
+        "redactedHint": "{count} notes from other clinics (hidden)",
+        "visibility": {
+          "private": "Private",
+          "shared": "Share globally"
+        }
+      }
     },
     "empty": {
       "noSpecialtyTitle": "No specialty for this visit",

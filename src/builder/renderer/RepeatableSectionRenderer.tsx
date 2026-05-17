@@ -10,13 +10,31 @@ interface Props {
   errors?: Record<string, string>;
 }
 
+function isEmptyValue(value: unknown): boolean {
+  if (value === undefined || value === null) return true;
+  if (typeof value === "string") return value.trim() === "";
+  if (Array.isArray(value)) return value.length === 0;
+  return false;
+}
+
+function rowHasAnyValue(values: Record<string, unknown>): boolean {
+  for (const v of Object.values(values)) {
+    if (!isEmptyValue(v)) return true;
+  }
+  return false;
+}
+
 /**
  * Renders one row per `RepeatableRow` plus an "Add row" button. Each row is
  * a `<RepeatableRowScope>` that re-publishes the execution context with
  * row-scoped field reads/writes, so `FieldRenderer` works unchanged.
  *
- * If the section has no rows on first render, seed one blank row so the
- * user has something to type into.
+ * Two row-lifecycle behaviours:
+ *   1. Seed a single empty row on mount when the section has none.
+ *   2. Auto-append an empty row as soon as the LAST row picks up any value,
+ *      so the doctor never has to click "+ Add row" mid-flow. The submission
+ *      builder drops content-free trailing rows, so the auto-row is invisible
+ *      to the API.
  */
 export function RepeatableSectionRenderer({ section, errors }: Props) {
   const { getRepeatableRows, addRepeatableRow, removeRepeatableRow } =
@@ -30,6 +48,14 @@ export function RepeatableSectionRenderer({ section, errors }: Props) {
     // Intentionally fire-and-forget on mount; we only want to seed once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (rows.length === 0) return;
+    const last = rows[rows.length - 1];
+    if (rowHasAnyValue(last.values)) {
+      addRepeatableRow(section.code);
+    }
+  }, [rows, section.code, addRepeatableRow]);
 
   const sortedFields = [...section.fields].sort((a, b) => a.order - b.order);
 
