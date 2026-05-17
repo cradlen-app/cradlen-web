@@ -987,5 +987,20 @@
       "noTemplateTitle": "No history form configured",
       "noTemplateBody": "No patient-history form is published for the {specialty} specialty yet."
     }
+  },
+  "examination": {
+    "workspace": {
+      "save": "Save",
+      "saved": "Examination saved.",
+      "saveError": "Could not save examination.",
+      "staleVersion": "Someone else updated this examination. Reloading the latest version.",
+      "loading": "Loading examination…",
+      "loadError": "Could not load examination.",
+      "showSection": "Show section group",
+      "hideSection": "Hide section group",
+      "versionLabel": "v{version}",
+      "addRow": "+ Add row",
+      "removeRow": "Remove"
+    }
   }
 }

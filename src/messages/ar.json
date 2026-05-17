@@ -987,5 +987,20 @@
       "noTemplateTitle": "لا يوجد نموذج سجل مرضي",
       "noTemplateBody": "لم يتم نشر نموذج سجل مرضي لتخصص {specialty} حتى الآن."
     }
+  },
+  "examination": {
+    "workspace": {
+      "save": "حفظ",
+      "saved": "تم حفظ الفحص.",
+      "saveError": "تعذر حفظ الفحص.",
+      "staleVersion": "تم تحديث الفحص من جهة أخرى. سيتم تحميل أحدث نسخة.",
+      "loading": "جاري تحميل الفحص…",
+      "loadError": "تعذر تحميل الفحص.",
+      "showSection": "إظهار مجموعة الأقسام",
+      "hideSection": "إخفاء مجموعة الأقسام",
+      "versionLabel": "نسخة {version}",
+      "addRow": "+ إضافة صف",
+      "removeRow": "إزالة"
+    }
   }
 }
