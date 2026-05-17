@@ -14,7 +14,12 @@ export type BindingNamespace =
   | "LOOKUP"
   | "SYSTEM"
   | "COMPUTED"
-  | "PATIENT_OBGYN_HISTORY";
+  | "PATIENT_OBGYN_HISTORY"
+  | "VISIT_ENCOUNTER"
+  | "VISIT_VITALS"
+  | "VISIT_OBGYN_ENCOUNTER"
+  | "VISIT_INVESTIGATION"
+  | "PRESCRIPTION_ITEM";
 
 export type FormFieldType =
   | "TEXT"
