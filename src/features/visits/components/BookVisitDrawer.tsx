@@ -84,7 +84,7 @@ export function BookVisitDrawer({
       template,
       editingVisit,
       fullPatient,
-      TEMPLATE_EXTENSION,
+      editingVisit.specialtyCode ?? TEMPLATE_EXTENSION,
     );
   }, [isEdit, editingVisit, template, fullPatient]);
 
@@ -132,7 +132,10 @@ export function BookVisitDrawer({
             <TemplateExecutionContextProvider
               template={filteredTemplate}
               initialSystemValues={
-                initial?.systemValues ?? { visitor_type: "PATIENT" }
+                initial?.systemValues ?? {
+                  visitor_type: "PATIENT",
+                  specialty_code: TEMPLATE_EXTENSION,
+                }
               }
               initialFormValues={initial?.formValues}
               initialSearchState={initial?.searchState}
