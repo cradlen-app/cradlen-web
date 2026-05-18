@@ -163,7 +163,7 @@ export function Sidebar() {
         type="button"
         onClick={closeMobile}
         aria-label={t("closeMenu")}
-        className="absolute top-2 inset-e-2 size-7 flex items-center justify-center rounded-md text-gray-400 hover:text-brand-primary hover:bg-gray-100 transition-colors lg:hidden"
+        className="absolute top-2 inset-e-2 z-10 size-7 flex items-center justify-center rounded-md text-gray-400 hover:text-brand-primary hover:bg-gray-100 transition-colors lg:hidden"
       >
         <X className="size-4" />
       </button>
