@@ -55,6 +55,11 @@ export function MedicalRepPage() {
     setDrawerOpen(false);
   }
 
+  // Derive displayedRep from query cache so the drawer reflects server state after a toggle
+  const displayedRep = selectedRep
+    ? (data?.data.find((r) => r.id === selectedRep.id) ?? selectedRep)
+    : null;
+
   const total = data?.meta.total ?? 0;
   const totalPages = Math.ceil(total / PAGE_LIMIT);
   const from = total === 0 ? 0 : (page - 1) * PAGE_LIMIT + 1;
@@ -143,7 +148,7 @@ export function MedicalRepPage() {
 
       {/* Drawer */}
       <MedicalRepDrawer
-        rep={selectedRep}
+        rep={displayedRep}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         onToggleStatus={handleToggleStatusFromDrawer}

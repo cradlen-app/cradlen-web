@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { formatRepDate } from "../lib/medical-rep.utils";
 import type { MedicalRep } from "../types/medical-rep.types";
 
 interface Props {
@@ -30,15 +31,6 @@ function getInitials(name: string): string {
 function getAvatarColor(name: string) {
   const code = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
   return AVATAR_COLORS[code % AVATAR_COLORS.length];
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 export function MedicalRepTable({ reps, isLoading, onRowClick, onStatusClick }: Props) {
@@ -110,7 +102,7 @@ export function MedicalRepTable({ reps, isLoading, onRowClick, onStatusClick }: 
                 <td className="px-4 py-3 text-sm text-gray-600">
                   {rep.products.length > 0 ? rep.products.join(" · ") : "—"}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{formatDate(rep.last_visit_date)}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{formatRepDate(rep.last_visit_date)}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{rep.visits_count}</td>
                 <td className="px-4 py-3">
                   <button
