@@ -96,7 +96,18 @@ function resolveEntityId(
 }
 
 function pickSpouseGuardian(patient?: ApiPatient | null): SpouseGuardian {
-  const link = patient?.guardian_links?.find(
+  if (!patient) return undefined;
+  // Prefer flat fields returned by GET /patients/:id (findOne).
+  if (patient.spouse_guardian_id) {
+    return {
+      id: patient.spouse_guardian_id,
+      full_name: patient.spouse_full_name,
+      national_id: patient.spouse_national_id ?? null,
+      phone_number: patient.spouse_phone_number ?? null,
+    };
+  }
+  // Fallback: guardian_links shape (list endpoints / older responses).
+  const link = patient.guardian_links?.find(
     (l) => l.relation_to_patient === "SPOUSE",
   );
   if (link?.guardian) {
