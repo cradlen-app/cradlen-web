@@ -1,0 +1,96 @@
+<h2>Detail Drawer — Medical Rep</h2>
+<p class="subtitle">Opens from the right when a row is clicked. What content should it show?</p>
+
+<div class="split" style="margin-top: 1.5rem; gap: 1.5rem; align-items: flex-start;">
+
+  <!-- Option A -->
+  <div class="mockup card" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer; border: 2px solid transparent; border-radius: 10px; overflow: hidden;">
+    <div class="mockup-header">Option A — Summary drawer</div>
+    <div class="mockup-body" style="padding: 1rem; background: white; font-family: sans-serif; font-size: 12px;">
+      <!-- Header -->
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #f3f4f6;">
+        <div style="width:44px;height:44px;border-radius:50%;background:#d1fae5;color:#065f46;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">FM</div>
+        <div>
+          <div style="font-weight:700;font-size:15px;color:#111827;">Fatma Mohamed</div>
+          <div style="color:#9ca3af;font-size:11px;">Pharaohs Company</div>
+        </div>
+        <span style="margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#16a34a;background:#f0fdf4;padding:3px 8px;border-radius:99px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block;"></span> Active
+        </span>
+      </div>
+      <!-- Info grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;">
+        <div><div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Phone</div><div style="color:#111827;">01148372507</div></div>
+        <div><div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">National ID</div><div style="color:#111827;">29901151234</div></div>
+        <div><div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Last Visit</div><div style="color:#111827;">20 Dec 2025</div></div>
+        <div><div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Total Visits</div><div style="color:#111827;">5</div></div>
+      </div>
+      <!-- Products -->
+      <div style="margin-bottom:1rem;">
+        <div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Products</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span style="background:#f3f4f6;border-radius:4px;padding:3px 8px;font-size:11px;color:#374151;">Amoxicillin</span>
+          <span style="background:#f3f4f6;border-radius:4px;padding:3px 8px;font-size:11px;color:#374151;">Hibiotic</span>
+        </div>
+      </div>
+      <!-- Notes -->
+      <div style="margin-bottom:1.2rem;">
+        <div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Notes</div>
+        <div style="color:#6b7280;font-size:12px;font-style:italic;">—</div>
+      </div>
+      <!-- Action -->
+      <button style="width:100%;padding:8px;background:#dc2626;color:white;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Block Rep</button>
+    </div>
+    <div style="padding:8px 12px;font-size:11px;color:#6b7280;background:#fafafa;border-top:1px solid #f3f4f6;">
+      Simple info + products as tags + block/unblock button
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="mockup card" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer; border: 2px solid transparent; border-radius: 10px; overflow: hidden;">
+    <div class="mockup-header">Option B — With visit history</div>
+    <div class="mockup-body" style="padding: 1rem; background: white; font-family: sans-serif; font-size: 12px;">
+      <!-- Header -->
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #f3f4f6;">
+        <div style="width:44px;height:44px;border-radius:50%;background:#d1fae5;color:#065f46;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">FM</div>
+        <div>
+          <div style="font-weight:700;font-size:15px;color:#111827;">Fatma Mohamed</div>
+          <div style="color:#9ca3af;font-size:11px;">Pharaohs Company</div>
+        </div>
+        <span style="margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#16a34a;background:#f0fdf4;padding:3px 8px;border-radius:99px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block;"></span> Active
+        </span>
+      </div>
+      <!-- Info grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;">
+        <div><div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Phone</div><div style="color:#111827;">01148372507</div></div>
+        <div><div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">National ID</div><div style="color:#111827;">29901151234</div></div>
+      </div>
+      <!-- Products -->
+      <div style="margin-bottom:1rem;">
+        <div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Products</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span style="background:#f3f4f6;border-radius:4px;padding:3px 8px;font-size:11px;color:#374151;">Amoxicillin</span>
+          <span style="background:#f3f4f6;border-radius:4px;padding:3px 8px;font-size:11px;color:#374151;">Hibiotic</span>
+        </div>
+      </div>
+      <!-- Visit history -->
+      <div style="margin-bottom:1.2rem;">
+        <div style="color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Recent Visits</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;justify-content:space-between;padding:5px 8px;background:#f9fafb;border-radius:4px;"><span style="color:#374151;">20 Dec 2025</span><span style="color:#9ca3af;">Completed</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 8px;background:#f9fafb;border-radius:4px;"><span style="color:#374151;">15 Nov 2025</span><span style="color:#9ca3af;">Completed</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 8px;background:#f9fafb;border-radius:4px;"><span style="color:#374151;">3 Oct 2025</span><span style="color:#9ca3af;">Completed</span></div>
+        </div>
+      </div>
+      <!-- Action -->
+      <button style="width:100%;padding:8px;background:#dc2626;color:white;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Block Rep</button>
+    </div>
+    <div style="padding:8px 12px;font-size:11px;color:#6b7280;background:#fafafa;border-top:1px solid #f3f4f6;">
+      Same as A + recent visit history list
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:1rem;">Click an option to select it, or describe changes in the terminal.</p>

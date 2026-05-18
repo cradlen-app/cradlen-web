@@ -1,0 +1,148 @@
+<h2>Medical Rep Page — Proposed Layout</h2>
+<p class="subtitle">Matches your screenshot. Click to approve or tell me what to change.</p>
+
+<div class="mockup" style="margin-top: 1.5rem;">
+  <div class="mockup-header">Dashboard → Medical Rep</div>
+  <div class="mockup-body" style="padding: 1.5rem; background: #f9fafb; font-family: sans-serif; font-size: 13px;">
+
+    <!-- Page title -->
+    <h1 style="font-size: 22px; font-weight: 700; color: #1D1D1B; margin: 0 0 1rem;">Medical Rep</h1>
+
+    <!-- Toolbar -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; gap: 1rem;">
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <select style="border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 12px; font-size: 13px; background: white; color: #374151;">
+          <option>Status ▾</option>
+          <option>Active</option>
+          <option>Block</option>
+        </select>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 12px; background: white; min-width: 220px;">
+        <span style="color: #9ca3af;">⌕</span>
+        <input style="border: none; outline: none; font-size: 13px; color: #9ca3af; width: 100%;" placeholder="Search ...." />
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div style="background: white; border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: white; border-bottom: 1px solid #e5e7eb;">
+            <th style="text-align: left; padding: 12px 16px; font-weight: 600; color: #374151;">Name</th>
+            <th style="text-align: left; padding: 12px 16px; font-weight: 600; color: #374151;">Phone</th>
+            <th style="text-align: left; padding: 12px 16px; font-weight: 600; color: #374151;">Products</th>
+            <th style="text-align: left; padding: 12px 16px; font-weight: 600; color: #374151;">Last Visit</th>
+            <th style="text-align: left; padding: 12px 16px; font-weight: 600; color: #374151;">Visits</th>
+            <th style="text-align: left; padding: 12px 16px; font-weight: 600; color: #374151;">Status</th>
+            <th style="text-align: left; padding: 12px 16px; font-weight: 600; color: #374151;">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #f3f4f6; cursor: pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+            <td style="padding: 12px 16px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #d1fae5; color: #065f46; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; flex-shrink: 0;">FM</div>
+                <div>
+                  <div style="font-weight: 500; color: #111827;">Fatma mohamed</div>
+                  <div style="font-size: 11px; color: #9ca3af;">Pharaohs Company</div>
+                </div>
+              </div>
+            </td>
+            <td style="padding: 12px 16px; color: #374151;">01148372507</td>
+            <td style="padding: 12px 16px; color: #374151;">Amoxicillin · Hibiotic</td>
+            <td style="padding: 12px 16px; color: #374151;">20 Dec 2025</td>
+            <td style="padding: 12px 16px; color: #374151;">5</td>
+            <td style="padding: 12px 16px;">
+              <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #16a34a; cursor: pointer;" title="Click to toggle status">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a; display: inline-block;"></span> Active
+              </span>
+            </td>
+            <td style="padding: 12px 16px; color: #9ca3af; font-style: italic;">—</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #f3f4f6; cursor: pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+            <td style="padding: 12px 16px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #fee2e2; color: #991b1b; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; flex-shrink: 0;">AM</div>
+                <div>
+                  <div style="font-weight: 500; color: #111827;">Asmaa mohamed</div>
+                  <div style="font-size: 11px; color: #9ca3af;">Pharaohs Company</div>
+                </div>
+              </div>
+            </td>
+            <td style="padding: 12px 16px; color: #374151;">01148677307</td>
+            <td style="padding: 12px 16px; color: #374151;">Catafast</td>
+            <td style="padding: 12px 16px; color: #374151;">10 Dec 2025</td>
+            <td style="padding: 12px 16px; color: #374151;">5</td>
+            <td style="padding: 12px 16px;">
+              <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #dc2626; cursor: pointer;" title="Click to toggle status">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: #dc2626; display: inline-block;"></span> Block
+              </span>
+            </td>
+            <td style="padding: 12px 16px; color: #374151; font-size: 12px;">عدم احترام المواعيد</td>
+          </tr>
+          <tr style="cursor: pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+            <td style="padding: 12px 16px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; flex-shrink: 0;">MM</div>
+                <div>
+                  <div style="font-weight: 500; color: #111827;">Marwa mohamed</div>
+                  <div style="font-size: 11px; color: #9ca3af;">Pharaohs Company</div>
+                </div>
+              </div>
+            </td>
+            <td style="padding: 12px 16px; color: #374151;">01148397307</td>
+            <td style="padding: 12px 16px; color: #374151;">Gastreg · Panadol</td>
+            <td style="padding: 12px 16px; color: #374151;">15 Dec 2025</td>
+            <td style="padding: 12px 16px; color: #374151;">5</td>
+            <td style="padding: 12px 16px;">
+              <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #16a34a; cursor: pointer;">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a; display: inline-block;"></span> Active
+              </span>
+            </td>
+            <td style="padding: 12px 16px; color: #9ca3af; font-style: italic;">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; color: #9ca3af; font-size: 12px;">
+      <span>show 10 of 20 results</span>
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <span style="padding: 4px 10px; background: #11604C; color: white; border-radius: 4px; font-size: 12px;">1</span>
+        <span style="padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 12px; cursor: pointer;">2</span>
+        <span style="padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 12px; cursor: pointer;">3</span>
+        <span style="color: #d1d5db;">.....</span>
+        <span style="padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 12px; cursor: pointer;">10 ›</span>
+      </div>
+    </div>
+
+    <!-- Interaction notes -->
+    <div style="margin-top: 1.5rem; padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 12px; color: #15803d;">
+      <strong>Key interactions:</strong>
+      <ul style="margin: 6px 0 0; padding-left: 1.2rem; line-height: 1.8;">
+        <li>Row click → opens right-side detail drawer</li>
+        <li>Status badge click → shows confirm dialog to block / unblock</li>
+        <li>Status filter → filters list to Active or Block</li>
+        <li>Search → debounced search by name or company</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 1.5rem;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Looks good — proceed</h3>
+      <p>This layout matches what I want. Move to the detail drawer design.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="adjust" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>Needs adjustments</h3>
+      <p>I'll describe changes in the terminal.</p>
+    </div>
+  </div>
+</div>
