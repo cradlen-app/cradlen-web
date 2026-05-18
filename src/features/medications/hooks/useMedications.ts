@@ -1,3 +1,5 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import { medicationQueryKeys } from "../lib/medications.queryKeys";
 import { fetchMedications } from "../lib/medications.api";
