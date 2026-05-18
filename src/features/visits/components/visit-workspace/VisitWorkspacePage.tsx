@@ -129,13 +129,13 @@ export function VisitWorkspacePage({ visitId }: Props) {
           <TabsContent value="overview" className="min-h-0 flex-1 overflow-hidden">
             <OverviewTab visit={visit} />
           </TabsContent>
-          <TabsContent value="history" className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <TabsContent value="history" className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
             <HistoryTab
               patientId={visit.patient.id}
               specialtyCode={visit.specialtyCode ?? null}
             />
           </TabsContent>
-          <TabsContent value="examination" className="min-h-0 flex-1 overflow-y-auto">
+          <TabsContent value="examination" className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
             <ExaminationTab visit={visit} />
           </TabsContent>
         </Tabs>
