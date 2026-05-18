@@ -1068,7 +1068,7 @@
     "statusFilter": {
       "all": "Status",
       "active": "Active",
-      "blocked": "Block"
+      "blocked": "Blocked"
     },
     "table": {
       "name": "Name",
@@ -1083,7 +1083,7 @@
     },
     "status": {
       "active": "Active",
-      "blocked": "Block"
+      "blocked": "Blocked"
     },
     "drawer": {
       "breadcrumb": "Medical Rep",
@@ -1106,6 +1106,11 @@
       "unblockDescription": "Unblock {name}? They will be able to book visits again.",
       "confirm": "Confirm",
       "cancel": "Cancel"
+    },
+    "toast": {
+      "blocked": "Rep blocked",
+      "unblocked": "Rep unblocked",
+      "error": "Something went wrong"
     }
   }
 }
