@@ -11,6 +11,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-gray-200 bg-inherit px-6 py-4 md:px-8">
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-gray-500">© {t("copyright")}</p>
         <nav className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <a
             href="#"
@@ -32,7 +33,6 @@ export default function Footer() {
           </a>
           <LanguageSelect currentLocale={locale as Locale} />
         </nav>
-        <p className="text-xs text-gray-500">© {t("copyright")}</p>
       </div>
     </footer>
   );
