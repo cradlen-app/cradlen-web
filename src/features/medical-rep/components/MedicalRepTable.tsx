@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { formatRepDate } from "../lib/medical-rep.utils";
 import type { MedicalRep } from "../types/medical-rep.types";
 
@@ -35,6 +35,7 @@ function getAvatarColor(name: string) {
 
 export function MedicalRepTable({ reps, isLoading, onRowClick, onStatusClick }: Props) {
   const t = useTranslations("medicalRep");
+  const locale = useLocale();
 
   if (isLoading) return <TableSkeleton />;
 
@@ -102,7 +103,7 @@ export function MedicalRepTable({ reps, isLoading, onRowClick, onStatusClick }: 
                 <td className="px-4 py-3 text-sm text-gray-600">
                   {rep.products.length > 0 ? rep.products.join(" · ") : "—"}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{formatRepDate(rep.last_visit_date)}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{formatRepDate(rep.last_visit_date, locale)}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{rep.visits_count}</td>
                 <td className="px-4 py-3">
                   <button

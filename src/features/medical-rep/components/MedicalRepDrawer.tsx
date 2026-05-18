@@ -2,7 +2,7 @@
 
 import { Dialog } from "radix-ui";
 import { X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { formatRepDate } from "../lib/medical-rep.utils";
 import type { MedicalRep } from "../types/medical-rep.types";
 
@@ -15,6 +15,7 @@ interface Props {
 
 export function MedicalRepDrawer({ rep, open, onOpenChange, onToggleStatus }: Props) {
   const t = useTranslations("medicalRep.drawer");
+  const locale = useLocale();
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -28,6 +29,9 @@ export function MedicalRepDrawer({ rep, open, onOpenChange, onToggleStatus }: Pr
               <Dialog.Title className="mt-0.5 text-base font-bold text-brand-black">
                 {rep?.full_name ?? t("title")}
               </Dialog.Title>
+              <Dialog.Description className="sr-only">
+                {t("title")}
+              </Dialog.Description>
             </div>
             <Dialog.Close className="mt-0.5 rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
               <X className="size-4" aria-hidden />
@@ -42,7 +46,7 @@ export function MedicalRepDrawer({ rep, open, onOpenChange, onToggleStatus }: Pr
                 <ReadField label={t("nationalId")} value={rep.national_id ?? "—"} />
                 <ReadField label={t("company")} value={rep.company_name ?? "—"} />
                 <div className="grid grid-cols-2 gap-3">
-                  <ReadField label={t("lastVisit")} value={formatRepDate(rep.last_visit_date)} />
+                  <ReadField label={t("lastVisit")} value={formatRepDate(rep.last_visit_date, locale)} />
                   <ReadField label={t("totalVisits")} value={String(rep.visits_count)} />
                 </div>
 
