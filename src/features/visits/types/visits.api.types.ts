@@ -45,6 +45,11 @@ export type ApiPatient = {
       phone_number: string | null;
     };
   }>;
+  /** Flat spouse fields returned by GET /patients/:id (findOne). */
+  spouse_guardian_id?: string;
+  spouse_full_name?: string;
+  spouse_national_id?: string | null;
+  spouse_phone_number?: string | null;
 };
 
 export type VitalsInput = {
