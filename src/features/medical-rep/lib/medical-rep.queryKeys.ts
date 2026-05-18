@@ -2,7 +2,7 @@ export interface MedicalRepListParams {
   page: number;
   limit: number;
   search: string;
-  status: string;
+  status: "active" | "blocked" | "";
 }
 
 export const medicalRepQueryKeys = {
