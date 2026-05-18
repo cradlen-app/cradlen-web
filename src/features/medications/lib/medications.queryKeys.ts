@@ -1,4 +1,4 @@
-export interface MedicationsListParams {
+export interface MedicationListParams {
   page: number;
   limit: number;
   search: string;
@@ -6,6 +6,6 @@ export interface MedicationsListParams {
 
 export const medicationQueryKeys = {
   all: () => ["medications"] as const,
-  list: (params: MedicationsListParams) =>
-    ["medications", "list", params] as const,
+  list: (params: MedicationListParams) =>
+    ["medications", "list", params.page, params.limit, params.search] as const,
 } as const;
