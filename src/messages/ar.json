@@ -1002,5 +1002,64 @@
       "addRow": "+ إضافة صف",
       "removeRow": "إزالة"
     }
+  },
+  "medications": {
+    "title": "الأدوية",
+    "subtitle": "إدارة قائمة الأدوية في مؤسستك",
+    "addButton": "دواء جديد",
+    "searchPlaceholder": "ابحث بالاسم أو الكود…",
+    "filters": {
+      "category": "الفئة",
+      "form": "الشكل",
+      "comingSoon": "قريباً"
+    },
+    "table": {
+      "columns": {
+        "name": "الاسم",
+        "form": "الشكل",
+        "strength": "التركيز",
+        "category": "الفئة",
+        "defaultDose": "الجرعة الافتراضية",
+        "usage": "الاستخدام",
+        "notes": "ملاحظات"
+      },
+      "empty": "لا توجد أدوية",
+      "showing": "عرض {from}–{to} من {total} دواء"
+    },
+    "actions": {
+      "edit": "تعديل الدواء",
+      "delete": "حذف الدواء"
+    },
+    "drawer": {
+      "addTitle": "دواء جديد",
+      "editTitle": "تعديل الدواء",
+      "breadcrumb": "الأدوية",
+      "fields": {
+        "medicine": "الدواء",
+        "medicinePlaceholder": "مثال: AMX-500",
+        "name": "الاسم",
+        "namePlaceholder": "مثال: أموكسيسيلين",
+        "category": "الفئة",
+        "form": "الشكل",
+        "formPlaceholder": "مثال: أقراص",
+        "strength": "التركيز",
+        "strengthPlaceholder": "مثال: 500 مج",
+        "defaultDose": "الجرعة الافتراضية",
+        "medicalRep": "المندوب الطبي",
+        "assignedTo": "مُسند إلى",
+        "company": "الشركة",
+        "notes": "ملاحظات",
+        "comingSoon": "قريباً",
+        "optional": "اختياري"
+      },
+      "saveButton": "حفظ",
+      "cancel": "إلغاء"
+    },
+    "delete": {
+      "title": "حذف {name}؟",
+      "description": "سيؤدي هذا إلى إزالة {name} من قائمة الأدوية. لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف",
+      "cancel": "إلغاء"
+    }
   }
 }

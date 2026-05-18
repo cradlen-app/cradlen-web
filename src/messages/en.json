@@ -1002,5 +1002,64 @@
       "addRow": "+ Add row",
       "removeRow": "Remove"
     }
+  },
+  "medications": {
+    "title": "Medicines",
+    "subtitle": "Manage your organization's medication catalog",
+    "addButton": "New Medicine",
+    "searchPlaceholder": "Search by name, code…",
+    "filters": {
+      "category": "Category",
+      "form": "Form",
+      "comingSoon": "Coming soon"
+    },
+    "table": {
+      "columns": {
+        "name": "Name",
+        "form": "Form",
+        "strength": "Strength",
+        "category": "Category",
+        "defaultDose": "Default Dose",
+        "usage": "Usage",
+        "notes": "Notes"
+      },
+      "empty": "No medications found",
+      "showing": "Showing {from}–{to} of {total} medications"
+    },
+    "actions": {
+      "edit": "Edit medication",
+      "delete": "Delete medication"
+    },
+    "drawer": {
+      "addTitle": "New Medicine",
+      "editTitle": "Edit Medicine",
+      "breadcrumb": "Medicines",
+      "fields": {
+        "medicine": "Medicine",
+        "medicinePlaceholder": "e.g. AMX-500",
+        "name": "Name",
+        "namePlaceholder": "e.g. Amoxicillin",
+        "category": "Category",
+        "form": "Form",
+        "formPlaceholder": "e.g. Tablet",
+        "strength": "Strength",
+        "strengthPlaceholder": "e.g. 500mg",
+        "defaultDose": "Default Dose",
+        "medicalRep": "Medical Rep",
+        "assignedTo": "Assigned To",
+        "company": "Company",
+        "notes": "Notes",
+        "comingSoon": "Coming soon",
+        "optional": "optional"
+      },
+      "saveButton": "Save",
+      "cancel": "Cancel"
+    },
+    "delete": {
+      "title": "Delete {name}?",
+      "description": "This will remove {name} from your catalog. This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
   }
 }
