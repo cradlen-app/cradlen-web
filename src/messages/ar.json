@@ -1061,5 +1061,51 @@
       "confirm": "حذف",
       "cancel": "إلغاء"
     }
+  },
+  "medicalRep": {
+    "title": "المندوب الطبي",
+    "search": "بحث ....",
+    "statusFilter": {
+      "all": "الحالة",
+      "active": "نشط",
+      "blocked": "محظور"
+    },
+    "table": {
+      "name": "الاسم",
+      "phone": "الهاتف",
+      "products": "المنتجات",
+      "lastVisit": "آخر زيارة",
+      "visits": "الزيارات",
+      "status": "الحالة",
+      "notes": "ملاحظات",
+      "empty": "لا يوجد مندوبون طبيون",
+      "showing": "عرض {from}–{to} من {total} نتيجة"
+    },
+    "status": {
+      "active": "نشط",
+      "blocked": "محظور"
+    },
+    "drawer": {
+      "breadcrumb": "المندوب الطبي",
+      "title": "تفاصيل المندوب",
+      "phone": "الهاتف",
+      "nationalId": "الرقم القومي",
+      "company": "الشركة",
+      "lastVisit": "آخر زيارة",
+      "totalVisits": "إجمالي الزيارات",
+      "products": "المنتجات",
+      "notes": "ملاحظات",
+      "blockButton": "حظر المندوب",
+      "unblockButton": "رفع الحظر",
+      "cancel": "إلغاء"
+    },
+    "blockDialog": {
+      "blockTitle": "حظر المندوب الطبي",
+      "unblockTitle": "رفع حظر المندوب الطبي",
+      "blockDescription": "هل تريد حظر {name}؟ لن يتمكن من حجز زيارات بعد الآن.",
+      "unblockDescription": "هل تريد رفع حظر {name}؟ سيتمكن من حجز الزيارات مرة أخرى.",
+      "confirm": "تأكيد",
+      "cancel": "إلغاء"
+    }
   }
 }

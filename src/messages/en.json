@@ -1061,5 +1061,51 @@
       "confirm": "Delete",
       "cancel": "Cancel"
     }
+  },
+  "medicalRep": {
+    "title": "Medical Rep",
+    "search": "Search ....",
+    "statusFilter": {
+      "all": "Status",
+      "active": "Active",
+      "blocked": "Block"
+    },
+    "table": {
+      "name": "Name",
+      "phone": "Phone",
+      "products": "Products",
+      "lastVisit": "Last Visit",
+      "visits": "Visits",
+      "status": "Status",
+      "notes": "Notes",
+      "empty": "No medical reps found",
+      "showing": "show {from}–{to} of {total} results"
+    },
+    "status": {
+      "active": "Active",
+      "blocked": "Block"
+    },
+    "drawer": {
+      "breadcrumb": "Medical Rep",
+      "title": "Rep Details",
+      "phone": "Phone",
+      "nationalId": "National ID",
+      "company": "Company",
+      "lastVisit": "Last Visit",
+      "totalVisits": "Total Visits",
+      "products": "Products",
+      "notes": "Notes",
+      "blockButton": "Block Rep",
+      "unblockButton": "Unblock Rep",
+      "cancel": "Cancel"
+    },
+    "blockDialog": {
+      "blockTitle": "Block Medical Rep",
+      "unblockTitle": "Unblock Medical Rep",
+      "blockDescription": "Block {name}? They will no longer be able to book visits.",
+      "unblockDescription": "Unblock {name}? They will be able to book visits again.",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    }
   }
 }
