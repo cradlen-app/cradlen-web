@@ -11,7 +11,12 @@ interface Props {
   onDelete: (medication: Medication) => void;
 }
 
-export function MedicationsTable({ medications, isLoading, onEdit, onDelete }: Props) {
+export function MedicationsTable({
+  medications,
+  isLoading,
+  onEdit,
+  onDelete,
+}: Props) {
   const t = useTranslations("medications");
 
   if (isLoading) {
@@ -19,7 +24,7 @@ export function MedicationsTable({ medications, isLoading, onEdit, onDelete }: P
   }
 
   return (
-    <table className="w-full border-collapse">
+    <table className="w-full border-collapse bg-white">
       <thead>
         <tr className="bg-gray-50">
           <th className="px-5 py-2.5 text-start text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -55,19 +60,36 @@ export function MedicationsTable({ medications, isLoading, onEdit, onDelete }: P
           </tr>
         ) : (
           medications.map((med) => (
-            <tr key={med.id} className="group border-t border-gray-100 hover:bg-gray-50">
+            <tr
+              key={med.id}
+              className="group border-t border-gray-100 hover:bg-gray-50"
+            >
               <td className="px-5 py-3">
-                <div className="text-sm font-semibold text-brand-black">{med.name}</div>
+                <div className="text-sm font-semibold text-brand-black">
+                  {med.name}
+                </div>
                 {med.generic_name && (
-                  <div className="text-xs text-gray-400">{med.generic_name}</div>
+                  <div className="text-xs text-gray-400">
+                    {med.generic_name}
+                  </div>
                 )}
               </td>
-              <td className="px-4 py-3 text-sm text-gray-600">{med.form ?? "—"}</td>
-              <td className="px-4 py-3 text-sm text-gray-600">{med.strength ?? "—"}</td>
+              <td className="px-4 py-3 text-sm text-gray-600">
+                {med.form ?? "—"}
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-600">
+                {med.strength ?? "—"}
+              </td>
               <td className="px-4 py-3 text-sm text-gray-400">—</td>
-              <td className="hidden px-4 py-3 text-sm text-gray-400 lg:table-cell">—</td>
-              <td className="px-4 py-3 text-sm text-gray-600">{med.total_prescriptions}</td>
-              <td className="hidden px-4 py-3 text-sm text-gray-400 xl:table-cell">—</td>
+              <td className="hidden px-4 py-3 text-sm text-gray-400 lg:table-cell">
+                —
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-600">
+                {med.total_prescriptions}
+              </td>
+              <td className="hidden px-4 py-3 text-sm text-gray-400 xl:table-cell">
+                —
+              </td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
