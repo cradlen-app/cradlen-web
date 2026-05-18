@@ -1,0 +1,204 @@
+<h2>Medications Page — Full Design Preview</h2>
+<p class="subtitle">Table with inline actions + right-side drawer. Does this look right?</p>
+
+<div class="section">
+  <h3>Main Table View</h3>
+  <div class="mockup">
+    <div class="mockup-header">Dashboard / Medications</div>
+    <div class="mockup-body" style="padding:0">
+      <!-- Page header -->
+      <div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f3f4f6">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#1d1d1b">Medications</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:2px">Manage your organization's medication catalog</div>
+        </div>
+        <button style="background:#11604C;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">+ Add Medication</button>
+      </div>
+      <!-- Search bar -->
+      <div style="padding:12px 20px;border-bottom:1px solid #f3f4f6">
+        <div style="position:relative;max-width:320px">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:13px">🔍</span>
+          <input style="width:100%;padding:8px 12px 8px 32px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#374151;outline:none" placeholder="Search by name, code…" readonly>
+        </div>
+      </div>
+      <!-- Table -->
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:#f9fafb">
+            <th style="padding:10px 20px;text-align:left;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Name / Generic</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Code</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Form</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Strength</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Rx Count</th>
+            <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-top:1px solid #f3f4f6">
+            <td style="padding:12px 20px">
+              <div style="font-size:13px;font-weight:600;color:#1d1d1b">Amoxicillin</div>
+              <div style="font-size:11px;color:#9ca3af">Amoxicillin trihydrate</div>
+            </td>
+            <td style="padding:12px 16px;font-size:12px;color:#6b7280;font-family:monospace">AMX-500</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">Capsule</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">500mg</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">24</td>
+            <td style="padding:12px 16px;text-align:right">
+              <div style="display:inline-flex;gap:6px">
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#6b7280">✏️</button>
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #fecaca;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#ef4444">🗑</button>
+              </div>
+            </td>
+          </tr>
+          <tr style="border-top:1px solid #f3f4f6">
+            <td style="padding:12px 20px">
+              <div style="font-size:13px;font-weight:600;color:#1d1d1b">Metformin</div>
+              <div style="font-size:11px;color:#9ca3af">Metformin hydrochloride</div>
+            </td>
+            <td style="padding:12px 16px;font-size:12px;color:#6b7280;font-family:monospace">MET-1000</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">Tablet</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">1000mg</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">58</td>
+            <td style="padding:12px 16px;text-align:right">
+              <div style="display:inline-flex;gap:6px">
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#6b7280">✏️</button>
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #fecaca;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#ef4444">🗑</button>
+              </div>
+            </td>
+          </tr>
+          <tr style="border-top:1px solid #f3f4f6">
+            <td style="padding:12px 20px">
+              <div style="font-size:13px;font-weight:600;color:#1d1d1b">Ibuprofen</div>
+              <div style="font-size:11px;color:#9ca3af">Ibuprofen</div>
+            </td>
+            <td style="padding:12px 16px;font-size:12px;color:#6b7280;font-family:monospace">IBU-400</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">Tablet</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">400mg</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">11</td>
+            <td style="padding:12px 16px;text-align:right">
+              <div style="display:inline-flex;gap:6px">
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#6b7280">✏️</button>
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #fecaca;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#ef4444">🗑</button>
+              </div>
+            </td>
+          </tr>
+          <tr style="border-top:1px solid #f3f4f6">
+            <td style="padding:12px 20px">
+              <div style="font-size:13px;font-weight:600;color:#1d1d1b">Lisinopril</div>
+              <div style="font-size:11px;color:#9ca3af">Lisinopril</div>
+            </td>
+            <td style="padding:12px 16px;font-size:12px;color:#6b7280;font-family:monospace">LIS-10</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">Tablet</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">10mg</td>
+            <td style="padding:12px 16px;font-size:13px;color:#374151">37</td>
+            <td style="padding:12px 16px;text-align:right">
+              <div style="display:inline-flex;gap:6px">
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#6b7280">✏️</button>
+                <button style="width:30px;height:30px;border-radius:6px;border:1px solid #fecaca;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#ef4444">🗑</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <div style="padding:12px 20px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;color:#9ca3af">Showing 1–4 of 4 medications</span>
+        <div style="display:flex;gap:4px">
+          <button style="padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;color:#9ca3af;background:#fff">← Prev</button>
+          <button style="padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;color:#9ca3af;background:#fff">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Add / Edit Drawer (right-side sheet)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Add Medication — Drawer</div>
+    <div class="mockup-body" style="padding:0;display:flex">
+      <!-- Dimmed background -->
+      <div style="flex:1;background:rgba(0,0,0,0.08);min-height:340px;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:12px;color:#9ca3af">← page content (dimmed)</span>
+      </div>
+      <!-- Drawer -->
+      <div style="width:340px;background:#fff;border-left:1px solid #e5e7eb;display:flex;flex-direction:column">
+        <div style="padding:16px 20px;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#1d1d1b">Add Medication</div>
+            <div style="font-size:12px;color:#9ca3af;margin-top:2px">Fill in the medication details</div>
+          </div>
+          <span style="font-size:16px;color:#9ca3af;cursor:pointer">✕</span>
+        </div>
+        <div style="padding:20px;flex:1;display:flex;flex-direction:column;gap:16px;overflow-y:auto">
+          <!-- Code -->
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Code <span style="color:#ef4444">*</span></label>
+            <input style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;color:#1d1d1b;outline:none;box-sizing:border-box" placeholder="e.g. AMX-500" readonly>
+            <span style="font-size:11px;color:#9ca3af;margin-top:4px;display:block">Unique identifier for this medication</span>
+          </div>
+          <!-- Name -->
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Name <span style="color:#ef4444">*</span></label>
+            <input style="width:100%;padding:8px 12px;border:1px solid #11604C;border-radius:8px;font-size:13px;color:#1d1d1b;outline:none;box-sizing:border-box;box-shadow:0 0 0 3px rgba(17,96,76,0.08)" placeholder="e.g. Amoxicillin" readonly>
+          </div>
+          <!-- Generic Name -->
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Generic Name <span style="font-size:11px;font-weight:400;color:#9ca3af">(optional)</span></label>
+            <input style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;color:#1d1d1b;outline:none;box-sizing:border-box" placeholder="e.g. Amoxicillin trihydrate" readonly>
+          </div>
+          <!-- Form + Strength side by side -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Form <span style="font-size:11px;font-weight:400;color:#9ca3af">(optional)</span></label>
+              <input style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;color:#1d1d1b;outline:none;box-sizing:border-box" placeholder="Tablet" readonly>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Strength <span style="font-size:11px;font-weight:400;color:#9ca3af">(optional)</span></label>
+              <input style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;color:#1d1d1b;outline:none;box-sizing:border-box" placeholder="500mg" readonly>
+            </div>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div style="padding:16px 20px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;gap:8px">
+          <button style="padding:8px 16px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:500;color:#374151;background:#fff;cursor:pointer">Cancel</button>
+          <button style="padding:8px 16px;background:#11604C;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Add Medication</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Delete Confirmation Dialog</h3>
+  <div class="mockup">
+    <div class="mockup-header">Delete — Confirmation</div>
+    <div class="mockup-body" style="display:flex;align-items:center;justify-content:center;min-height:180px;background:rgba(0,0,0,0.06)">
+      <div style="background:#fff;border-radius:16px;padding:24px;max-width:340px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.12)">
+        <div style="font-size:15px;font-weight:700;color:#1d1d1b;margin-bottom:6px">Delete Amoxicillin?</div>
+        <div style="font-size:13px;color:#6b7280;margin-bottom:16px;line-height:1.5">This will permanently remove <strong>Amoxicillin</strong> from your medication catalog. This action cannot be undone.</div>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button style="padding:8px 16px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:500;color:#374151;background:#fff">Cancel</button>
+          <button style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Looks good — proceed with this design</h3>
+      <p>Table columns: Name/Generic, Code, Form, Strength, Rx Count, Actions</p>
+    </div>
+  </div>
+  <div class="option" data-choice="tweak" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>I want to change something</h3>
+      <p>Let me know in the terminal what you'd like adjusted</p>
+    </div>
+  </div>
+</div>

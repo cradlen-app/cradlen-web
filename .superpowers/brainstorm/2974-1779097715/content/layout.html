@@ -1,0 +1,140 @@
+<h2>Medications Dashboard — Layout</h2>
+<p class="subtitle">How should the table + actions be structured?</p>
+
+<div class="cards">
+
+  <!-- Option A: Table + Side Panel (like Staff) -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafb;padding:16px;border-bottom:1px solid #e5e7eb">
+      <div style="display:flex;gap:8px;height:220px">
+        <!-- Table side -->
+        <div style="flex:1;background:#fff;border-radius:8px;border:1px solid #e5e7eb;overflow:hidden">
+          <div style="background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:#6b7280;font-weight:600">MEDICATIONS</span>
+            <div style="background:#11604C;color:#fff;font-size:9px;padding:3px 8px;border-radius:4px">+ Add</div>
+          </div>
+          <div style="padding:6px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px">
+            <span style="font-size:9px;color:#9ca3af;font-weight:600">NAME</span>
+            <span style="font-size:9px;color:#9ca3af;font-weight:600">FORM</span>
+            <span style="font-size:9px;color:#9ca3af;font-weight:600">STRENGTH</span>
+          </div>
+          <div style="padding:6px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px;background:#f0fdf4">
+            <span style="font-size:9px;color:#1d1d1b">Amoxicillin</span>
+            <span style="font-size:9px;color:#6b7280">Capsule</span>
+            <span style="font-size:9px;color:#6b7280">500mg</span>
+          </div>
+          <div style="padding:6px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px">
+            <span style="font-size:9px;color:#1d1d1b">Metformin</span>
+            <span style="font-size:9px;color:#6b7280">Tablet</span>
+            <span style="font-size:9px;color:#6b7280">1000mg</span>
+          </div>
+          <div style="padding:6px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px">
+            <span style="font-size:9px;color:#1d1d1b">Ibuprofen</span>
+            <span style="font-size:9px;color:#6b7280">Tablet</span>
+            <span style="font-size:9px;color:#6b7280">400mg</span>
+          </div>
+          <div style="padding:6px 12px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px">
+            <span style="font-size:9px;color:#1d1d1b">Lisinopril</span>
+            <span style="font-size:9px;color:#6b7280">Tablet</span>
+            <span style="font-size:9px;color:#6b7280">10mg</span>
+          </div>
+        </div>
+        <!-- Right panel -->
+        <div style="width:140px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;overflow:hidden">
+          <div style="padding:10px 12px;border-bottom:1px solid #f3f4f6">
+            <div style="font-size:11px;font-weight:700;color:#1d1d1b;margin-bottom:2px">Amoxicillin</div>
+            <div style="font-size:9px;color:#6b7280">Amoxicillin trihydrate</div>
+          </div>
+          <div style="padding:8px 12px;display:flex;flex-direction:column;gap:6px">
+            <div>
+              <div style="font-size:8px;color:#9ca3af;font-weight:600;text-transform:uppercase;margin-bottom:1px">Form</div>
+              <div style="font-size:9px;color:#374151">Capsule</div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#9ca3af;font-weight:600;text-transform:uppercase;margin-bottom:1px">Strength</div>
+              <div style="font-size:9px;color:#374151">500mg</div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#9ca3af;font-weight:600;text-transform:uppercase;margin-bottom:1px">Prescriptions</div>
+              <div style="font-size:9px;color:#374151">24 total</div>
+            </div>
+          </div>
+          <div style="padding:8px 12px;border-top:1px solid #f3f4f6;display:flex;gap:6px">
+            <div style="font-size:9px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:4px;color:#374151">Edit</div>
+            <div style="font-size:9px;padding:3px 8px;border:1px solid #fecaca;border-radius:4px;color:#ef4444">Delete</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Table + Detail Panel</h3>
+      <p>Click row → panel slides in on the right with full details and Edit/Delete actions. Same pattern as the Staff page.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Table with inline row actions -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafb;padding:16px;border-bottom:1px solid #e5e7eb">
+      <div style="height:220px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;overflow:hidden">
+        <div style="background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;color:#6b7280;font-weight:600">MEDICATIONS</span>
+          <div style="background:#11604C;color:#fff;font-size:9px;padding:3px 8px;border-radius:4px">+ Add Medication</div>
+        </div>
+        <!-- Header row -->
+        <div style="padding:6px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 60px;gap:8px;align-items:center">
+          <span style="font-size:9px;color:#9ca3af;font-weight:600">NAME / GENERIC</span>
+          <span style="font-size:9px;color:#9ca3af;font-weight:600">CODE</span>
+          <span style="font-size:9px;color:#9ca3af;font-weight:600">FORM</span>
+          <span style="font-size:9px;color:#9ca3af;font-weight:600">STRENGTH</span>
+          <span style="font-size:9px;color:#9ca3af;font-weight:600">ACTIONS</span>
+        </div>
+        <!-- Rows -->
+        <div style="padding:7px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 60px;gap:8px;align-items:center">
+          <div><div style="font-size:9px;font-weight:600;color:#1d1d1b">Amoxicillin</div><div style="font-size:8px;color:#9ca3af">Amoxicillin trihydrate</div></div>
+          <span style="font-size:9px;color:#6b7280;font-family:monospace">AMX-500</span>
+          <span style="font-size:9px;color:#6b7280">Capsule</span>
+          <span style="font-size:9px;color:#6b7280">500mg</span>
+          <div style="display:flex;gap:4px">
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#6b7280">✏</div>
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #fecaca;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ef4444">🗑</div>
+          </div>
+        </div>
+        <div style="padding:7px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 60px;gap:8px;align-items:center">
+          <div><div style="font-size:9px;font-weight:600;color:#1d1d1b">Metformin</div><div style="font-size:8px;color:#9ca3af">Metformin hydrochloride</div></div>
+          <span style="font-size:9px;color:#6b7280;font-family:monospace">MET-1000</span>
+          <span style="font-size:9px;color:#6b7280">Tablet</span>
+          <span style="font-size:9px;color:#6b7280">1000mg</span>
+          <div style="display:flex;gap:4px">
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#6b7280">✏</div>
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #fecaca;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ef4444">🗑</div>
+          </div>
+        </div>
+        <div style="padding:7px 12px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 60px;gap:8px;align-items:center">
+          <div><div style="font-size:9px;font-weight:600;color:#1d1d1b">Ibuprofen</div><div style="font-size:8px;color:#9ca3af">Ibuprofen</div></div>
+          <span style="font-size:9px;color:#6b7280;font-family:monospace">IBU-400</span>
+          <span style="font-size:9px;color:#6b7280">Tablet</span>
+          <span style="font-size:9px;color:#6b7280">400mg</span>
+          <div style="display:flex;gap:4px">
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#6b7280">✏</div>
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #fecaca;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ef4444">🗑</div>
+          </div>
+        </div>
+        <div style="padding:7px 12px;display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 60px;gap:8px;align-items:center">
+          <div><div style="font-size:9px;font-weight:600;color:#1d1d1b">Lisinopril</div><div style="font-size:8px;color:#9ca3af">Lisinopril</div></div>
+          <span style="font-size:9px;color:#6b7280;font-family:monospace">LIS-10</span>
+          <span style="font-size:9px;color:#6b7280">Tablet</span>
+          <span style="font-size:9px;color:#6b7280">10mg</span>
+          <div style="display:flex;gap:4px">
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#6b7280">✏</div>
+            <div style="width:18px;height:18px;border-radius:4px;border:1px solid #fecaca;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ef4444">🗑</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Table with Inline Actions</h3>
+      <p>Edit and Delete icon buttons live directly on each row. Clicking Edit opens a drawer. Simpler, more compact — no panel needed.</p>
+    </div>
+  </div>
+
+</div>
