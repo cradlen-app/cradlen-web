@@ -101,7 +101,6 @@ function TableSkeleton() {
     <table className="w-full border-collapse">
       <tbody>
         {Array.from({ length: 8 }).map((_, i) => (
-          // eslint-disable-next-line react/no-array-index-key
           <tr key={i} className="border-t border-gray-100">
             <td className="px-5 py-3">
               <div className="h-4 w-32 animate-pulse rounded bg-gray-100" />
