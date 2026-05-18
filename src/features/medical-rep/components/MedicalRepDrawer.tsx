@@ -3,6 +3,7 @@
 import { Dialog } from "radix-ui";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { formatRepDate } from "../lib/medical-rep.utils";
 import type { MedicalRep } from "../types/medical-rep.types";
 
 interface Props {
@@ -10,15 +11,6 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onToggleStatus: (rep: MedicalRep) => void;
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 export function MedicalRepDrawer({ rep, open, onOpenChange, onToggleStatus }: Props) {
@@ -50,7 +42,7 @@ export function MedicalRepDrawer({ rep, open, onOpenChange, onToggleStatus }: Pr
                 <ReadField label={t("nationalId")} value={rep.national_id ?? "—"} />
                 <ReadField label={t("company")} value={rep.company_name ?? "—"} />
                 <div className="grid grid-cols-2 gap-3">
-                  <ReadField label={t("lastVisit")} value={formatDate(rep.last_visit_date)} />
+                  <ReadField label={t("lastVisit")} value={formatRepDate(rep.last_visit_date)} />
                   <ReadField label={t("totalVisits")} value={String(rep.visits_count)} />
                 </div>
 
