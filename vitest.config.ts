@@ -9,7 +9,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-    globals: false,
+    globals: true,
     setupFiles: ["src/test/setup.ts"],
     css: true,
     coverage: {
