@@ -6,17 +6,15 @@ import { useMedRepMyCurrentVisit } from "./useMedRepCurrentVisit";
 import type { Visit } from "../types/visits.types";
 
 /**
- * Returns the doctor's current in-progress visit — either patient or medical-rep.
- * Prefers the patient visit when both exist (rare; med-rep visits usually
- * shorter and shouldn't overlap, but be safe).
+ * Returns all of the doctor's current in-progress visits (patient and/or medical-rep).
  */
 export function useUnifiedMyCurrentVisit(enabled = true) {
   const patient = useMyCurrentVisit(enabled);
   const medRep = useMedRepMyCurrentVisit(enabled);
 
-  const data = useMemo<Visit | null | undefined>(() => {
-    if (patient.isLoading || medRep.isLoading) return undefined;
-    return patient.data ?? medRep.data ?? null;
+  const data = useMemo<Visit[]>(() => {
+    if (patient.isLoading || medRep.isLoading) return [];
+    return [patient.data, medRep.data].filter((v): v is Visit => v != null);
   }, [patient.data, medRep.data, patient.isLoading, medRep.isLoading]);
 
   return {

@@ -130,13 +130,16 @@ export function CurrentVisitCard({ branchId, organizationId }: Props) {
           <div className="space-y-1 p-3">
             <div className="h-10 animate-pulse rounded-lg bg-gray-50" />
           </div>
-        ) : visit && branchId && organizationId ? (
+        ) : visit.length > 0 && branchId && organizationId ? (
           <ul>
-            <CurrentVisitRow
-              visit={visit}
-              branchId={branchId}
-              organizationId={organizationId}
-            />
+            {visit.map((v) => (
+              <CurrentVisitRow
+                key={v.id}
+                visit={v}
+                branchId={branchId}
+                organizationId={organizationId}
+              />
+            ))}
           </ul>
         ) : (
           <p className="px-4 py-8 text-center text-xs text-gray-400">
