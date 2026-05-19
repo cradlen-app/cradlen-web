@@ -123,19 +123,30 @@ export function VisitWorkspacePage({ visitId }: Props) {
           <TabsList aria-label={t("tabsAria")}>
             <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
             <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
-            <TabsTrigger value="examination">{t("tabs.examination")}</TabsTrigger>
+            <TabsTrigger value="examination">
+              {t("tabs.examination")}
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="min-h-0 flex-1 overflow-hidden">
+          <TabsContent
+            value="overview"
+            className="min-h-0 flex-1 overflow-hidden"
+          >
             <OverviewTab visit={visit} />
           </TabsContent>
-          <TabsContent value="history" className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <TabsContent
+            value="history"
+            className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-2xl border border-gray-100 bg-white shadow-sm p-8"
+          >
             <HistoryTab
               patientId={visit.patient.id}
               specialtyCode={visit.specialtyCode ?? null}
             />
           </TabsContent>
-          <TabsContent value="examination" className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <TabsContent
+            value="examination"
+            className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm p-8"
+          >
             <ExaminationTab visit={visit} />
           </TabsContent>
         </Tabs>

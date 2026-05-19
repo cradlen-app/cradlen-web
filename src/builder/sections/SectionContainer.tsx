@@ -8,6 +8,8 @@ interface Props {
   children: ReactNode;
   /** Slot rendered on the right side of the section header (e.g. visibility toggle). */
   headerSlot?: ReactNode;
+  /** Slot rendered below the fields grid (e.g. inline notes panel). */
+  bottomSlot?: ReactNode;
   /** When true, collapses to header only — children are not rendered. */
   collapsed?: boolean;
   /**
@@ -22,6 +24,7 @@ export function SectionContainer({
   title,
   children,
   headerSlot,
+  bottomSlot,
   collapsed,
   layout = "grid",
 }: Props) {
@@ -32,15 +35,18 @@ export function SectionContainer({
         {headerSlot}
       </div>
       {!collapsed && (
-        <div
-          className={
-            layout === "stack"
-              ? "space-y-2"
-              : "grid grid-cols-12 gap-x-6 gap-y-3"
-          }
-        >
-          {children}
-        </div>
+        <>
+          <div
+            className={
+              layout === "stack"
+                ? "space-y-2"
+                : "grid grid-cols-12 gap-x-6 gap-y-3"
+            }
+          >
+            {children}
+          </div>
+          {bottomSlot}
+        </>
       )}
     </section>
   );

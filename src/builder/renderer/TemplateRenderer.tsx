@@ -28,6 +28,11 @@ interface Props {
    * don't carry group annotations (e.g. the book-visit drawer).
    */
   renderSectionHeaderSlot?: (section: FormSectionDto) => ReactNode;
+  /**
+   * Optional slot rendered below the fields of each NON-REPEATABLE section
+   * (e.g. an inline notes timeline). Not shown for repeatable sections.
+   */
+  renderSectionBottomSlot?: (section: FormSectionDto) => ReactNode;
 }
 
 export function TemplateRenderer({
@@ -36,6 +41,7 @@ export function TemplateRenderer({
   renderGroupHeaderSlot,
   collapsedGroups,
   renderSectionHeaderSlot,
+  renderSectionBottomSlot,
 }: Props) {
   useDiscriminatorReset();
   useSpecialtyAutoFill();
@@ -99,6 +105,11 @@ export function TemplateRenderer({
                   headerSlot={
                     group.name === null
                       ? renderSectionHeaderSlot?.(section)
+                      : undefined
+                  }
+                  bottomSlot={
+                    !section.is_repeatable
+                      ? renderSectionBottomSlot?.(section)
                       : undefined
                   }
                   layout={section.is_repeatable ? "stack" : "grid"}
