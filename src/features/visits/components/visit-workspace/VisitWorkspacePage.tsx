@@ -147,11 +147,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
             value="examination"
             className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm p-6"
           >
-            <ExaminationTab
-              visit={visit}
-              onCompleteVisit={canComplete ? handleComplete : undefined}
-              canCompleteVisit={!!canComplete}
-            />
+            <ExaminationTab visit={visit} />
           </TabsContent>
         </Tabs>
 

@@ -18,8 +18,6 @@ interface Props {
   examinationVersion: number;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
-  onCompleteVisit?: () => void;
-  canCompleteVisit?: boolean;
 }
 
 export function VisitExaminationFormShell({
@@ -28,8 +26,6 @@ export function VisitExaminationFormShell({
   examinationVersion,
   onSave,
   saving,
-  onCompleteVisit,
-  canCompleteVisit,
 }: Props) {
   const t = useTranslations("examination.workspace");
   const execution = useTemplateExecution();
@@ -107,17 +103,6 @@ export function VisitExaminationFormShell({
           renderSectionHeaderSlot={renderSectionHeaderSlot}
           renderSectionBottomSlot={renderSectionBottomSlot}
         />
-        {onCompleteVisit && (
-          <div className="mt-6 flex justify-end border-t border-gray-100 pt-4">
-            <Button
-              onClick={onCompleteVisit}
-              disabled={!canCompleteVisit}
-              className="bg-brand-primary"
-            >
-              {t("completeVisit")}
-            </Button>
-          </div>
-        )}
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
         <span className="text-[11px] text-gray-400">
