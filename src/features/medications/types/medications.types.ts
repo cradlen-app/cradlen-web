@@ -6,6 +6,13 @@ export interface Medication {
   generic_name: string | null;
   form: string | null;
   strength: string | null;
+  category: string | null;
+  company: string | null;
+  notes: string | null;
+  default_dose_amount: number | null;
+  default_dose_unit: string | null;
+  default_dose_frequency: string | null;
+  default_dose_route: string | null;
   added_by_id: string | null;
   is_deleted: boolean;
   created_at: string;
@@ -41,6 +48,14 @@ export interface CreateMedicationRequest {
   generic_name?: string;
   form?: string;
   strength?: string;
+  category?: string;
+  company?: string;
+  notes?: string;
+  default_dose_amount?: number;
+  default_dose_unit?: string;
+  default_dose_frequency?: string;
+  default_dose_route?: string;
+  medical_rep_id?: string;
 }
 
 export interface UpdateMedicationRequest {
@@ -48,4 +63,12 @@ export interface UpdateMedicationRequest {
   generic_name?: string;
   form?: string;
   strength?: string;
+  category?: string;
+  company?: string;
+  notes?: string;
+  default_dose_amount?: number;
+  default_dose_unit?: string;
+  default_dose_frequency?: string;
+  default_dose_route?: string;
+  medical_rep_id?: string | null;
 }

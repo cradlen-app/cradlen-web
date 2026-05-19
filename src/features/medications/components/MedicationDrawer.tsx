@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Dialog } from "radix-ui";
 import { X } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { medicationFormSchema, type MedicationFormValues } from "../lib/medications.schemas";
+import { MEDICATION_CATEGORY_OPTIONS, MEDICATION_FORM_OPTIONS, MEDICATION_STRENGTH_OPTIONS } from "../lib/medications.constants";
+import { generateMedicationCode } from "../lib/medications.utils";
+import { CreatableSelect } from "./CreatableSelect";
 import type { Medication } from "../types/medications.types";
 
 interface Props {
@@ -22,29 +25,65 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
   const t = useTranslations("medications.drawer");
   const isEdit = medication !== null;
 
+  const codeManuallyEdited = useRef(false);
+
   const {
     register,
     handleSubmit,
     reset,
+    control,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<MedicationFormValues>({
     resolver: zodResolver(medicationFormSchema),
-    defaultValues: { code: "", name: "", form: "", strength: "" },
+    defaultValues: {
+      code: "", name: "", genericName: "", form: "", strength: "",
+      category: "", company: "", notes: "",
+      defaultDoseAmount: "", defaultDoseUnit: "",
+      defaultDoseFrequency: "", defaultDoseRoute: "",
+    },
   });
 
   useEffect(() => {
     if (!open) return;
+    codeManuallyEdited.current = false;
     reset(
       isEdit
         ? {
             code: medication.code,
             name: medication.name,
+            genericName: medication.generic_name ?? "",
             form: medication.form ?? "",
             strength: medication.strength ?? "",
+            category: medication.category ?? "",
+            company: medication.company ?? "",
+            notes: medication.notes ?? "",
+            defaultDoseAmount:
+              medication.default_dose_amount != null
+                ? String(medication.default_dose_amount)
+                : "",
+            defaultDoseUnit: medication.default_dose_unit ?? "",
+            defaultDoseFrequency: medication.default_dose_frequency ?? "",
+            defaultDoseRoute: medication.default_dose_route ?? "",
           }
-        : { code: "", name: "", form: "", strength: "" },
+        : {
+            code: "", name: "", genericName: "", form: "", strength: "",
+            category: "", company: "", notes: "",
+            defaultDoseAmount: "", defaultDoseUnit: "",
+            defaultDoseFrequency: "", defaultDoseRoute: "",
+          },
     );
   }, [open, isEdit, medication, reset]);
+
+  const watchedName = watch("name");
+  const watchedStrength = watch("strength");
+
+  useEffect(() => {
+    if (isEdit || codeManuallyEdited.current) return;
+    const code = generateMedicationCode(watchedName ?? "", watchedStrength ?? "");
+    setValue("code", code);
+  }, [watchedName, watchedStrength, isEdit, setValue]);
 
   const handleFormSubmit = handleSubmit(async (values) => {
     await onSubmit(values);
@@ -78,7 +117,9 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
                   {t("fields.medicine")} <span className="text-red-500">*</span>
                 </label>
                 <input
-                  {...register("code")}
+                  {...register("code", {
+                    onChange: () => { codeManuallyEdited.current = true; },
+                  })}
                   disabled={isEdit}
                   placeholder={t("fields.medicinePlaceholder")}
                   className={cn(
@@ -112,8 +153,46 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
                 )}
               </div>
 
-              {/* Category — placeholder */}
-              <PlaceholderField label={t("fields.category")} hint={t("fields.comingSoon")} />
+              {/* Generic Name */}
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                  {t("fields.genericName")}{" "}
+                  <span className="text-xs font-normal text-gray-400">
+                    ({t("fields.optional")})
+                  </span>
+                </label>
+                <input
+                  {...register("genericName")}
+                  placeholder={t("fields.genericNamePlaceholder")}
+                  className={cn(
+                    "w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors",
+                    "focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10",
+                    "border-gray-200",
+                  )}
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                  {t("fields.category")}{" "}
+                  <span className="text-xs font-normal text-gray-400">
+                    ({t("fields.optional")})
+                  </span>
+                </label>
+                <Controller
+                  control={control}
+                  name="category"
+                  render={({ field }) => (
+                    <CreatableSelect
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      options={MEDICATION_CATEGORY_OPTIONS}
+                      addOptionLabel={(v) => t("fields.addOption", { value: v })}
+                    />
+                  )}
+                />
+              </div>
 
               {/* Form + Strength */}
               <div className="grid grid-cols-2 gap-3">
@@ -124,10 +203,18 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
                       ({t("fields.optional")})
                     </span>
                   </label>
-                  <input
-                    {...register("form")}
-                    placeholder={t("fields.formPlaceholder")}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  <Controller
+                    control={control}
+                    name="form"
+                    render={({ field }) => (
+                      <CreatableSelect
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        options={MEDICATION_FORM_OPTIONS}
+                        placeholder={t("fields.formPlaceholder")}
+                        addOptionLabel={(v) => t("fields.addOption", { value: v })}
+                      />
+                    )}
                   />
                 </div>
                 <div>
@@ -137,16 +224,72 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
                       ({t("fields.optional")})
                     </span>
                   </label>
-                  <input
-                    {...register("strength")}
-                    placeholder={t("fields.strengthPlaceholder")}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  <Controller
+                    control={control}
+                    name="strength"
+                    render={({ field }) => (
+                      <CreatableSelect
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        options={MEDICATION_STRENGTH_OPTIONS}
+                        placeholder={t("fields.strengthPlaceholder")}
+                        addOptionLabel={(v) => t("fields.addOption", { value: v })}
+                      />
+                    )}
                   />
                 </div>
               </div>
 
-              {/* Default Dose — placeholder */}
-              <PlaceholderField label={t("fields.defaultDose")} hint={t("fields.comingSoon")} />
+              {/* Default Dose */}
+              <div>
+                <p className="mb-2 text-sm font-semibold text-gray-700">
+                  {t("fields.defaultDose")}{" "}
+                  <span className="text-xs font-normal text-gray-400">
+                    ({t("fields.optional")})
+                  </span>
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-xs text-gray-500">
+                      {t("fields.defaultDoseAmount")}
+                    </label>
+                    <input
+                      {...register("defaultDoseAmount")}
+                      type="number"
+                      step="any"
+                      min="0"
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs text-gray-500">
+                      {t("fields.defaultDoseUnit")}
+                    </label>
+                    <input
+                      {...register("defaultDoseUnit")}
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs text-gray-500">
+                      {t("fields.defaultDoseFrequency")}
+                    </label>
+                    <input
+                      {...register("defaultDoseFrequency")}
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs text-gray-500">
+                      {t("fields.defaultDoseRoute")}
+                    </label>
+                    <input
+                      {...register("defaultDoseRoute")}
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                    />
+                  </div>
+                </div>
+              </div>
 
               {/* Medical Rep — placeholder */}
               <PlaceholderField label={t("fields.medicalRep")} hint={t("fields.comingSoon")} />
@@ -154,20 +297,32 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
               {/* Assigned To — placeholder */}
               <PlaceholderField label={t("fields.assignedTo")} hint={t("fields.comingSoon")} />
 
-              {/* Company — placeholder */}
-              <PlaceholderField label={t("fields.company")} hint={t("fields.comingSoon")} />
-
-              {/* Notes — placeholder (textarea) */}
+              {/* Company */}
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-gray-700 opacity-60">
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                  {t("fields.company")}{" "}
+                  <span className="text-xs font-normal text-gray-400">
+                    ({t("fields.optional")})
+                  </span>
+                </label>
+                <input
+                  {...register("company")}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                />
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
                   {t("fields.notes")}{" "}
-                  <span className="text-xs font-normal text-gray-400">({t("fields.comingSoon")})</span>
+                  <span className="text-xs font-normal text-gray-400">
+                    ({t("fields.optional")})
+                  </span>
                 </label>
                 <textarea
-                  disabled
+                  {...register("notes")}
                   rows={3}
-                  title={t("fields.comingSoon")}
-                  className="w-full cursor-not-allowed resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm opacity-60 outline-none"
+                  className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                 />
               </div>
             </div>
