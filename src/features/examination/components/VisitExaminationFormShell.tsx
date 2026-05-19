@@ -7,57 +7,66 @@ import { Button } from "@/components/ui/button";
 import { TemplateRenderer } from "@/builder/renderer/TemplateRenderer";
 import { useTemplateExecution } from "@/builder/runtime/TemplateExecutionContext";
 import { buildTemplateSubmission } from "@/builder/templates/build-submission";
-import type { FormTemplateDto } from "@/builder/templates/template.types";
-import type { SectionVisibility } from "@/features/patient-history/lib/section-visibility";
-import { slugifyGroup } from "@/features/patient-history/lib/slug";
-import { SectionNotesButton } from "@/features/patient-history/components/SectionNotesButton";
+import type { FormSectionDto, FormTemplateDto } from "@/builder/templates/template.types";
+import { SectionNotesInline } from "@/features/patient-history/components/SectionNotesInline";
+
+const EXAMINATION_GROUP = "Examination";
 
 interface Props {
   template: FormTemplateDto;
   patientId: string;
   examinationVersion: number;
-  visibility: SectionVisibility;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
+  onCompleteVisit?: () => void;
+  canCompleteVisit?: boolean;
 }
 
-/**
- * Sticky-footer shell for the Examination tab. Mirrors PatientHistoryFormShell
- * with two cosmetic differences: the version chip reads `examinationVersion`
- * (single token across the unified PATCH), and the namespace under which i18n
- * keys live is `examination.workspace.*` rather than `patient_history.workspace.*`.
- */
 export function VisitExaminationFormShell({
   template,
   patientId,
   examinationVersion,
-  visibility,
   onSave,
   saving,
+  onCompleteVisit,
+  canCompleteVisit,
 }: Props) {
   const t = useTranslations("examination.workspace");
   const execution = useTemplateExecution();
   const [errors, setErrors] = useState<Record<string, string> | undefined>(undefined);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
-  const renderGroupHeaderSlot = (groupName: string) => {
-    const isHidden = visibility.isHidden(groupName);
+  function toggleSection(code: string) {
+    setCollapsedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(code)) next.delete(code);
+      else next.add(code);
+      return next;
+    });
+  }
+
+  function isExaminationSection(section: FormSectionDto): boolean {
+    return (section.config?.ui?.group as string | undefined) === EXAMINATION_GROUP;
+  }
+
+  const renderSectionHeaderSlot = (section: FormSectionDto) => {
+    if (!isExaminationSection(section)) return undefined;
+    const isCollapsed = collapsedSections.has(section.code);
     return (
-      <div className="flex items-center gap-1">
-        <SectionNotesButton
-          patientId={patientId}
-          sectionCode={slugifyGroup(groupName)}
-          groupName={groupName}
-        />
-        <button
-          type="button"
-          aria-label={isHidden ? t("showSection") : t("hideSection")}
-          onClick={() => visibility.toggle(groupName)}
-          className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
-        >
-          {isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
-      </div>
+      <button
+        type="button"
+        aria-label={isCollapsed ? t("showSection") : t("hideSection")}
+        onClick={() => toggleSection(section.code)}
+        className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
+      >
+        {isCollapsed ? <EyeOff size={16} /> : <Eye size={16} />}
+      </button>
     );
+  };
+
+  const renderSectionBottomSlot = (section: FormSectionDto) => {
+    if (!isExaminationSection(section)) return null;
+    return <SectionNotesInline patientId={patientId} sectionCode={section.code} />;
   };
 
   async function handleSave() {
@@ -94,9 +103,21 @@ export function VisitExaminationFormShell({
         <TemplateRenderer
           template={template}
           errors={errors}
-          renderGroupHeaderSlot={renderGroupHeaderSlot}
-          collapsedGroups={visibility.hidden}
+          collapsedSections={collapsedSections}
+          renderSectionHeaderSlot={renderSectionHeaderSlot}
+          renderSectionBottomSlot={renderSectionBottomSlot}
         />
+        {onCompleteVisit && (
+          <div className="mt-6 flex justify-end border-t border-gray-100 pt-4">
+            <Button
+              onClick={onCompleteVisit}
+              disabled={!canCompleteVisit}
+              className="bg-brand-primary"
+            >
+              {t("completeVisit")}
+            </Button>
+          </div>
+        )}
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
         <span className="text-[11px] text-gray-400">

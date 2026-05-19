@@ -1006,7 +1006,8 @@
       "hideSection": "Hide section group",
       "versionLabel": "v{version}",
       "addRow": "+ Add row",
-      "removeRow": "Remove"
+      "removeRow": "Remove",
+      "completeVisit": "Complete Visit"
     }
   },
   "medications": {

@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { fetchFormTemplate } from "@/builder/templates/templates.api";
 import { queryKeys } from "@/lib/queryKeys";
 import { TemplateExecutionContextProvider } from "@/builder/runtime/TemplateExecutionContext";
@@ -17,13 +16,14 @@ import {
   useVisitExamination,
   visitExaminationKey,
 } from "@/features/examination/api/useVisitExamination";
-import { useSectionVisibility } from "@/features/patient-history/lib/section-visibility";
 import { VisitExaminationFormShell } from "@/features/examination/components/VisitExaminationFormShell";
 
 import type { Visit } from "@/features/visits/types/visits.types";
 
 interface Props {
   visit: Visit;
+  onCompleteVisit?: () => void;
+  canCompleteVisit?: boolean;
 }
 
 function isNotFound(err: unknown): boolean {
@@ -37,15 +37,13 @@ function isStaleVersion(err: unknown): boolean {
   return body?.error?.code === "STALE_VERSION";
 }
 
-export function ExaminationTab({ visit }: Props) {
+export function ExaminationTab({ visit, onCompleteVisit, canCompleteVisit }: Props) {
   const t = useTranslations("examination.workspace");
   const config = useMemo(
     () => resolveSpecialtyExamination(visit.specialtyCode ?? null, visit.id),
     [visit.specialtyCode, visit.id],
   );
 
-  const profileId = useAuthContextStore((s) => s.profileId);
-  const visibility = useSectionVisibility(profileId ?? null);
   const qc = useQueryClient();
 
   const templateQuery = useQuery({
@@ -103,8 +101,9 @@ export function ExaminationTab({ visit }: Props) {
         template={template}
         patientId={visit.patient.id}
         examinationVersion={envelope.examination_version}
-        visibility={visibility}
         saving={patchMut.isPending}
+        onCompleteVisit={onCompleteVisit}
+        canCompleteVisit={canCompleteVisit}
         onSave={async (body) => {
           try {
             await patchMut.mutateAsync({
