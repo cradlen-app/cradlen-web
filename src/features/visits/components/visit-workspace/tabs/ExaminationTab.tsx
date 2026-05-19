@@ -22,8 +22,6 @@ import type { Visit } from "@/features/visits/types/visits.types";
 
 interface Props {
   visit: Visit;
-  onCompleteVisit?: () => void;
-  canCompleteVisit?: boolean;
 }
 
 function isNotFound(err: unknown): boolean {
@@ -37,7 +35,7 @@ function isStaleVersion(err: unknown): boolean {
   return body?.error?.code === "STALE_VERSION";
 }
 
-export function ExaminationTab({ visit, onCompleteVisit, canCompleteVisit }: Props) {
+export function ExaminationTab({ visit }: Props) {
   const t = useTranslations("examination.workspace");
   const config = useMemo(
     () => resolveSpecialtyExamination(visit.specialtyCode ?? null, visit.id),
@@ -102,8 +100,6 @@ export function ExaminationTab({ visit, onCompleteVisit, canCompleteVisit }: Pro
         patientId={visit.patient.id}
         examinationVersion={envelope.examination_version}
         saving={patchMut.isPending}
-        onCompleteVisit={onCompleteVisit}
-        canCompleteVisit={canCompleteVisit}
         onSave={async (body) => {
           try {
             await patchMut.mutateAsync({
