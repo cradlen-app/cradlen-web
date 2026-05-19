@@ -51,24 +51,46 @@ export function MedicationsPage() {
   async function handleDrawerSubmit(values: MedicationFormValues) {
     const emptyToUndefined = (v: string | undefined) =>
       v === undefined ? undefined : v.trim() || undefined;
-    if (editingMedication) {
-      await updateMutation.mutateAsync({
-        id: editingMedication.id,
-        data: {
+    const numericDoseAmount =
+      values.defaultDoseAmount?.trim() ? parseFloat(values.defaultDoseAmount) : undefined;
+    try {
+      if (editingMedication) {
+        await updateMutation.mutateAsync({
+          id: editingMedication.id,
+          data: {
+            name: values.name,
+            generic_name: emptyToUndefined(values.genericName),
+            form: emptyToUndefined(values.form),
+            strength: emptyToUndefined(values.strength),
+            category: emptyToUndefined(values.category),
+            company: emptyToUndefined(values.company),
+            notes: emptyToUndefined(values.notes),
+            default_dose_amount: numericDoseAmount,
+            default_dose_unit: emptyToUndefined(values.defaultDoseUnit),
+            default_dose_frequency: emptyToUndefined(values.defaultDoseFrequency),
+            default_dose_route: emptyToUndefined(values.defaultDoseRoute),
+          },
+        });
+      } else {
+        await createMutation.mutateAsync({
+          code: values.code,
           name: values.name,
+          generic_name: emptyToUndefined(values.genericName),
           form: emptyToUndefined(values.form),
           strength: emptyToUndefined(values.strength),
-        },
-      });
-    } else {
-      await createMutation.mutateAsync({
-        code: values.code,
-        name: values.name,
-        form: emptyToUndefined(values.form),
-        strength: emptyToUndefined(values.strength),
-      });
+          category: emptyToUndefined(values.category),
+          company: emptyToUndefined(values.company),
+          notes: emptyToUndefined(values.notes),
+          default_dose_amount: numericDoseAmount,
+          default_dose_unit: emptyToUndefined(values.defaultDoseUnit),
+          default_dose_frequency: emptyToUndefined(values.defaultDoseFrequency),
+          default_dose_route: emptyToUndefined(values.defaultDoseRoute),
+        });
+      }
+      setDrawerOpen(false);
+    } catch {
+      // onError in the mutation hook shows the toast with the backend message
     }
-    setDrawerOpen(false);
   }
 
   async function handleDeleteConfirm() {
