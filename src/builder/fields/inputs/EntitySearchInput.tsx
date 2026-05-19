@@ -14,6 +14,7 @@ export function EntitySearchInput({
   required,
   disabled,
   error,
+  flagged,
 }: FieldInputProps) {
   const searchEntity = field.config?.ui?.searchEntity;
   const entityKind =
@@ -166,7 +167,7 @@ export function EntitySearchInput({
   );
 
   return (
-    <FieldShell label={field.label} required={required} error={error}>
+    <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       <div ref={containerRef} className="relative">
         <input
           type="text"

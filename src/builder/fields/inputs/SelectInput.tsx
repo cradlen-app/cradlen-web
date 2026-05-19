@@ -22,13 +22,14 @@ function SegmentedSelect({
   required,
   disabled,
   error,
+  flagged,
 }: FieldInputProps) {
   const options: FieldOption[] =
     (field.config?.validation?.options as FieldOption[] | undefined) ?? [];
   useDefaultValue(field, options);
   const selectedCode = typeof value === "string" ? value : "";
   return (
-    <FieldShell label={field.label} required={required} error={error}>
+    <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       <div
         role="radiogroup"
         aria-label={field.label}
@@ -61,7 +62,7 @@ function SegmentedSelect({
   );
 }
 
-function DropdownSelect({ field, value, onChange, required, disabled, error }: FieldInputProps) {
+function DropdownSelect({ field, value, onChange, required, disabled, error, flagged }: FieldInputProps) {
   const dynamic = useDynamicOptions(field);
   const options: FieldOption[] = useMemo(() => {
     if (dynamic.enabled) {
@@ -146,7 +147,7 @@ function DropdownSelect({ field, value, onChange, required, disabled, error }: F
   }
 
   return (
-    <FieldShell label={field.label} required={required} error={error}>
+    <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       <div ref={containerRef} className="relative">
         <button
           type="button"
