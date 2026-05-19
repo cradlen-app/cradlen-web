@@ -12,7 +12,7 @@ import { FieldRenderer } from "./FieldRenderer";
 import { RepeatableSectionRenderer } from "./RepeatableSectionRenderer";
 import { groupSections } from "./group-sections";
 import type { FormSectionDto, FormTemplateDto } from "../templates/template.types";
-import type { FieldFlagDto } from "../../features/patient-history/api/field-flags.api";
+import type { FieldFlag } from "./field-flag.types.js";
 
 /** Maps template section codes to service-layer DTO keys when they differ. */
 const SECTION_TIMESTAMP_KEY: Record<string, string> = {
@@ -57,7 +57,7 @@ interface Props {
    * Supplied by the parent consumer (e.g. PatientHistoryFormShell) after
    * fetching all flags for the current patient.
    */
-  flagIndex?: Record<string, FieldFlagDto>;
+  flagIndex?: Record<string, FieldFlag>;
   /** Called when the user saves a new flag (or updates an existing one). */
   onFlag?: (section_code: string, field_code: string, note?: string) => void;
   /** Called when the user removes an existing flag. Receives the flag's id. */
