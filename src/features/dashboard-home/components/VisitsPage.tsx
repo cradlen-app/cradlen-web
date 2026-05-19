@@ -10,9 +10,8 @@ import {
 import {
   canCreateVisit as canCreateVisitPerm,
   hasAnyStaffRole,
-  isClinical,
+  isReceptionist,
   showsAssignedVisits,
-  showsBranchAggregate,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
@@ -38,8 +37,6 @@ export function VisitsPage() {
   if (!hasAnyStaffRole(profile)) return null;
 
   const showAssigned = showsAssignedVisits(profile);
-  const showAggregate = showsBranchAggregate(profile);
-  const profileIsClinical = isClinical(profile);
 
   const canCreateVisit = canCreateVisitPerm(profile);
   // Anyone with a staff role and access to this page can manage visit status.
@@ -64,11 +61,10 @@ export function VisitsPage() {
               organizationId={organizationId}
             />
           )}
-          {showAggregate && (
+          {isReceptionist(profile) && (
             <InProgressByDoctorPanel
               branchId={branchId}
               organizationId={organizationId}
-              filterDoctorId={profileIsClinical ? (profile?.staff_id ?? undefined) : undefined}
             />
           )}
           <WaitingListSection
