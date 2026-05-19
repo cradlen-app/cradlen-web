@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import {
-  getProfilePrimaryRole,
+  getRawProfileRole,
   getProfileSpecialtyNames,
 } from "@/features/auth/lib/current-user";
 import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
@@ -85,7 +85,7 @@ export function ProfileSection({
             meta={
               <>
                 <span className="rounded-full bg-brand-primary/8 px-2.5 py-1 text-xs font-medium text-brand-primary">
-                  {formatRole(getProfilePrimaryRole(profile), t)}
+                  {formatRole(getRawProfileRole(profile), t)}
                 </span>
                 <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
                   {user.is_active ? t("status.active") : t("status.inactive")}
@@ -104,7 +104,7 @@ export function ProfileSection({
             />
             <DetailRow
               label={t("fields.role")}
-              value={formatRole(getProfilePrimaryRole(profile), t)}
+              value={formatRole(getRawProfileRole(profile), t)}
             />
             <DetailRow
               label={t("fields.executiveTitle")}
