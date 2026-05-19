@@ -1056,7 +1056,7 @@
         "defaultDoseFrequency": "Frequency",
         "defaultDoseRoute": "Route",
         "medicalRep": "Medical Rep",
-        "assignedTo": "Assigned To",
+        "medicalRepPlaceholder": "None",
         "company": "Company",
         "notes": "Notes",
         "addOption": "Add \"{value}\"",

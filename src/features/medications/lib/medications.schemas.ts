@@ -13,6 +13,7 @@ export const medicationFormSchema = z.object({
   defaultDoseUnit: z.string().max(32).optional(),
   defaultDoseFrequency: z.string().max(100).optional(),
   defaultDoseRoute: z.string().max(100).optional(),
+  medicalRepId: z.string().optional(),
 });
 
 export type MedicationFormValues = z.infer<typeof medicationFormSchema>;
