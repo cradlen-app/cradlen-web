@@ -12,7 +12,7 @@ import { FieldRenderer } from "./FieldRenderer";
 import { RepeatableSectionRenderer } from "./RepeatableSectionRenderer";
 import { groupSections } from "./group-sections";
 import type { FormSectionDto, FormTemplateDto } from "../templates/template.types";
-import type { FieldFlag } from "./field-flag.types.js";
+import type { FieldFlag } from "./field-flag.types";
 
 /** Maps template section codes to service-layer DTO keys when they differ. */
 const SECTION_TIMESTAMP_KEY: Record<string, string> = {
