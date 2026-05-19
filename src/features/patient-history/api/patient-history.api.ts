@@ -10,6 +10,7 @@ export interface PatientHistoryEnvelope {
   patient_id: string;
   version: number;
   updated_at: string;
+  section_timestamps?: Record<string, string> | null;
   [key: string]: unknown;
 }
 

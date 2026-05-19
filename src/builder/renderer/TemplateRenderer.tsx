@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { applyEffect } from "../rules/predicate.evaluator";
 import { useEvaluationContext } from "../runtime/TemplateExecutionContext";
 import { useDiscriminatorReset } from "../runtime/useDiscriminatorReset";
@@ -62,6 +63,7 @@ export function TemplateRenderer({
   collapsedSections,
   sectionTimestamps,
 }: Props) {
+  const t = useTranslations("builder");
   useDiscriminatorReset();
   useSpecialtyAutoFill();
   const ctx = useEvaluationContext();
@@ -130,6 +132,7 @@ export function TemplateRenderer({
                   collapsed={collapsedSections?.has(section.code)}
                   layout={section.is_repeatable ? "stack" : "grid"}
                   lastUpdatedAt={sectionTimestamps?.[SECTION_TIMESTAMP_KEY[section.code] ?? section.code] ?? null}
+                  lastUpdatedAtLabel={t("sections.lastUpdatedAt")}
                 >
                   {section.is_repeatable ? (
                     <RepeatableSectionRenderer section={section} errors={errors} />
