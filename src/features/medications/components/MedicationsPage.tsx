@@ -69,6 +69,7 @@ export function MedicationsPage() {
             default_dose_unit: emptyToUndefined(values.defaultDoseUnit),
             default_dose_frequency: emptyToUndefined(values.defaultDoseFrequency),
             default_dose_route: emptyToUndefined(values.defaultDoseRoute),
+            medical_rep_id: values.medicalRepId ? values.medicalRepId : null,
           },
         });
       } else {
@@ -85,6 +86,7 @@ export function MedicationsPage() {
           default_dose_unit: emptyToUndefined(values.defaultDoseUnit),
           default_dose_frequency: emptyToUndefined(values.defaultDoseFrequency),
           default_dose_route: emptyToUndefined(values.defaultDoseRoute),
+          medical_rep_id: values.medicalRepId || undefined,
         });
       }
       setDrawerOpen(false);

@@ -11,6 +11,7 @@ import { medicationFormSchema, type MedicationFormValues } from "../lib/medicati
 import { MEDICATION_CATEGORY_OPTIONS, MEDICATION_FORM_OPTIONS, MEDICATION_STRENGTH_OPTIONS } from "../lib/medications.constants";
 import { generateMedicationCode } from "../lib/medications.utils";
 import { CreatableSelect } from "./CreatableSelect";
+import { useMedicalReps } from "@/features/medical-rep/hooks/useMedicalReps";
 import type { Medication } from "../types/medications.types";
 
 interface Props {
@@ -24,6 +25,8 @@ interface Props {
 export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isPending }: Props) {
   const t = useTranslations("medications.drawer");
   const isEdit = medication !== null;
+
+  const { data: repsData } = useMedicalReps({ page: 1, limit: 100, search: "", status: "active" });
 
   const codeManuallyEdited = useRef(false);
 
@@ -42,6 +45,7 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
       category: "", company: "", notes: "",
       defaultDoseAmount: "", defaultDoseUnit: "",
       defaultDoseFrequency: "", defaultDoseRoute: "",
+      medicalRepId: "",
     },
   });
 
@@ -66,12 +70,14 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
             defaultDoseUnit: medication.default_dose_unit ?? "",
             defaultDoseFrequency: medication.default_dose_frequency ?? "",
             defaultDoseRoute: medication.default_dose_route ?? "",
+            medicalRepId: medication.medical_reps[0]?.id ?? "",
           }
         : {
             code: "", name: "", genericName: "", form: "", strength: "",
             category: "", company: "", notes: "",
             defaultDoseAmount: "", defaultDoseUnit: "",
             defaultDoseFrequency: "", defaultDoseRoute: "",
+            medicalRepId: "",
           },
     );
   }, [open, isEdit, medication, reset]);
@@ -291,11 +297,33 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
                 </div>
               </div>
 
-              {/* Medical Rep — placeholder */}
-              <PlaceholderField label={t("fields.medicalRep")} hint={t("fields.comingSoon")} />
-
-              {/* Assigned To — placeholder */}
-              <PlaceholderField label={t("fields.assignedTo")} hint={t("fields.comingSoon")} />
+              {/* Medical Rep */}
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                  {t("fields.medicalRep")}{" "}
+                  <span className="text-xs font-normal text-gray-400">
+                    ({t("fields.optional")})
+                  </span>
+                </label>
+                <Controller
+                  control={control}
+                  name="medicalRepId"
+                  render={({ field }) => (
+                    <select
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                    >
+                      <option value="">{t("fields.medicalRepPlaceholder")}</option>
+                      {repsData?.data.map((rep) => (
+                        <option key={rep.id} value={rep.id}>
+                          {rep.full_name}{rep.company_name ? ` — ${rep.company_name}` : ""}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                />
+              </div>
 
               {/* Company */}
               <div>
@@ -352,18 +380,3 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
   );
 }
 
-function PlaceholderField({ label, hint }: { label: string; hint: string }) {
-  return (
-    <div>
-      <label className="mb-1.5 block text-sm font-semibold text-gray-700 opacity-60">
-        {label}{" "}
-        <span className="text-xs font-normal text-gray-400">({hint})</span>
-      </label>
-      <input
-        disabled
-        title={hint}
-        className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm opacity-60 outline-none"
-      />
-    </div>
-  );
-}
