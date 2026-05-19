@@ -24,6 +24,8 @@ interface Props {
   layout?: "grid" | "stack";
   /** ISO timestamp of the last update to this section's data. When provided, renders a "last update: …" label next to the title. */
   lastUpdatedAt?: string | null;
+  /** Label text for the last-updated timestamp. Defaults to "last update:" for backward compatibility. */
+  lastUpdatedAtLabel?: string;
 }
 
 export function SectionContainer({
@@ -34,6 +36,7 @@ export function SectionContainer({
   collapsed,
   layout = "grid",
   lastUpdatedAt,
+  lastUpdatedAtLabel = "last update:",
 }: Props) {
   return (
     <section className="space-y-3">
@@ -42,7 +45,7 @@ export function SectionContainer({
           <SectionTitle title={title} />
           {lastUpdatedAt && (
             <span className="text-xs text-muted-foreground font-normal ml-2">
-              last update: {formatSectionDate(lastUpdatedAt)}
+              {lastUpdatedAtLabel} {formatSectionDate(lastUpdatedAt)}
             </span>
           )}
         </div>

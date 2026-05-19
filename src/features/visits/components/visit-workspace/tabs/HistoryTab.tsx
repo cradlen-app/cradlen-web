@@ -94,7 +94,7 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
   const template = templateQuery.data;
   const envelope = dataQuery.data;
   const initial = toInitialHistoryState(envelope, template);
-  const sectionTimestamps = (envelope as { section_timestamps?: Record<string, string> | null } | undefined)?.section_timestamps ?? null;
+  const sectionTimestamps = envelope?.section_timestamps ?? null;
 
   return (
     <TemplateExecutionContextProvider
