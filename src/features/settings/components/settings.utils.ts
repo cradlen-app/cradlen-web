@@ -17,8 +17,15 @@ export function hasRequiredValues(
   return requiredFields.every((field) => getFormString(form, field));
 }
 
+const BACKEND_ROLE_KEYS = ["OWNER", "BRANCH_MANAGER", "STAFF", "EXTERNAL"] as const;
+type BackendRoleKey = (typeof BACKEND_ROLE_KEYS)[number];
+
 export function formatRole(role: string | undefined, t: SettingsT) {
   if (!role) return t("empty.missing");
+  const upper = role.toUpperCase() as BackendRoleKey;
+  if ((BACKEND_ROLE_KEYS as readonly string[]).includes(upper)) {
+    return t(`roles.${upper}`);
+  }
   return t(`roles.${normalizeRoleName(role)}`);
 }
 

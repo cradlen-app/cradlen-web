@@ -58,7 +58,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - The global locale layout should mount providers only; do not put shared marketing footer/chrome there.
 - Render `Footer` only on public/auth/invite pages where intended, not dashboard pages — **except** the visits and patients pages which render Footer explicitly.
 - Dashboard pages use `DashboardLayout` and should remain dense, operational, and low-decoration.
-- Use `cn()` from `@/lib/utils` for conditional class names.
+- Use `cn()` from `@/common/utils/utils` for conditional class names.
 - Prefer Lucide icons for icon buttons and controls.
 - Existing generated UI primitives live in `src/components/ui/`; extend with care.
 

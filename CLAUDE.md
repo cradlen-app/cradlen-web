@@ -13,6 +13,8 @@ npm run lint           # ESLint
 npm run test           # Run all tests (Vitest)
 npm run test:unit      # Unit tests only (excludes *.integration.test.*)
 npm run test:integration  # Integration tests only
+npm run test:coverage  # Run tests with coverage report
+npm run test:e2e       # Build then run Playwright e2e tests
 npx vitest run path/to/file.test.ts  # Run a single test file
 npx vitest run -t "test name"        # Run tests matching a name
 npx tsc --noEmit --pretty false      # Faster TypeScript check without emit
@@ -38,10 +40,11 @@ Requires Node.js 20+.
   - `src/app/layout.tsx` — root shell; reads `getLocale()` to set `lang` and `dir` on `<html>`; loads Poppins and Cairo fonts via `next/font/google`
   - `src/app/[locale]/layout.tsx` — locale segment; mounts `NextIntlClientProvider`, exports `generateStaticParams`
   - `src/app/[locale]/page.tsx` — pages use `getTranslations` (server) or `useTranslations` (client)
-- `src/features/<feature>/` — feature modules with `components/`, `lib/` (schemas), `types/`, `hooks/`, `store/` subdirectories; active features: `auth`, `staff`, `patients`, `visits`, `calendar`, `notifications`, `settings`, `organizations`
+- `src/features/<feature>/` — legacy feature modules (sunset path); active: `auth`, `calendar`, `dashboard-home`, `examination`, `medical-rep`, `medications`, `notifications`, `organizations`, `patient-history`, `patients`, `settings`, `visits`
 - `src/components/ui/` — shadcn/ui primitive components; extend but don't modify generated files directly
-- `src/lib/` — shared utilities: `utils.ts` (`cn()`), `api.ts` (fetch helpers), `queryClient.ts`, `queryKeys.ts` (centralized query key factory), `routes.ts` (`buildDashboardUrl`), `error.ts`, `branch.utils.ts`; `src/lib/server/` holds server-only helpers (`backend.ts`, `signup-session.ts`, `multi-tenant-auth.ts`)
-- `src/types/` — shared TypeScript types (`api.types.ts`, `common.types.ts`)
+- `src/components/common/` — shared app-level components: `Sidebar`, `Navbar`, `Footer`, `LanguageSelect`, `SpecialtiesSelect`; shared hooks in `hooks/`
+- `src/lib/` — remaining legacy utilities: `queryKeys.ts` (centralized TanStack Query key factory — always use for cache invalidation), `auth/redirect.ts`; most helpers have migrated to `src/common/` and `src/infrastructure/`
+- `src/common/types/` — shared TypeScript types (`api.types.ts`, `common.types.ts`, `user.types.ts`)
 - `src/styles/globals.css` — Tailwind v4 theme tokens defined as CSS variables here; `:lang(ar)` swaps `--font-sans` to Cairo
 - `src/public/` — static assets (Logo.png, Logo-icon.png); import via Next.js `Image` as static imports — **not** the root `public/`. New static assets go here.
 - `src/i18n/routing.ts` — locale list (`en`, `ar`) and `defaultLocale`
@@ -71,7 +74,7 @@ Custom Tailwind tokens for brand consistency (defined in `globals.css`):
 
 ## Multi-tenant URL Structure
 
-Dashboard pages live at `[locale]/[orgId]/[branchId]/dashboard/<section>`. The `orgId` and `branchId` are URL path segments — use `useDashboardPath()` from `src/hooks/useDashboardPath.ts` in client components to build navigation URLs, or `buildDashboardUrl(orgId, branchId, path)` from `src/lib/routes.ts` in server contexts.
+Dashboard pages live at `[locale]/[orgId]/[branchId]/dashboard/<section>`. The `orgId` and `branchId` are URL path segments — use `useDashboardPath()` from `src/hooks/useDashboardPath.ts` in client components to build navigation URLs, or `buildDashboardUrl(orgId, branchId, path)` from `src/infrastructure/http/routes.ts` in server contexts.
 
 The auth context (org/branch/profile IDs) is held in `authContextStore` (Zustand, persisted as `cradlen-org-context`) and injected as `X-Organization-Id`, `X-Profile-Id`, `X-Branch-Id` headers by `apiAuthFetch`.
 
@@ -95,7 +98,7 @@ Visits use a Socket.IO connection (`socket.io-client`) via `useVisitSocket`. The
 
 ## Architecture: Modular Kernel + Plugin Layout
 
-The codebase is migrating from a flat `src/features/<feature>/` layout to a five-layer split that mirrors `cradlen-api`. Phase A (kernel skeleton) is in; Phase B (move shared `lib/` and `types/` into `common/` + `infrastructure/`) and Phase C (migrate `staff` to `core/staff/`) are upcoming.
+The codebase is migrating from a flat `src/features/<feature>/` layout to a five-layer split that mirrors `cradlen-api`. Phase A (kernel skeleton) and Phase B (shared `lib/`/`types/` moved to `common/` + `infrastructure/`) are complete; Phase C (migrate remaining features to `core/` — `staff` is the canonical example already done) is in progress.
 
 ### Layers
 

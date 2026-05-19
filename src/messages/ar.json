@@ -105,6 +105,10 @@
       "inactive": "غير نشط"
     },
     "roles": {
+      "OWNER": "مالك",
+      "BRANCH_MANAGER": "مدير فرع",
+      "STAFF": "موظف",
+      "EXTERNAL": "خارجي",
       "owner": "مالك",
       "doctor": "طبيب",
       "reception": "استقبال",
