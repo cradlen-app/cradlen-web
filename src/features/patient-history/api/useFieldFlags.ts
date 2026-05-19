@@ -43,8 +43,10 @@ export function useUpsertFieldFlag(patientId: string) {
 export function useUpdateFieldFlagNote(patientId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (args: Omit<UpdateFieldFlagNoteArgs, "patientId">) =>
-      updateFieldFlagNote({ ...args, patientId }),
+    mutationFn: async (args: UpdateFieldFlagNoteArgs) => {
+      const res = await updateFieldFlagNote({ ...args });
+      return res.data;
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: fieldFlagsKey(patientId) });
     },
@@ -54,7 +56,9 @@ export function useUpdateFieldFlagNote(patientId: string) {
 export function useRemoveFieldFlag(patientId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (flagId: string) => removeFieldFlag(patientId, flagId),
+    mutationFn: async (flagId: string) => {
+      await removeFieldFlag(flagId);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: fieldFlagsKey(patientId) });
     },
