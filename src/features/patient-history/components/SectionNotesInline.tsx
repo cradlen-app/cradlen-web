@@ -5,10 +5,12 @@ import { ChevronDown, ChevronRight, NotebookPen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
+import type { NoteVisibility } from "../api/notes.api";
 import {
   useCreateSectionNote,
   useDeleteSectionNote,
   useSectionNotes,
+  useUpdateSectionNote,
 } from "../api/useSectionNotes";
 
 interface Props {
@@ -25,14 +27,20 @@ function NoteRow({
   id,
   content,
   createdAt,
+  visibility,
   onDelete,
+  onToggleVisibility,
 }: {
   id: string;
   content: string;
   createdAt: string;
+  visibility: NoteVisibility;
   onDelete: (id: string) => void;
+  onToggleVisibility: (id: string, current: NoteVisibility) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const t = useTranslations("patient_history.workspace.notes");
+  const isShared = visibility === "SHARED_GLOBAL";
 
   return (
     <div className="flex items-start gap-2 border-b border-gray-100 py-2 last:border-b-0">
@@ -48,6 +56,19 @@ function NoteRow({
         {content}
       </p>
       <div className="flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={() => onToggleVisibility(id, visibility)}
+          title={isShared ? t("visibility.shared") : t("visibility.private")}
+          className={cn(
+            "rounded-full px-1.5 py-0.5 text-[10px] font-medium transition-colors",
+            isShared
+              ? "bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20"
+              : "bg-gray-100 text-gray-500 hover:bg-gray-200",
+          )}
+        >
+          {isShared ? t("visibility.shared") : t("visibility.private")}
+        </button>
         <button
           type="button"
           onClick={() => onDelete(id)}
@@ -71,10 +92,12 @@ export function SectionNotesInline({ patientId, sectionCode }: Props) {
   const t = useTranslations("patient_history.workspace.notes");
   const [composing, setComposing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [draftVisibility, setDraftVisibility] = useState<NoteVisibility>("PRIVATE_TO_ORG");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data } = useSectionNotes(patientId, sectionCode, true);
   const createMut = useCreateSectionNote(patientId, sectionCode);
+  const updateMut = useUpdateSectionNote(patientId, sectionCode);
   const deleteMut = useDeleteSectionNote(patientId, sectionCode);
 
   const notes = data?.visible ?? [];
@@ -83,8 +106,9 @@ export function SectionNotesInline({ patientId, sectionCode }: Props) {
     const trimmed = draft.trim();
     if (!trimmed) return;
     try {
-      await createMut.mutateAsync({ content: trimmed, visibility: "PRIVATE_TO_ORG" });
+      await createMut.mutateAsync({ content: trimmed, visibility: draftVisibility });
       setDraft("");
+      setDraftVisibility("PRIVATE_TO_ORG");
       setComposing(false);
       toast.success(t("savedToast"));
     } catch {
@@ -96,6 +120,16 @@ export function SectionNotesInline({ patientId, sectionCode }: Props) {
     try {
       await deleteMut.mutateAsync({ noteId });
       toast.success(t("deletedToast"));
+    } catch {
+      toast.error(t("errorToast"));
+    }
+  }
+
+  async function handleToggleVisibility(noteId: string, current: NoteVisibility) {
+    const next: NoteVisibility =
+      current === "PRIVATE_TO_ORG" ? "SHARED_GLOBAL" : "PRIVATE_TO_ORG";
+    try {
+      await updateMut.mutateAsync({ noteId, visibility: next });
     } catch {
       toast.error(t("errorToast"));
     }
@@ -116,7 +150,9 @@ export function SectionNotesInline({ patientId, sectionCode }: Props) {
               id={note.id}
               content={note.content}
               createdAt={note.created_at}
+              visibility={note.visibility}
               onDelete={handleDelete}
+              onToggleVisibility={handleToggleVisibility}
             />
           ))}
         </div>
@@ -132,22 +168,50 @@ export function SectionNotesInline({ patientId, sectionCode }: Props) {
             rows={3}
             className="w-full resize-none rounded border border-gray-200 px-2 py-1.5 text-xs outline-none focus:border-brand-primary"
           />
-          <div className="mt-2 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => { setComposing(false); setDraft(""); }}
-              className="text-[11px] text-gray-400 hover:text-gray-600"
-            >
-              {t("cancel")}
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!draft.trim() || createMut.isPending}
-              className="rounded bg-brand-primary px-3 py-1 text-[11px] font-medium text-white disabled:opacity-50"
-            >
-              {t("save")}
-            </button>
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <div className="flex overflow-hidden rounded border border-gray-200 text-[10px]">
+              <button
+                type="button"
+                onClick={() => setDraftVisibility("PRIVATE_TO_ORG")}
+                className={cn(
+                  "px-2 py-1",
+                  draftVisibility === "PRIVATE_TO_ORG"
+                    ? "bg-gray-100 font-medium text-brand-black"
+                    : "text-gray-500",
+                )}
+              >
+                {t("visibility.private")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDraftVisibility("SHARED_GLOBAL")}
+                className={cn(
+                  "px-2 py-1",
+                  draftVisibility === "SHARED_GLOBAL"
+                    ? "bg-brand-primary text-white"
+                    : "text-gray-500",
+                )}
+              >
+                {t("visibility.shared")}
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => { setComposing(false); setDraft(""); setDraftVisibility("PRIVATE_TO_ORG"); }}
+                className="text-[11px] text-gray-400 hover:text-gray-600"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!draft.trim() || createMut.isPending}
+                className="rounded bg-brand-primary px-3 py-1 text-[11px] font-medium text-white disabled:opacity-50"
+              >
+                {t("save")}
+              </button>
+            </div>
           </div>
         </div>
       ) : (
