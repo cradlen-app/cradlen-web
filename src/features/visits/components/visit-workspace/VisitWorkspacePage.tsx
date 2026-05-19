@@ -136,7 +136,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
           </TabsContent>
           <TabsContent
             value="history"
-            className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-2xl border border-gray-100 bg-white shadow-sm p-8"
+            className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-2xl border border-gray-100 bg-white shadow-sm p-6"
           >
             <HistoryTab
               patientId={visit.patient.id}
@@ -145,9 +145,13 @@ export function VisitWorkspacePage({ visitId }: Props) {
           </TabsContent>
           <TabsContent
             value="examination"
-            className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm p-8"
+            className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm p-6"
           >
-            <ExaminationTab visit={visit} />
+            <ExaminationTab
+              visit={visit}
+              onCompleteVisit={canComplete ? handleComplete : undefined}
+              canCompleteVisit={!!canComplete}
+            />
           </TabsContent>
         </Tabs>
 

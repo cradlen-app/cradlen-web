@@ -24,8 +24,9 @@ interface Props {
   /** Group names the consumer wants visually collapsed (header only). */
   collapsedGroups?: ReadonlySet<string>;
   /**
-   * Optional slot next to each ATOMIC section title. Used by templates that
-   * don't carry group annotations (e.g. the book-visit drawer).
+   * Optional slot next to each ATOMIC section title. Fires for ALL sections
+   * regardless of whether they belong to a named group — the callback receives
+   * the full section and decides what to render (return undefined to skip).
    */
   renderSectionHeaderSlot?: (section: FormSectionDto) => ReactNode;
   /**
@@ -33,6 +34,11 @@ interface Props {
    * (e.g. an inline notes timeline). Not shown for repeatable sections.
    */
   renderSectionBottomSlot?: (section: FormSectionDto) => ReactNode;
+  /**
+   * Section codes that should be individually collapsed (independent of
+   * group-level collapse). Passed as `collapsed` to each SectionContainer.
+   */
+  collapsedSections?: ReadonlySet<string>;
 }
 
 export function TemplateRenderer({
@@ -42,6 +48,7 @@ export function TemplateRenderer({
   collapsedGroups,
   renderSectionHeaderSlot,
   renderSectionBottomSlot,
+  collapsedSections,
 }: Props) {
   useDiscriminatorReset();
   useSpecialtyAutoFill();
@@ -102,16 +109,13 @@ export function TemplateRenderer({
                 <SectionContainer
                   key={section.id}
                   title={section.name}
-                  headerSlot={
-                    group.name === null
-                      ? renderSectionHeaderSlot?.(section)
-                      : undefined
-                  }
+                  headerSlot={renderSectionHeaderSlot?.(section)}
                   bottomSlot={
                     !section.is_repeatable
                       ? renderSectionBottomSlot?.(section)
                       : undefined
                   }
+                  collapsed={collapsedSections?.has(section.code)}
                   layout={section.is_repeatable ? "stack" : "grid"}
                 >
                   {section.is_repeatable ? (
