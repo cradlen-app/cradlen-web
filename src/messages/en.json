@@ -978,6 +978,8 @@
         "savedToast": "Note saved.",
         "deletedToast": "Note deleted.",
         "errorToast": "Could not save the note.",
+        "addNote": "Add New Note ....",
+        "cancel": "Cancel",
         "redactedHint": "{count} notes from other clinics (hidden)",
         "visibility": {
           "private": "Private",

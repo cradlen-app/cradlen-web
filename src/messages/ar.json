@@ -978,6 +978,8 @@
         "savedToast": "تم حفظ الملاحظة.",
         "deletedToast": "تم حذف الملاحظة.",
         "errorToast": "تعذر حفظ الملاحظة.",
+        "addNote": "إضافة ملاحظة جديدة ....",
+        "cancel": "إلغاء",
         "redactedHint": "{count} ملاحظات من عيادات أخرى (مخفية)",
         "visibility": {
           "private": "خاص",
