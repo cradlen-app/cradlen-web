@@ -10,7 +10,7 @@ import {
 } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
-  getProfilePrimaryRole,
+  getRawProfileRole,
 } from "@/features/auth/lib/current-user";
 import { isOwner as isOwnerPerm } from "@/features/auth/lib/permissions";
 import { useAuthStore } from "@/features/auth/store/authStore";
@@ -191,7 +191,7 @@ export function SettingsPage() {
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-4 lg:p-6">
       <SettingsHeader
         active={user.is_active}
-        roleLabel={formatRole(getProfilePrimaryRole(profile), t)}
+        roleLabel={formatRole(getRawProfileRole(profile), t)}
         t={t}
       />
 

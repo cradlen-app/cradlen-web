@@ -102,3 +102,10 @@ export function getActiveRole(user?: CurrentUser | null): UserRole | undefined {
   const activeProfile = getActiveProfile(user);
   return activeProfile ? getProfileRoles(activeProfile)[0] : undefined;
 }
+
+export function getRawProfileRole(profile?: UserProfile): string | undefined {
+  if (!profile) return undefined;
+  const first = profile.roles?.[0];
+  if (first) return typeof first === "string" ? first : first.name;
+  return profile.role?.name;
+}

@@ -1,4 +1,4 @@
-export type BackendUserRole = "OWNER" | "DOCTOR" | "RECEPTIONIST";
+export type BackendUserRole = "OWNER" | "BRANCH_MANAGER" | "STAFF" | "EXTERNAL";
 
 export type UserRole = "owner" | "reception" | "doctor" | "patient" | "unknown";
 
