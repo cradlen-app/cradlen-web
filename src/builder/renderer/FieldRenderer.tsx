@@ -137,8 +137,33 @@ export function FieldRenderer({ field, error, flagged, existingFlag, onFlag, onU
   return (
     <div
       className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}
-      onDoubleClick={() => { if (onFlag) setFlagPanelOpen((prev) => !prev); }}
+      onDoubleClick={(e) => {
+        if (!onFlag) return;
+        const target = e.target as HTMLElement;
+        if (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'BUTTON' ||
+          target.tagName === 'SELECT'
+        ) return;
+        setFlagPanelOpen((prev) => !prev);
+      }}
     >
+      {onFlag && (
+        <div className="flex justify-end mb-0.5">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setFlagPanelOpen((prev) => !prev); }}
+            className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded text-xs leading-none ${
+              flagged ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
+            }`}
+            aria-label={flagged ? 'Remove flag' : 'Flag this field'}
+            title={flagged ? 'Remove flag' : 'Flag this field'}
+          >
+            ⚑
+          </button>
+        </div>
+      )}
       <Input
         field={field}
         value={value}
@@ -150,6 +175,7 @@ export function FieldRenderer({ field, error, flagged, existingFlag, onFlag, onU
       />
       {flagPanelOpen && onFlag && (
         <FieldFlagPanel
+          key={existingFlag?.id ?? 'new'}
           existingFlag={existingFlag}
           onFlag={onFlag}
           onUnflag={onUnflag ?? (() => {})}
