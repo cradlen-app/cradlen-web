@@ -5,7 +5,7 @@ import { fieldClass, FieldShell } from "../field-shell";
 import { useComputedField } from "../../runtime/useFormula";
 import type { FieldInputProps } from "../input-props";
 
-export function ComputedInput({ field, required, error }: FieldInputProps) {
+export function ComputedInput({ field, required, error, flagged }: FieldInputProps) {
   const computed = useComputedField(field);
   const display =
     computed === null || computed === undefined ? "—" : String(computed);
@@ -20,7 +20,7 @@ export function ComputedInput({ field, required, error }: FieldInputProps) {
     />
   );
   return (
-    <FieldShell label={field.label} required={required} error={error}>
+    <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       {suffix ? (
         <div className="relative">
           {input}

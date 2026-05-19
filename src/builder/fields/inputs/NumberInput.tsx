@@ -16,6 +16,7 @@ function makeNumberInput({ step: defaultStep }: Options = {}) {
     required,
     disabled,
     error,
+    flagged,
   }: FieldInputProps) {
     const min = field.config?.validation?.min as number | undefined;
     const max = field.config?.validation?.max as number | undefined;
@@ -44,7 +45,7 @@ function makeNumberInput({ step: defaultStep }: Options = {}) {
       />
     );
     return (
-      <FieldShell label={field.label} required={required} error={error}>
+      <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
         {suffix ? (
           <div className="relative">
             {input}

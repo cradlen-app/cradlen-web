@@ -13,10 +13,10 @@ function toDateInputValue(value: unknown): string {
   return value.length > 10 && value[10] === "T" ? value.slice(0, 10) : value;
 }
 
-export function DateInput({ field, value, onChange, required, disabled, error }: FieldInputProps) {
+export function DateInput({ field, value, onChange, required, disabled, error, flagged }: FieldInputProps) {
   useDefaultValue(field, EMPTY_OPTIONS);
   return (
-    <FieldShell label={field.label} required={required} error={error}>
+    <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       <input
         type="date"
         value={toDateInputValue(value)}
@@ -35,10 +35,11 @@ export function DateTimeInput({
   required,
   disabled,
   error,
+  flagged,
 }: FieldInputProps) {
   useDefaultValue(field, EMPTY_OPTIONS);
   return (
-    <FieldShell label={field.label} required={required} error={error}>
+    <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       <input
         type="datetime-local"
         value={typeof value === "string" ? value : ""}

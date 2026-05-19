@@ -11,14 +11,21 @@ interface FieldShellProps {
   error?: string;
   children: ReactNode;
   className?: string;
+  flagged?: boolean;
 }
 
-export function FieldShell({ label, required, error, children, className }: FieldShellProps) {
+export function FieldShell({ label, required, error, children, className, flagged }: FieldShellProps) {
   return (
     <label className={className ?? "block"}>
       <span className="text-xs font-medium text-brand-black">
         {label}
         {required ? <span className="text-red-500"> *</span> : null}
+        {flagged && (
+          <span
+            className="inline-block w-2 h-2 rounded-full bg-destructive ml-1 align-middle"
+            title="Flagged"
+          />
+        )}
       </span>
       {children}
       {error ? <p className="pt-1 text-[11px] text-red-500">{error}</p> : null}

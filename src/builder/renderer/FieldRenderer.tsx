@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { applyEffect } from "../rules/predicate.evaluator";
 import { useEvaluationContext, useTemplateExecution } from "../runtime/TemplateExecutionContext";
 import { useFieldValue, useSetFieldValue } from "../runtime/useFieldState";
@@ -14,6 +14,8 @@ import { MultiSelectInput } from "../fields/inputs/MultiSelectInput";
 import { ComputedInput } from "../fields/inputs/ComputedInput";
 import { EntitySearchInput } from "../fields/inputs/EntitySearchInput";
 import type { FormFieldDto, FormFieldType } from "../templates/template.types";
+import { FieldFlagPanel } from "./FieldFlagPanel.js";
+import type { FieldFlagDto } from "../../features/patient-history/api/field-flags.api.js";
 
 const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
   field: FormFieldDto;
@@ -22,6 +24,7 @@ const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
   required: boolean;
   disabled: boolean;
   error?: string;
+  flagged?: boolean;
 }>> = {
   TEXT: TextInput,
   TEXTAREA: TextareaInput,
@@ -39,6 +42,10 @@ const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
 interface Props {
   field: FormFieldDto;
   error?: string;
+  flagged?: boolean;
+  existingFlag?: FieldFlagDto;
+  onFlag?: (note?: string) => void;
+  onUnflag?: () => void;
 }
 
 /** Tailwind `col-span-N` class for every valid N (avoids dynamic class names). */
@@ -73,11 +80,12 @@ function resolveColSpan(field: FormFieldDto): number {
   return 6;
 }
 
-export function FieldRenderer({ field, error }: Props) {
+export function FieldRenderer({ field, error, flagged, existingFlag, onFlag, onUnflag }: Props) {
   const ctx = useEvaluationContext();
   const value = useFieldValue(field.code);
   const setFieldValue = useSetFieldValue();
   const { patchSearch } = useTemplateExecution();
+  const [flagPanelOpen, setFlagPanelOpen] = useState(false);
 
   const visible = useMemo(
     () => applyEffect(field.config?.logic?.predicates, "visible", ctx, true),
@@ -127,7 +135,10 @@ export function FieldRenderer({ field, error }: Props) {
   const span = resolveColSpan(field);
 
   return (
-    <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>
+    <div
+      className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}
+      onDoubleClick={() => { if (onFlag) setFlagPanelOpen((prev) => !prev); }}
+    >
       <Input
         field={field}
         value={value}
@@ -135,7 +146,16 @@ export function FieldRenderer({ field, error }: Props) {
         required={required}
         disabled={!enabled}
         error={error}
+        flagged={flagged}
       />
+      {flagPanelOpen && onFlag && (
+        <FieldFlagPanel
+          existingFlag={existingFlag}
+          onFlag={onFlag}
+          onUnflag={onUnflag ?? (() => {})}
+          onClose={() => setFlagPanelOpen(false)}
+        />
+      )}
     </div>
   );
 }
