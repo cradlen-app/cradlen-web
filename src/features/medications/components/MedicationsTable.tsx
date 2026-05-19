@@ -80,15 +80,23 @@ export function MedicationsTable({
               <td className="px-4 py-3 text-sm text-gray-600">
                 {med.strength ?? "—"}
               </td>
-              <td className="px-4 py-3 text-sm text-gray-400">—</td>
-              <td className="hidden px-4 py-3 text-sm text-gray-400 lg:table-cell">
-                —
+              <td className="px-4 py-3 text-sm text-gray-600">
+                {med.category ?? "—"}
+              </td>
+              <td className="hidden px-4 py-3 text-sm text-gray-600 lg:table-cell">
+                {formatDefaultDose(med)}
               </td>
               <td className="px-4 py-3 text-sm text-gray-600">
                 {med.total_prescriptions}
               </td>
-              <td className="hidden px-4 py-3 text-sm text-gray-400 xl:table-cell">
-                —
+              <td className="hidden px-4 py-3 xl:table-cell">
+                {med.notes ? (
+                  <span className="block max-w-[160px] truncate text-sm text-gray-500" title={med.notes}>
+                    {med.notes}
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-400">—</span>
+                )}
               </td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
@@ -116,6 +124,15 @@ export function MedicationsTable({
       </tbody>
     </table>
   );
+}
+
+function formatDefaultDose(med: Medication): string {
+  const amountUnit =
+    med.default_dose_amount != null
+      ? `${med.default_dose_amount}${med.default_dose_unit ?? ""}`
+      : med.default_dose_unit ?? "";
+  const parts = [amountUnit, med.default_dose_frequency, med.default_dose_route].filter(Boolean);
+  return parts.join(" · ") || "—";
 }
 
 function TableSkeleton() {

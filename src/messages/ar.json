@@ -1056,7 +1056,7 @@
         "defaultDoseFrequency": "التكرار",
         "defaultDoseRoute": "طريقة الإعطاء",
         "medicalRep": "المندوب الطبي",
-        "assignedTo": "مُسند إلى",
+        "medicalRepPlaceholder": "بدون",
         "company": "الشركة",
         "notes": "ملاحظات",
         "addOption": "إضافة \"{value}\"",
