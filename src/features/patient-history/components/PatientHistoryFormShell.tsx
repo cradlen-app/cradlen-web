@@ -18,6 +18,8 @@ interface Props {
   visibility: SectionVisibility;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
+  /** Map of section key → ISO timestamp for the last update to that section. */
+  sectionTimestamps?: Record<string, string> | null;
 }
 
 export function PatientHistoryFormShell({
@@ -27,6 +29,7 @@ export function PatientHistoryFormShell({
   visibility,
   onSave,
   saving,
+  sectionTimestamps,
 }: Props) {
   const t = useTranslations("patient_history.workspace");
   const execution = useTemplateExecution();
@@ -87,6 +90,7 @@ export function PatientHistoryFormShell({
           renderGroupHeaderSlot={renderGroupHeaderSlot}
           collapsedGroups={visibility.hidden}
           renderSectionBottomSlot={renderSectionBottomSlot}
+          sectionTimestamps={sectionTimestamps}
         />
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">

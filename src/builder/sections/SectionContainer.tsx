@@ -3,6 +3,10 @@
 import type { ReactNode } from "react";
 import { SectionTitle } from "../fields/field-shell";
 
+function formatSectionDate(iso: string): string {
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
+}
+
 interface Props {
   title: string;
   children: ReactNode;
@@ -18,6 +22,8 @@ interface Props {
    * sections (each row owns its own internal grid).
    */
   layout?: "grid" | "stack";
+  /** ISO timestamp of the last update to this section's data. When provided, renders a "last update: …" label next to the title. */
+  lastUpdatedAt?: string | null;
 }
 
 export function SectionContainer({
@@ -27,11 +33,19 @@ export function SectionContainer({
   bottomSlot,
   collapsed,
   layout = "grid",
+  lastUpdatedAt,
 }: Props) {
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <SectionTitle title={title} />
+        <div className="flex items-center">
+          <SectionTitle title={title} />
+          {lastUpdatedAt && (
+            <span className="text-xs text-muted-foreground font-normal ml-2">
+              last update: {formatSectionDate(lastUpdatedAt)}
+            </span>
+          )}
+        </div>
         {headerSlot}
       </div>
       {!collapsed && (
