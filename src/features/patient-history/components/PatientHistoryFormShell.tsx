@@ -9,8 +9,7 @@ import { useTemplateExecution } from "@/builder/runtime/TemplateExecutionContext
 import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { buildPatientHistorySubmission } from "../lib/history-submission";
 import type { SectionVisibility } from "../lib/section-visibility";
-import { slugifyGroup } from "../lib/slug";
-import { SectionNotesButton } from "./SectionNotesButton";
+import { SectionNotesInline } from "./SectionNotesInline";
 
 interface Props {
   template: FormTemplateDto;
@@ -36,23 +35,20 @@ export function PatientHistoryFormShell({
   const renderGroupHeaderSlot = (groupName: string) => {
     const isHidden = visibility.isHidden(groupName);
     return (
-      <div className="flex items-center gap-1">
-        <SectionNotesButton
-          patientId={patientId}
-          sectionCode={slugifyGroup(groupName)}
-          groupName={groupName}
-        />
-        <button
-          type="button"
-          aria-label={isHidden ? t("showSection") : t("hideSection")}
-          onClick={() => visibility.toggle(groupName)}
-          className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
-        >
-          {isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
-      </div>
+      <button
+        type="button"
+        aria-label={isHidden ? t("showSection") : t("hideSection")}
+        onClick={() => visibility.toggle(groupName)}
+        className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
+      >
+        {isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
+      </button>
     );
   };
+
+  const renderSectionBottomSlot = (section: { code: string }) => (
+    <SectionNotesInline patientId={patientId} sectionCode={section.code} />
+  );
 
   async function handleSave() {
     setErrors(undefined);
@@ -90,6 +86,7 @@ export function PatientHistoryFormShell({
           errors={errors}
           renderGroupHeaderSlot={renderGroupHeaderSlot}
           collapsedGroups={visibility.hidden}
+          renderSectionBottomSlot={renderSectionBottomSlot}
         />
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
