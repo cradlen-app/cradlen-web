@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { FieldFlagDto } from '../../features/patient-history/api/field-flags.api.js';
+import type { FieldFlag } from './field-flag.types.js';
 
 interface FieldFlagPanelProps {
-  existingFlag: FieldFlagDto | undefined;
+  existingFlag: FieldFlag | undefined;
   onFlag: (note?: string) => void;
   onUnflag: () => void;
   onClose: () => void;

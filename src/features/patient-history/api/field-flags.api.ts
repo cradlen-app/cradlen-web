@@ -1,5 +1,8 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 
+export type { FieldFlag } from "../../../builder/renderer/field-flag.types.js";
+
+// FieldFlagDto extends FieldFlag with the full API response shape
 export interface FieldFlagDto {
   id: string;
   patient_id: string;

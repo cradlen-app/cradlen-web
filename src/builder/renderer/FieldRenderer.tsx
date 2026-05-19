@@ -15,7 +15,7 @@ import { ComputedInput } from "../fields/inputs/ComputedInput";
 import { EntitySearchInput } from "../fields/inputs/EntitySearchInput";
 import type { FormFieldDto, FormFieldType } from "../templates/template.types";
 import { FieldFlagPanel } from "./FieldFlagPanel.js";
-import type { FieldFlagDto } from "../../features/patient-history/api/field-flags.api.js";
+import type { FieldFlag } from "./field-flag.types.js";
 
 const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
   field: FormFieldDto;
@@ -43,7 +43,7 @@ interface Props {
   field: FormFieldDto;
   error?: string;
   flagged?: boolean;
-  existingFlag?: FieldFlagDto;
+  existingFlag?: FieldFlag;
   onFlag?: (note?: string) => void;
   onUnflag?: () => void;
 }

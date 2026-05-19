@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
   useUpsertFieldFlag,
   useRemoveFieldFlag,
 } from "../api/useFieldFlags";
-import type { FieldFlagDto } from "../api/field-flags.api";
+import type { FieldFlag } from "../../../builder/renderer/field-flag.types.js";
 
 interface Props {
   template: FormTemplateDto;
@@ -46,12 +46,23 @@ export function PatientHistoryFormShell({
   const { mutate: removeFlag } = useRemoveFieldFlag(patientId);
 
   const flagIndex = useMemo(() => {
-    const idx: Record<string, FieldFlagDto> = {};
+    const idx: Record<string, FieldFlag> = {};
     (flags ?? []).forEach((f) => {
       idx[`${f.section_code}.${f.field_code}`] = f;
     });
     return idx;
   }, [flags]);
+
+  const handleFlag = useCallback(
+    (section_code: string, field_code: string, note?: string) =>
+      upsertFlag({ section_code, field_code, note }),
+    [upsertFlag],
+  );
+
+  const handleUnflag = useCallback(
+    (flagId: string) => removeFlag(flagId),
+    [removeFlag],
+  );
 
   const renderGroupHeaderSlot = (groupName: string) => {
     const isHidden = visibility.isHidden(groupName);
@@ -110,10 +121,8 @@ export function PatientHistoryFormShell({
           renderSectionBottomSlot={renderSectionBottomSlot}
           sectionTimestamps={sectionTimestamps}
           flagIndex={flagIndex}
-          onFlag={(section_code, field_code, note) =>
-            upsertFlag({ section_code, field_code, note })
-          }
-          onUnflag={(flagId) => removeFlag(flagId)}
+          onFlag={handleFlag}
+          onUnflag={handleUnflag}
         />
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
