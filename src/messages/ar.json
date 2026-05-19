@@ -1006,7 +1006,8 @@
       "hideSection": "إخفاء مجموعة الأقسام",
       "versionLabel": "نسخة {version}",
       "addRow": "+ إضافة صف",
-      "removeRow": "إزالة"
+      "removeRow": "إزالة",
+      "completeVisit": "إنهاء الزيارة"
     }
   },
   "medications": {
