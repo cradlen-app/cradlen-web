@@ -140,30 +140,10 @@ export function FieldRenderer({ field, error, flagged, existingFlag, onFlag, onU
       onDoubleClick={(e) => {
         if (!onFlag) return;
         const target = e.target as HTMLElement;
-        if (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.tagName === 'BUTTON' ||
-          target.tagName === 'SELECT'
-        ) return;
+        if (target.tagName === 'BUTTON') return;
         setFlagPanelOpen((prev) => !prev);
       }}
     >
-      {onFlag && (
-        <div className="flex justify-end mb-0.5">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setFlagPanelOpen((prev) => !prev); }}
-            className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded text-xs leading-none ${
-              flagged ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
-            }`}
-            aria-label={flagged ? 'Remove flag' : 'Flag this field'}
-            title={flagged ? 'Remove flag' : 'Flag this field'}
-          >
-            ⚑
-          </button>
-        </div>
-      )}
       <Input
         field={field}
         value={value}
