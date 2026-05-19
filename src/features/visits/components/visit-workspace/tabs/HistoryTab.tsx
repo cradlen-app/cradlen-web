@@ -94,6 +94,7 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
   const template = templateQuery.data;
   const envelope = dataQuery.data;
   const initial = toInitialHistoryState(envelope, template);
+  const sectionTimestamps = envelope?.section_timestamps ?? null;
 
   return (
     <TemplateExecutionContextProvider
@@ -108,6 +109,7 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
         version={envelope.version}
         visibility={visibility}
         saving={patchMut.isPending}
+        sectionTimestamps={sectionTimestamps}
         onSave={async (body) => {
           try {
             await patchMut.mutateAsync({ ifMatchVersion: envelope.version, body });

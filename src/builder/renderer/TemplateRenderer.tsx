@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { applyEffect } from "../rules/predicate.evaluator";
 import { useEvaluationContext } from "../runtime/TemplateExecutionContext";
 import { useDiscriminatorReset } from "../runtime/useDiscriminatorReset";
@@ -11,6 +12,12 @@ import { FieldRenderer } from "./FieldRenderer";
 import { RepeatableSectionRenderer } from "./RepeatableSectionRenderer";
 import { groupSections } from "./group-sections";
 import type { FormSectionDto, FormTemplateDto } from "../templates/template.types";
+import type { FieldFlag } from "./field-flag.types";
+
+/** Maps template section codes to service-layer DTO keys when they differ. */
+const SECTION_TIMESTAMP_KEY: Record<string, string> = {
+  screening_vaccinations: 'screening_history',
+};
 
 interface Props {
   template: FormTemplateDto;
@@ -39,6 +46,22 @@ interface Props {
    * group-level collapse). Passed as `collapsed` to each SectionContainer.
    */
   collapsedSections?: ReadonlySet<string>;
+  /**
+   * Map of section key → ISO timestamp of the last update for that section.
+   * Keys are service-layer DTO field names (e.g. `screening_history`); the
+   * renderer resolves template section codes via SECTION_TIMESTAMP_KEY.
+   */
+  sectionTimestamps?: Record<string, string> | null;
+  /**
+   * Map of `"section_code.field_code"` → FieldFlagDto for O(1) flag lookups.
+   * Supplied by the parent consumer (e.g. PatientHistoryFormShell) after
+   * fetching all flags for the current patient.
+   */
+  flagIndex?: Record<string, FieldFlag>;
+  /** Called when the user saves a new flag (or updates an existing one). */
+  onFlag?: (section_code: string, field_code: string, note?: string) => void;
+  /** Called when the user removes an existing flag. Receives the flag's id. */
+  onUnflag?: (flagId: string) => void;
 }
 
 export function TemplateRenderer({
@@ -49,7 +72,12 @@ export function TemplateRenderer({
   renderSectionHeaderSlot,
   renderSectionBottomSlot,
   collapsedSections,
+  sectionTimestamps,
+  flagIndex,
+  onFlag,
+  onUnflag,
 }: Props) {
+  const t = useTranslations("builder");
   useDiscriminatorReset();
   useSpecialtyAutoFill();
   const ctx = useEvaluationContext();
@@ -117,6 +145,8 @@ export function TemplateRenderer({
                   }
                   collapsed={collapsedSections?.has(section.code)}
                   layout={section.is_repeatable ? "stack" : "grid"}
+                  lastUpdatedAt={sectionTimestamps?.[SECTION_TIMESTAMP_KEY[section.code] ?? section.code] ?? null}
+                  lastUpdatedAtLabel={t("sections.lastUpdatedAt")}
                 >
                   {section.is_repeatable ? (
                     <RepeatableSectionRenderer section={section} errors={errors} />
@@ -125,13 +155,29 @@ export function TemplateRenderer({
                       .slice()
                       .filter((f) => !hiddenIdTargets.has(f.code))
                       .sort((a, b) => a.order - b.order)
-                      .map((field) => (
-                        <FieldRenderer
-                          key={field.id}
-                          field={field}
-                          error={errors?.[field.code]}
-                        />
-                      ))
+                      .map((field) => {
+                        const flagKey = `${section.code}.${field.code}`;
+                        const existingFlag = flagIndex?.[flagKey];
+                        return (
+                          <FieldRenderer
+                            key={field.id}
+                            field={field}
+                            error={errors?.[field.code]}
+                            flagged={!!existingFlag}
+                            existingFlag={existingFlag}
+                            onFlag={
+                              onFlag
+                                ? (note) => onFlag(section.code, field.code, note)
+                                : undefined
+                            }
+                            onUnflag={
+                              onUnflag && existingFlag
+                                ? () => onUnflag(existingFlag.id)
+                                : undefined
+                            }
+                          />
+                        );
+                      })
                   )}
                 </SectionContainer>
               ))}

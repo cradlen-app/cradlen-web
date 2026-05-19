@@ -1076,6 +1076,11 @@
       "cancel": "إلغاء"
     }
   },
+  "builder": {
+    "sections": {
+      "lastUpdatedAt": "آخر تحديث:"
+    }
+  },
   "medicalRep": {
     "title": "المندوب الطبي",
     "search": "بحث ....",

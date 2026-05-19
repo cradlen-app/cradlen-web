@@ -7,4 +7,5 @@ export interface FieldInputProps {
   required: boolean;
   disabled: boolean;
   error?: string;
+  flagged?: boolean;
 }

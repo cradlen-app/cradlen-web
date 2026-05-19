@@ -1076,6 +1076,11 @@
       "cancel": "Cancel"
     }
   },
+  "builder": {
+    "sections": {
+      "lastUpdatedAt": "last update:"
+    }
+  },
   "medicalRep": {
     "title": "Medical Rep",
     "search": "Search ....",

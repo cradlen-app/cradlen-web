@@ -15,6 +15,7 @@ export function MultiSelectInput({
   required,
   disabled,
   error,
+  flagged,
 }: FieldInputProps) {
   const dynamic = useDynamicOptions(field);
   const options: FieldOption[] = useMemo(() => {
@@ -35,7 +36,7 @@ export function MultiSelectInput({
   }
 
   return (
-    <FieldShell label={field.label} required={required} error={error}>
+    <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       {dynamic.isLoading ? (
         <div className="flex items-center gap-2 pt-1.5 text-[11px] text-gray-400">
           <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />

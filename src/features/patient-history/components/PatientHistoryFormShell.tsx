@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,12 @@ import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { buildPatientHistorySubmission } from "../lib/history-submission";
 import type { SectionVisibility } from "../lib/section-visibility";
 import { SectionNotesInline } from "./SectionNotesInline";
+import {
+  useFieldFlags,
+  useUpsertFieldFlag,
+  useRemoveFieldFlag,
+} from "../api/useFieldFlags";
+import type { FieldFlag } from "../../../builder/renderer/field-flag.types.js";
 
 interface Props {
   template: FormTemplateDto;
@@ -18,6 +24,8 @@ interface Props {
   visibility: SectionVisibility;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
+  /** Map of section key → ISO timestamp for the last update to that section. */
+  sectionTimestamps?: Record<string, string> | null;
 }
 
 export function PatientHistoryFormShell({
@@ -27,10 +35,34 @@ export function PatientHistoryFormShell({
   visibility,
   onSave,
   saving,
+  sectionTimestamps,
 }: Props) {
   const t = useTranslations("patient_history.workspace");
   const execution = useTemplateExecution();
   const [errors, setErrors] = useState<Record<string, string> | undefined>(undefined);
+
+  const { data: flags } = useFieldFlags(patientId);
+  const { mutate: upsertFlag } = useUpsertFieldFlag(patientId);
+  const { mutate: removeFlag } = useRemoveFieldFlag(patientId);
+
+  const flagIndex = useMemo(() => {
+    const idx: Record<string, FieldFlag> = {};
+    (flags ?? []).forEach((f) => {
+      idx[`${f.section_code}.${f.field_code}`] = f;
+    });
+    return idx;
+  }, [flags]);
+
+  const handleFlag = useCallback(
+    (section_code: string, field_code: string, note?: string) =>
+      upsertFlag({ section_code, field_code, note }),
+    [upsertFlag],
+  );
+
+  const handleUnflag = useCallback(
+    (flagId: string) => removeFlag(flagId),
+    [removeFlag],
+  );
 
   const renderGroupHeaderSlot = (groupName: string) => {
     const isHidden = visibility.isHidden(groupName);
@@ -87,6 +119,10 @@ export function PatientHistoryFormShell({
           renderGroupHeaderSlot={renderGroupHeaderSlot}
           collapsedGroups={visibility.hidden}
           renderSectionBottomSlot={renderSectionBottomSlot}
+          sectionTimestamps={sectionTimestamps}
+          flagIndex={flagIndex}
+          onFlag={handleFlag}
+          onUnflag={handleUnflag}
         />
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
