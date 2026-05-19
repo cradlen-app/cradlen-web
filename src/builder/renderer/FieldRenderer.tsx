@@ -14,8 +14,8 @@ import { MultiSelectInput } from "../fields/inputs/MultiSelectInput";
 import { ComputedInput } from "../fields/inputs/ComputedInput";
 import { EntitySearchInput } from "../fields/inputs/EntitySearchInput";
 import type { FormFieldDto, FormFieldType } from "../templates/template.types";
-import { FieldFlagPanel } from "./FieldFlagPanel.js";
-import type { FieldFlag } from "./field-flag.types.js";
+import { FieldFlagPanel } from "./FieldFlagPanel";
+import type { FieldFlag } from "./field-flag.types";
 
 const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
   field: FormFieldDto;

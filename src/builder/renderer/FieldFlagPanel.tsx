@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { FieldFlag } from './field-flag.types.js';
+import type { FieldFlag } from './field-flag.types';
 
 interface FieldFlagPanelProps {
   existingFlag: FieldFlag | undefined;
