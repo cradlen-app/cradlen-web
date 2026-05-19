@@ -12,6 +12,11 @@ import { RepeatableSectionRenderer } from "./RepeatableSectionRenderer";
 import { groupSections } from "./group-sections";
 import type { FormSectionDto, FormTemplateDto } from "../templates/template.types";
 
+/** Maps template section codes to service-layer DTO keys when they differ. */
+const SECTION_TIMESTAMP_KEY: Record<string, string> = {
+  screening_vaccinations: 'screening_history',
+};
+
 interface Props {
   template: FormTemplateDto;
   errors?: Record<string, string>;
@@ -39,6 +44,12 @@ interface Props {
    * group-level collapse). Passed as `collapsed` to each SectionContainer.
    */
   collapsedSections?: ReadonlySet<string>;
+  /**
+   * Map of section key → ISO timestamp of the last update for that section.
+   * Keys are service-layer DTO field names (e.g. `screening_history`); the
+   * renderer resolves template section codes via SECTION_TIMESTAMP_KEY.
+   */
+  sectionTimestamps?: Record<string, string> | null;
 }
 
 export function TemplateRenderer({
@@ -49,6 +60,7 @@ export function TemplateRenderer({
   renderSectionHeaderSlot,
   renderSectionBottomSlot,
   collapsedSections,
+  sectionTimestamps,
 }: Props) {
   useDiscriminatorReset();
   useSpecialtyAutoFill();
@@ -117,6 +129,7 @@ export function TemplateRenderer({
                   }
                   collapsed={collapsedSections?.has(section.code)}
                   layout={section.is_repeatable ? "stack" : "grid"}
+                  lastUpdatedAt={sectionTimestamps?.[SECTION_TIMESTAMP_KEY[section.code] ?? section.code] ?? null}
                 >
                   {section.is_repeatable ? (
                     <RepeatableSectionRenderer section={section} errors={errors} />
