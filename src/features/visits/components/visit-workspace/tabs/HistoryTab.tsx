@@ -32,9 +32,14 @@ function isNotFound(err: unknown): boolean {
 
 function isStaleVersion(err: unknown): boolean {
   if (!(err instanceof ApiError)) return false;
-  if (err.status !== 412 && err.status !== 409) return false;
-  const body = err.body as { error?: { code?: string } } | undefined;
-  return body?.error?.code === "STALE_VERSION";
+  // Vercel CDN intercepts 412 responses and returns text/plain, stripping the
+  // JSON body — so we cannot rely on body.error.code for 412s.
+  if (err.status === 412) return true;
+  if (err.status === 409) {
+    const body = err.body as { error?: { code?: string } } | undefined;
+    return body?.error?.code === "STALE_VERSION";
+  }
+  return false;
 }
 
 export function HistoryTab({ patientId, specialtyCode }: Props) {
