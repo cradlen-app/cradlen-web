@@ -20,7 +20,6 @@ export interface UpsertFieldFlagArgs {
 }
 
 export interface UpdateFieldFlagNoteArgs {
-  patientId: string;
   flagId: string;
   note?: string;
 }
@@ -29,7 +28,7 @@ export function listFieldFlags(
   patientId: string,
 ): Promise<{ data: FieldFlagDto[] }> {
   return apiAuthFetch<{ data: FieldFlagDto[] }>(
-    `/v1/patients/${patientId}/field-flags`,
+    `/patients/${patientId}/field-flags`,
   );
 }
 
@@ -38,28 +37,23 @@ export function upsertFieldFlag({
   ...body
 }: UpsertFieldFlagArgs): Promise<{ data: FieldFlagDto }> {
   return apiAuthFetch<{ data: FieldFlagDto }>(
-    `/v1/patients/${patientId}/field-flags`,
+    `/patients/${patientId}/field-flags`,
     { method: "POST", body: JSON.stringify(body) },
   );
 }
 
 export function updateFieldFlagNote({
-  patientId,
   flagId,
   note,
 }: UpdateFieldFlagNoteArgs): Promise<{ data: FieldFlagDto }> {
   return apiAuthFetch<{ data: FieldFlagDto }>(
-    `/v1/patients/${patientId}/field-flags/${flagId}`,
+    `/patient-field-flags/${flagId}`,
     { method: "PATCH", body: JSON.stringify({ note }) },
   );
 }
 
-export function removeFieldFlag(
-  patientId: string,
-  flagId: string,
-): Promise<void> {
-  return apiAuthFetch<void>(
-    `/v1/patients/${patientId}/field-flags/${flagId}`,
-    { method: "DELETE" },
-  );
+export function removeFieldFlag(flagId: string): Promise<void> {
+  return apiAuthFetch<void>(`/patient-field-flags/${flagId}`, {
+    method: "DELETE",
+  });
 }
