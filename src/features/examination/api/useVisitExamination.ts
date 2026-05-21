@@ -16,8 +16,8 @@ export function useVisitExamination(endpointPath: string | null) {
     queryKey: endpointPath
       ? visitExaminationKey(endpointPath)
       : (["visit-examination", "disabled"] as const),
-    queryFn: async () => {
-      const res = await getVisitExamination(endpointPath!);
+    queryFn: async ({ signal }) => {
+      const res = await getVisitExamination(endpointPath!, signal);
       return res.data;
     },
     enabled: !!endpointPath,

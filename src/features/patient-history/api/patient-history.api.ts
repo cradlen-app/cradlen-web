@@ -22,8 +22,9 @@ export interface PatchPatientHistoryArgs {
 
 export function getPatientHistory(
   endpointPath: string,
+  signal?: AbortSignal,
 ): Promise<{ data: PatientHistoryEnvelope }> {
-  return apiAuthFetch<{ data: PatientHistoryEnvelope }>(endpointPath);
+  return apiAuthFetch<{ data: PatientHistoryEnvelope }>(endpointPath, { signal });
 }
 
 export function patchPatientHistory({
