@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { AlertTriangle } from "lucide-react";
 
 export const fieldClass =
   "h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-brand-black outline-none transition-colors placeholder:text-gray-300 focus:border-brand-primary focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50";
@@ -21,10 +22,7 @@ export function FieldShell({ label, required, error, children, className, flagge
         {label}
         {required ? <span className="text-red-500"> *</span> : null}
         {flagged && (
-          <span
-            className="inline-block w-2 h-2 rounded-full bg-destructive ml-1 align-middle"
-            title="Flagged"
-          />
+          <AlertTriangle size={10} className="inline ml-1 text-red-600 align-middle" aria-label="Flagged" />
         )}
       </span>
       {children}
