@@ -1,5 +1,5 @@
 /**
- * Resolve a specialty code (e.g. "GYN") to the visit-examination template
+ * Resolve a specialty code (e.g. "OBGYN") to the visit-examination template
  * code and API endpoint path. Convention-driven, mirroring
  * `patient-history/lib/specialty-resolver.ts`: a new specialty just needs
  * to publish `<specialty>_examination` + `/visits/:id/<specialty>-examination`.
@@ -19,15 +19,15 @@ export interface SpecialtyExaminationConfig {
  * slug doesn't match the bare `<specialty.code.toLowerCase()>_examination`
  * convention. Add entries only when needed.
  *
- *   GYN's examination is published as `obgyn_examination` + `/examination`
- *   because the OB/GYN vertical owns the visit-level surface, while the
- *   `Specialty.code` value persisted on Visit is "GYN".
+ *   OBGYN's examination is published as `obgyn_examination` + `/examination`
+ *   (not the convention-derived `/obgyn-examination`) because the controller
+ *   route was registered as `visits/:id/examination`.
  */
 const SPECIALTY_OVERRIDES: Record<
   string,
   { templateCode: string; endpointSlug: string }
 > = {
-  GYN: { templateCode: "obgyn_examination", endpointSlug: "examination" },
+  OBGYN: { templateCode: "obgyn_examination", endpointSlug: "examination" },
 };
 
 export function resolveSpecialtyExamination(
