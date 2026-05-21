@@ -34,9 +34,9 @@ function groupBySection(
 function RedFlagsSkeleton() {
   return (
     <div className="mt-2 space-y-2">
-      {[80, 60, 75, 50].map((w) => (
+      {[80, 60, 75, 50].map((w, i) => (
         <div
-          key={w}
+          key={i}
           className="h-3 animate-pulse rounded bg-gray-100"
           style={{ width: `${w}%` }}
         />
@@ -47,7 +47,7 @@ function RedFlagsSkeleton() {
 
 export function VisitContextRail({ patientId, onNavigateToHistory }: Props) {
   const t = useTranslations("visits.workspace.rail");
-  const { data: flags, isLoading } = useFieldFlags(patientId);
+  const { data: flags, isLoading, isError } = useFieldFlags(patientId);
 
   const grouped = flags ? groupBySection(flags) : {};
   const hasFlags = flags && flags.length > 0;
@@ -65,6 +65,10 @@ export function VisitContextRail({ patientId, onNavigateToHistory }: Props) {
 
         {isLoading ? (
           <RedFlagsSkeleton />
+        ) : isError ? (
+          <p className="mt-3 text-xs text-red-400">
+            Failed to load red flags.
+          </p>
         ) : !hasFlags ? (
           <p className="mt-3 text-xs italic text-gray-400">
             {t("redFlags.empty")}
@@ -94,7 +98,8 @@ export function VisitContextRail({ patientId, onNavigateToHistory }: Props) {
                       <button
                         type="button"
                         onClick={() => onNavigateToHistory(flag.section_code)}
-                        className="mt-0.5 shrink-0 rounded border border-gray-200 bg-white p-0.5 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:border-gray-300 hover:text-gray-600"
+                        aria-label={`Go to ${toTitleCase(sectionCode)} in History`}
+                        className="mt-0.5 shrink-0 rounded border border-gray-200 bg-white p-0.5 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:border-gray-300 hover:text-gray-600 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1"
                         title={`Go to ${toTitleCase(sectionCode)} in History`}
                       >
                         <ExternalLink className="size-3" aria-hidden="true" />
