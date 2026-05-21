@@ -20,6 +20,7 @@ import type { FieldFlag } from "./field-flag.types";
 
 /** Maps template section codes to service-layer DTO keys when they differ. */
 const SECTION_TIMESTAMP_KEY: Record<string, string> = {
+  menstrual_history: 'gynecological_baseline',
   screening_vaccinations: 'screening_history',
 };
 

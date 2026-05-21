@@ -16,8 +16,8 @@ export function usePatientHistory(endpointPath: string | null) {
     queryKey: endpointPath
       ? patientHistoryKey(endpointPath)
       : (["patient-history", "disabled"] as const),
-    queryFn: async () => {
-      const res = await getPatientHistory(endpointPath!);
+    queryFn: async ({ signal }) => {
+      const res = await getPatientHistory(endpointPath!, signal);
       return res.data;
     },
     enabled: !!endpointPath,

@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { fetchFormTemplate } from "@/builder/templates/templates.api";
 import { queryKeys } from "@/lib/queryKeys";
 import { TemplateExecutionContextProvider } from "@/builder/runtime/TemplateExecutionContext";
@@ -16,7 +15,6 @@ import {
   usePatchPatientHistory,
   usePatientHistory,
 } from "@/features/patient-history/api/usePatientHistory";
-import { useSectionVisibility } from "@/features/patient-history/lib/section-visibility";
 import { toInitialHistoryState } from "@/features/patient-history/lib/history-initial-values";
 import { PatientHistoryEmptyState } from "@/features/patient-history/components/PatientHistoryEmptyState";
 import { PatientHistoryFormShell } from "@/features/patient-history/components/PatientHistoryFormShell";
@@ -49,8 +47,6 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
     [patientId, specialtyCode],
   );
 
-  const profileId = useAuthContextStore((s) => s.profileId);
-  const visibility = useSectionVisibility(profileId ?? null);
   const qc = useQueryClient();
 
   const templateQuery = useQuery({
@@ -111,7 +107,6 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
       <PatientHistoryFormShell
         template={template}
         patientId={patientId}
-        visibility={visibility}
         saving={patchMut.isPending}
         sectionTimestamps={sectionTimestamps}
         onSave={async (body) => {

@@ -9,16 +9,16 @@ import { useCallback, useState } from "react";
 // API without touching consumers.
 const KEY = (profileId: string) => `patientHistory.hiddenGroups.${profileId}`;
 
-function readFromStorage(profileId: string | null | undefined): Set<string> {
-  if (!profileId || typeof window === "undefined") return new Set();
+function readFromStorage(profileId: string | null | undefined): Set<string> | null {
+  if (!profileId || typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(KEY(profileId));
-    if (!raw) return new Set();
+    if (raw === null) return null;
     const arr = JSON.parse(raw) as unknown;
-    if (!Array.isArray(arr)) return new Set();
+    if (!Array.isArray(arr)) return null;
     return new Set(arr.filter((v): v is string => typeof v === "string"));
   } catch {
-    return new Set();
+    return null;
   }
 }
 
@@ -39,8 +39,13 @@ export interface SectionVisibility {
 
 export function useSectionVisibility(
   profileId: string | null | undefined,
+  allGroupNames?: readonly string[],
 ): SectionVisibility {
-  const [hidden, setHidden] = useState<Set<string>>(() => readFromStorage(profileId));
+  const [hidden, setHidden] = useState<Set<string>>(() => {
+    const stored = readFromStorage(profileId);
+    if (stored !== null) return stored;
+    return allGroupNames ? new Set(allGroupNames) : new Set();
+  });
 
   const toggle = useCallback(
     (key: string) => {
