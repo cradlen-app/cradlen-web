@@ -22,8 +22,9 @@ export interface PatchVisitExaminationArgs {
 
 export function getVisitExamination(
   endpointPath: string,
+  signal?: AbortSignal,
 ): Promise<{ data: VisitExaminationEnvelope }> {
-  return apiAuthFetch<{ data: VisitExaminationEnvelope }>(endpointPath);
+  return apiAuthFetch<{ data: VisitExaminationEnvelope }>(endpointPath, { signal });
 }
 
 export function patchVisitExamination({

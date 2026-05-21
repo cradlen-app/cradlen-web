@@ -8,7 +8,8 @@ import { TemplateRenderer } from "@/builder/renderer/TemplateRenderer";
 import { useTemplateExecution } from "@/builder/runtime/TemplateExecutionContext";
 import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { buildPatientHistorySubmission } from "../lib/history-submission";
-import type { SectionVisibility } from "../lib/section-visibility";
+import { useSectionVisibility } from "../lib/section-visibility";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { SectionNotesInline } from "./SectionNotesInline";
 import {
   useFieldFlags,
@@ -20,7 +21,6 @@ import type { FieldFlag } from "../../../builder/renderer/field-flag.types.js";
 interface Props {
   template: FormTemplateDto;
   patientId: string;
-  visibility: SectionVisibility;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
   /** Map of section key → ISO timestamp for the last update to that section. */
@@ -30,7 +30,6 @@ interface Props {
 export function PatientHistoryFormShell({
   template,
   patientId,
-  visibility,
   onSave,
   saving,
   sectionTimestamps,
@@ -38,6 +37,18 @@ export function PatientHistoryFormShell({
   const t = useTranslations("patient_history.workspace");
   const execution = useTemplateExecution();
   const [errors, setErrors] = useState<Record<string, string> | undefined>(undefined);
+
+  const profileId = useAuthContextStore((s) => s.profileId);
+  const allGroupNames = useMemo(() => {
+    const seen = new Set<string>();
+    const names: string[] = [];
+    for (const section of template.sections) {
+      const group = section.config?.ui?.group;
+      if (group && !seen.has(group)) { seen.add(group); names.push(group); }
+    }
+    return names;
+  }, [template]);
+  const visibility = useSectionVisibility(profileId ?? null, allGroupNames);
 
   const { data: flags } = useFieldFlags(patientId);
   const { mutate: upsertFlag } = useUpsertFieldFlag(patientId);
