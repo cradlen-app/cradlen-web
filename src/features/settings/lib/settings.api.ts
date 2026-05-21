@@ -3,6 +3,20 @@ import type { ApiResponse } from "@/common/types/api.types";
 import type { EngagementType, ExecutiveTitle } from "@/common/types/user.types";
 import { queryKeys } from "@/lib/queryKeys";
 
+export interface OrgSpecialty {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export function fetchOrgSpecialties(
+  organizationId: string,
+): Promise<{ data: OrgSpecialty[] }> {
+  return apiAuthFetch<{ data: OrgSpecialty[] }>(
+    `/organizations/${organizationId}/specialties`,
+  );
+}
+
 export type OrganizationBranch = {
   id: string;
   name: string;
