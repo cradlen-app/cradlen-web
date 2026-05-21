@@ -862,6 +862,7 @@
       "successMessage": "Visit booked successfully.",
       "errorDuplicatePatient": "Patient already registered with this national ID.",
       "errorGeneric": "Failed to book the visit.",
+      "errorNoSpecialty": "This organization has no specialty configured. Please contact your administrator.",
       "cancelButton": "Cancel",
       "submitButton": "Add to waiting list",
       "fields": {

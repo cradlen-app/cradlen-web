@@ -54,7 +54,7 @@ export function BookVisitDrawer({
   editingVisit,
 }: Props) {
   const t = useTranslations("visits");
-  const { data: orgSpecialties } = useOrgSpecialties(organizationId);
+  const { data: orgSpecialties, isLoading: specialtiesLoading } = useOrgSpecialties(organizationId);
   const templateExtension = orgSpecialties?.[0]?.code ?? null;
   const {
     data: template,
@@ -90,7 +90,8 @@ export function BookVisitDrawer({
   }, [isEdit, editingVisit, template, fullPatient]);
 
   const waitingForPrefill = isEdit && !initial;
-  const loading = isLoading || !templateExtension || (isEdit && patientLoading);
+  const loading = isLoading || specialtiesLoading || (isEdit && patientLoading);
+  const noSpecialties = !specialtiesLoading && (!orgSpecialties || orgSpecialties.length === 0);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -124,6 +125,10 @@ export function BookVisitDrawer({
                 className="size-5 animate-spin text-brand-primary"
                 aria-hidden="true"
               />
+            </div>
+          ) : noSpecialties ? (
+            <div className="flex flex-1 items-center justify-center text-xs text-red-500">
+              {t("create.errorNoSpecialty")}
             </div>
           ) : isError || !filteredTemplate ? (
             <div className="flex flex-1 items-center justify-center text-xs text-red-500">

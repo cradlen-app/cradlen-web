@@ -862,6 +862,7 @@
       "successMessage": "تم حجز الزيارة بنجاح.",
       "errorDuplicatePatient": "المريض مسجل بالفعل بهذا الرقم القومي.",
       "errorGeneric": "فشل حجز الزيارة.",
+      "errorNoSpecialty": "لا توجد تخصصات مُعدَّة لهذه المؤسسة. يرجى التواصل مع المسؤول.",
       "cancelButton": "إلغاء",
       "submitButton": "إضافة إلى قائمة الانتظار",
       "fields": {
