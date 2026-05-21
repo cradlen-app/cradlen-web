@@ -675,6 +675,30 @@
           "FOLLOW_UP": "متابعة"
         }
       },
+      "obgynSummary": {
+        "title": "ملخص تاريخ النساء والتوليد",
+        "noHistory": "لم يُسجَّل تاريخ مرضي بعد.",
+        "allergies": "الحساسية",
+        "noAllergies": "لا يوجد في السجل",
+        "medications": "الأدوية الحالية",
+        "noMedications": "لا يوجد في السجل",
+        "obstetric": "الملخص التوليدي",
+        "gynecological": "الأساس النسائي",
+        "menarche": "سن الحيض",
+        "cycleRegularity": "الدورة",
+        "dysmenorrhea": "عسر الطمث",
+        "yes": "نعم",
+        "no": "لا",
+        "chronicIllnesses": "الأمراض المزمنة",
+        "familyHistory": "التاريخ العائلي",
+        "socialHistory": "التاريخ الاجتماعي",
+        "smoking": "التدخين",
+        "alcohol": "الكحول",
+        "screening": "الفحوصات الدورية",
+        "papSmear": "مسحة عنق الرحم",
+        "mammography": "تصوير الثدي",
+        "notDone": "لم يُجرَ"
+      },
       "rail": {
         "redFlags": {
           "title": "تحذيرات",

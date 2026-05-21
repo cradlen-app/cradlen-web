@@ -88,6 +88,12 @@ export const queryKeys = {
       ["form-templates", code, extension ?? null] as const,
   },
 
+  // ── OB/GYN history summary ────────────────────────────────────────────────
+  obgynSummary: {
+    byPatient: (patientId: string) =>
+      ["obgyn-history-summary", patientId] as const,
+  },
+
   // ── Lookups ───────────────────────────────────────────────────────────────
   // Seeded reference data — long staleTime in the consuming hook.
   lookups: {

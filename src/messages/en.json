@@ -675,6 +675,30 @@
           "FOLLOW_UP": "Follow-up"
         }
       },
+      "obgynSummary": {
+        "title": "OB/GYN History Summary",
+        "noHistory": "No history recorded yet.",
+        "allergies": "Allergies",
+        "noAllergies": "None on record",
+        "medications": "Current Medications",
+        "noMedications": "None on record",
+        "obstetric": "Obstetric Summary",
+        "gynecological": "Gynecological Baseline",
+        "menarche": "Menarche age",
+        "cycleRegularity": "Cycle",
+        "dysmenorrhea": "Dysmenorrhea",
+        "yes": "Yes",
+        "no": "No",
+        "chronicIllnesses": "Chronic Illnesses",
+        "familyHistory": "Family History",
+        "socialHistory": "Social History",
+        "smoking": "Smoking",
+        "alcohol": "Alcohol",
+        "screening": "Screening",
+        "papSmear": "Pap smear",
+        "mammography": "Mammography",
+        "notDone": "Not done"
+      },
       "rail": {
         "redFlags": {
           "title": "Red Flags",
