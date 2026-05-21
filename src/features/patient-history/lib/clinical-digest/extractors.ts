@@ -14,26 +14,29 @@ export function extractSignals(history: ObgynHistorySummary): ClinicalSignal[] {
   // Obstetric signals
   const obs = history.obstetric_summary as ObstetricSummary | null;
   if (obs) {
-    if (obs.ectopic > 0) {
+    const ectopic = obs.ectopic ?? 0;
+    const stillbirths = obs.stillbirths ?? 0;
+    const abortion = obs.abortion ?? 0;
+    if (ectopic > 0) {
       signals.push({
         key: "ectopic",
-        label: `Ectopic Hx (×${obs.ectopic})`,
+        label: `Ectopic Hx (×${ectopic})`,
         ...SIGNAL_PRIORITIES.ectopic,
         source: "obstetric",
       });
     }
-    if (obs.stillbirths > 0) {
+    if (stillbirths > 0) {
       signals.push({
         key: "stillbirth",
-        label: `Stillbirth (×${obs.stillbirths})`,
+        label: `Stillbirth (×${stillbirths})`,
         ...SIGNAL_PRIORITIES.stillbirth,
         source: "obstetric",
       });
     }
-    if (obs.abortion >= 2) {
+    if (abortion >= 2) {
       signals.push({
         key: "recurrent_abortion",
-        label: `Recurrent Abortion (×${obs.abortion})`,
+        label: `Recurrent Abortion (×${abortion})`,
         ...SIGNAL_PRIORITIES.recurrent_abortion,
         source: "obstetric",
       });
