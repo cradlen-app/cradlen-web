@@ -20,6 +20,7 @@ import {
   validateTemplate,
 } from "@/builder/validator/client-validator";
 import type { FormTemplateDto } from "@/builder/templates/template.types";
+import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { usePatient } from "@/features/patients/hooks/usePatient";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { useBookMedicalRepVisit } from "../hooks/useBookMedicalRepVisit";
@@ -33,9 +34,6 @@ import type {
 import type { Visit } from "../types/visits.types";
 
 const TEMPLATE_CODE = "book_visit";
-// OBGYN is the only valid extension today; pediatrics ships later. When the FE
-// learns the active specialty from auth/branch context, swap this for that.
-const TEMPLATE_EXTENSION = "OBGYN";
 
 type Props = {
   open: boolean;
@@ -51,15 +49,18 @@ export function BookVisitDrawer({
   open,
   onOpenChange,
   branchId,
+  organizationId,
   branchName,
   editingVisit,
 }: Props) {
   const t = useTranslations("visits");
+  const { data: orgSpecialties } = useOrgSpecialties(organizationId);
+  const templateExtension = orgSpecialties?.[0]?.code ?? null;
   const {
     data: template,
     isLoading,
     isError,
-  } = useFormTemplate(TEMPLATE_CODE, open, TEMPLATE_EXTENSION);
+  } = useFormTemplate(TEMPLATE_CODE, open && !!templateExtension, templateExtension);
 
   const isEdit = !!editingVisit;
   const patientId =
@@ -84,12 +85,12 @@ export function BookVisitDrawer({
       template,
       editingVisit,
       fullPatient,
-      editingVisit.specialtyCode ?? TEMPLATE_EXTENSION,
+      editingVisit.specialtyCode ?? templateExtension ?? "",
     );
   }, [isEdit, editingVisit, template, fullPatient]);
 
   const waitingForPrefill = isEdit && !initial;
-  const loading = isLoading || (isEdit && patientLoading);
+  const loading = isLoading || !templateExtension || (isEdit && patientLoading);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -134,7 +135,7 @@ export function BookVisitDrawer({
               initialSystemValues={
                 initial?.systemValues ?? {
                   visitor_type: "PATIENT",
-                  specialty_code: TEMPLATE_EXTENSION,
+                  specialty_code: templateExtension ?? "",
                 }
               }
               initialFormValues={initial?.formValues}

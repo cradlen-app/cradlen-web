@@ -82,6 +82,12 @@ export const queryKeys = {
     branches: (organizationId: string) => ["branches", organizationId] as const,
   },
 
+  // ── Organizations ─────────────────────────────────────────────────────────
+  organizations: {
+    specialties: (organizationId: string) =>
+      ["organizations", organizationId, "specialties"] as const,
+  },
+
   // ── Form templates ────────────────────────────────────────────────────────
   formTemplates: {
     byCode: (code: string, extension?: string | null) =>
