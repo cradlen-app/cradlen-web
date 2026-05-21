@@ -22,7 +22,10 @@ export function OverviewTab({ visit }: Props) {
         />
         <div className="flex h-full flex-col gap-6 divide-y divide-gray-100 overflow-y-auto p-5">
           {isObgyn && (
-            <ObgynHistorySummaryCard patientId={visit.patient.id} />
+            <ObgynHistorySummaryCard
+              patientId={visit.patient.id}
+              patientDateOfBirth={visit.patient.dateOfBirth}
+            />
           )}
           <VisitsHistoryList />
           <div className="pt-6">
