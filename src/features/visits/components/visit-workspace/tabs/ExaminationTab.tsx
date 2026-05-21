@@ -102,7 +102,7 @@ export function ExaminationTab({ visit }: Props) {
       <VisitExaminationFormShell
         template={template}
         patientId={visit.patient.id}
-        saving={patchMut.isPending}
+        saving={patchMut.isPending || dataQuery.isFetching}
         onSave={async (body) => {
           try {
             await patchMut.mutateAsync({

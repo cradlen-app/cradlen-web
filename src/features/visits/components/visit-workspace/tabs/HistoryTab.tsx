@@ -106,7 +106,7 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
       <PatientHistoryFormShell
         template={template}
         patientId={patientId}
-        saving={patchMut.isPending}
+        saving={patchMut.isPending || dataQuery.isFetching}
         onSave={async (body) => {
           try {
             await patchMut.mutateAsync({ ifMatchVersion: envelope.version, body });

@@ -18,6 +18,8 @@ interface Props {
    * sections (each row owns its own internal grid).
    */
   layout?: "grid" | "stack";
+  /** HTML id applied to the root <section> — used as a scroll anchor. */
+  id?: string;
 }
 
 export function SectionContainer({
@@ -27,9 +29,10 @@ export function SectionContainer({
   bottomSlot,
   collapsed,
   layout = "grid",
+  id,
 }: Props) {
   return (
-    <section className="space-y-3">
+    <section id={id} className="space-y-3">
       <div className="flex items-center justify-between">
         <SectionTitle title={title} />
         {headerSlot}
