@@ -33,6 +33,7 @@ export function usePatchPatientHistory(endpointPath: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (args: Omit<PatchPatientHistoryArgs, "endpointPath">) => {
+      await qc.cancelQueries({ queryKey: patientHistoryKey(endpointPath) });
       const res = await patchPatientHistory({ endpointPath, ...args });
       return res.data;
     },

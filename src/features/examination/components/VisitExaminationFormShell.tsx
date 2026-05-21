@@ -15,7 +15,6 @@ const EXAMINATION_GROUP = "Examination";
 interface Props {
   template: FormTemplateDto;
   patientId: string;
-  examinationVersion: number;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
 }
@@ -23,7 +22,6 @@ interface Props {
 export function VisitExaminationFormShell({
   template,
   patientId,
-  examinationVersion,
   onSave,
   saving,
 }: Props) {
@@ -104,10 +102,7 @@ export function VisitExaminationFormShell({
           renderSectionBottomSlot={renderSectionBottomSlot}
         />
       </div>
-      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
-        <span className="text-[11px] text-gray-400">
-          {t("versionLabel", { version: examinationVersion })}
-        </span>
+      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
         <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
           {saving ? <Loader2 size={14} className="animate-spin" /> : null}
           <span className="ml-2">{t("save")}</span>

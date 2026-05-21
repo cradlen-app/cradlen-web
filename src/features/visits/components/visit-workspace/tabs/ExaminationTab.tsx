@@ -98,7 +98,6 @@ export function ExaminationTab({ visit }: Props) {
       <VisitExaminationFormShell
         template={template}
         patientId={visit.patient.id}
-        examinationVersion={envelope.examination_version}
         saving={patchMut.isPending}
         onSave={async (body) => {
           try {
