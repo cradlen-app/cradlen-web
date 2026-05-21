@@ -1,0 +1,351 @@
+<style>
+  .design-wrap {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .state-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .rail {
+    width: 290px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .rail-section {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .rail-section:last-child { border-bottom: none; }
+
+  /* Section header */
+  .section-hdr {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+  .section-hdr-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .icon-danger  { background: #fef2f2; color: #ef4444; }
+  .icon-warning { background: #fffbeb; color: #f59e0b; }
+  .icon-accent  { background: #f5f3ff; color: #7c3aed; }
+  .icon-muted   { background: #f8fafc; color: #64748b; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .title-danger  { color: #dc2626; }
+  .title-warning { color: #d97706; }
+  .title-accent  { color: #7c3aed; }
+  .title-muted   { color: #64748b; }
+
+  /* Sub-group */
+  .sub-group { margin-bottom: 8px; }
+  .sub-group:last-child { margin-bottom: 0; }
+  .sub-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin-bottom: 5px;
+  }
+
+  /* Flag item */
+  .flag-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    margin-bottom: 2px;
+  }
+  .flag-item:hover { background: #f8fafc; }
+  .flag-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #ef4444;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .flag-text {
+    flex: 1;
+    font-size: 12px;
+    color: #1e293b;
+    line-height: 1.4;
+  }
+  .flag-field {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 1px;
+  }
+  .redirect-btn {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: #94a3b8;
+    font-size: 10px;
+    transition: all 0.15s;
+    margin-top: 2px;
+  }
+  .redirect-btn:hover { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
+
+  /* Mock bullet items */
+  .mock-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  .mock-item::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    flex-shrink: 0;
+  }
+
+  /* Empty state */
+  .empty-state {
+    font-size: 11px;
+    color: #cbd5e1;
+    text-align: center;
+    padding: 8px 0 4px;
+    font-style: italic;
+  }
+
+  /* Loading skeleton */
+  .skel {
+    height: 10px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+    margin: 5px 0;
+  }
+  .skel.w60 { width: 60%; }
+  .skel.w80 { width: 80%; }
+  .skel.w40 { width: 40%; }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .annotation {
+    font-size: 11px;
+    color: #64748b;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 8px;
+    line-height: 1.5;
+    border-left: 3px solid #6366f1;
+  }
+  .annotation strong { color: #1e293b; }
+</style>
+
+<h2>Red Flags Rail — Final Design</h2>
+<p class="subtitle">Three states: loaded with data, empty, and loading skeleton. Confirm this looks right before we write the spec.</p>
+
+<div class="design-wrap">
+
+  <!-- State 1: Loaded with data -->
+  <div>
+    <div class="state-label">Loaded — with flags</div>
+    <div class="rail">
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-danger">⚑</div>
+          <span class="section-title title-danger">Red Flags</span>
+        </div>
+
+        <!-- Sub-group: Medical History -->
+        <div class="sub-group">
+          <div class="sub-label">Medical History</div>
+          <div class="flag-item">
+            <div class="flag-dot"></div>
+            <div class="flag-text">
+              Takes blood pressure medication
+              <div class="flag-field">medications</div>
+            </div>
+            <div class="redirect-btn" title="Go to field in History">↗</div>
+          </div>
+          <div class="flag-item">
+            <div class="flag-dot"></div>
+            <div class="flag-text">
+              Diabetic — insulin-dependent
+              <div class="flag-field">chronic_conditions</div>
+            </div>
+            <div class="redirect-btn" title="Go to field in History">↗</div>
+          </div>
+        </div>
+
+        <!-- Sub-group: Surgical History -->
+        <div class="sub-group">
+          <div class="sub-label">Surgical History</div>
+          <div class="flag-item">
+            <div class="flag-dot"></div>
+            <div class="flag-text">
+              Previous cesarean section
+              <div class="flag-field">previous_surgeries</div>
+            </div>
+            <div class="redirect-btn" title="Go to field in History">↗</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-warning">🔔</div>
+          <span class="section-title title-warning">Alerts</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-accent">✨</div>
+          <span class="section-title title-accent">Repeated Compliments</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-muted">💬</div>
+          <span class="section-title title-muted">Comments</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+    </div>
+    <div class="annotation">
+      <strong>Redirect icon ↗</strong> — clicking switches to the History tab and scrolls to the <code>section_code</code> anchor. Flag items show the <code>note</code> field (or <code>field_code</code> if no note), with the field code as a sub-line.
+    </div>
+  </div>
+
+  <!-- State 2: Empty -->
+  <div>
+    <div class="state-label">Loaded — no flags</div>
+    <div class="rail">
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-danger">⚑</div>
+          <span class="section-title title-danger">Red Flags</span>
+        </div>
+        <div class="empty-state">No red flags for this patient.</div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-warning">🔔</div>
+          <span class="section-title title-warning">Alerts</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-accent">✨</div>
+          <span class="section-title title-accent">Repeated Compliments</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-muted">💬</div>
+          <span class="section-title title-muted">Comments</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- State 3: Loading -->
+  <div>
+    <div class="state-label">Loading skeleton</div>
+    <div class="rail">
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-danger">⚑</div>
+          <span class="section-title title-danger">Red Flags</span>
+        </div>
+        <div class="skel w40"></div>
+        <div class="skel w80"></div>
+        <div class="skel w60"></div>
+        <div class="skel w80"></div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-warning">🔔</div>
+          <span class="section-title title-warning">Alerts</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-accent">✨</div>
+          <span class="section-title title-accent">Repeated Compliments</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+      <div class="rail-section">
+        <div class="section-hdr">
+          <div class="section-hdr-icon icon-muted">💬</div>
+          <span class="section-title title-muted">Comments</span>
+        </div>
+        <div class="mock-item">—</div>
+        <div class="mock-item">—</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

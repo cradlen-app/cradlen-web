@@ -1,0 +1,183 @@
+<style>
+  .icons-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .icon-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #fff;
+    width: 130px;
+  }
+  .icon-option:hover { border-color: #6366f1; background: #f5f3ff; }
+  .icon-option.selected { border-color: #6366f1; background: #eef2ff; }
+
+  /* Simulated flag item with each icon */
+  .flag-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 7px;
+    background: #f8fafc;
+    width: 100%;
+  }
+  .flag-dot { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; flex-shrink: 0; }
+  .flag-text-demo { flex: 1; font-size: 10px; color: #374151; line-height: 1.3; }
+
+  .icon-btn {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: #64748b;
+    font-size: 13px;
+  }
+  .icon-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #374151;
+    text-align: center;
+  }
+  .icon-sub {
+    font-size: 10px;
+    color: #94a3b8;
+    text-align: center;
+  }
+  .letter-badge {
+    font-size: 10px;
+    font-weight: 800;
+    background: #6366f1;
+    color: #fff;
+    border-radius: 99px;
+    padding: 1px 7px;
+    margin-bottom: 2px;
+  }
+</style>
+
+<h2>Choose a redirect icon</h2>
+<p class="subtitle">All are available in Lucide (already used in your codebase). Click your favourite.</p>
+
+<div class="icons-grid">
+
+  <div class="icon-option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter-badge">A</div>
+    <div class="flag-row">
+      <div class="flag-dot"></div>
+      <div class="flag-text-demo">Medications</div>
+      <div class="icon-btn">
+        <!-- ExternalLink SVG -->
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      </div>
+    </div>
+    <div class="icon-name">ExternalLink</div>
+    <div class="icon-sub">Classic "open in new" feel</div>
+  </div>
+
+  <div class="icon-option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter-badge">B</div>
+    <div class="flag-row">
+      <div class="flag-dot"></div>
+      <div class="flag-text-demo">Medications</div>
+      <div class="icon-btn">
+        <!-- Eye SVG -->
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+    </div>
+    <div class="icon-name">Eye</div>
+    <div class="icon-sub">"Review this field"</div>
+  </div>
+
+  <div class="icon-option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter-badge">C</div>
+    <div class="flag-row">
+      <div class="flag-dot"></div>
+      <div class="flag-text-demo">Medications</div>
+      <div class="icon-btn">
+        <!-- ArrowRight SVG -->
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </div>
+    </div>
+    <div class="icon-name">ArrowRight</div>
+    <div class="icon-sub">Navigate forward</div>
+  </div>
+
+  <div class="icon-option" data-choice="d" onclick="toggleSelect(this)">
+    <div class="letter-badge">D</div>
+    <div class="flag-row">
+      <div class="flag-dot"></div>
+      <div class="flag-text-demo">Medications</div>
+      <div class="icon-btn">
+        <!-- SquareArrowOutUpRight SVG (Locate) -->
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <line x1="12" y1="2" x2="12" y2="5"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="5" y2="12"/>
+          <line x1="19" y1="12" x2="22" y2="12"/>
+        </svg>
+      </div>
+    </div>
+    <div class="icon-name">Locate / Target</div>
+    <div class="icon-sub">"Jump to this field"</div>
+  </div>
+
+  <div class="icon-option" data-choice="e" onclick="toggleSelect(this)">
+    <div class="letter-badge">E</div>
+    <div class="flag-row">
+      <div class="flag-dot"></div>
+      <div class="flag-text-demo">Medications</div>
+      <div class="icon-btn">
+        <!-- Search / ScanSearch -->
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m21 21-4.35-4.35"/>
+          <circle cx="11" cy="11" r="8"/>
+        </svg>
+      </div>
+    </div>
+    <div class="icon-name">Search</div>
+    <div class="icon-sub">"Find in history"</div>
+  </div>
+
+  <div class="icon-option" data-choice="f" onclick="toggleSelect(this)">
+    <div class="letter-badge">F</div>
+    <div class="flag-row">
+      <div class="flag-dot"></div>
+      <div class="flag-text-demo">Medications</div>
+      <div class="icon-btn">
+        <!-- ClipboardList -->
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+          <line x1="9" y1="12" x2="15" y2="12"/>
+          <line x1="9" y1="16" x2="13" y2="16"/>
+        </svg>
+      </div>
+    </div>
+    <div class="icon-name">ClipboardList</div>
+    <div class="icon-sub">"Go to history record"</div>
+  </div>
+
+</div>
