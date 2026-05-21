@@ -18,9 +18,14 @@ export function humanJoin(items: string[]): string {
 }
 
 export function obstetricLabel(obs: ObstetricSummary): string {
-  let label = `G${obs.gravida}P${obs.para}A${obs.abortion}`;
-  if (obs.ectopic > 0) label += ` Ect:${obs.ectopic}`;
-  if (obs.stillbirths > 0) label += ` SB:${obs.stillbirths}`;
+  const g = obs.gravida ?? 0;
+  const p = obs.para ?? 0;
+  const a = obs.abortion ?? 0;
+  const e = obs.ectopic ?? 0;
+  const sb = obs.stillbirths ?? 0;
+  let label = `G${g}P${p}A${a}`;
+  if (e > 0) label += ` Ect:${e}`;
+  if (sb > 0) label += ` SB:${sb}`;
   return label;
 }
 
@@ -48,18 +53,18 @@ export function buildNarrative(history: ObgynHistorySummary): string {
   // 2. Obstetric history
   const obs = history.obstetric_summary as ObstetricSummary | null;
   if (obs) {
-    if (obs.gravida === 0) {
+    const gravida = obs.gravida ?? 0;
+    const ectopic = obs.ectopic ?? 0;
+    const stillbirths = obs.stillbirths ?? 0;
+    if (gravida === 0) {
       sentences.push("No prior pregnancies.");
     } else {
       const detail: string[] = [];
-      if (obs.ectopic > 0)
-        detail.push(
-          `${obs.ectopic} ectopic pregnanc${obs.ectopic === 1 ? "y" : "ies"}`,
-        );
-      if (obs.stillbirths > 0)
-        detail.push(`${obs.stillbirths} stillbirth${obs.stillbirths > 1 ? "s" : ""}`);
-      const suffix =
-        detail.length > 0 ? ` including ${humanJoin(detail)}` : "";
+      if (ectopic > 0)
+        detail.push(`${ectopic} ectopic pregnanc${ectopic === 1 ? "y" : "ies"}`);
+      if (stillbirths > 0)
+        detail.push(`${stillbirths} stillbirth${stillbirths > 1 ? "s" : ""}`);
+      const suffix = detail.length > 0 ? ` including ${humanJoin(detail)}` : "";
       sentences.push(`${obstetricLabel(obs)}${suffix}.`);
     }
   }
