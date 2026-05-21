@@ -21,7 +21,7 @@ export function useVisitExamination(endpointPath: string | null) {
       return res.data;
     },
     enabled: !!endpointPath,
-    staleTime: 30_000,
+    staleTime: 0,
     refetchOnWindowFocus: false,
     retry: (failureCount, error) => {
       if (error instanceof ApiError && error.status === 404) return false;
