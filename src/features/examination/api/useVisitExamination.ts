@@ -33,6 +33,7 @@ export function usePatchVisitExamination(endpointPath: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (args: Omit<PatchVisitExaminationArgs, "endpointPath">) => {
+      await qc.cancelQueries({ queryKey: visitExaminationKey(endpointPath) });
       const res = await patchVisitExamination({ endpointPath, ...args });
       return res.data;
     },

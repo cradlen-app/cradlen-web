@@ -111,7 +111,6 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
       <PatientHistoryFormShell
         template={template}
         patientId={patientId}
-        version={envelope.version}
         visibility={visibility}
         saving={patchMut.isPending}
         sectionTimestamps={sectionTimestamps}

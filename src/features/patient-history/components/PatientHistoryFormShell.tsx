@@ -20,7 +20,6 @@ import type { FieldFlag } from "../../../builder/renderer/field-flag.types.js";
 interface Props {
   template: FormTemplateDto;
   patientId: string;
-  version: number;
   visibility: SectionVisibility;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
@@ -31,7 +30,6 @@ interface Props {
 export function PatientHistoryFormShell({
   template,
   patientId,
-  version,
   visibility,
   onSave,
   saving,
@@ -125,10 +123,7 @@ export function PatientHistoryFormShell({
           onUnflag={handleUnflag}
         />
       </div>
-      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
-        <span className="text-[11px] text-gray-400">
-          {t("versionLabel", { version })}
-        </span>
+      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
         <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
           {saving ? <Loader2 size={14} className="animate-spin" /> : null}
           <span className="ml-2">{t("save")}</span>
