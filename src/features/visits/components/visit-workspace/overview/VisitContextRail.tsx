@@ -67,7 +67,7 @@ export function VisitContextRail({ patientId, onNavigateToHistory }: Props) {
           <RedFlagsSkeleton />
         ) : isError ? (
           <p className="mt-3 text-xs text-red-400">
-            Failed to load red flags.
+            {t("redFlags.error")}
           </p>
         ) : !hasFlags ? (
           <p className="mt-3 text-xs italic text-gray-400">

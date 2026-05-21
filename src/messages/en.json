@@ -678,7 +678,8 @@
       "rail": {
         "redFlags": {
           "title": "Red Flags",
-          "empty": "No red flags yet for this patient."
+          "empty": "No red flags yet for this patient.",
+          "error": "Failed to load red flags."
         },
         "alerts": {
           "title": "Alerts",
