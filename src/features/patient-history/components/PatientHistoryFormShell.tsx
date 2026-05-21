@@ -23,8 +23,6 @@ interface Props {
   patientId: string;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
-  /** Map of section key → ISO timestamp for the last update to that section. */
-  sectionTimestamps?: Record<string, string> | null;
 }
 
 export function PatientHistoryFormShell({
@@ -32,7 +30,6 @@ export function PatientHistoryFormShell({
   patientId,
   onSave,
   saving,
-  sectionTimestamps,
 }: Props) {
   const t = useTranslations("patient_history.workspace");
   const execution = useTemplateExecution();
@@ -128,7 +125,6 @@ export function PatientHistoryFormShell({
           renderGroupHeaderSlot={renderGroupHeaderSlot}
           collapsedGroups={visibility.hidden}
           renderSectionBottomSlot={renderSectionBottomSlot}
-          sectionTimestamps={sectionTimestamps}
           flagIndex={flagIndex}
           onFlag={handleFlag}
           onUnflag={handleUnflag}
