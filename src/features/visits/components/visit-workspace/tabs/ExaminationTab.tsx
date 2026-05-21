@@ -30,9 +30,12 @@ function isNotFound(err: unknown): boolean {
 
 function isStaleVersion(err: unknown): boolean {
   if (!(err instanceof ApiError)) return false;
-  if (err.status !== 412 && err.status !== 409) return false;
-  const body = err.body as { error?: { code?: string } } | undefined;
-  return body?.error?.code === "STALE_VERSION";
+  if (err.status === 412) return true;
+  if (err.status === 409) {
+    const body = err.body as { error?: { code?: string } } | undefined;
+    return body?.error?.code === "STALE_VERSION";
+  }
+  return false;
 }
 
 export function ExaminationTab({ visit }: Props) {
@@ -90,6 +93,7 @@ export function ExaminationTab({ visit }: Props) {
 
   return (
     <TemplateExecutionContextProvider
+      key={envelope.examination_version}
       template={template}
       initialFormValues={initial.formValues}
       initialSearchState={initial.searchState}

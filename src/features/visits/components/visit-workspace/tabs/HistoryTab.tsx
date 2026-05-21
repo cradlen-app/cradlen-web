@@ -97,6 +97,7 @@ export function HistoryTab({ patientId, specialtyCode }: Props) {
   const initial = toInitialHistoryState(envelope, template);
   return (
     <TemplateExecutionContextProvider
+      key={envelope.version}
       template={template}
       initialFormValues={initial.formValues}
       initialSearchState={initial.searchState}
