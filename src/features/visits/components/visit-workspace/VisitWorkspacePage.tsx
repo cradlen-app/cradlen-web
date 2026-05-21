@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -41,6 +41,16 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const updateStatus = useUpdateVisitStatus();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
+
+  const handleNavigateToHistory = useCallback((sectionCode: string) => {
+    setActiveTab("history");
+    requestAnimationFrame(() => {
+      document.getElementById(sectionCode)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, []);
 
   const canComplete = isClinical(profile) && visit?.status === "IN_PROGRESS";
   const canCancel =
@@ -151,7 +161,10 @@ export function VisitWorkspacePage({ visitId }: Props) {
           </TabsContent>
         </Tabs>
 
-        <VisitContextRail />
+        <VisitContextRail
+          patientId={visit.patient.id}
+          onNavigateToHistory={handleNavigateToHistory}
+        />
       </div>
 
       <CompleteVisitDialog
