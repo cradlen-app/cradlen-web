@@ -124,6 +124,7 @@ export function TemplateRenderer({
               group.sections.map((section) => (
                 <SectionContainer
                   key={section.id}
+                  id={section.code}
                   title={section.name}
                   headerSlot={renderSectionHeaderSlot?.(section)}
                   bottomSlot={
