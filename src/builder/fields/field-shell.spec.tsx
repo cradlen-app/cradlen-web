@@ -44,12 +44,16 @@ describe("FieldShell", () => {
     expect(screen.getByText("My Field")).toBeInTheDocument();
   });
 
-  it("shows error text in inline mode", () => {
-    render(
+  it("shows error text below input in inline mode", () => {
+    const { container } = render(
       <FieldShell label="Complaint category" inline error="Required">
         <input />
       </FieldShell>
     );
-    expect(screen.getByText("Required")).toBeInTheDocument();
+    const flexRow = container.firstChild as HTMLElement;
+    const inputColumn = flexRow.children[1] as HTMLElement;
+    expect(inputColumn.className).toContain("flex-col");
+    const errorEl = inputColumn.querySelector("p");
+    expect(errorEl?.textContent).toBe("Required");
   });
 });
