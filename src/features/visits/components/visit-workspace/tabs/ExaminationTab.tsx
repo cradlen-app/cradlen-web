@@ -63,6 +63,17 @@ export function ExaminationTab({ visit }: Props) {
   const dataQuery = useVisitExamination(config?.endpointPath ?? null);
   const patchMut = usePatchVisitExamination(config?.endpointPath ?? "");
 
+  const rawEnvelope = dataQuery.data ?? null;
+  const enrichedEnvelope = useMemo(
+    () =>
+      rawEnvelope != null &&
+      rawEnvelope.case_path == null &&
+      visit.carePathCode
+        ? { ...rawEnvelope, case_path: visit.carePathCode }
+        : rawEnvelope,
+    [rawEnvelope, visit.carePathCode],
+  );
+
   if (!config) {
     return (
       <div className="p-6 text-xs text-gray-500">{t("loadError")}</div>
@@ -81,14 +92,14 @@ export function ExaminationTab({ visit }: Props) {
       </div>
     );
   }
-  if (!templateQuery.data || !dataQuery.data) {
+  if (!templateQuery.data || !enrichedEnvelope) {
     return (
       <div className="p-6 text-xs text-red-500">{t("loadError")}</div>
     );
   }
 
   const template = templateQuery.data;
-  const envelope = dataQuery.data;
+  const envelope = enrichedEnvelope;
   const initial = toInitialFormState(envelope, template);
 
   return (

@@ -6,6 +6,7 @@ import { cn } from "@/common/utils/utils";
 import { FieldShell } from "../field-shell";
 import { useDynamicOptions } from "../../runtime/useDynamicOptions";
 import { useDefaultValue } from "../../runtime/useDefaultValue";
+import { CasePathInput } from "@/features/examination/components/CasePathInput";
 import type { FieldInputProps } from "../input-props";
 import type { FieldOption } from "../../templates/template.types";
 
@@ -252,9 +253,11 @@ function DropdownSelect({ field, value, onChange, required, disabled, error, fla
 /**
  * Dispatches on `field.config.ui.variant`. Default = dropdown with
  * type-ahead + keyboard nav. `variant: "segmented"` = horizontal pill row.
+ * `variant: "case-path"` = care path button array with coming-soon modal.
  */
 export function SelectInput(props: FieldInputProps) {
   const variant = props.field.config?.ui?.variant as string | undefined;
+  if (variant === "case-path") return <CasePathInput {...props} />;
   if (variant === "segmented") return <SegmentedSelect {...props} />;
   return <DropdownSelect {...props} />;
 }
