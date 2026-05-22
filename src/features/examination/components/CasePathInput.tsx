@@ -34,7 +34,7 @@ export function CasePathInput({
     staleTime: 5 * 60 * 1000,
   });
 
-  const current = (value as string | null | undefined) ?? null;
+  const current = (value as string | null | undefined) ?? "GENERAL_GYN";
   const [pending, setPending] = useState<string | null>(null);
 
   const handleClick = (code: string) => {
@@ -71,10 +71,10 @@ export function CasePathInput({
               disabled={disabled}
               onClick={() => handleClick(cp.code)}
               className={cn(
-                "px-3 py-1 rounded text-xs font-medium border transition-colors",
+                "text-xs font-medium transition-colors",
                 cp.code === current
-                  ? "bg-brand-primary border-brand-primary text-white"
-                  : "bg-gray-50 border-gray-200 text-gray-500 hover:border-brand-primary/40 hover:text-brand-primary",
+                  ? "px-3 py-1 rounded bg-brand-primary text-white"
+                  : "px-1 text-gray-500 hover:text-brand-primary",
               )}
             >
               {cp.name}
