@@ -42,7 +42,8 @@ export function FieldShell({
 
   if (inline) {
     return (
-      <div className={cn("flex flex-row items-center gap-4", className)}>
+      // inline uses a div (not label) — each checkbox option has its own inner label
+      <div className={cn("flex flex-row items-start gap-4", className)}>
         <span className="flex-shrink-0 min-w-[120px]">{labelContent}</span>
         <div className="flex-1 flex flex-col">
           {children}
