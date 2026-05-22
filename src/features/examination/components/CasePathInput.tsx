@@ -12,7 +12,7 @@ import type { FieldInputProps } from "@/builder/fields/input-props";
 
 // Only GENERAL_GYN has a full profile implementation today.
 // Remove a code from this set when its profile tab is built.
-const IMPLEMENTED_PATHS = new Set(["GENERAL_GYN"]);
+const IMPLEMENTED_PATHS = new Set(["OBGYN_GENERAL"]);
 
 export function CasePathInput({
   field,
@@ -34,7 +34,7 @@ export function CasePathInput({
     staleTime: 5 * 60 * 1000,
   });
 
-  const current = (value as string | null | undefined) ?? "GENERAL_GYN";
+  const current = (value as string | null | undefined) ?? "OBGYN_GENERAL";
   const [pending, setPending] = useState<string | null>(null);
 
   const handleClick = (code: string) => {
@@ -59,7 +59,7 @@ export function CasePathInput({
         flagged={flagged}
         inline
       >
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           {isLoading && <Loader2 className="size-3.5 animate-spin text-gray-400" />}
           {isError && <span className="text-[11px] text-red-400">Failed to load care paths</span>}
           {carePaths.map((cp) => (
