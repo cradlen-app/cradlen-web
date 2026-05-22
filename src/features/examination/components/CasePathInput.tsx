@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog } from "radix-ui";
+import { Loader2 } from "lucide-react";
 import { FieldShell } from "@/builder/fields/field-shell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
@@ -22,17 +23,18 @@ export function CasePathInput({
   error,
   flagged,
 }: FieldInputProps) {
-  const specialtyCode = (field.config?.ui as Record<string, unknown>)
-    ?.specialtyCode as string | undefined;
+  const specialtyCode = typeof field.config?.ui?.specialtyCode === "string"
+    ? field.config.ui.specialtyCode
+    : undefined;
 
-  const { data: carePaths = [] } = useQuery({
+  const { data: carePaths = [], isLoading, isError } = useQuery({
     queryKey: ["care-paths", specialtyCode],
     queryFn: ({ signal }) => fetchCarePaths(specialtyCode!, signal),
     enabled: !!specialtyCode,
     staleTime: 5 * 60 * 1000,
   });
 
-  const current = (value as string | null | undefined) ?? "GENERAL_GYN";
+  const current = (value as string | null | undefined) ?? null;
   const [pending, setPending] = useState<string | null>(null);
 
   const handleClick = (code: string) => {
@@ -58,6 +60,8 @@ export function CasePathInput({
         inline
       >
         <div className="flex items-center gap-2 flex-wrap">
+          {isLoading && <Loader2 className="size-3.5 animate-spin text-gray-400" />}
+          {isError && <span className="text-[11px] text-red-400">Failed to load care paths</span>}
           {carePaths.map((cp) => (
             <button
               key={cp.code}
@@ -94,9 +98,9 @@ export function CasePathInput({
               its way. For now, continue with General GYN.
             </Dialog.Description>
             <div className="mt-4 flex justify-end">
-              <Button variant="outline" size="sm" onClick={() => setPending(null)}>
-                Close
-              </Button>
+              <Dialog.Close asChild>
+                <Button variant="outline" size="sm">Close</Button>
+              </Dialog.Close>
             </div>
           </Dialog.Content>
         </Dialog.Portal>
