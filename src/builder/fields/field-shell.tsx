@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
+import { cn } from "@/common/utils/utils";
 
 export const fieldClass =
   "h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-brand-black outline-none transition-colors placeholder:text-gray-300 focus:border-brand-primary focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50";
@@ -41,7 +42,7 @@ export function FieldShell({
 
   if (inline) {
     return (
-      <div className={className ?? "flex flex-row items-center gap-4"}>
+      <div className={cn("flex flex-row items-center gap-4", className)}>
         <span className="flex-shrink-0 min-w-[120px]">{labelContent}</span>
         <div className="flex-1 flex flex-col">
           {children}
@@ -52,7 +53,7 @@ export function FieldShell({
   }
 
   return (
-    <label className={className ?? "block"}>
+    <label className={cn("block", className)}>
       {labelContent}
       {children}
       {error ? <p className="pt-1 text-[11px] text-red-500">{error}</p> : null}
