@@ -42,19 +42,11 @@ export function FieldShell({
   if (inline) {
     return (
       <div className={className ?? "flex flex-row items-center gap-4"}>
-        <span className="flex-shrink-0 min-w-[120px] text-xs font-medium text-brand-black">
-          {label}
-          {required ? <span className="text-red-500"> *</span> : null}
-          {flagged && (
-            <AlertTriangle
-              size={10}
-              className="inline ml-1 text-red-600 align-middle"
-              aria-label="Flagged"
-            />
-          )}
-        </span>
-        <div className="flex-1">{children}</div>
-        {error ? <p className="pt-1 text-[11px] text-red-500">{error}</p> : null}
+        <span className="flex-shrink-0 min-w-[120px]">{labelContent}</span>
+        <div className="flex-1 flex flex-col">
+          {children}
+          {error ? <p className="pt-1 text-[11px] text-red-500">{error}</p> : null}
+        </div>
       </div>
     );
   }
