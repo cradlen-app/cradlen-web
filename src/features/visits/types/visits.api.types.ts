@@ -330,3 +330,22 @@ export type BookMedicalRepVisitResponse = {
     visit: ApiMedicalRepVisit;
   };
 };
+
+export type ApiVisitHistoryMedication = {
+  name: string;
+  dose: string;
+};
+
+export type ApiVisitHistoryEntry = {
+  id: string;
+  appointment_type: "VISIT" | "FOLLOW_UP";
+  completed_at: string;
+  diagnosis: string | null;
+  medications: ApiVisitHistoryMedication[];
+  investigations: string[];
+};
+
+export type ApiVisitHistoryResponse = {
+  data: ApiVisitHistoryEntry[];
+  meta: ApiPaginationMeta;
+};
