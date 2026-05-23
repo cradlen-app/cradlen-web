@@ -2,11 +2,21 @@
 
 import { LineChart } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { usePatientVitalsTrend } from "../../../hooks/usePatientVitalsTrend";
+import { BpTrendChart } from "./BpTrendChart";
+import { BmiTrendChart } from "./BmiTrendChart";
 
-const MOCK_LATEST_BP = { systolic: 150, diastolic: 95 };
+type Props = {
+  patientId: string;
+  excludeVisitId: string;
+};
 
-export function VisitChartsPanel() {
+export function VisitChartsPanel({ patientId, excludeVisitId }: Props) {
   const t = useTranslations("visits.workspace.charts");
+  const { points, isLoading, isError } = usePatientVitalsTrend({
+    patientId,
+    excludeVisitId,
+  });
 
   return (
     <section>
@@ -15,45 +25,31 @@ export function VisitChartsPanel() {
         <h2 className="text-sm font-semibold text-brand-black">{t("title")}</h2>
       </header>
 
-      <div className="mt-4 space-y-2">
-        <h3 className="text-sm font-medium text-brand-primary">
-          {t("bloodPressure.title")}
-        </h3>
+      {isLoading && (
+        <p className="mt-4 text-xs text-gray-400">{t("loading")}</p>
+      )}
 
-        <p className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-gray-700">
-          <span>
-            {t("bloodPressure.lastReading")}{" "}
-            <span className="font-medium tabular-nums">
-              {t("bp")}: {MOCK_LATEST_BP.systolic} / {MOCK_LATEST_BP.diastolic}
-            </span>
-          </span>
-          <span>
-            {t("status")} :{" "}
-            <span className="font-semibold text-red-600">{t("statusHigh")}</span>
-          </span>
-        </p>
+      {!isLoading && isError && (
+        <p className="mt-4 text-xs text-red-400">{t("error")}</p>
+      )}
 
-        <p className="text-xs text-gray-500">{t("unit", { unit: "mmHg" })}</p>
-      </div>
+      {!isLoading && !isError && (
+        <div className="mt-4 space-y-6">
+          <div>
+            <h3 className="mb-2 text-sm font-medium text-brand-primary">
+              {t("bp.title")}
+            </h3>
+            <BpTrendChart points={points} emptyLabel={t("bp.empty")} />
+          </div>
 
-      <div className="mt-4 flex">
-        <span
-          className="w-8 pt-1 text-[10px] tabular-nums text-gray-400"
-          aria-hidden="true"
-        >
-          200
-        </span>
-        <div className="relative flex-1 h-40">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="absolute inset-x-0 border-t border-dashed border-gray-200"
-              style={{ top: `${i * 25}%` }}
-              aria-hidden="true"
-            />
-          ))}
+          <div>
+            <h3 className="mb-2 text-sm font-medium text-brand-primary">
+              {t("bmi.title")}
+            </h3>
+            <BmiTrendChart points={points} emptyLabel={t("bmi.empty")} />
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

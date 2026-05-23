@@ -31,9 +31,14 @@ export function OverviewTab({ visit }: Props) {
             patientId={visit.patient.id}
             excludeVisitId={visit.id}
           />
-          <div className="pt-6">
-            <VisitChartsPanel />
-          </div>
+          {isObgyn && (
+            <div className="pt-6">
+              <VisitChartsPanel
+                patientId={visit.patient.id}
+                excludeVisitId={visit.id}
+              />
+            </div>
+          )}
         </div>
       </div>
     </section>
