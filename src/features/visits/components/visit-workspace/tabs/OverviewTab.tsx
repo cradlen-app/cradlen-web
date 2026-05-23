@@ -27,7 +27,10 @@ export function OverviewTab({ visit }: Props) {
               patientDateOfBirth={visit.patient.dateOfBirth}
             />
           )}
-          <VisitsHistoryList />
+          <VisitsHistoryList
+            patientId={visit.patient.id}
+            excludeVisitId={visit.id}
+          />
           <div className="pt-6">
             <VisitChartsPanel />
           </div>
