@@ -31,6 +31,8 @@ export const queryKeys = {
     byId: (visitId: string) => ["visits", "detail", visitId] as const,
     patientHistory: (patientId: string, excludeVisitId: string) =>
       ["visits", "patient-history", patientId, excludeVisitId] as const,
+    vitalsTrend: (patientId: string, excludeVisitId: string) =>
+      ["visits", "vitals-trend", patientId, excludeVisitId] as const,
   },
 
   // ── Medical-rep visits ────────────────────────────────────────────────────

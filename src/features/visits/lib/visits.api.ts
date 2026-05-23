@@ -4,6 +4,7 @@ import type {
   ApiPatientSearchResponse,
   ApiScheduleResponse,
   ApiVisit,
+  ApiVitalsTrendPoint,
   ApiVisitHistoryResponse,
   ApiVisitListResponse,
   ApiVisitResponse,
@@ -146,6 +147,21 @@ export function fetchPatientVisitHistory({
   if (excludeVisitId) search.set("exclude", excludeVisitId);
   return apiAuthFetch<ApiVisitHistoryResponse>(
     `/patients/${patientId}/visits/history?${search.toString()}`,
+  );
+}
+
+export function fetchPatientVitalsTrend({
+  patientId,
+  excludeVisitId,
+}: {
+  patientId: string;
+  excludeVisitId?: string;
+}) {
+  const search = new URLSearchParams();
+  if (excludeVisitId) search.set("exclude", excludeVisitId);
+  const qs = search.toString();
+  return apiAuthFetch<{ data: ApiVitalsTrendPoint[] }>(
+    `/patients/${patientId}/vitals-trend${qs ? `?${qs}` : ""}`,
   );
 }
 
