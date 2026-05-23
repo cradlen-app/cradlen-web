@@ -665,6 +665,8 @@
       "history": {
         "title": "سجل الزيارات",
         "loadMore": "عرض المزيد",
+        "loading": "جارٍ التحميل...",
+        "empty": "لا توجد زيارات سابقة.",
         "visitDetails": "تفاصيل الزيارة",
         "diagnosis": "التشخيص",
         "medications": "الأدوية",

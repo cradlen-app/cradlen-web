@@ -665,6 +665,8 @@
       "history": {
         "title": "Visits History",
         "loadMore": "Load more",
+        "loading": "Loading...",
+        "empty": "No previous visits found.",
         "visitDetails": "Visit Details",
         "diagnosis": "Diagnosis",
         "medications": "Medications",
