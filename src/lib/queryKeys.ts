@@ -29,6 +29,8 @@ export const queryKeys = {
       ["visits", "my-waiting-list", opts] as const,
     myCurrent: () => ["visits", "my-current"] as const,
     byId: (visitId: string) => ["visits", "detail", visitId] as const,
+    patientHistory: (patientId: string, excludeVisitId: string) =>
+      ["visits", "patient-history", patientId, excludeVisitId] as const,
   },
 
   // ── Medical-rep visits ────────────────────────────────────────────────────

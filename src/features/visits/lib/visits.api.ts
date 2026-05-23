@@ -4,6 +4,7 @@ import type {
   ApiPatientSearchResponse,
   ApiScheduleResponse,
   ApiVisit,
+  ApiVisitHistoryResponse,
   ApiVisitListResponse,
   ApiVisitResponse,
   ApiVisitStatsResponse,
@@ -126,6 +127,26 @@ export function fetchTodaysSchedule({
 export function searchPatients(search: string) {
   const params = new URLSearchParams({ search, limit: "20" });
   return apiAuthFetch<ApiPatientSearchResponse>(`/patients?${params.toString()}`);
+}
+
+export function fetchPatientVisitHistory({
+  patientId,
+  page = 1,
+  limit = 3,
+  excludeVisitId,
+}: {
+  patientId: string;
+  page?: number;
+  limit?: number;
+  excludeVisitId?: string;
+}) {
+  const search = new URLSearchParams();
+  search.set("page", String(page));
+  search.set("limit", String(limit));
+  if (excludeVisitId) search.set("exclude", excludeVisitId);
+  return apiAuthFetch<ApiVisitHistoryResponse>(
+    `/patients/${patientId}/visits/history?${search.toString()}`,
+  );
 }
 
 // ── writes ────────────────────────────────────────────────────────────────────
