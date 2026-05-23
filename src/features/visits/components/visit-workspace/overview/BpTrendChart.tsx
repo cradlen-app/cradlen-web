@@ -5,13 +5,29 @@ import {
   Line,
   XAxis,
   YAxis,
-  Tooltip,
   ReferenceArea,
   CartesianGrid,
-  ResponsiveContainer,
-  Legend,
 } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import type { ApiVitalsTrendPoint } from "../../../types/visits.api.types";
+
+const chartConfig = {
+  systolic: {
+    label: "Systolic",
+    color: "#ef4444",
+  },
+  diastolic: {
+    label: "Diastolic",
+    color: "#3b82f6",
+  },
+} satisfies ChartConfig;
 
 type Props = {
   points: ApiVitalsTrendPoint[];
@@ -39,42 +55,34 @@ export function BpTrendChart({ points, emptyLabel }: Props) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={160}>
+    <ChartContainer config={chartConfig} className="h-[160px] w-full">
       <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -24 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-        {/* Normal zone: systolic ≤ 120, diastolic ≤ 80 */}
+        {/* Normal zone ≤ 80 diastolic */}
         <ReferenceArea y1={0} y2={80} fill="#dcfce7" fillOpacity={0.25} />
-        {/* Stage 1 HBP: 130–139 / 80–89 */}
+        {/* Stage 1 HBP: systolic 130–140 */}
         <ReferenceArea y1={130} y2={140} fill="#fef9c3" fillOpacity={0.4} />
         {/* Stage 2 HBP: ≥ 140 */}
         <ReferenceArea y1={140} y2={210} fill="#fee2e2" fillOpacity={0.35} />
         <XAxis dataKey="date" tick={{ fontSize: 10 }} />
         <YAxis tick={{ fontSize: 10 }} domain={[40, 210]} />
-        <Tooltip
-          contentStyle={{ fontSize: 11 }}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          formatter={(value: any, name: any) =>
-            value != null ? [`${value} mmHg`, name] : ["—", name]
-          }
-        />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <ChartLegend content={<ChartLegendContent />} />
         <Line
           type="monotone"
           dataKey="systolic"
-          name="Systolic"
-          stroke="#ef4444"
+          stroke="var(--color-systolic)"
           strokeWidth={2}
           dot={{ r: 3 }}
         />
         <Line
           type="monotone"
           dataKey="diastolic"
-          name="Diastolic"
-          stroke="#3b82f6"
+          stroke="var(--color-diastolic)"
           strokeWidth={2}
           dot={{ r: 3 }}
         />
       </LineChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }
