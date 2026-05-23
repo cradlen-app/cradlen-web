@@ -730,7 +730,8 @@
           "title": "Weight / BMI Trend",
           "empty": "No weight readings recorded yet."
         },
-        "loading": "Loading charts..."
+        "loading": "Loading charts...",
+        "error": "Failed to load chart data."
       },
       "comingSoon": {
         "history": {
