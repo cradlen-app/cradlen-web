@@ -23,11 +23,16 @@ export function CasePathInput({
   error,
   flagged,
 }: FieldInputProps) {
-  const specialtyCode = typeof field.config?.ui?.specialtyCode === "string"
-    ? field.config.ui.specialtyCode
-    : undefined;
+  const specialtyCode =
+    typeof field.config?.ui?.specialtyCode === "string"
+      ? field.config.ui.specialtyCode
+      : undefined;
 
-  const { data: carePaths = [], isLoading, isError } = useQuery({
+  const {
+    data: carePaths = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["care-paths", specialtyCode],
     queryFn: ({ signal }) => fetchCarePaths(specialtyCode!, signal),
     enabled: !!specialtyCode,
@@ -59,9 +64,15 @@ export function CasePathInput({
         flagged={flagged}
         inline
       >
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          {isLoading && <Loader2 className="size-3.5 animate-spin text-gray-400" />}
-          {isError && <span className="text-[11px] text-red-400">Failed to load care paths</span>}
+        <div className="flex items-center justify-around flex-wrap gap-2">
+          {isLoading && (
+            <Loader2 className="size-3.5 animate-spin text-gray-400" />
+          )}
+          {isError && (
+            <span className="text-[11px] text-red-400">
+              Failed to load care paths
+            </span>
+          )}
           {carePaths.map((cp) => (
             <button
               key={cp.code}
@@ -83,7 +94,10 @@ export function CasePathInput({
         </div>
       </FieldShell>
 
-      <Dialog.Root open={!!pending} onOpenChange={(open) => !open && setPending(null)}>
+      <Dialog.Root
+        open={!!pending}
+        onOpenChange={(open) => !open && setPending(null)}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
@@ -99,7 +113,9 @@ export function CasePathInput({
             </Dialog.Description>
             <div className="mt-4 flex justify-end">
               <Dialog.Close asChild>
-                <Button variant="outline" size="sm">Close</Button>
+                <Button variant="outline" size="sm">
+                  Close
+                </Button>
               </Dialog.Close>
             </div>
           </Dialog.Content>
