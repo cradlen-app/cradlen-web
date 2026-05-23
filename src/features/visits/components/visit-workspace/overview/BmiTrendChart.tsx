@@ -4,8 +4,6 @@ import { LineChart, Line, XAxis, YAxis, ReferenceArea, CartesianGrid } from "rec
 import {
   ChartContainer,
   ChartTooltip,
-  ChartLegend,
-  ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart";
 import type { ApiVitalsTrendPoint } from "../../../types/visits.api.types";
@@ -84,7 +82,6 @@ export function BmiTrendChart({ points, emptyLabel }: Props) {
         <XAxis dataKey="date" tick={{ fontSize: 10 }} />
         <YAxis tick={{ fontSize: 10 }} domain={[10, 50]} />
         <ChartTooltip content={<CustomTooltipContent />} />
-        <ChartLegend content={<ChartLegendContent />} />
         <Line
           type="monotone"
           dataKey="bmi"

@@ -29,6 +29,10 @@ export function VisitChartsPanel({ patientId, excludeVisitId }: Props) {
         <p className="mt-4 text-xs text-gray-400">{t("loading")}</p>
       )}
 
+      {!isLoading && isError && (
+        <p className="mt-4 text-xs text-red-400">{t("error")}</p>
+      )}
+
       {!isLoading && !isError && (
         <div className="mt-4 space-y-6">
           <div>
