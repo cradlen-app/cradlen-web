@@ -722,14 +722,15 @@
       },
       "charts": {
         "title": "Charts",
-        "bloodPressure": {
-          "title": "Blood pressure Chart",
-          "lastReading": "Last Reading :"
+        "bp": {
+          "title": "Blood Pressure Trend",
+          "empty": "No blood pressure readings recorded yet."
         },
-        "status": "Status",
-        "statusHigh": "High",
-        "bp": "BP",
-        "unit": "Unit: {unit}"
+        "bmi": {
+          "title": "Weight / BMI Trend",
+          "empty": "No weight readings recorded yet."
+        },
+        "loading": "Loading charts..."
       },
       "comingSoon": {
         "history": {
