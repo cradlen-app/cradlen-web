@@ -349,3 +349,12 @@ export type ApiVisitHistoryResponse = {
   data: ApiVisitHistoryEntry[];
   meta: ApiPaginationMeta;
 };
+
+export type ApiVitalsTrendPoint = {
+  visit_id: string;
+  completed_at: string;
+  systolic_bp: number | null;
+  diastolic_bp: number | null;
+  weight_kg: number | null;
+  bmi: number | null;
+};
