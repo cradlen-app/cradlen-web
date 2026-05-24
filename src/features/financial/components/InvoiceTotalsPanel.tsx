@@ -4,7 +4,6 @@ import { cn } from "@/common/utils/utils";
 type TotalsItem = {
   unit_price: number;
   quantity: number;
-  discount?: number | null;
   discount_amount?: number | null;
 };
 
@@ -24,7 +23,7 @@ export function InvoiceTotalsPanel({ items, className }: Props) {
       0,
     );
     const totalDiscount = items.reduce(
-      (sum, item) => sum + (item.discount_amount ?? item.discount ?? 0),
+      (sum, item) => sum + (item.discount_amount ?? 0),
       0,
     );
     return {

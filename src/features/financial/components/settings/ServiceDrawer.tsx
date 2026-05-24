@@ -26,10 +26,10 @@ const serviceFormSchema = z.object({
     "ADMINISTRATIVE",
     "OTHER",
   ]),
-  base_price: z.number().nonnegative("Price must be 0 or more"),
-  // TODO: replace with proper MultiSelect when available — currently comma-separated codes
-  specialty_codes_raw: z.string().optional(),
-  is_active: z.boolean(),
+  // TODO: replace with proper Specialty picker. Backend expects an array of
+  // specialty UUIDs (`specialty_ids`), not codes. The raw input below is a
+  // comma-separated list of UUIDs entered by the operator.
+  specialty_ids_raw: z.string().optional(),
 });
 
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
@@ -65,9 +65,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
       name: "",
       description: "",
       service_type: "CONSULTATION",
-      base_price: 0,
-      specialty_codes_raw: "",
-      is_active: true,
+      specialty_ids_raw: "",
     },
   });
 
@@ -78,10 +76,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
         name: service.name,
         description: service.description ?? "",
         service_type: service.service_type,
-        base_price: service.base_price,
-        specialty_codes_raw:
-          service.specialties?.map((sp) => sp.code).join(", ") ?? "",
-        is_active: service.is_active,
+        specialty_ids_raw: service.specialty_ids?.join(", ") ?? "",
       });
     } else if (open && mode === "create") {
       form.reset({
@@ -89,9 +84,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
         name: "",
         description: "",
         service_type: "CONSULTATION",
-        base_price: 0,
-        specialty_codes_raw: "",
-        is_active: true,
+        specialty_ids_raw: "",
       });
     }
   }, [open, mode, service, form]);
@@ -102,8 +95,8 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
   }
 
   const onSubmit = form.handleSubmit((data) => {
-    const specialty_codes = data.specialty_codes_raw
-      ? data.specialty_codes_raw
+    const specialty_ids = data.specialty_ids_raw
+      ? data.specialty_ids_raw
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean)
@@ -116,9 +109,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
           name: data.name,
           description: data.description || undefined,
           service_type: data.service_type,
-          base_price: data.base_price,
-          is_active: data.is_active,
-          specialty_codes,
+          specialty_ids,
         },
         { onSuccess: handleClose },
       );
@@ -130,9 +121,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
             name: data.name,
             description: data.description || undefined,
             service_type: data.service_type,
-            base_price: data.base_price,
-            is_active: data.is_active,
-            specialty_codes,
+            specialty_ids,
           },
         },
         { onSuccess: handleClose },
@@ -247,63 +236,24 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
                 </select>
               </div>
 
-              {/* Base price */}
+              {/* Specialties — comma-separated UUIDs */}
+              {/* TODO: replace with proper Specialty picker when available */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Base Price (EGP) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...form.register("base_price", { valueAsNumber: true })}
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  placeholder="0.00"
-                  className={cn(
-                    inputClass,
-                    form.formState.errors.base_price && "border-red-400",
-                  )}
-                />
-                {form.formState.errors.base_price && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {form.formState.errors.base_price.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Specialties — comma-separated codes */}
-              {/* TODO: replace with proper MultiSelect when available */}
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Specialty Codes{" "}
+                  Specialty IDs{" "}
                   <span className="text-gray-400">
-                    (optional, comma-separated)
+                    (optional, comma-separated UUIDs)
                   </span>
                 </label>
                 <input
-                  {...form.register("specialty_codes_raw")}
+                  {...form.register("specialty_ids_raw")}
                   type="text"
-                  placeholder="e.g. OBGYN, PEDIATRICS"
+                  placeholder="e.g. 11111111-1111-1111-1111-111111111111, 22222222-…"
                   className={inputClass}
                 />
                 <p className="mt-1 text-xs text-gray-400">
-                  Enter specialty codes separated by commas.
+                  Enter specialty UUIDs separated by commas.
                 </p>
-              </div>
-
-              {/* Is active */}
-              <div className="flex items-center gap-3">
-                <input
-                  {...form.register("is_active")}
-                  id="service-is-active"
-                  type="checkbox"
-                  className="size-4 rounded border-gray-300 accent-blue-600"
-                />
-                <label
-                  htmlFor="service-is-active"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Active
-                </label>
               </div>
             </div>
 

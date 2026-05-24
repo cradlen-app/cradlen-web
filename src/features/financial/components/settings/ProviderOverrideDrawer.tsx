@@ -19,8 +19,11 @@ import type { ProviderOverride } from "../../types/financial.types";
 const overrideFormSchema = z.object({
   service_id: z.string().min(1, "Service is required"),
   service_name: z.string().optional(), // display-only
+  /** Backend field is `price` (not `unit_price`). */
   price: z.number().nonnegative("Price must be 0 or more"),
-  notes: z.string().optional(),
+  currency: z.string().optional(),
+  valid_from: z.string().optional(),
+  valid_to: z.string().optional(),
 });
 
 type OverrideFormValues = z.infer<typeof overrideFormSchema>;
@@ -32,6 +35,11 @@ const inputClass = cn(
   "placeholder:text-gray-400 outline-none transition-colors",
   "focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20",
 );
+
+function toDateInput(iso: string | null | undefined): string {
+  if (!iso) return "";
+  return iso.slice(0, 10);
+}
 
 type ServiceOption = { id: string; name: string; code: string };
 
@@ -67,11 +75,20 @@ function ServiceComboboxField({
       });
       return () => { active.cancelled = true; };
     }
-    fetchServices(orgId, { search: debouncedSearch, isActive: true })
+    // Backend has no `search` query param — fetch active services and
+    // filter client-side.
+    const needle = debouncedSearch.toLowerCase();
+    fetchServices(orgId, { active: true, limit: 100 })
       .then((res) => {
         if (!active.cancelled)
           setOptions(
-            res.data.map((s) => ({ id: s.id, name: s.name, code: s.code })),
+            res.data
+              .filter(
+                (s) =>
+                  s.name.toLowerCase().includes(needle) ||
+                  s.code.toLowerCase().includes(needle),
+              )
+              .map((s) => ({ id: s.id, name: s.name, code: s.code })),
           );
       })
       .catch(() => { if (!active.cancelled) setOptions([]); });
@@ -84,7 +101,6 @@ function ServiceComboboxField({
     onChange(svc.id, svc.name);
   }
 
-  // Suppress unused value warning — value is used for form control
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium text-gray-700">
@@ -157,7 +173,9 @@ export function ProviderOverrideDrawer({
       service_id: "",
       service_name: "",
       price: 0,
-      notes: "",
+      currency: "EGP",
+      valid_from: "",
+      valid_to: "",
     },
   });
 
@@ -168,16 +186,20 @@ export function ProviderOverrideDrawer({
     if (open && mode === "edit" && override) {
       form.reset({
         service_id: override.service_id,
-        service_name: override.service_name,
+        service_name: override.service?.name ?? "",
         price: override.price,
-        notes: override.notes ?? "",
+        currency: override.currency,
+        valid_from: toDateInput(override.valid_from),
+        valid_to: toDateInput(override.valid_to),
       });
     } else if (open && mode === "create") {
       form.reset({
         service_id: "",
         service_name: "",
         price: 0,
-        notes: "",
+        currency: "EGP",
+        valid_from: "",
+        valid_to: "",
       });
       Promise.resolve().then(() => setSelectedServiceName(""));
     }
@@ -185,7 +207,7 @@ export function ProviderOverrideDrawer({
 
   // Derive displayed service name from props (edit) or combobox selection (create)
   const displayServiceName =
-    mode === "edit" ? (override?.service_name ?? "") : selectedServiceName;
+    mode === "edit" ? (override?.service?.name ?? "") : selectedServiceName;
 
   function handleClose() {
     form.reset();
@@ -198,7 +220,9 @@ export function ProviderOverrideDrawer({
         {
           service_id: data.service_id,
           price: data.price,
-          notes: data.notes || undefined,
+          currency: data.currency || undefined,
+          valid_from: data.valid_from || undefined,
+          valid_to: data.valid_to || undefined,
         },
         { onSuccess: handleClose },
       );
@@ -208,7 +232,9 @@ export function ProviderOverrideDrawer({
           id: override.id,
           payload: {
             price: data.price,
-            notes: data.notes || undefined,
+            currency: data.currency || undefined,
+            valid_from: data.valid_from || undefined,
+            valid_to: data.valid_to || undefined,
           },
         },
         { onSuccess: handleClose },
@@ -268,7 +294,7 @@ export function ProviderOverrideDrawer({
                   </label>
                   <input
                     type="text"
-                    value={override?.service_name ?? ""}
+                    value={override?.service?.name ?? ""}
                     readOnly
                     className={cn(inputClass, "bg-gray-50 text-gray-500")}
                   />
@@ -298,17 +324,41 @@ export function ProviderOverrideDrawer({
                 )}
               </div>
 
-              {/* Notes */}
+              {/* Currency */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Notes <span className="text-gray-400">(optional)</span>
+                  Currency
                 </label>
-                <textarea
-                  {...form.register("notes")}
-                  rows={3}
-                  placeholder="Reason for override…"
-                  className={cn(inputClass, "resize-none")}
+                <input
+                  {...form.register("currency")}
+                  type="text"
+                  placeholder="EGP"
+                  className={inputClass}
                 />
+              </div>
+
+              {/* Valid from / Valid to */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                    Valid From <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <input
+                    {...form.register("valid_from")}
+                    type="date"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                    Valid To <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <input
+                    {...form.register("valid_to")}
+                    type="date"
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
 

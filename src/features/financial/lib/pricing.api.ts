@@ -20,7 +20,7 @@ export function fetchPriceLists(
   branchId?: string,
 ): Promise<ApiResponse<PriceList[]>> {
   const params = new URLSearchParams();
-  if (branchId) params.set("branchId", branchId);
+  if (branchId) params.set("branch_id", branchId);
   const qs = params.toString();
   return apiAuthFetch<ApiResponse<PriceList[]>>(
     `/organizations/${orgId}/financial/price-lists${qs ? `?${qs}` : ""}`,

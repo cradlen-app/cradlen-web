@@ -12,7 +12,7 @@ import { useRecordPayment } from "../hooks/useRecordPayment";
 
 const schema = z.object({
   amount: z.number().positive("Amount must be positive"),
-  payment_method: z.enum(["CASH", "CARD", "BANK_TRANSFER", "INSURANCE"]),
+  payment_method: z.enum(["CASH", "CARD", "BANK_TRANSFER", "INSURANCE", "OTHER"]),
   payment_date: z.string().min(1, "Date is required"),
   reference_number: z.string().optional(),
   notes: z.string().optional(),
@@ -34,6 +34,7 @@ const PAYMENT_METHODS = [
   { value: "CARD", label: "Card" },
   { value: "BANK_TRANSFER", label: "Bank Transfer" },
   { value: "INSURANCE", label: "Insurance" },
+  { value: "OTHER", label: "Other" },
 ] as const;
 
 export function RecordPaymentDrawer({
@@ -79,10 +80,10 @@ export function RecordPaymentDrawer({
         invoiceId,
         payload: {
           amount: data.amount,
-          method: data.payment_method,
-          reference: data.reference_number || undefined,
+          payment_method: data.payment_method,
+          reference_number: data.reference_number || undefined,
           notes: data.notes || undefined,
-          paid_at: new Date(data.payment_date + "T00:00:00").toISOString(),
+          payment_date: new Date(data.payment_date + "T00:00:00").toISOString(),
         },
       },
       {

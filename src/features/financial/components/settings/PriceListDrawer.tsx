@@ -16,11 +16,12 @@ import type { PriceList } from "../../types/financial.types";
 
 const priceListFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
+  currency: z.string().optional(),
   // TODO: replace with branch select using useBranches when available
   branch_id: z.string().optional(),
   is_default: z.boolean(),
-  is_active: z.boolean(),
+  valid_from: z.string().optional(),
+  valid_to: z.string().optional(),
 });
 
 type PriceListFormValues = z.infer<typeof priceListFormSchema>;
@@ -32,6 +33,12 @@ const inputClass = cn(
   "placeholder:text-gray-400 outline-none transition-colors",
   "focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20",
 );
+
+/** Trim ISO date string to YYYY-MM-DD for <input type="date">. */
+function toDateInput(iso: string | null | undefined): string {
+  if (!iso) return "";
+  return iso.slice(0, 10);
+}
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -53,10 +60,11 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
     resolver: zodResolver(priceListFormSchema),
     defaultValues: {
       name: "",
-      description: "",
+      currency: "EGP",
       branch_id: "",
       is_default: false,
-      is_active: true,
+      valid_from: "",
+      valid_to: "",
     },
   });
 
@@ -64,18 +72,20 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
     if (open && mode === "edit" && priceList) {
       form.reset({
         name: priceList.name,
-        description: priceList.description ?? "",
+        currency: priceList.currency,
         branch_id: priceList.branch_id ?? "",
         is_default: priceList.is_default,
-        is_active: priceList.is_active,
+        valid_from: toDateInput(priceList.valid_from),
+        valid_to: toDateInput(priceList.valid_to),
       });
     } else if (open && mode === "create") {
       form.reset({
         name: "",
-        description: "",
+        currency: "EGP",
         branch_id: "",
         is_default: false,
-        is_active: true,
+        valid_from: "",
+        valid_to: "",
       });
     }
   }, [open, mode, priceList, form]);
@@ -90,10 +100,11 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
       createMutation.mutate(
         {
           name: data.name,
-          description: data.description || undefined,
+          currency: data.currency || undefined,
           branch_id: data.branch_id || undefined,
           is_default: data.is_default,
-          is_active: data.is_active,
+          valid_from: data.valid_from || undefined,
+          valid_to: data.valid_to || undefined,
         },
         { onSuccess: handleClose },
       );
@@ -103,9 +114,10 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
           id: priceList.id,
           payload: {
             name: data.name,
-            description: data.description || undefined,
+            currency: data.currency || undefined,
             is_default: data.is_default,
-            is_active: data.is_active,
+            valid_from: data.valid_from || undefined,
+            valid_to: data.valid_to || undefined,
           },
         },
         { onSuccess: handleClose },
@@ -165,16 +177,16 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
                 )}
               </div>
 
-              {/* Description */}
+              {/* Currency */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Description <span className="text-gray-400">(optional)</span>
+                  Currency
                 </label>
-                <textarea
-                  {...form.register("description")}
-                  rows={3}
-                  placeholder="Brief description…"
-                  className={cn(inputClass, "resize-none")}
+                <input
+                  {...form.register("currency")}
+                  type="text"
+                  placeholder="EGP"
+                  className={inputClass}
                 />
               </div>
 
@@ -197,6 +209,30 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
                 </div>
               )}
 
+              {/* Valid from / Valid to */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                    Valid From <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <input
+                    {...form.register("valid_from")}
+                    type="date"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                    Valid To <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <input
+                    {...form.register("valid_to")}
+                    type="date"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
               {/* Is default */}
               <div className="flex items-center gap-3">
                 <input
@@ -210,22 +246,6 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
                   className="text-sm font-medium text-gray-700"
                 >
                   Set as default price list
-                </label>
-              </div>
-
-              {/* Is active */}
-              <div className="flex items-center gap-3">
-                <input
-                  {...form.register("is_active")}
-                  id="price-list-is-active"
-                  type="checkbox"
-                  className="size-4 rounded border-gray-300 accent-blue-600"
-                />
-                <label
-                  htmlFor="price-list-is-active"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Active
                 </label>
               </div>
             </div>

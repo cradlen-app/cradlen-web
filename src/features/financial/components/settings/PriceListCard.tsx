@@ -45,11 +45,20 @@ function ServiceCombobox({
       });
       return () => { active.cancelled = true; };
     }
-    fetchServices(orgId, { search: debouncedSearch, isActive: true })
+    // Backend has no `search` query param — fetch active services and
+    // filter client-side.
+    const needle = debouncedSearch.toLowerCase();
+    fetchServices(orgId, { active: true, limit: 100 })
       .then((res) => {
         if (!active.cancelled)
           setOptions(
-            res.data.map((s) => ({ id: s.id, name: s.name, code: s.code })),
+            res.data
+              .filter(
+                (s) =>
+                  s.name.toLowerCase().includes(needle) ||
+                  s.code.toLowerCase().includes(needle),
+              )
+              .map((s) => ({ id: s.id, name: s.name, code: s.code })),
           );
       })
       .catch(() => { if (!active.cancelled) setOptions([]); });
@@ -113,14 +122,14 @@ function PriceListItemRow({
   const removeMutation = useRemovePriceListItem(priceListId);
 
   function startEdit() {
-    setEditPrice(item.price);
+    setEditPrice(item.unit_price);
     setIsEditing(true);
   }
 
   function handleSave() {
     if (editPrice === null) return;
     updateMutation.mutate(
-      { itemId: item.id, payload: { price: editPrice } },
+      { itemId: item.id, payload: { unit_price: editPrice } },
       { onSuccess: () => setIsEditing(false) },
     );
   }
@@ -132,7 +141,9 @@ function PriceListItemRow({
 
   return (
     <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-      <td className="px-4 py-2.5 text-sm text-gray-900">{item.service_name}</td>
+      <td className="px-4 py-2.5 text-sm text-gray-900">
+        {item.service?.name ?? item.service_id}
+      </td>
       <td className="px-4 py-2.5">
         {isEditing ? (
           <input
@@ -152,7 +163,7 @@ function PriceListItemRow({
             className="rounded px-1 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700"
           >
             EGP{" "}
-            {item.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            {item.unit_price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </button>
         )}
       </td>
@@ -222,7 +233,7 @@ function AddItemRow({
   function handleAdd() {
     if (!selectedService || !price) return;
     addMutation.mutate(
-      { service_id: selectedService.id, price: parseFloat(price) },
+      { service_id: selectedService.id, unit_price: parseFloat(price) },
       {
         onSuccess: () => {
           setSelectedService(null);

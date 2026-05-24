@@ -41,7 +41,7 @@ function formatAmount(value: number): string {
   return `EGP ${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
 }
 
-const PAYMENT_METHOD_LABELS: Record<Payment["method"], string> = {
+const PAYMENT_METHOD_LABELS: Record<Payment["payment_method"], string> = {
   CASH: "Cash",
   CARD: "Card",
   BANK_TRANSFER: "Bank Transfer",
@@ -174,14 +174,15 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                     Created on {formatDate(invoice.created_at)}
                   </p>
                   {/* Remaining balance */}
-                  {invoice.amount_due > 0 && (
+                  {invoice.total_amount - invoice.paid_amount > 0 && (
                     <p
                       className={cn(
                         "text-sm font-medium",
                         isPartiallyPaid ? "text-amber-600" : "text-gray-600",
                       )}
                     >
-                      Balance due: {formatAmount(invoice.amount_due)}
+                      Balance due:{" "}
+                      {formatAmount(invoice.total_amount - invoice.paid_amount)}
                     </p>
                   )}
                 </div>
@@ -349,7 +350,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                             className="border-b border-gray-50 last:border-0"
                           >
                             <td className="px-4 py-3 text-gray-900">
-                              {item.service_name}
+                              {item.description}
                             </td>
                             <td className="px-4 py-3 text-center text-gray-600">
                               {item.quantity}
@@ -363,12 +364,12 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                               />
                             </td>
                             <td className="px-4 py-3 text-right text-gray-600">
-                              {item.discount
-                                ? formatAmount(item.discount)
+                              {item.discount_amount
+                                ? formatAmount(item.discount_amount)
                                 : "—"}
                             </td>
                             <td className="px-4 py-3 text-right font-medium text-gray-900">
-                              {formatAmount(item.total)}
+                              {formatAmount(item.total_amount)}
                             </td>
                           </tr>
                         ))}
@@ -424,8 +425,8 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                           {[...payments]
                             .sort(
                               (a, b) =>
-                                new Date(b.paid_at).getTime() -
-                                new Date(a.paid_at).getTime(),
+                                new Date(b.payment_date).getTime() -
+                                new Date(a.payment_date).getTime(),
                             )
                             .map((payment) => (
                               <tr
@@ -433,16 +434,16 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                                 className="border-b border-gray-50 last:border-0"
                               >
                                 <td className="px-4 py-3 text-gray-600">
-                                  {formatDate(payment.paid_at)}
+                                  {formatDate(payment.payment_date)}
                                 </td>
                                 <td className="px-4 py-3 text-right font-medium text-gray-900">
                                   {formatAmount(payment.amount)}
                                 </td>
                                 <td className="px-4 py-3 text-gray-600">
-                                  {PAYMENT_METHOD_LABELS[payment.method]}
+                                  {PAYMENT_METHOD_LABELS[payment.payment_method]}
                                 </td>
                                 <td className="px-4 py-3 text-gray-500">
-                                  {payment.reference ?? "—"}
+                                  {payment.reference_number ?? "—"}
                                 </td>
                               </tr>
                             ))}
@@ -464,7 +465,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
             open={recordPaymentOpen}
             onOpenChange={setRecordPaymentOpen}
             invoiceId={invoice.id}
-            outstandingAmount={invoice.amount_due}
+            outstandingAmount={invoice.total_amount - invoice.paid_amount}
             onSuccess={() => setRecordPaymentOpen(false)}
           />
 
