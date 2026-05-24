@@ -18,6 +18,26 @@ import { InvoiceTotalsPanel } from "./InvoiceTotalsPanel";
 import { InvoiceLineItemsEditor } from "./InvoiceLineItemsEditor";
 import { RecordPaymentDrawer } from "./RecordPaymentDrawer";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
+import { formatMoney } from "../lib/format";
+import type { EmbeddedPerson } from "../types/financial.types";
+
+/**
+ * Best-effort display name from an optional nested person relation. Backend
+ * does not currently include patient/doctor on invoice responses — callers
+ * pass `fallback` (the raw UUID) so the UI still shows something useful.
+ */
+function personName(
+  person: EmbeddedPerson | null | undefined,
+  fallback: string,
+): string {
+  if (!person) return fallback;
+  if (person.full_name) return person.full_name;
+  const composed = [person.first_name, person.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  return composed || fallback;
+}
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 
@@ -82,7 +102,8 @@ export function InvoiceDrawer({
 }: InvoiceDrawerProps) {
   const orgId = useAuthContextStore((s) => s.organizationId) ?? "";
   const branchId = useAuthContextStore((s) => s.branchId) ?? "";
-  const profileId = useAuthContextStore((s) => s.profileId) ?? undefined;
+  const currentProfileId =
+    useAuthContextStore((s) => s.profileId) ?? undefined;
 
   const [editMode, setEditMode] = useState(!invoiceId);
   const [recordPaymentOpen, setRecordPaymentOpen] = useState(false);
@@ -109,6 +130,7 @@ export function InvoiceDrawer({
     defaultValues: {
       patient_id: prefill?.patientId ?? "",
       visit_id: prefill?.visitId ?? "",
+      doctor_id: prefill?.doctorId ?? "",
       invoice_type: "STANDARD",
       due_date: "",
       notes: "",
@@ -121,6 +143,7 @@ export function InvoiceDrawer({
       form.reset({
         patient_id: invoice.patient_id ?? "",
         visit_id: invoice.visit_id ?? "",
+        doctor_id: invoice.assigned_doctor_id ?? prefill?.doctorId ?? "",
         invoice_type: invoice.invoice_type,
         due_date: invoice.due_date ?? "",
         notes: invoice.notes ?? "",
@@ -134,9 +157,16 @@ export function InvoiceDrawer({
         })),
       });
     }
-  }, [invoice?.id, editMode, form, invoice]);
+  }, [invoice?.id, editMode, form, invoice, prefill?.doctorId]);
 
   const watchedItems = useWatch({ control: form.control, name: "items" });
+  const watchedDoctorId = useWatch({ control: form.control, name: "doctor_id" });
+  // Prefer the visit's assigned doctor; fall back to current user for price
+  // resolution when no doctor is associated with the draft yet.
+  const priceResolutionProfileId =
+    (watchedDoctorId && watchedDoctorId.length > 0
+      ? watchedDoctorId
+      : currentProfileId) ?? undefined;
 
   function handleClose() {
     form.reset();
@@ -255,8 +285,21 @@ export function InvoiceDrawer({
                   <dl className="grid grid-cols-2 gap-4 text-sm">
                     {invoice.patient_id && (
                       <>
-                        <dt className="text-gray-500">Patient ID</dt>
-                        <dd className="font-medium text-gray-900">{invoice.patient_id}</dd>
+                        <dt className="text-gray-500">Patient</dt>
+                        <dd className="font-medium text-gray-900">
+                          {personName(invoice.patient, invoice.patient_id)}
+                        </dd>
+                      </>
+                    )}
+                    {invoice.assigned_doctor_id && (
+                      <>
+                        <dt className="text-gray-500">Doctor</dt>
+                        <dd className="font-medium text-gray-900">
+                          {personName(
+                            invoice.doctor,
+                            invoice.assigned_doctor_id,
+                          )}
+                        </dd>
                       </>
                     )}
                     {invoice.visit_id && (
@@ -310,21 +353,15 @@ export function InvoiceDrawer({
                                 {item.quantity}
                               </td>
                               <td className="px-4 py-3 text-right text-gray-600">
-                                EGP{" "}
-                                {item.unit_price.toLocaleString("en-US", {
-                                  minimumFractionDigits: 2,
-                                })}
+                                {formatMoney(item.unit_price, invoice.currency)}
                               </td>
                               <td className="px-4 py-3 text-right text-gray-600">
                                 {item.discount_amount
-                                  ? `EGP ${item.discount_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                                  ? formatMoney(item.discount_amount, invoice.currency)
                                   : "—"}
                               </td>
                               <td className="px-4 py-3 text-right font-medium text-gray-900">
-                                EGP{" "}
-                                {item.total_amount.toLocaleString("en-US", {
-                                  minimumFractionDigits: 2,
-                                })}
+                                {formatMoney(item.total_amount, invoice.currency)}
                               </td>
                             </tr>
                           ))}
@@ -335,7 +372,11 @@ export function InvoiceDrawer({
 
                   {/* Totals */}
                   <div className="mt-4 flex justify-end">
-                    <InvoiceTotalsPanel items={invoice.items} className="w-72" />
+                    <InvoiceTotalsPanel
+                      items={invoice.items}
+                      currency={invoice.currency}
+                      className="w-72"
+                    />
                   </div>
                 </div>
 
@@ -488,7 +529,8 @@ export function InvoiceDrawer({
                         setValue={form.setValue}
                         orgId={orgId}
                         branchId={branchId}
-                        profileId={profileId}
+                        profileId={priceResolutionProfileId}
+                        currency={invoice?.currency}
                       />
                     </div>
                   </div>
@@ -496,7 +538,10 @@ export function InvoiceDrawer({
                   {/* Right column — sticky totals */}
                   <div className="flex flex-col gap-4 border-l border-gray-100 bg-gray-50/50 px-5 py-5">
                     <h3 className="text-sm font-semibold text-gray-700">Summary</h3>
-                    <InvoiceTotalsPanel items={watchedItems} />
+                    <InvoiceTotalsPanel
+                      items={watchedItems}
+                      currency={invoice?.currency}
+                    />
                   </div>
                 </div>
 
@@ -534,6 +579,7 @@ export function InvoiceDrawer({
           onOpenChange={setRecordPaymentOpen}
           invoiceId={invoice.id}
           outstandingAmount={invoice.total_amount - invoice.paid_amount}
+          currency={invoice.currency}
           onSuccess={() => setRecordPaymentOpen(false)}
         />
       )}

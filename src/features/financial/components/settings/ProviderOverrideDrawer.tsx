@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Dialog } from "radix-ui";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2 } from "lucide-react";
@@ -179,6 +179,13 @@ export function ProviderOverrideDrawer({
     },
   });
 
+  // Reactive currency for the Price label — `useWatch` is React Compiler-safe
+  // (unlike `form.watch()` which returns a non-memoizable function).
+  const watchedCurrency = useWatch({
+    control: form.control,
+    name: "currency",
+  });
+
   // For create mode: tracks the name of the service chosen from the combobox
   const [selectedServiceName, setSelectedServiceName] = useState("");
 
@@ -304,7 +311,8 @@ export function ProviderOverrideDrawer({
               {/* Price */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Price (EGP) <span className="text-red-500">*</span>
+                  Price ({watchedCurrency || "EGP"}){" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   {...form.register("price", { valueAsNumber: true })}

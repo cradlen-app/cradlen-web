@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { cn } from "@/common/utils/utils";
+import { formatMoney } from "../lib/format";
 
 type TotalsItem = {
   unit_price: number;
@@ -9,27 +10,25 @@ type TotalsItem = {
 
 type Props = {
   items: TotalsItem[];
+  /** ISO currency code (e.g. "EGP"). Falls back to "EGP" when unspecified. */
+  currency?: string | null;
   className?: string;
 };
 
-function formatAmount(value: number) {
-  return `EGP ${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
-}
-
-export function InvoiceTotalsPanel({ items, className }: Props) {
+export function InvoiceTotalsPanel({ items, currency, className }: Props) {
   const { subtotal, totalDiscount, total } = useMemo(() => {
-    const subtotal = items.reduce(
+    const sub = items.reduce(
       (sum, item) => sum + item.unit_price * item.quantity,
       0,
     );
-    const totalDiscount = items.reduce(
+    const disc = items.reduce(
       (sum, item) => sum + (item.discount_amount ?? 0),
       0,
     );
     return {
-      subtotal,
-      totalDiscount,
-      total: subtotal - totalDiscount,
+      subtotal: sub,
+      totalDiscount: disc,
+      total: sub - disc,
     };
   }, [items]);
 
@@ -42,19 +41,25 @@ export function InvoiceTotalsPanel({ items, className }: Props) {
     >
       <div className="flex items-center justify-between py-1.5">
         <span className="text-gray-500">Subtotal</span>
-        <span className="font-medium text-gray-900">{formatAmount(subtotal)}</span>
+        <span className="font-medium text-gray-900">
+          {formatMoney(subtotal, currency)}
+        </span>
       </div>
 
       <div className="flex items-center justify-between py-1.5">
         <span className="text-gray-500">Discount</span>
-        <span className="font-medium text-red-600">-{formatAmount(totalDiscount)}</span>
+        <span className="font-medium text-red-600">
+          -{formatMoney(totalDiscount, currency)}
+        </span>
       </div>
 
       <div className="my-2 border-t border-gray-200" />
 
       <div className="flex items-center justify-between py-1.5">
         <span className="font-semibold text-gray-900">Total</span>
-        <span className="text-base font-semibold text-gray-900">{formatAmount(total)}</span>
+        <span className="text-base font-semibold text-gray-900">
+          {formatMoney(total, currency)}
+        </span>
       </div>
     </div>
   );

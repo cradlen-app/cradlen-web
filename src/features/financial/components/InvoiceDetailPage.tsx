@@ -24,7 +24,8 @@ import { InvoiceTotalsPanel } from "./InvoiceTotalsPanel";
 import { RecordPaymentDrawer } from "./RecordPaymentDrawer";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
 import { InvoiceDrawer } from "./InvoiceDrawer";
-import type { Payment } from "../types/financial.types";
+import { formatMoney } from "../lib/format";
+import type { EmbeddedPerson, Payment } from "../types/financial.types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -37,8 +38,21 @@ function formatDate(dateStr: string | null | undefined): string {
   });
 }
 
-function formatAmount(value: number): string {
-  return `EGP ${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+/**
+ * Best-effort display name from an optional nested person relation. Falls back
+ * to the raw UUID when the backend response doesn't include the relation.
+ */
+function personName(
+  person: EmbeddedPerson | null | undefined,
+  fallback: string,
+): string {
+  if (!person) return fallback;
+  if (person.full_name) return person.full_name;
+  const composed = [person.first_name, person.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  return composed || fallback;
 }
 
 const PAYMENT_METHOD_LABELS: Record<Payment["payment_method"], string> = {
@@ -182,7 +196,10 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                       )}
                     >
                       Balance due:{" "}
-                      {formatAmount(invoice.total_amount - invoice.paid_amount)}
+                      {formatMoney(
+                        invoice.total_amount - invoice.paid_amount,
+                        invoice.currency,
+                      )}
                     </p>
                   )}
                 </div>
@@ -253,7 +270,24 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                     <div className="flex items-start justify-between gap-2">
                       <dt className="shrink-0 text-gray-500">Patient</dt>
                       <dd className="text-right font-medium text-gray-900">
-                        <span className="block">{invoice.patient_id}</span>
+                        <span className="block">
+                          {personName(invoice.patient, invoice.patient_id)}
+                        </span>
+                      </dd>
+                    </div>
+                  )}
+
+                  {/* Doctor */}
+                  {invoice.assigned_doctor_id && (
+                    <div className="flex items-start justify-between gap-2">
+                      <dt className="shrink-0 text-gray-500">Doctor</dt>
+                      <dd className="text-right font-medium text-gray-900">
+                        <span className="block">
+                          {personName(
+                            invoice.doctor,
+                            invoice.assigned_doctor_id,
+                          )}
+                        </span>
                       </dd>
                     </div>
                   )}
@@ -356,7 +390,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                               {item.quantity}
                             </td>
                             <td className="px-4 py-3 text-right text-gray-600">
-                              {formatAmount(item.unit_price)}
+                              {formatMoney(item.unit_price, invoice.currency)}
                             </td>
                             <td className="px-4 py-3">
                               <InvoicePricingSourceBadge
@@ -365,11 +399,14 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                             </td>
                             <td className="px-4 py-3 text-right text-gray-600">
                               {item.discount_amount
-                                ? formatAmount(item.discount_amount)
+                                ? formatMoney(
+                                    item.discount_amount,
+                                    invoice.currency,
+                                  )
                                 : "—"}
                             </td>
                             <td className="px-4 py-3 text-right font-medium text-gray-900">
-                              {formatAmount(item.total_amount)}
+                              {formatMoney(item.total_amount, invoice.currency)}
                             </td>
                           </tr>
                         ))}
@@ -379,7 +416,11 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
 
                   {/* Totals */}
                   <div className="mt-4 flex justify-end">
-                    <InvoiceTotalsPanel items={invoice.items} className="w-72" />
+                    <InvoiceTotalsPanel
+                      items={invoice.items}
+                      currency={invoice.currency}
+                      className="w-72"
+                    />
                   </div>
                 </div>
 
@@ -419,6 +460,9 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                             <th className="px-4 py-2.5 text-left font-medium">
                               Reference
                             </th>
+                            <th className="px-4 py-2.5 text-left font-medium">
+                              Recorded by
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -437,13 +481,19 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                                   {formatDate(payment.payment_date)}
                                 </td>
                                 <td className="px-4 py-3 text-right font-medium text-gray-900">
-                                  {formatAmount(payment.amount)}
+                                  {formatMoney(payment.amount, payment.currency)}
                                 </td>
                                 <td className="px-4 py-3 text-gray-600">
                                   {PAYMENT_METHOD_LABELS[payment.payment_method]}
                                 </td>
                                 <td className="px-4 py-3 text-gray-500">
                                   {payment.reference_number ?? "—"}
+                                </td>
+                                <td className="px-4 py-3 text-gray-600">
+                                  {personName(
+                                    payment.recorded_by,
+                                    payment.recorded_by_id,
+                                  )}
                                 </td>
                               </tr>
                             ))}
@@ -466,6 +516,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
             onOpenChange={setRecordPaymentOpen}
             invoiceId={invoice.id}
             outstandingAmount={invoice.total_amount - invoice.paid_amount}
+            currency={invoice.currency}
             onSuccess={() => setRecordPaymentOpen(false)}
           />
 

@@ -6,6 +6,7 @@ import { Trash2, Plus } from "lucide-react";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { fetchServices } from "../lib/services.api";
+import { formatMoney } from "../lib/format";
 import { useResolvePrice } from "../hooks/useResolvePrice";
 import { InvoicePricingSourceBadge } from "./InvoicePricingSourceBadge";
 import type { InvoiceFormValues } from "./InvoiceDrawer";
@@ -16,6 +17,8 @@ type Props = {
   orgId: string;
   branchId: string;
   profileId?: string;
+  /** Display currency for line-total formatting. Defaults to "EGP". */
+  currency?: string | null;
 };
 
 type ServiceOption = {
@@ -36,6 +39,7 @@ function LineItemRow({
   orgId,
   branchId,
   profileId,
+  currency,
   onRemove,
   isCustom,
 }: {
@@ -45,6 +49,7 @@ function LineItemRow({
   orgId: string;
   branchId: string;
   profileId?: string;
+  currency?: string | null;
   onRemove: () => void;
   isCustom: boolean;
 }) {
@@ -226,7 +231,7 @@ function LineItemRow({
 
             {/* Line total */}
             <div className="flex h-9 min-w-[100px] items-center justify-end rounded-lg bg-gray-100 px-3 text-sm font-medium text-gray-700">
-              EGP {lineTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              {formatMoney(lineTotal, currency)}
             </div>
 
             {/* Remove */}
@@ -263,7 +268,14 @@ const EMPTY_CUSTOM_ROW = {
   pricing_source: undefined,
 };
 
-export function InvoiceLineItemsEditor({ control, setValue, orgId, branchId, profileId }: Props) {
+export function InvoiceLineItemsEditor({
+  control,
+  setValue,
+  orgId,
+  branchId,
+  profileId,
+  currency,
+}: Props) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
@@ -292,6 +304,7 @@ export function InvoiceLineItemsEditor({ control, setValue, orgId, branchId, pro
           orgId={orgId}
           branchId={branchId}
           profileId={profileId}
+          currency={currency}
           onRemove={() => remove(index)}
           isCustom={!field.service_id}
         />
