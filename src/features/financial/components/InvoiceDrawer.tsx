@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog } from "radix-ui";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2, FileText, CreditCard, Ban, Send, Pencil } from "lucide-react";
@@ -25,7 +25,7 @@ export const invoiceFormSchema = z.object({
   patient_id: z.string().min(1, "Patient is required"),
   visit_id: z.string().optional(),
   doctor_id: z.string().optional(),
-  invoice_type: z.enum(["STANDARD", "INSURANCE", "FOLLOWUP"]),
+  invoice_type: z.enum(["STANDARD", "FOLLOWUP", "PROFORMA", "INSURANCE", "REFUND"]),
   due_date: z.string().optional(),
   notes: z.string().optional(),
   items: z.array(
@@ -35,7 +35,7 @@ export const invoiceFormSchema = z.object({
       quantity: z.number().int().positive(),
       unit_price: z.number().nonnegative(),
       discount_amount: z.number().nonnegative().optional(),
-      pricing_source: z.string().optional(),
+      pricing_source: z.enum(["PROVIDER_OVERRIDE", "BRANCH_OVERRIDE", "ORG_PRICE_LIST", "CUSTOM"]).optional(),
     }),
   ),
 });
@@ -108,7 +108,28 @@ export function InvoiceDrawer({
     },
   });
 
-  const watchedItems = form.watch("items");
+  useEffect(() => {
+    if (invoice && editMode) {
+      form.reset({
+        patient_id: invoice.patient_id ?? "",
+        visit_id: invoice.visit_id ?? "",
+        doctor_id: "",
+        invoice_type: invoice.invoice_type,
+        due_date: invoice.due_date ?? "",
+        notes: invoice.notes ?? "",
+        items: invoice.items.map((i) => ({
+          service_id: i.service_id,
+          description: i.service_name ?? "",
+          quantity: i.quantity,
+          unit_price: i.unit_price,
+          discount_amount: i.discount ?? undefined,
+          pricing_source: i.pricing_source,
+        })),
+      });
+    }
+  }, [invoice?.id, editMode, form, invoice]);
+
+  const watchedItems = useWatch({ control: form.control, name: "items" });
 
   function handleClose() {
     form.reset();
@@ -127,7 +148,7 @@ export function InvoiceDrawer({
           due_date: data.due_date || undefined,
           notes: data.notes || undefined,
           items: data.items.map((item) => ({
-            service_id: item.service_id ?? "",
+            service_id: item.service_id || undefined,
             quantity: item.quantity,
             unit_price: item.unit_price,
             discount: item.discount_amount,
@@ -422,8 +443,10 @@ export function InvoiceDrawer({
                         className={inputClass}
                       >
                         <option value="STANDARD">Standard</option>
-                        <option value="INSURANCE">Insurance</option>
                         <option value="FOLLOWUP">Follow-up</option>
+                        <option value="PROFORMA">Proforma</option>
+                        <option value="INSURANCE">Insurance</option>
+                        <option value="REFUND">Refund</option>
                       </select>
                     </div>
 
@@ -459,6 +482,7 @@ export function InvoiceDrawer({
                       </h3>
                       <InvoiceLineItemsEditor
                         control={form.control}
+                        setValue={form.setValue}
                         orgId={orgId}
                         branchId={branchId}
                         profileId={profileId}
