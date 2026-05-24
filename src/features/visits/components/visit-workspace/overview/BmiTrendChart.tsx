@@ -37,7 +37,6 @@ function CustomTooltipContent({
   label,
 }: {
   active?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: Array<{ payload: ChartPoint }>;
   label?: string;
 }) {

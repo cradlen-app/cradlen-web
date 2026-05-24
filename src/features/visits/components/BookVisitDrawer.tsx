@@ -87,7 +87,7 @@ export function BookVisitDrawer({
       fullPatient,
       editingVisit.specialtyCode ?? templateExtension ?? "",
     );
-  }, [isEdit, editingVisit, template, fullPatient]);
+  }, [isEdit, editingVisit, template, fullPatient, templateExtension]);
 
   const waitingForPrefill = isEdit && !initial;
   const loading = isLoading || specialtiesLoading || (isEdit && patientLoading);

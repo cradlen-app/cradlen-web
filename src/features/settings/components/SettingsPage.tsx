@@ -37,6 +37,7 @@ import {
   OrganizationSection,
   ProfileSection,
 } from "./settings-sections";
+import { BillingSection } from "@/features/financial/components/settings/BillingSection";
 import {
   getVisibleSections,
   type DrawerKey,
@@ -53,7 +54,7 @@ export function SettingsPage() {
   const { data: user, isError, isLoading } = useCurrentUser();
   const profile = getActiveProfile(user);
   const isOwner = isOwnerPerm(profile);
-  const visibleSections = getVisibleSections(isOwner);
+  const visibleSections = getVisibleSections(isOwner, profile);
 
   const [activeSectionState, setActiveSection] = useState<SectionKey>("profile");
   const [activeDrawer, setActiveDrawer] = useState<DrawerKey>(null);
@@ -216,6 +217,9 @@ export function SettingsPage() {
           )}
           {activeSection === "danger" && isOwner && (
             <DangerSection {...sectionProps} />
+          )}
+          {activeSection === "billing" && (
+            <BillingSection profile={profile} />
           )}
         </div>
       </div>

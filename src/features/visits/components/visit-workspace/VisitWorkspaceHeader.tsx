@@ -1,25 +1,20 @@
 "use client";
 
-import { CheckCircle2, ChevronRight, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronRight, Loader2, Receipt } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/common/utils/utils";
 import type { Visit } from "../../types/visits.types";
-import {
-  VisitPriorityBadge,
-  VisitStatusBadge,
-  VisitTypeBadge,
-} from "../VisitBadges";
 
 type Props = {
   visit: Visit;
   organizationId: string;
   branchId: string;
   canComplete: boolean;
-  canCancel: boolean;
   isMutating: boolean;
   onComplete: () => void;
-  onCancel: () => void;
+  showInvoice: boolean;
+  onInvoice: () => void;
 };
 
 function shortVisitId(id: string) {
@@ -31,10 +26,10 @@ export function VisitWorkspaceHeader({
   organizationId,
   branchId,
   canComplete,
-  canCancel,
   isMutating,
   onComplete,
-  onCancel,
+  showInvoice,
+  onInvoice,
 }: Props) {
   const t = useTranslations("visits.workspace.header");
   const patientsHref =
@@ -74,18 +69,18 @@ export function VisitWorkspaceHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        {canCancel && (
+        {showInvoice && (
           <button
             type="button"
-            onClick={onCancel}
+            onClick={onInvoice}
             disabled={isMutating}
             className={cn(
-              "inline-flex h-9 items-center gap-1.5 rounded-full border border-red-200 bg-white px-4 text-xs font-semibold text-red-600",
-              "hover:bg-red-50 disabled:opacity-60",
+              "inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-300 bg-white px-4 text-xs font-semibold text-gray-700",
+              "hover:bg-gray-50 disabled:opacity-60",
             )}
           >
-            <XCircle className="size-3.5" aria-hidden="true" />
-            {t("cancelVisit")}
+            <Receipt className="size-3.5" aria-hidden="true" />
+            {t("invoice")}
           </button>
         )}
         {canComplete && (
