@@ -93,10 +93,7 @@ export function InvoiceDrawer({
   const canIssue = invoice?.status === "DRAFT";
   const canRecordPayment =
     invoice?.status === "ISSUED" || invoice?.status === "PARTIALLY_PAID";
-  const canVoid =
-    invoice?.status === "DRAFT" ||
-    invoice?.status === "ISSUED" ||
-    invoice?.status === "PARTIALLY_PAID";
+  const canVoid = invoice?.status === "DRAFT";
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceFormSchema),
