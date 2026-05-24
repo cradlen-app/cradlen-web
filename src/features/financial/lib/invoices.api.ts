@@ -14,8 +14,6 @@ import type {
 export function fetchInvoices(
   orgId: string,
   filters?: InvoiceFilters,
-  page?: number,
-  limit?: number,
 ): Promise<ApiResponse<Invoice[]>> {
   const params = new URLSearchParams();
   if (filters?.branchId) params.set("branchId", filters.branchId);
@@ -25,8 +23,8 @@ export function fetchInvoices(
   if (filters?.dateFrom) params.set("dateFrom", filters.dateFrom);
   if (filters?.dateTo) params.set("dateTo", filters.dateTo);
   if (filters?.visitId) params.set("visitId", filters.visitId);
-  if (page != null) params.set("page", String(page));
-  if (limit != null) params.set("limit", String(limit));
+  if (filters?.page != null) params.set("page", String(filters.page));
+  if (filters?.limit != null) params.set("limit", String(filters.limit));
   const qs = params.toString();
   return apiAuthFetch<ApiResponse<Invoice[]>>(
     `/organizations/${orgId}/invoices${qs ? `?${qs}` : ""}`,

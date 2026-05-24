@@ -162,14 +162,22 @@ export type ResolvedPrice = {
 
 // ── Filter types ──────────────────────────────────────────────────────────────
 
+export type ServiceFilters = {
+  serviceType?: ServiceType;
+  isActive?: boolean;
+  search?: string;
+};
+
 export type InvoiceFilters = {
-  branchId?: string;
-  patientId?: string;
   status?: InvoiceStatus;
-  invoiceType?: InvoiceType;
+  patientId?: string;
+  visitId?: string;
+  branchId?: string;
   dateFrom?: string;
   dateTo?: string;
-  visitId?: string;
+  invoiceType?: InvoiceType;
+  page?: number;
+  limit?: number;
 };
 
 // ── Payload types ─────────────────────────────────────────────────────────────

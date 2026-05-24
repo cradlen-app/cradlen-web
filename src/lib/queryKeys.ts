@@ -1,3 +1,5 @@
+import type { InvoiceFilters, ServiceFilters } from "@/features/financial/types/financial.types";
+
 /**
  * Centralized TanStack Query key factory.
  *
@@ -116,7 +118,7 @@ export const queryKeys = {
   financial: {
     invoices: {
       all: () => ["financial", "invoices"] as const,
-      list: (orgId: string, filters: object) =>
+      list: (orgId: string, filters: InvoiceFilters) =>
         ["financial", "invoices", "list", orgId, filters] as const,
       byId: (id: string) =>
         ["financial", "invoices", "detail", id] as const,
@@ -127,8 +129,9 @@ export const queryKeys = {
     },
     services: {
       all: () => ["financial", "services"] as const,
-      list: (orgId: string, filters?: object) =>
+      list: (orgId: string, filters?: ServiceFilters) =>
         ["financial", "services", "list", orgId, filters ?? null] as const,
+      byId: (id: string) => ["financial", "services", "detail", id] as const,
     },
     pricing: {
       priceLists: (orgId: string, branchId?: string) =>
