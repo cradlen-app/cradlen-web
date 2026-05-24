@@ -1,7 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { createPriceList } from "../lib/pricing.api";
 import type { CreatePriceListPayload } from "../types/financial.types";
@@ -16,6 +18,9 @@ export function useCreatePriceList() {
       void qc.invalidateQueries({
         queryKey: queryKeys.financial.pricing.priceLists(orgId ?? ""),
       });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to create price list"));
     },
   });
 }

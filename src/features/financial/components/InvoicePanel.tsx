@@ -25,7 +25,6 @@ type DrawerState = {
   prefill?: {
     patientId?: string;
     visitId?: string;
-    doctorId?: string;
   };
 };
 
@@ -156,12 +155,11 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
       prefill: {
         patientId: visit.patient.id,
         visitId: visit.id,
-        doctorId: visit.assignedDoctorId,
       },
     });
   }
 
-  const isLoading = waitingList.isLoading && invoicesLoading;
+  const isLoading = waitingList.isLoading || invoicesLoading;
 
   return (
     <>

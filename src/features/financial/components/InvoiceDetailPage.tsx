@@ -146,6 +146,13 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
         {/* Loading state */}
         {isLoading && <DetailSkeleton />}
 
+        {/* Error state */}
+        {!isLoading && !invoice && (
+          <div className="flex h-96 items-center justify-center text-sm text-gray-500">
+            Invoice not found.
+          </div>
+        )}
+
         {/* Content */}
         {!isLoading && invoice && (
           <>

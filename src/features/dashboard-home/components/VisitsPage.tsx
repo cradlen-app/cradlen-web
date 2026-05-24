@@ -17,6 +17,7 @@ import {
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { InvoicePanel } from "@/features/financial/components/InvoicePanel";
 import { InvoicePanelButton } from "@/features/financial/components/InvoicePanelButton";
+import { useInvoices } from "@/features/financial/hooks/useInvoices";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
@@ -38,14 +39,24 @@ export function VisitsPage() {
 
   useVisitSocket(profileId, branchId);
 
+  // Compute permissions before hooks that depend on them (hooks must not be
+  // called after a conditional return, so showBilling is derived here).
+  const showBilling = canAccessBilling(profile);
+  const today = new Date().toISOString().split("T")[0]!;
+  const { invoices } = useInvoices(
+    showBilling ? { branchId: branchId ?? undefined, dateFrom: today, dateTo: today } : undefined,
+  );
+
   if (!hasAnyStaffRole(profile)) return null;
 
   const showAssigned = showsAssignedVisits(profile);
-
   const canCreateVisit = canCreateVisitPerm(profile);
   // Anyone with a staff role and access to this page can manage visit status.
   const canManageStatus = hasAnyStaffRole(profile);
-  const showBilling = canAccessBilling(profile);
+
+  const pendingCount = showBilling
+    ? (invoices ?? []).filter((i) => i.status === "DRAFT").length
+    : 0;
 
   return (
     <main className="space-y-6 p-6">
@@ -59,7 +70,7 @@ export function VisitsPage() {
         {showBilling && (
           <InvoicePanelButton
             onClick={() => setInvoicePanelOpen(true)}
-            pendingCount={0}
+            pendingCount={pendingCount}
           />
         )}
       </header>

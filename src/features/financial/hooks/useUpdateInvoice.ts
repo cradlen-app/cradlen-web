@@ -1,7 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { updateInvoice } from "../lib/invoices.api";
 import type { UpdateInvoicePayload } from "../types/financial.types";
@@ -16,6 +18,9 @@ export function useUpdateInvoice() {
     onSuccess: (_data, vars) => {
       void qc.invalidateQueries({ queryKey: queryKeys.financial.invoices.byId(vars.id) });
       void qc.invalidateQueries({ queryKey: queryKeys.financial.invoices.all() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to update invoice"));
     },
   });
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { recordPayment } from "../lib/invoices.api";
 import type { RecordPaymentPayload } from "../types/financial.types";
@@ -26,6 +28,9 @@ export function useRecordPayment() {
         queryKey: queryKeys.financial.invoices.payments(vars.invoiceId),
       });
       void qc.invalidateQueries({ queryKey: queryKeys.financial.invoices.all() });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to record payment"));
     },
   });
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { queryKeys } from "@/lib/queryKeys";
+import { getApiErrorMessage } from "@/common/errors/error";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { deletePriceList } from "../lib/pricing.api";
 
@@ -15,6 +17,9 @@ export function useDeletePriceList() {
       void qc.invalidateQueries({
         queryKey: queryKeys.financial.pricing.priceLists(orgId ?? ""),
       });
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to delete price list"));
     },
   });
 }
