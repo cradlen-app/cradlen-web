@@ -80,7 +80,7 @@ export function VisitWorkspaceHeader({
             )}
           >
             <Receipt className="size-3.5" aria-hidden="true" />
-            Invoice
+            {t("invoice")}
           </button>
         )}
         {canComplete && (

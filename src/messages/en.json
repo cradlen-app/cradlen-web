@@ -246,6 +246,12 @@
     "subscription": {
       "branchLimitReached": "You've reached your plan's branch limit ({current}/{limit}). Upgrade your subscription to add more branches.",
       "organizationLimitReached": "You've reached your plan's organization limit ({current}/{limit}). Upgrade your subscription to add more organizations."
+    },
+    "billing": "Billing",
+    "billingNav": {
+      "services": "Services",
+      "priceLists": "Price Lists",
+      "myPrices": "My Prices"
     }
   },
   "patientDashboard": {
@@ -642,7 +648,8 @@
           "MEDICAL_REP": "medical rep"
         },
         "complete": "Mark complete",
-        "cancelVisit": "Cancel visit"
+        "cancelVisit": "Cancel visit",
+        "invoice": "Invoice"
       },
       "patient": {
         "unknown": "Unknown patient",
@@ -1160,6 +1167,125 @@
       "blocked": "Rep blocked",
       "unblocked": "Rep unblocked",
       "error": "Something went wrong"
+    }
+  },
+  "financial": {
+    "invoice": {
+      "title": "Invoice",
+      "newInvoice": "New Invoice",
+      "status": {
+        "DRAFT": "Draft",
+        "ISSUED": "Issued",
+        "PARTIALLY_PAID": "Partially Paid",
+        "PAID": "Paid",
+        "VOID": "Void",
+        "REFUNDED": "Refunded"
+      },
+      "pricingSource": {
+        "PROVIDER_OVERRIDE": "Provider Price",
+        "BRANCH_OVERRIDE": "Branch Price",
+        "ORG_PRICE_LIST": "Org Price List",
+        "CUSTOM": "Custom"
+      },
+      "actions": {
+        "issue": "Issue Invoice",
+        "void": "Void Invoice",
+        "recordPayment": "Record Payment",
+        "edit": "Edit",
+        "saveAsDraft": "Save as Draft"
+      },
+      "void": {
+        "title": "Void Invoice?",
+        "description": "This action cannot be undone. The invoice will be permanently voided.",
+        "confirm": "Void Invoice"
+      },
+      "panel": {
+        "title": "Invoices",
+        "pendingBilling": "Pending Billing",
+        "invoiced": "Invoiced",
+        "noVisits": "No visits today"
+      },
+      "totals": {
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "total": "Total"
+      },
+      "fields": {
+        "patient": "Patient",
+        "visit": "Visit",
+        "doctor": "Doctor",
+        "invoiceType": "Invoice Type",
+        "dueDate": "Due Date",
+        "notes": "Notes",
+        "remainingBalance": "Remaining Balance"
+      }
+    },
+    "payments": {
+      "title": "Payments",
+      "newPayment": "New Payment",
+      "method": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank Transfer",
+        "INSURANCE": "Insurance"
+      },
+      "fields": {
+        "amount": "Amount",
+        "paymentMethod": "Payment Method",
+        "paymentDate": "Payment Date",
+        "referenceNumber": "Reference Number",
+        "notes": "Notes"
+      },
+      "actions": {
+        "record": "Record Payment"
+      }
+    },
+    "services": {
+      "title": "Services",
+      "newService": "New Service",
+      "fields": {
+        "code": "Code",
+        "name": "Name",
+        "description": "Description",
+        "type": "Type",
+        "specialties": "Specialties",
+        "active": "Active"
+      },
+      "deleteConfirm": {
+        "title": "Delete Service?",
+        "description": "This action cannot be undone.",
+        "confirm": "Delete"
+      }
+    },
+    "priceLists": {
+      "title": "Price Lists",
+      "newList": "New Price List",
+      "scope": {
+        "org": "Organization",
+        "branch": "Branch"
+      },
+      "default": "Default",
+      "fields": {
+        "name": "Name",
+        "currency": "Currency",
+        "validFrom": "Valid From",
+        "validTo": "Valid To"
+      },
+      "items": {
+        "addService": "Add Service",
+        "unitPrice": "Unit Price"
+      }
+    },
+    "myPrices": {
+      "title": "My Price Overrides",
+      "addOverride": "Add Override",
+      "fields": {
+        "service": "Service",
+        "price": "Price",
+        "currency": "Currency",
+        "validFrom": "Valid From",
+        "validTo": "Valid To"
+      }
     }
   }
 }
