@@ -25,7 +25,7 @@ export function fetchServices(
 
 export async function fetchService(orgId: string, id: string): Promise<ApiResponse<Service>> {
   return apiAuthFetch<ApiResponse<Service>>(
-    `/api/backend/organizations/${orgId}/financial/services/${id}`,
+    `/organizations/${orgId}/financial/services/${id}`,
   );
 }
 
