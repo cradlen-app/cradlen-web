@@ -46,12 +46,10 @@ export function InvoiceTotalsPanel({ items, className }: Props) {
         <span className="font-medium text-gray-900">{formatAmount(subtotal)}</span>
       </div>
 
-      {totalDiscount > 0 && (
-        <div className="flex items-center justify-between py-1.5">
-          <span className="text-gray-500">Discount</span>
-          <span className="font-medium text-red-600">-{formatAmount(totalDiscount)}</span>
-        </div>
-      )}
+      <div className="flex items-center justify-between py-1.5">
+        <span className="text-gray-500">Discount</span>
+        <span className="font-medium text-red-600">-{formatAmount(totalDiscount)}</span>
+      </div>
 
       <div className="my-2 border-t border-gray-200" />
 
