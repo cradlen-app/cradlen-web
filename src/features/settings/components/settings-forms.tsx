@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -127,15 +127,15 @@ export function ProfileForm({
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: initial,
   });
 
-  const jobFunctionCodes = watch("job_function_codes");
-  const specialtyCodes = watch("specialty_codes");
+  const jobFunctionCodes = useWatch({ control, name: "job_function_codes" });
+  const specialtyCodes = useWatch({ control, name: "specialty_codes" });
 
   async function onSubmit(values: ProfileFormData) {
     if (!profile?.staff_id) {
@@ -340,14 +340,14 @@ export function OrganizationForm({
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationFormSchema),
     defaultValues: initial,
   });
 
-  const specialties = watch("specialties");
+  const specialties = useWatch({ control, name: "specialties" });
 
   async function onSubmit(values: OrganizationFormData) {
     if (!profile?.organization.id) {
