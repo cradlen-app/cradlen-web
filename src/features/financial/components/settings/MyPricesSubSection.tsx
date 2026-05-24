@@ -35,7 +35,7 @@ function DeleteOverrideDialog({
           </AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-sm text-gray-500">
             Are you sure you want to remove the override for{" "}
-            <strong>{override?.service_name}</strong>? The org price list rate
+            <strong>{override?.service?.name ?? "this service"}</strong>? The org price list rate
             will apply instead.
           </AlertDialog.Description>
           <div className="mt-5 flex justify-end gap-2">
@@ -155,7 +155,7 @@ export function MyPricesSubSection() {
               <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
                 <th className="px-4 py-2.5 text-left font-medium">Service</th>
                 <th className="px-4 py-2.5 text-left font-medium">Price</th>
-                <th className="px-4 py-2.5 text-left font-medium">Notes</th>
+                <th className="px-4 py-2.5 text-left font-medium">Valid</th>
                 <th className="px-4 py-2.5 text-right font-medium">Actions</th>
               </tr>
             </thead>
@@ -166,16 +166,18 @@ export function MyPricesSubSection() {
                   className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50"
                 >
                   <td className="px-4 py-3 font-medium text-gray-900">
-                    {override.service_name}
+                    {override.service?.name ?? override.service_id}
                   </td>
                   <td className="px-4 py-3 text-gray-700">
-                    EGP{" "}
+                    {override.currency}{" "}
                     {override.price.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                     })}
                   </td>
                   <td className="px-4 py-3 text-gray-500">
-                    {override.notes ?? "—"}
+                    {override.valid_from || override.valid_to
+                      ? `${override.valid_from?.slice(0, 10) ?? "—"} → ${override.valid_to?.slice(0, 10) ?? "—"}`
+                      : "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">

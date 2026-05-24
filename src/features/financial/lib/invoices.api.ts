@@ -16,13 +16,12 @@ export function fetchInvoices(
   filters?: InvoiceFilters,
 ): Promise<ApiResponse<Invoice[]>> {
   const params = new URLSearchParams();
-  if (filters?.branchId) params.set("branchId", filters.branchId);
-  if (filters?.patientId) params.set("patientId", filters.patientId);
+  if (filters?.branch_id) params.set("branch_id", filters.branch_id);
+  if (filters?.patient_id) params.set("patient_id", filters.patient_id);
   if (filters?.status) params.set("status", filters.status);
-  if (filters?.invoiceType) params.set("invoiceType", filters.invoiceType);
-  if (filters?.dateFrom) params.set("dateFrom", filters.dateFrom);
-  if (filters?.dateTo) params.set("dateTo", filters.dateTo);
-  if (filters?.visitId) params.set("visitId", filters.visitId);
+  if (filters?.type) params.set("type", filters.type);
+  if (filters?.date_from) params.set("date_from", filters.date_from);
+  if (filters?.date_to) params.set("date_to", filters.date_to);
   if (filters?.page != null) params.set("page", String(filters.page));
   if (filters?.limit != null) params.set("limit", String(filters.limit));
   const qs = params.toString();

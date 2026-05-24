@@ -21,7 +21,6 @@ type Props = {
 type ServiceOption = {
   id: string;
   name: string;
-  base_price: number;
 };
 
 const inputClass = cn(
@@ -61,11 +60,25 @@ function LineItemRow({
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Fetch services when search changes
+  // Fetch services when search changes.
+  // Backend `ListServicesQueryDto` does not support a `search` filter — we fetch
+  // active services and filter client-side by name/code. `service` is included
+  // in the paginated payload (see PaginatedResponse shape).
   useEffect(() => {
     if (!debouncedSearch || isCustom) return;
-    fetchServices(orgId, { search: debouncedSearch, isActive: true })
-      .then((res) => setServiceOptions(res.data))
+    const needle = debouncedSearch.toLowerCase();
+    fetchServices(orgId, { active: true, limit: 100 })
+      .then((res) =>
+        setServiceOptions(
+          res.data
+            .filter(
+              (s) =>
+                s.name.toLowerCase().includes(needle) ||
+                s.code.toLowerCase().includes(needle),
+            )
+            .map((s) => ({ id: s.id, name: s.name })),
+        ),
+      )
       .catch(() => setServiceOptions([]));
   }, [debouncedSearch, orgId, isCustom]);
 
@@ -102,7 +115,6 @@ function LineItemRow({
             ...item,
             service_id: svc.id,
             description: svc.name,
-            unit_price: svc.base_price,
           });
         }
 
@@ -134,9 +146,6 @@ function LineItemRow({
                             onMouseDown={() => handleServiceSelect(svc)}
                           >
                             <span>{svc.name}</span>
-                            <span className="text-xs text-gray-400">
-                              EGP {svc.base_price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                            </span>
                           </button>
                         </li>
                       ))}

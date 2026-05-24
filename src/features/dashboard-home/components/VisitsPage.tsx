@@ -44,7 +44,7 @@ export function VisitsPage() {
   const showBilling = canAccessBilling(profile);
   const today = new Date().toISOString().split("T")[0]!;
   const { invoices } = useInvoices(
-    showBilling ? { branchId: branchId ?? undefined, dateFrom: today, dateTo: today } : undefined,
+    showBilling ? { branch_id: branchId ?? undefined, date_from: today, date_to: today } : undefined,
   );
 
   if (!hasAnyStaffRole(profile)) return null;

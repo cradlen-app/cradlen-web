@@ -45,39 +45,73 @@ export type InvoiceType =
 
 // ── Domain types ──────────────────────────────────────────────────────────────
 
+/**
+ * Minimal nested service shape returned by the backend when the API includes
+ * `{ service: { id, name, code, service_type } }`. Used by PriceListItem and
+ * ProviderOverride responses.
+ */
+export type EmbeddedService = {
+  id: string;
+  name: string;
+  code: string;
+  service_type: ServiceType;
+};
+
 export type InvoiceItem = {
   id: string;
   invoice_id: string;
-  service_id: string;
-  service_name: string;
+  service_id: string | null;
+  description: string;
   quantity: number;
   unit_price: number;
-  discount?: number | null;
-  total: number;
+  currency: string;
+  discount_amount: number;
+  total_amount: number;
   pricing_source: PricingSource;
   created_at: string;
   updated_at: string;
+};
+
+/**
+ * Optional nested person shape — present only when the backend explicitly
+ * `include`s the relation. Backend currently does NOT include patient/doctor
+ * on invoice responses (see `invoices.service.ts` findOne), so these are
+ * left optional and callers should fall back to the corresponding *_id.
+ * TODO: verify shape if backend starts including these relations.
+ */
+export type EmbeddedPerson = {
+  id: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  full_name?: string | null;
 };
 
 export type Invoice = {
   id: string;
   organization_id: string;
   branch_id: string;
-  patient_id?: string | null;
-  visit_id?: string | null;
+  patient_id: string;
+  visit_id: string | null;
+  assigned_doctor_id: string | null;
   invoice_number: string;
   invoice_type: InvoiceType;
   status: InvoiceStatus;
   subtotal: number;
-  discount?: number | null;
-  tax?: number | null;
-  total: number;
-  amount_paid: number;
-  amount_due: number;
-  notes?: string | null;
-  issued_at?: string | null;
-  due_date?: string | null;
+  discount_amount: number;
+  tax_amount: number;
+  total_amount: number;
+  paid_amount: number;
+  currency: string;
+  notes: string | null;
+  issued_at: string | null;
+  due_date: string | null;
+  created_by_id: string;
   items: InvoiceItem[];
+  payments?: Payment[];
+  /** Optional — backend may include this in future responses. */
+  patient?: EmbeddedPerson | null;
+  /** Optional — backend may include this in future responses. */
+  doctor?: EmbeddedPerson | null;
   created_at: string;
   updated_at: string;
 };
@@ -85,33 +119,30 @@ export type Invoice = {
 export type Payment = {
   id: string;
   invoice_id: string;
-  organization_id: string;
   amount: number;
-  method: PaymentMethod;
+  currency: string;
   status: PaymentStatus;
-  reference?: string | null;
-  notes?: string | null;
-  paid_at: string;
+  payment_method: PaymentMethod;
+  payment_date: string;
+  reference_number: string | null;
+  notes: string | null;
+  recorded_by_id: string;
+  /** Optional — backend may include this in future responses. */
+  recorded_by?: EmbeddedPerson | null;
   created_at: string;
   updated_at: string;
 };
 
-export type ServiceSpecialty = {
-  id: string;
-  code: string;
-  name: string;
-};
-
 export type Service = {
   id: string;
-  organization_id: string;
+  organization_id: string | null;
   code: string;
   name: string;
-  description?: string | null;
+  description: string | null;
   service_type: ServiceType;
-  base_price: number;
   is_active: boolean;
-  specialties?: ServiceSpecialty[];
+  /** Backend `ServiceResponseDto` returns `specialty_ids: string[]` (flat). */
+  specialty_ids: string[];
   created_at: string;
   updated_at: string;
 };
@@ -120,20 +151,24 @@ export type PriceListItem = {
   id: string;
   price_list_id: string;
   service_id: string;
-  service_name: string;
-  price: number;
+  unit_price: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
+  /** Included by backend price-lists.service via `include: { service: { ... } }`. */
+  service?: EmbeddedService;
 };
 
 export type PriceList = {
   id: string;
   organization_id: string;
-  branch_id?: string | null;
+  branch_id: string | null;
   name: string;
-  description?: string | null;
+  currency: string;
   is_default: boolean;
   is_active: boolean;
+  valid_from: string | null;
+  valid_to: string | null;
   items?: PriceListItem[];
   created_at: string;
   updated_at: string;
@@ -141,41 +176,54 @@ export type PriceList = {
 
 export type ProviderOverride = {
   id: string;
-  organization_id: string;
   profile_id: string;
+  organization_id: string;
+  branch_id: string | null;
   service_id: string;
-  service_name: string;
   price: number;
-  notes?: string | null;
+  currency: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
+  /** Included by backend provider-services.service via `include: { service: { ... } }`. */
+  service?: EmbeddedService;
 };
 
+/**
+ * Response from GET /organizations/:orgId/financial/resolve-price.
+ *
+ * Backend `ResolvedPrice` returns ONLY `{ price, currency, source }`. The
+ * service_id / service_name / price_list_id / override_id fields were never
+ * present on the wire — callers should derive them from the request input or
+ * a separate service lookup.
+ */
 export type ResolvedPrice = {
-  service_id: string;
-  service_name: string;
   price: number;
+  currency: string;
   source: PricingSource;
-  price_list_id?: string | null;
-  override_id?: string | null;
 };
 
 // ── Filter types ──────────────────────────────────────────────────────────────
 
 export type ServiceFilters = {
-  serviceType?: ServiceType;
-  isActive?: boolean;
-  search?: string;
+  service_type?: ServiceType;
+  specialty_id?: string;
+  /** Backend `active` query param (string). */
+  active?: boolean;
+  page?: number;
+  limit?: number;
 };
 
 export type InvoiceFilters = {
   status?: InvoiceStatus;
-  patientId?: string;
-  visitId?: string;
-  branchId?: string;
-  dateFrom?: string;
-  dateTo?: string;
-  invoiceType?: InvoiceType;
+  patient_id?: string;
+  branch_id?: string;
+  /** Backend `type` query param (maps to `InvoiceType`). */
+  type?: InvoiceType;
+  date_from?: string;
+  date_to?: string;
   page?: number;
   limit?: number;
 };
@@ -184,45 +232,47 @@ export type InvoiceFilters = {
 
 export type CreateInvoiceItemPayload = {
   service_id?: string;
-  quantity: number;
-  unit_price?: number;
-  discount?: number;
+  description: string;
+  quantity?: number;
+  unit_price: number;
+  discount_amount?: number;
 };
 
 export type CreateInvoicePayload = {
   branch_id: string;
-  patient_id?: string;
+  patient_id: string;
   visit_id?: string;
+  assigned_doctor_id?: string;
   invoice_type?: InvoiceType;
-  discount?: number;
-  tax?: number;
+  currency?: string;
   notes?: string;
   due_date?: string;
-  items: CreateInvoiceItemPayload[];
+  items?: CreateInvoiceItemPayload[];
 };
 
 export type UpdateInvoiceItemPayload = {
   service_id?: string;
+  description?: string;
   quantity?: number;
   unit_price?: number;
-  discount?: number;
+  discount_amount?: number;
 };
 
 export type UpdateInvoicePayload = {
-  invoice_type?: InvoiceType;
-  discount?: number;
-  tax?: number;
+  assigned_doctor_id?: string;
   notes?: string;
   due_date?: string;
+  discount_amount?: number;
   items?: UpdateInvoiceItemPayload[];
 };
 
 export type RecordPaymentPayload = {
   amount: number;
-  method: PaymentMethod;
-  reference?: string;
+  currency?: string;
+  payment_method: PaymentMethod;
+  payment_date?: string;
+  reference_number?: string;
   notes?: string;
-  paid_at?: string;
 };
 
 export type CreateServicePayload = {
@@ -230,51 +280,56 @@ export type CreateServicePayload = {
   name: string;
   description?: string;
   service_type: ServiceType;
-  base_price: number;
-  is_active?: boolean;
-  specialty_codes?: string[];
+  specialty_ids?: string[];
 };
 
 export type UpdateServicePayload = {
+  code?: string;
   name?: string;
   description?: string;
   service_type?: ServiceType;
-  base_price?: number;
-  is_active?: boolean;
-  specialty_codes?: string[];
+  specialty_ids?: string[];
 };
 
 export type CreatePriceListPayload = {
   branch_id?: string;
   name: string;
-  description?: string;
+  currency?: string;
   is_default?: boolean;
-  is_active?: boolean;
+  valid_from?: string;
+  valid_to?: string;
 };
 
 export type UpdatePriceListPayload = {
   name?: string;
-  description?: string;
+  currency?: string;
   is_default?: boolean;
-  is_active?: boolean;
+  valid_from?: string;
+  valid_to?: string;
 };
 
 export type CreatePriceListItemPayload = {
   service_id: string;
-  price: number;
+  unit_price: number;
 };
 
 export type UpdatePriceListItemPayload = {
-  price?: number;
+  unit_price: number;
 };
 
 export type CreateProviderOverridePayload = {
   service_id: string;
+  branch_id?: string;
+  /** Backend field name is `price` (not `unit_price`). */
   price: number;
-  notes?: string;
+  currency?: string;
+  valid_from?: string;
+  valid_to?: string;
 };
 
 export type UpdateProviderOverridePayload = {
   price?: number;
-  notes?: string;
+  currency?: string;
+  valid_from?: string;
+  valid_to?: string;
 };

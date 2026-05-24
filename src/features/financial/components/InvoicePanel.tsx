@@ -108,9 +108,9 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
   });
 
   const { invoices, isLoading: invoicesLoading } = useInvoices({
-    branchId: branchId ?? undefined,
-    dateFrom: today,
-    dateTo: today,
+    branch_id: branchId ?? undefined,
+    date_from: today,
+    date_to: today,
     limit: 200,
   });
 

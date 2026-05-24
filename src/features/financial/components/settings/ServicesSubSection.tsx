@@ -6,7 +6,6 @@ import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { useServices } from "../../hooks/useServices";
-import { useUpdateService } from "../../hooks/useUpdateService";
 import { useDeleteService } from "../../hooks/useDeleteService";
 import type { Service } from "../../types/financial.types";
 import { ServiceDrawer } from "./ServiceDrawer";
@@ -95,7 +94,6 @@ function DeleteServiceDialog({
 
 export function ServicesSubSection() {
   const { services, isLoading } = useServices();
-  const updateMutation = useUpdateService();
   const deleteMutation = useDeleteService();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -113,13 +111,6 @@ export function ServicesSubSection() {
     setSelectedService(service);
     setDrawerMode("edit");
     setDrawerOpen(true);
-  }
-
-  function handleToggleActive(service: Service) {
-    updateMutation.mutate({
-      id: service.id,
-      payload: { is_active: !service.is_active },
-    });
   }
 
   function handleDeleteConfirm() {
@@ -167,8 +158,6 @@ export function ServicesSubSection() {
                 <th className="px-4 py-2.5 text-left font-medium">Name</th>
                 <th className="px-4 py-2.5 text-left font-medium">Type</th>
                 <th className="px-4 py-2.5 text-left font-medium">Specialties</th>
-                <th className="px-4 py-2.5 text-left font-medium">Base Price</th>
-                <th className="px-4 py-2.5 text-center font-medium">Active</th>
                 <th className="px-4 py-2.5 text-right font-medium">Actions</th>
               </tr>
             </thead>
@@ -197,46 +186,21 @@ export function ServicesSubSection() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {service.specialties && service.specialties.length > 0 ? (
+                    {service.specialty_ids && service.specialty_ids.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {service.specialties.map((sp) => (
+                        {service.specialty_ids.map((id) => (
                           <span
-                            key={sp.id}
-                            className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                            key={id}
+                            className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 font-mono text-[10px] text-gray-600"
+                            title={id}
                           >
-                            {sp.code}
+                            {id.slice(0, 8)}
                           </span>
                         ))}
                       </div>
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    EGP{" "}
-                    {service.base_price.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                    })}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      type="button"
-                      aria-label={service.is_active ? "Deactivate" : "Activate"}
-                      onClick={() => handleToggleActive(service)}
-                      disabled={updateMutation.isPending}
-                      className={cn(
-                        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none",
-                        service.is_active ? "bg-blue-600" : "bg-gray-200",
-                        updateMutation.isPending && "opacity-50 cursor-not-allowed",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "pointer-events-none inline-block size-4 transform rounded-full bg-white shadow transition duration-200",
-                          service.is_active ? "translate-x-4" : "translate-x-0",
-                        )}
-                      />
-                    </button>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">

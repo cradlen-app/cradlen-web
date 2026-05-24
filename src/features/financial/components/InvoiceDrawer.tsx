@@ -24,6 +24,12 @@ import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
 export const invoiceFormSchema = z.object({
   patient_id: z.string().min(1, "Patient is required"),
   visit_id: z.string().optional(),
+  /**
+   * Carried in form state so price resolution can use the doctor's overrides.
+   * NOT sent in create/update payloads — backend doesn't accept it on those
+   * endpoints (the visit relation already pins the doctor).
+   */
+  doctor_id: z.string().optional(),
   invoice_type: z.enum(["STANDARD", "FOLLOWUP", "PROFORMA", "INSURANCE", "REFUND"]),
   due_date: z.string().optional(),
   notes: z.string().optional(),
@@ -50,6 +56,11 @@ type InvoiceDrawerProps = {
   prefill?: {
     patientId?: string;
     visitId?: string;
+    /**
+     * Doctor for the visit. Used only for price-resolution context inside the
+     * line-items editor; NOT sent to the backend create/update endpoints.
+     */
+    doctorId?: string;
   };
 };
 
@@ -114,11 +125,11 @@ export function InvoiceDrawer({
         due_date: invoice.due_date ?? "",
         notes: invoice.notes ?? "",
         items: invoice.items.map((i) => ({
-          service_id: i.service_id,
-          description: i.service_name ?? "",
+          service_id: i.service_id ?? undefined,
+          description: i.description,
           quantity: i.quantity,
           unit_price: i.unit_price,
-          discount_amount: i.discount ?? undefined,
+          discount_amount: i.discount_amount ?? undefined,
           pricing_source: i.pricing_source,
         })),
       });
@@ -138,16 +149,17 @@ export function InvoiceDrawer({
       createMutation.mutate(
         {
           branch_id: branchId,
-          patient_id: data.patient_id || undefined,
+          patient_id: data.patient_id,
           visit_id: data.visit_id || undefined,
           invoice_type: data.invoice_type,
           due_date: data.due_date || undefined,
           notes: data.notes || undefined,
           items: data.items.map((item) => ({
             service_id: item.service_id || undefined,
+            description: item.description,
             quantity: item.quantity,
             unit_price: item.unit_price,
-            discount: item.discount_amount,
+            discount_amount: item.discount_amount,
           })),
         },
         {
@@ -162,14 +174,15 @@ export function InvoiceDrawer({
         {
           id: invoiceId!,
           payload: {
-            invoice_type: data.invoice_type,
+            // Backend UpdateInvoiceDto does NOT accept invoice_type — drop it.
             due_date: data.due_date || undefined,
             notes: data.notes || undefined,
             items: data.items.map((item) => ({
-              service_id: item.service_id,
+              service_id: item.service_id || undefined,
+              description: item.description,
               quantity: item.quantity,
               unit_price: item.unit_price,
-              discount: item.discount_amount,
+              discount_amount: item.discount_amount,
             })),
           },
         },
@@ -292,7 +305,7 @@ export function InvoiceDrawer({
                               key={item.id}
                               className="border-b border-gray-50 last:border-0"
                             >
-                              <td className="px-4 py-3 text-gray-900">{item.service_name}</td>
+                              <td className="px-4 py-3 text-gray-900">{item.description}</td>
                               <td className="px-4 py-3 text-center text-gray-600">
                                 {item.quantity}
                               </td>
@@ -303,13 +316,13 @@ export function InvoiceDrawer({
                                 })}
                               </td>
                               <td className="px-4 py-3 text-right text-gray-600">
-                                {item.discount
-                                  ? `EGP ${item.discount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                                {item.discount_amount
+                                  ? `EGP ${item.discount_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
                                   : "—"}
                               </td>
                               <td className="px-4 py-3 text-right font-medium text-gray-900">
                                 EGP{" "}
-                                {item.total.toLocaleString("en-US", {
+                                {item.total_amount.toLocaleString("en-US", {
                                   minimumFractionDigits: 2,
                                 })}
                               </td>
@@ -520,7 +533,7 @@ export function InvoiceDrawer({
           open={recordPaymentOpen}
           onOpenChange={setRecordPaymentOpen}
           invoiceId={invoice.id}
-          outstandingAmount={invoice.amount_due}
+          outstandingAmount={invoice.total_amount - invoice.paid_amount}
           onSuccess={() => setRecordPaymentOpen(false)}
         />
       )}
