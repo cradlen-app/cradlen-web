@@ -1,6 +1,7 @@
 "use client";
 
 import { Receipt } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 
 type Props = {
@@ -9,14 +10,15 @@ type Props = {
 };
 
 export function InvoicePanelButton({ onClick, pendingCount }: Props) {
+  const t = useTranslations("financial.invoice.panelButton");
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={
         pendingCount > 0
-          ? `Open billing panel — ${pendingCount} visit${pendingCount !== 1 ? "s" : ""} pending`
-          : "Open billing panel"
+          ? t("openWithCountAria", { count: pendingCount })
+          : t("openAria")
       }
       className={cn(
         "relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",

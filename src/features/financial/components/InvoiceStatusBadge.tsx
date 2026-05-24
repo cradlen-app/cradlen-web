@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import type { InvoiceStatus } from "../types/financial.types";
 
@@ -10,21 +13,13 @@ const STATUS_STYLES: Record<InvoiceStatus, string> = {
   REFUNDED: "bg-purple-50 text-purple-700",
 };
 
-const STATUS_LABELS: Record<InvoiceStatus, string> = {
-  DRAFT: "Draft",
-  ISSUED: "Issued",
-  PARTIALLY_PAID: "Partially Paid",
-  PAID: "Paid",
-  VOID: "Void",
-  REFUNDED: "Refunded",
-};
-
 type Props = {
   status: InvoiceStatus;
   className?: string;
 };
 
 export function InvoiceStatusBadge({ status, className }: Props) {
+  const t = useTranslations("financial.invoice.status");
   return (
     <span
       className={cn(
@@ -33,7 +28,7 @@ export function InvoiceStatusBadge({ status, className }: Props) {
         className,
       )}
     >
-      {STATUS_LABELS[status]}
+      {t(status)}
     </span>
   );
 }

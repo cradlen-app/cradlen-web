@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useFieldArray, Controller, type Control, type UseFormSetValue } from "react-hook-form";
 import { Trash2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { fetchServices } from "../lib/services.api";
@@ -53,6 +54,7 @@ function LineItemRow({
   onRemove: () => void;
   isCustom: boolean;
 }) {
+  const t = useTranslations("financial.invoice.lineItems");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
@@ -138,7 +140,7 @@ function LineItemRow({
                     }}
                     onFocus={() => setShowDropdown(true)}
                     onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-                    placeholder="Search service…"
+                    placeholder={t("searchService")}
                     className={inputClass}
                   />
                   {showDropdown && serviceOptions.length > 0 && (
@@ -164,7 +166,7 @@ function LineItemRow({
                 type="text"
                 value={item.description}
                 onChange={(e) => field.onChange({ ...item, description: e.target.value })}
-                placeholder="Description"
+                placeholder={t("descriptionPlaceholder")}
                 className={cn(inputClass, !!fieldState.error && !item.description && "border-red-400")}
               />
             </div>
@@ -178,7 +180,7 @@ function LineItemRow({
                 field.onChange({ ...item, quantity: parseInt(e.target.value, 10) || 1 })
               }
               className={cn(inputClass, "w-16 text-center")}
-              placeholder="Qty"
+              placeholder={t("qtyPlaceholder")}
             />
 
             {/* Unit price + pricing source */}
@@ -200,14 +202,14 @@ function LineItemRow({
                       inputClass,
                       !!resolvedPrice && !isCustom && "bg-gray-50 text-gray-500",
                     )}
-                    placeholder="Unit price"
+                    placeholder={t("unitPricePlaceholder")}
                   />
                   {item.pricing_source ? (
                     <InvoicePricingSourceBadge
                       source={item.pricing_source}
                     />
                   ) : selectedServiceId && !isPriceLoading ? (
-                    <span className="text-[11px] text-amber-600">No price configured</span>
+                    <span className="text-[11px] text-amber-600">{t("noPriceConfigured")}</span>
                   ) : null}
                 </div>
               )}
@@ -226,7 +228,7 @@ function LineItemRow({
                 })
               }
               className={cn(inputClass, "w-24")}
-              placeholder="Discount"
+              placeholder={t("discountPlaceholder")}
             />
 
             {/* Line total */}
@@ -239,7 +241,7 @@ function LineItemRow({
               type="button"
               onClick={onRemove}
               className="inline-flex size-9 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-              aria-label="Remove item"
+              aria-label={t("removeItemAria")}
             >
               <Trash2 className="size-4" aria-hidden="true" />
             </button>
@@ -276,6 +278,7 @@ export function InvoiceLineItemsEditor({
   profileId,
   currency,
 }: Props) {
+  const t = useTranslations("financial.invoice.lineItems");
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
@@ -286,11 +289,11 @@ export function InvoiceLineItemsEditor({
       {/* Column headers */}
       {fields.length > 0 && (
         <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] items-center gap-2 px-3 text-xs font-medium text-gray-400">
-          <span className="col-span-2">Service / Description</span>
-          <span className="w-16 text-center">Qty</span>
-          <span className="min-w-[120px]">Unit Price</span>
-          <span className="w-24">Discount</span>
-          <span className="min-w-[100px] text-right">Total</span>
+          <span className="col-span-2">{t("header")}</span>
+          <span className="w-16 text-center">{t("qty")}</span>
+          <span className="min-w-[120px]">{t("unitPrice")}</span>
+          <span className="w-24">{t("discount")}</span>
+          <span className="min-w-[100px] text-right">{t("total")}</span>
           <span className="w-9" />
         </div>
       )}
@@ -312,7 +315,7 @@ export function InvoiceLineItemsEditor({
 
       {fields.length === 0 && (
         <div className="rounded-xl border border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
-          No line items yet. Add a service or custom line below.
+          {t("noItems")}
         </div>
       )}
 
@@ -324,7 +327,7 @@ export function InvoiceLineItemsEditor({
           onClick={() => append({ ...EMPTY_SERVICE_ROW })}
         >
           <Plus className="size-3.5" aria-hidden="true" />
-          Add Service
+          {t("addService")}
         </Button>
         <Button
           type="button"
@@ -333,7 +336,7 @@ export function InvoiceLineItemsEditor({
           onClick={() => append({ ...EMPTY_CUSTOM_ROW })}
         >
           <Plus className="size-3.5" aria-hidden="true" />
-          Add Custom Line
+          {t("addCustomLine")}
         </Button>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useCreateService } from "../../hooks/useCreateService";
@@ -54,6 +55,8 @@ type Props = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
+  const t = useTranslations("financial.services");
+  const tCommon = useTranslations("financial.common");
   const createMutation = useCreateService();
   const updateMutation = useUpdateService();
   const isSaving = createMutation.isPending || updateMutation.isPending;
@@ -138,12 +141,12 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
           <div className="flex items-start justify-between gap-4 border-b border-gray-100 p-5">
             <div className="min-w-0">
               <Dialog.Title className="text-lg font-medium text-gray-900">
-                {mode === "create" ? "New Service" : "Edit Service"}
+                {mode === "create" ? t("newService") : t("editService")}
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-gray-400">
                 {mode === "create"
-                  ? "Add a new clinical service to your catalogue."
-                  : "Update service details."}
+                  ? t("newServiceDescription")
+                  : t("editServiceDescription")}
               </Dialog.Description>
             </div>
             <Dialog.Close
@@ -163,12 +166,12 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
               {/* Code — read-only in edit mode */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Code <span className="text-red-500">*</span>
+                  {t("fields.code")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   {...form.register("code")}
                   type="text"
-                  placeholder="e.g. CONSULT_OB"
+                  placeholder={t("fields.codePlaceholder")}
                   readOnly={mode === "edit"}
                   className={cn(
                     inputClass,
@@ -186,12 +189,12 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
               {/* Name */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Name <span className="text-red-500">*</span>
+                  {t("fields.name")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   {...form.register("name")}
                   type="text"
-                  placeholder="Service name"
+                  placeholder={t("fields.namePlaceholder")}
                   className={cn(
                     inputClass,
                     form.formState.errors.name && "border-red-400",
@@ -207,13 +210,13 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
               {/* Description */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Description{" "}
-                  <span className="text-gray-400">(optional)</span>
+                  {t("fields.description")}{" "}
+                  <span className="text-gray-400">{tCommon("optional")}</span>
                 </label>
                 <textarea
                   {...form.register("description")}
                   rows={3}
-                  placeholder="Brief description…"
+                  placeholder={t("fields.descriptionPlaceholder")}
                   className={cn(inputClass, "resize-none")}
                 />
               </div>
@@ -221,18 +224,18 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
               {/* Service type */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Type <span className="text-red-500">*</span>
+                  {t("fields.type")} <span className="text-red-500">*</span>
                 </label>
                 <select
                   {...form.register("service_type")}
                   className={inputClass}
                 >
-                  <option value="CONSULTATION">Consultation</option>
-                  <option value="PROCEDURE">Procedure</option>
-                  <option value="LAB_TEST">Lab Test</option>
-                  <option value="IMAGING">Imaging</option>
-                  <option value="ADMINISTRATIVE">Administrative</option>
-                  <option value="OTHER">Other</option>
+                  <option value="CONSULTATION">{t("type.CONSULTATION")}</option>
+                  <option value="PROCEDURE">{t("type.PROCEDURE")}</option>
+                  <option value="LAB_TEST">{t("type.LAB_TEST")}</option>
+                  <option value="IMAGING">{t("type.IMAGING")}</option>
+                  <option value="ADMINISTRATIVE">{t("type.ADMINISTRATIVE")}</option>
+                  <option value="OTHER">{t("type.OTHER")}</option>
                 </select>
               </div>
 
@@ -240,19 +243,19 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
               {/* TODO: replace with proper Specialty picker when available */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Specialty IDs{" "}
+                  {t("fields.specialtyIds")}{" "}
                   <span className="text-gray-400">
-                    (optional, comma-separated UUIDs)
+                    {t("fields.specialtyIdsHint")}
                   </span>
                 </label>
                 <input
                   {...form.register("specialty_ids_raw")}
                   type="text"
-                  placeholder="e.g. 11111111-1111-1111-1111-111111111111, 22222222-…"
+                  placeholder={t("fields.specialtyIdsPlaceholder")}
                   className={inputClass}
                 />
                 <p className="mt-1 text-xs text-gray-400">
-                  Enter specialty UUIDs separated by commas.
+                  {t("fields.specialtyIdsHelp")}
                 </p>
               </div>
             </div>
@@ -265,18 +268,18 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
                 onClick={handleClose}
                 disabled={isSaving}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <>
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                    Saving…
+                    {tCommon("saving")}
                   </>
                 ) : mode === "create" ? (
-                  "Create Service"
+                  t("createService")
                 ) : (
-                  "Save Changes"
+                  tCommon("saveChanges")
                 )}
               </Button>
             </div>

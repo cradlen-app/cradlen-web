@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import type { PricingSource } from "../types/financial.types";
 
@@ -8,19 +11,13 @@ const SOURCE_STYLES: Record<PricingSource, string> = {
   CUSTOM: "bg-amber-50 text-amber-700",
 };
 
-const SOURCE_LABELS: Record<PricingSource, string> = {
-  PROVIDER_OVERRIDE: "Provider Override",
-  BRANCH_OVERRIDE: "Branch Override",
-  ORG_PRICE_LIST: "Org Price List",
-  CUSTOM: "Custom",
-};
-
 type Props = {
   source: PricingSource;
   className?: string;
 };
 
 export function InvoicePricingSourceBadge({ source, className }: Props) {
+  const t = useTranslations("financial.invoice.pricingSource");
   return (
     <span
       className={cn(
@@ -29,7 +26,7 @@ export function InvoicePricingSourceBadge({ source, className }: Props) {
         className,
       )}
     >
-      {SOURCE_LABELS[source]}
+      {t(source)}
     </span>
   );
 }

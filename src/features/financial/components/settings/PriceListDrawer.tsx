@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useCreatePriceList } from "../../hooks/useCreatePriceList";
@@ -52,6 +53,8 @@ type Props = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) {
+  const t = useTranslations("financial.priceLists");
+  const tCommon = useTranslations("financial.common");
   const createMutation = useCreatePriceList();
   const updateMutation = useUpdatePriceList();
   const isSaving = createMutation.isPending || updateMutation.isPending;
@@ -134,12 +137,12 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
           <div className="flex items-start justify-between gap-4 border-b border-gray-100 p-5">
             <div className="min-w-0">
               <Dialog.Title className="text-lg font-medium text-gray-900">
-                {mode === "create" ? "New Price List" : "Edit Price List"}
+                {mode === "create" ? t("newList") : t("editList")}
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-gray-400">
                 {mode === "create"
-                  ? "Create a new price list for your organization or a specific branch."
-                  : "Update price list details."}
+                  ? t("newListDescription")
+                  : t("editListDescription")}
               </Dialog.Description>
             </div>
             <Dialog.Close
@@ -159,12 +162,12 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
               {/* Name */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Name <span className="text-red-500">*</span>
+                  {t("fields.name")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   {...form.register("name")}
                   type="text"
-                  placeholder="e.g. Standard Prices 2024"
+                  placeholder={t("fields.namePlaceholder")}
                   className={cn(
                     inputClass,
                     form.formState.errors.name && "border-red-400",
@@ -180,12 +183,12 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
               {/* Currency */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Currency
+                  {t("fields.currency")}
                 </label>
                 <input
                   {...form.register("currency")}
                   type="text"
-                  placeholder="EGP"
+                  placeholder={t("fields.currencyPlaceholder")}
                   className={inputClass}
                 />
               </div>
@@ -194,16 +197,16 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
               {mode === "create" && (
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                    Branch ID{" "}
+                    {t("fields.branchId")}{" "}
                     <span className="text-gray-400">
-                      (optional — leave blank for org-wide)
+                      {t("fields.branchIdHint")}
                     </span>
                   </label>
                   {/* TODO: replace with branch select using useBranches when available */}
                   <input
                     {...form.register("branch_id")}
                     type="text"
-                    placeholder="Branch ID (leave blank for org-wide)"
+                    placeholder={t("fields.branchIdPlaceholder")}
                     className={inputClass}
                   />
                 </div>
@@ -213,7 +216,7 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                    Valid From <span className="text-gray-400">(optional)</span>
+                    {t("fields.validFrom")} <span className="text-gray-400">{tCommon("optional")}</span>
                   </label>
                   <input
                     {...form.register("valid_from")}
@@ -223,7 +226,7 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                    Valid To <span className="text-gray-400">(optional)</span>
+                    {t("fields.validTo")} <span className="text-gray-400">{tCommon("optional")}</span>
                   </label>
                   <input
                     {...form.register("valid_to")}
@@ -245,7 +248,7 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
                   htmlFor="price-list-is-default"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Set as default price list
+                  {t("fields.setAsDefault")}
                 </label>
               </div>
             </div>
@@ -258,18 +261,18 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
                 onClick={handleClose}
                 disabled={isSaving}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <>
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                    Saving…
+                    {tCommon("saving")}
                   </>
                 ) : mode === "create" ? (
-                  "Create Price List"
+                  t("createList")
                 ) : (
-                  "Save Changes"
+                  tCommon("saveChanges")
                 )}
               </Button>
             </div>

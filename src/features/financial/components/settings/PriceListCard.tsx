@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AlertDialog } from "radix-ui";
 import { ChevronDown, ChevronUp, Trash2, Pencil, Plus, Save, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
@@ -27,6 +28,7 @@ function ServiceCombobox({
   orgId: string;
   onSelect: (svc: ServiceOption) => void;
 }) {
+  const t = useTranslations("financial.priceLists.items");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [options, setOptions] = useState<ServiceOption[]>([]);
@@ -83,7 +85,7 @@ function ServiceCombobox({
         }}
         onFocus={() => setShowDropdown(true)}
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-        placeholder="Search service…"
+        placeholder={t("searchService")}
         className="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
       />
       {showDropdown && options.length > 0 && (
@@ -119,6 +121,8 @@ function PriceListItemRow({
   priceListId: string;
   currency?: string | null;
 }) {
+  const t = useTranslations("financial.priceLists.items");
+  const tCommon = useTranslations("financial.common");
   const [editPrice, setEditPrice] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const updateMutation = useUpdatePriceListItem(priceListId);
@@ -185,7 +189,7 @@ function PriceListItemRow({
                 ) : (
                   <Save className="size-3.5" aria-hidden="true" />
                 )}
-                Save
+                {tCommon("save")}
               </Button>
               <Button
                 type="button"
@@ -194,7 +198,7 @@ function PriceListItemRow({
                 onClick={handleCancel}
                 disabled={updateMutation.isPending}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
             </>
           ) : (
@@ -202,7 +206,7 @@ function PriceListItemRow({
               type="button"
               onClick={() => removeMutation.mutate(item.id)}
               disabled={removeMutation.isPending}
-              aria-label="Remove item"
+              aria-label={t("removeItemAria")}
               className="inline-flex size-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
             >
               {removeMutation.isPending ? (
@@ -227,6 +231,7 @@ function AddItemRow({
   orgId: string;
   priceListId: string;
 }) {
+  const t = useTranslations("financial.priceLists.items");
   const [selectedService, setSelectedService] =
     useState<ServiceOption | null>(null);
   const [price, setPrice] = useState("");
@@ -257,7 +262,7 @@ function AddItemRow({
           step="0.01"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          placeholder="Price"
+          placeholder={t("pricePlaceholder")}
           className="w-28 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
         />
       </td>
@@ -273,7 +278,7 @@ function AddItemRow({
           ) : (
             <Plus className="size-3.5" aria-hidden="true" />
           )}
-          Add
+          {t("add")}
         </Button>
       </td>
     </tr>
@@ -287,6 +292,9 @@ type Props = {
 };
 
 export function PriceListCard({ priceList }: Props) {
+  const t = useTranslations("financial.priceLists");
+  const tItems = useTranslations("financial.priceLists.items");
+  const tCommon = useTranslations("financial.common");
   const orgId = useAuthContextStore((s) => s.organizationId) ?? "";
   const [expanded, setExpanded] = useState(false);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
@@ -309,20 +317,20 @@ export function PriceListCard({ priceList }: Props) {
               : "bg-gray-100 text-gray-600",
           )}
         >
-          {priceList.branch_id ? "Branch" : "Org"}
+          {priceList.branch_id ? t("scope.branch") : t("scope.org")}
         </span>
 
         {/* Default badge */}
         {priceList.is_default && (
           <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-            Default
+            {t("default")}
           </span>
         )}
 
         {/* Active badge */}
         {!priceList.is_active && (
           <span className="shrink-0 rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-600">
-            Inactive
+            {t("inactive")}
           </span>
         )}
 
@@ -335,7 +343,7 @@ export function PriceListCard({ priceList }: Props) {
         <button
           type="button"
           onClick={() => setEditDrawerOpen(true)}
-          aria-label="Edit price list"
+          aria-label={t("editAria")}
           className="inline-flex size-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
         >
           <Pencil className="size-3.5" aria-hidden="true" />
@@ -344,7 +352,7 @@ export function PriceListCard({ priceList }: Props) {
           type="button"
           onClick={() => setDeleteDialogOpen(true)}
           disabled={deleteMutation.isPending}
-          aria-label="Delete price list"
+          aria-label={t("deleteAria")}
           className="inline-flex size-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
         >
           {deleteMutation.isPending ? (
@@ -356,7 +364,7 @@ export function PriceListCard({ priceList }: Props) {
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          aria-label={expanded ? "Collapse" : "Expand"}
+          aria-label={expanded ? t("collapseAria") : t("expandAria")}
           className="inline-flex size-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100"
         >
           {expanded ? (
@@ -373,19 +381,19 @@ export function PriceListCard({ priceList }: Props) {
           {itemsLoading ? (
             <div className="flex items-center justify-center py-6 text-sm text-gray-400">
               <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
-              Loading…
+              {tItems("loading")}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
-                    <th className="px-4 py-2 text-left font-medium">Service</th>
+                    <th className="px-4 py-2 text-left font-medium">{tItems("service")}</th>
                     <th className="px-4 py-2 text-left font-medium">
-                      Unit Price
+                      {tItems("unitPrice")}
                     </th>
                     <th className="px-4 py-2 text-right font-medium">
-                      Actions
+                      {t("actions")}
                     </th>
                   </tr>
                 </thead>
@@ -396,7 +404,7 @@ export function PriceListCard({ priceList }: Props) {
                         colSpan={3}
                         className="px-4 py-4 text-center text-sm text-gray-400"
                       >
-                        No items yet — add one below.
+                        {tItems("noItems")}
                       </td>
                     </tr>
                   ) : (
@@ -431,15 +439,15 @@ export function PriceListCard({ priceList }: Props) {
           <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
           <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
             <AlertDialog.Title className="text-lg font-medium text-gray-900">
-              Delete Price List?
+              {t("deleteConfirm.title")}
             </AlertDialog.Title>
             <AlertDialog.Description className="mt-2 text-sm text-gray-500">
-              This will permanently delete the price list and may affect invoicing. This action cannot be undone.
+              {t("deleteConfirm.description")}
             </AlertDialog.Description>
             <div className="mt-5 flex justify-end gap-2">
               <AlertDialog.Cancel asChild>
                 <Button type="button" variant="outline" disabled={deleteMutation.isPending}>
-                  Cancel
+                  {tCommon("cancel")}
                 </Button>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
@@ -457,10 +465,10 @@ export function PriceListCard({ priceList }: Props) {
                   {deleteMutation.isPending ? (
                     <>
                       <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                      Deleting…
+                      {tCommon("deleting")}
                     </>
                   ) : (
-                    "Delete"
+                    t("deleteConfirm.confirm")
                   )}
                 </Button>
               </AlertDialog.Action>

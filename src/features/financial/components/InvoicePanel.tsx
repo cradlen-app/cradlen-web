@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Dialog } from "radix-ui";
 import { X, Loader2, ReceiptText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUnifiedWaitingList } from "@/features/visits/hooks/useUnifiedWaitingList";
@@ -38,6 +39,7 @@ function VisitRow({
   item: PanelItem;
   onClick: () => void;
 }) {
+  const t = useTranslations("financial.invoice.panel");
   const { visit, invoice } = item;
 
   const timeLabel = visit.scheduledAt
@@ -73,7 +75,7 @@ function VisitRow({
           <InvoiceStatusBadge status={invoice.status} />
         ) : (
           <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium text-gray-400">
-            No invoice
+            {t("noInvoice")}
           </span>
         )}
       </div>
@@ -97,6 +99,7 @@ export type InvoicePanelProps = {
 };
 
 export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
+  const t = useTranslations("financial.invoice.panel");
   const branchId = useAuthContextStore((s) => s.branchId);
 
   const today = new Date().toISOString().split("T")[0]!;
@@ -180,7 +183,7 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <Dialog.Title className="text-sm font-semibold text-brand-black">
-                Today&apos;s Billing
+                {t("todaysBilling")}
               </Dialog.Title>
               <Dialog.Close
                 className={cn(
@@ -188,7 +191,7 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
                   "hover:bg-gray-100 hover:text-brand-black",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30",
                 )}
-                aria-label="Close billing panel"
+                aria-label={t("closeAria")}
               >
                 <X className="size-4" aria-hidden="true" />
               </Dialog.Close>
@@ -203,14 +206,14 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
               ) : visits.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
                   <ReceiptText className="size-8 text-gray-200" aria-hidden="true" />
-                  <p className="text-xs text-gray-400">No visits today</p>
+                  <p className="text-xs text-gray-400">{t("noVisits")}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {pending.length > 0 && (
                     <div>
                       <SectionHeader
-                        title={`Pending Billing (${pending.length})`}
+                        title={t("pendingBilling", { count: pending.length })}
                       />
                       <div>
                         {pending.map((item) => (
@@ -227,7 +230,7 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
                   {invoiced.length > 0 && (
                     <div>
                       <SectionHeader
-                        title={`Invoiced (${invoiced.length})`}
+                        title={t("invoiced", { count: invoiced.length })}
                       />
                       <div>
                         {invoiced.map((item) => (
@@ -248,14 +251,18 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
             {visits.length > 0 && !isLoading && (
               <div className="border-t border-gray-100 px-4 py-2.5">
                 <p className="text-[11px] text-gray-400">
-                  <span className="font-medium text-red-500">
-                    {pending.length}
-                  </span>{" "}
-                  pending ·{" "}
-                  <span className="font-medium text-emerald-600">
-                    {invoiced.length}
-                  </span>{" "}
-                  invoiced
+                  {t.rich("summary", {
+                    pending: () => (
+                      <span className="font-medium text-red-500">
+                        {pending.length}
+                      </span>
+                    ),
+                    invoiced: () => (
+                      <span className="font-medium text-emerald-600">
+                        {invoiced.length}
+                      </span>
+                    ),
+                  })}
                 </p>
               </div>
             )}

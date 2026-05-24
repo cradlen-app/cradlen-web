@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2, FileText, CreditCard, Ban, Send, Pencil } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
@@ -100,6 +101,8 @@ export function InvoiceDrawer({
   invoiceId,
   prefill,
 }: InvoiceDrawerProps) {
+  const t = useTranslations("financial.invoice");
+  const tCommon = useTranslations("financial.common");
   const orgId = useAuthContextStore((s) => s.organizationId) ?? "";
   const branchId = useAuthContextStore((s) => s.branchId) ?? "";
   const currentProfileId =
@@ -244,13 +247,15 @@ export function InvoiceDrawer({
               <div className="flex items-center gap-3">
                 <FileText className="size-5 text-gray-400" aria-hidden="true" />
                 <Dialog.Title className="text-base font-semibold text-gray-900">
-                  {isCreate ? "New Invoice" : `Invoice #${invoice?.invoice_number ?? "…"}`}
+                  {isCreate
+                    ? t("newInvoice")
+                    : `${t("invoiceNumberPrefix")} #${invoice?.invoice_number ?? "…"}`}
                 </Dialog.Title>
                 {invoice && <InvoiceStatusBadge status={invoice.status} />}
               </div>
               <Dialog.Close
                 className="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100"
-                aria-label="Close"
+                aria-label={tCommon("close")}
                 onClick={handleClose}
               >
                 <X className="size-5" aria-hidden="true" />
@@ -273,7 +278,7 @@ export function InvoiceDrawer({
             {/* Error state */}
             {!isCreate && !isLoading && !invoice && (
               <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-gray-500">
-                Failed to load invoice. It may have been deleted or you don&apos;t have access.
+                {t("view.loadError")}
               </div>
             )}
 
@@ -285,7 +290,7 @@ export function InvoiceDrawer({
                   <dl className="grid grid-cols-2 gap-4 text-sm">
                     {invoice.patient_id && (
                       <>
-                        <dt className="text-gray-500">Patient</dt>
+                        <dt className="text-gray-500">{t("fields.patient")}</dt>
                         <dd className="font-medium text-gray-900">
                           {personName(invoice.patient, invoice.patient_id)}
                         </dd>
@@ -293,7 +298,7 @@ export function InvoiceDrawer({
                     )}
                     {invoice.assigned_doctor_id && (
                       <>
-                        <dt className="text-gray-500">Doctor</dt>
+                        <dt className="text-gray-500">{t("fields.doctor")}</dt>
                         <dd className="font-medium text-gray-900">
                           {personName(
                             invoice.doctor,
@@ -304,17 +309,17 @@ export function InvoiceDrawer({
                     )}
                     {invoice.visit_id && (
                       <>
-                        <dt className="text-gray-500">Visit ID</dt>
+                        <dt className="text-gray-500">{t("fields.visitId")}</dt>
                         <dd className="font-medium text-gray-900">{invoice.visit_id}</dd>
                       </>
                     )}
-                    <dt className="text-gray-500">Type</dt>
-                    <dd className="font-medium text-gray-900 capitalize">
-                      {invoice.invoice_type.toLowerCase().replace("_", " ")}
+                    <dt className="text-gray-500">{t("fields.type")}</dt>
+                    <dd className="font-medium text-gray-900">
+                      {t(`types.${invoice.invoice_type}`)}
                     </dd>
                     {invoice.due_date && (
                       <>
-                        <dt className="text-gray-500">Due Date</dt>
+                        <dt className="text-gray-500">{t("fields.dueDate")}</dt>
                         <dd className="font-medium text-gray-900">
                           {new Date(invoice.due_date).toLocaleDateString("en-US")}
                         </dd>
@@ -322,7 +327,7 @@ export function InvoiceDrawer({
                     )}
                     {invoice.notes && (
                       <>
-                        <dt className="text-gray-500">Notes</dt>
+                        <dt className="text-gray-500">{t("fields.notes")}</dt>
                         <dd className="font-medium text-gray-900">{invoice.notes}</dd>
                       </>
                     )}
@@ -330,16 +335,16 @@ export function InvoiceDrawer({
 
                   {/* Line items */}
                   <div className="mt-6">
-                    <h3 className="mb-3 text-sm font-semibold text-gray-700">Line Items</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-gray-700">{t("view.lineItems")}</h3>
                     <div className="overflow-x-auto rounded-xl border border-gray-100">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
-                            <th className="px-4 py-2 text-left font-medium">Service</th>
-                            <th className="px-4 py-2 text-center font-medium">Qty</th>
-                            <th className="px-4 py-2 text-right font-medium">Unit Price</th>
-                            <th className="px-4 py-2 text-right font-medium">Discount</th>
-                            <th className="px-4 py-2 text-right font-medium">Total</th>
+                            <th className="px-4 py-2 text-left font-medium">{t("lineItems.service")}</th>
+                            <th className="px-4 py-2 text-center font-medium">{t("lineItems.qty")}</th>
+                            <th className="px-4 py-2 text-right font-medium">{t("lineItems.unitPrice")}</th>
+                            <th className="px-4 py-2 text-right font-medium">{t("lineItems.discount")}</th>
+                            <th className="px-4 py-2 text-right font-medium">{t("lineItems.total")}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -390,7 +395,7 @@ export function InvoiceDrawer({
                       onClick={() => setVoidDialogOpen(true)}
                     >
                       <Ban className="size-3.5" aria-hidden="true" />
-                      Void
+                      {t("actions.voidShort")}
                     </Button>
                   )}
                   {canEdit && (
@@ -401,7 +406,7 @@ export function InvoiceDrawer({
                       onClick={() => setEditMode(true)}
                     >
                       <Pencil className="size-3.5" aria-hidden="true" />
-                      Edit
+                      {t("actions.edit")}
                     </Button>
                   )}
                   {canIssue && (
@@ -420,7 +425,7 @@ export function InvoiceDrawer({
                       ) : (
                         <Send className="size-3.5" aria-hidden="true" />
                       )}
-                      Issue Invoice
+                      {t("actions.issue")}
                     </Button>
                   )}
                   {canRecordPayment && (
@@ -430,7 +435,7 @@ export function InvoiceDrawer({
                       onClick={() => setRecordPaymentOpen(true)}
                     >
                       <CreditCard className="size-3.5" aria-hidden="true" />
-                      Record Payment
+                      {t("actions.recordPayment")}
                     </Button>
                   )}
                 </div>
@@ -446,12 +451,12 @@ export function InvoiceDrawer({
                     {/* Patient */}
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        Patient ID <span className="text-red-500">*</span>
+                        {t("fields.patientId")} <span className="text-red-500">*</span>
                       </label>
                       <input
                         {...form.register("patient_id")}
                         type="text"
-                        placeholder="Patient ID"
+                        placeholder={t("fields.patientIdPlaceholder")}
                         className={cn(
                           inputClass,
                           form.formState.errors.patient_id && "border-red-400",
@@ -467,12 +472,12 @@ export function InvoiceDrawer({
                     {/* Visit ID */}
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        Visit ID <span className="text-gray-400">(optional)</span>
+                        {t("fields.visitId")} <span className="text-gray-400">{tCommon("optional")}</span>
                       </label>
                       <input
                         {...form.register("visit_id")}
                         type="text"
-                        placeholder="Visit ID"
+                        placeholder={t("fields.visitIdPlaceholder")}
                         className={inputClass}
                       />
                     </div>
@@ -480,24 +485,24 @@ export function InvoiceDrawer({
                     {/* Invoice type */}
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        Invoice Type
+                        {t("fields.invoiceType")}
                       </label>
                       <select
                         {...form.register("invoice_type")}
                         className={inputClass}
                       >
-                        <option value="STANDARD">Standard</option>
-                        <option value="FOLLOWUP">Follow-up</option>
-                        <option value="PROFORMA">Proforma</option>
-                        <option value="INSURANCE">Insurance</option>
-                        <option value="REFUND">Refund</option>
+                        <option value="STANDARD">{t("types.STANDARD")}</option>
+                        <option value="FOLLOWUP">{t("types.FOLLOWUP")}</option>
+                        <option value="PROFORMA">{t("types.PROFORMA")}</option>
+                        <option value="INSURANCE">{t("types.INSURANCE")}</option>
+                        <option value="REFUND">{t("types.REFUND")}</option>
                       </select>
                     </div>
 
                     {/* Due date */}
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        Due Date <span className="text-gray-400">(optional)</span>
+                        {t("fields.dueDate")} <span className="text-gray-400">{tCommon("optional")}</span>
                       </label>
                       <input
                         {...form.register("due_date")}
@@ -509,12 +514,12 @@ export function InvoiceDrawer({
                     {/* Notes */}
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        Notes <span className="text-gray-400">(optional)</span>
+                        {t("fields.notes")} <span className="text-gray-400">{tCommon("optional")}</span>
                       </label>
                       <textarea
                         {...form.register("notes")}
                         rows={3}
-                        placeholder="Additional notes…"
+                        placeholder={t("fields.notesPlaceholder")}
                         className={cn(inputClass, "resize-none")}
                       />
                     </div>
@@ -522,7 +527,7 @@ export function InvoiceDrawer({
                     {/* Line items */}
                     <div>
                       <h3 className="mb-3 text-sm font-semibold text-gray-700">
-                        Line Items
+                        {t("view.lineItems")}
                       </h3>
                       <InvoiceLineItemsEditor
                         control={form.control}
@@ -537,7 +542,7 @@ export function InvoiceDrawer({
 
                   {/* Right column — sticky totals */}
                   <div className="flex flex-col gap-4 border-l border-gray-100 bg-gray-50/50 px-5 py-5">
-                    <h3 className="text-sm font-semibold text-gray-700">Summary</h3>
+                    <h3 className="text-sm font-semibold text-gray-700">{t("view.summary")}</h3>
                     <InvoiceTotalsPanel
                       items={watchedItems}
                       currency={invoice?.currency}
@@ -553,16 +558,16 @@ export function InvoiceDrawer({
                     onClick={handleClose}
                     disabled={isSaving}
                   >
-                    Cancel
+                    {tCommon("cancel")}
                   </Button>
                   <Button type="submit" disabled={isSaving}>
                     {isSaving ? (
                       <>
                         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                        Saving…
+                        {tCommon("saving")}
                       </>
                     ) : (
-                      "Save as Draft"
+                      t("actions.saveAsDraft")
                     )}
                   </Button>
                 </div>

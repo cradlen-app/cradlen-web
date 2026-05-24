@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import {
   canManageBillingAdmin,
@@ -24,6 +25,8 @@ function getInitialSub(profile: UserProfile | undefined): SubSection {
 }
 
 export function BillingSection({ profile }: Props) {
+  const t = useTranslations("financial.billingSection");
+  const tNav = useTranslations("settings.billingNav");
   const [activeSub, setActiveSub] = useState<SubSection>(
     getInitialSub(profile),
   );
@@ -34,12 +37,12 @@ export function BillingSection({ profile }: Props) {
   const navItems: { key: SubSection; label: string }[] = [
     ...(showAdmin
       ? ([
-          { key: "services", label: "Services" },
-          { key: "price-lists", label: "Price Lists" },
-        ] as const)
+          { key: "services" as const, label: tNav("services") },
+          { key: "price-lists" as const, label: tNav("priceLists") },
+        ])
       : []),
     ...(showMyPrices
-      ? ([{ key: "my-prices", label: "My Prices" }] as const)
+      ? ([{ key: "my-prices" as const, label: tNav("myPrices") }])
       : []),
   ];
 
@@ -66,9 +69,9 @@ export function BillingSection({ profile }: Props) {
           </svg>
         </div>
         <div className="min-w-0">
-          <h2 className="text-base font-medium text-brand-black">Billing</h2>
+          <h2 className="text-base font-medium text-brand-black">{t("title")}</h2>
           <p className="mt-1 text-sm text-gray-400">
-            Manage services, pricing, and your personal rate overrides.
+            {t("description")}
           </p>
         </div>
       </div>
@@ -77,7 +80,7 @@ export function BillingSection({ profile }: Props) {
       <div className="flex min-h-0 gap-4">
         {/* Mini-nav */}
         <nav
-          aria-label="Billing sub-sections"
+          aria-label={t("subNavAria")}
           className="w-44 shrink-0 rounded-xl border border-gray-100 bg-gray-50/40 p-2"
         >
           <div className="flex flex-col gap-1">
