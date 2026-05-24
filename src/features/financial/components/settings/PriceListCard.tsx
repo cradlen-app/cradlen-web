@@ -12,6 +12,7 @@ import { useUpdatePriceListItem } from "../../hooks/useUpdatePriceListItem";
 import { useRemovePriceListItem } from "../../hooks/useRemovePriceListItem";
 import { useDeletePriceList } from "../../hooks/useDeletePriceList";
 import { fetchServices } from "../../lib/services.api";
+import { formatMoney } from "../../lib/format";
 import type { PriceList, PriceListItem } from "../../types/financial.types";
 import { PriceListDrawer } from "./PriceListDrawer";
 
@@ -112,9 +113,11 @@ function ServiceCombobox({
 function PriceListItemRow({
   item,
   priceListId,
+  currency,
 }: {
   item: PriceListItem;
   priceListId: string;
+  currency?: string | null;
 }) {
   const [editPrice, setEditPrice] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -162,8 +165,7 @@ function PriceListItemRow({
             title="Click to edit"
             className="rounded px-1 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700"
           >
-            EGP{" "}
-            {item.unit_price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            {formatMoney(item.unit_price, currency)}
           </button>
         )}
       </td>
@@ -403,6 +405,7 @@ export function PriceListCard({ priceList }: Props) {
                         key={item.id}
                         item={item}
                         priceListId={priceList.id}
+                        currency={priceList.currency}
                       />
                     ))
                   )}
