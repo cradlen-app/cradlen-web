@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AlertDialog } from "radix-ui";
 import { ChevronDown, ChevronUp, Trash2, Pencil, Plus, Save, Loader2 } from "lucide-react";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
@@ -276,6 +277,7 @@ export function PriceListCard({ priceList }: Props) {
   const orgId = useAuthContextStore((s) => s.organizationId) ?? "";
   const [expanded, setExpanded] = useState(false);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { items, isLoading: itemsLoading } = usePriceListItems(
     expanded ? priceList.id : null,
   );
@@ -327,7 +329,7 @@ export function PriceListCard({ priceList }: Props) {
         </button>
         <button
           type="button"
-          onClick={() => deleteMutation.mutate(priceList.id)}
+          onClick={() => setDeleteDialogOpen(true)}
           disabled={deleteMutation.isPending}
           aria-label="Delete price list"
           className="inline-flex size-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
@@ -408,6 +410,50 @@ export function PriceListCard({ priceList }: Props) {
         mode="edit"
         priceList={priceList}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog.Root open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
+            <AlertDialog.Title className="text-lg font-medium text-gray-900">
+              Delete Price List?
+            </AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-sm text-gray-500">
+              This will permanently delete the price list and may affect invoicing. This action cannot be undone.
+            </AlertDialog.Description>
+            <div className="mt-5 flex justify-end gap-2">
+              <AlertDialog.Cancel asChild>
+                <Button type="button" variant="outline" disabled={deleteMutation.isPending}>
+                  Cancel
+                </Button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    deleteMutation.mutate(priceList.id, {
+                      onSuccess: () => setDeleteDialogOpen(false),
+                    });
+                  }}
+                  disabled={deleteMutation.isPending}
+                >
+                  {deleteMutation.isPending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                      Deleting…
+                    </>
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </div>
   );
 }

@@ -24,7 +24,6 @@ import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
 export const invoiceFormSchema = z.object({
   patient_id: z.string().min(1, "Patient is required"),
   visit_id: z.string().optional(),
-  doctor_id: z.string().optional(),
   invoice_type: z.enum(["STANDARD", "FOLLOWUP", "PROFORMA", "INSURANCE", "REFUND"]),
   due_date: z.string().optional(),
   notes: z.string().optional(),
@@ -51,7 +50,6 @@ type InvoiceDrawerProps = {
   prefill?: {
     patientId?: string;
     visitId?: string;
-    doctorId?: string;
   };
 };
 
@@ -100,7 +98,6 @@ export function InvoiceDrawer({
     defaultValues: {
       patient_id: prefill?.patientId ?? "",
       visit_id: prefill?.visitId ?? "",
-      doctor_id: prefill?.doctorId ?? "",
       invoice_type: "STANDARD",
       due_date: "",
       notes: "",
@@ -113,7 +110,6 @@ export function InvoiceDrawer({
       form.reset({
         patient_id: invoice.patient_id ?? "",
         visit_id: invoice.visit_id ?? "",
-        doctor_id: "",
         invoice_type: invoice.invoice_type,
         due_date: invoice.due_date ?? "",
         notes: invoice.notes ?? "",
@@ -228,6 +224,13 @@ export function InvoiceDrawer({
                     style={{ width: `${70 + (i % 3) * 10}%` }}
                   />
                 ))}
+              </div>
+            )}
+
+            {/* Error state */}
+            {!isCreate && !isLoading && !invoice && (
+              <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-gray-500">
+                Failed to load invoice. It may have been deleted or you don&apos;t have access.
               </div>
             )}
 
@@ -416,19 +419,6 @@ export function InvoiceDrawer({
                         {...form.register("visit_id")}
                         type="text"
                         placeholder="Visit ID"
-                        className={inputClass}
-                      />
-                    </div>
-
-                    {/* Doctor ID */}
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        Doctor ID <span className="text-gray-400">(optional)</span>
-                      </label>
-                      <input
-                        {...form.register("doctor_id")}
-                        type="text"
-                        placeholder="Doctor ID"
                         className={inputClass}
                       />
                     </div>

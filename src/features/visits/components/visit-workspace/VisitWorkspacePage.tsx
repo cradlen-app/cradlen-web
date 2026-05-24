@@ -163,7 +163,6 @@ export function VisitWorkspacePage({ visitId }: Props) {
         prefill={{
           visitId: visit.id,
           patientId: visit.patient.id,
-          doctorId: visit.assignedDoctorId,
         }}
       />
     </main>

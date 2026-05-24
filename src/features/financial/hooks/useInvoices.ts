@@ -19,7 +19,7 @@ export function useInvoices(filters?: InvoiceFilters) {
   });
 
   return {
-    invoices: query.data,
+    invoices: query.data ?? [],
     isLoading: query.isLoading,
     error: query.error,
   };
