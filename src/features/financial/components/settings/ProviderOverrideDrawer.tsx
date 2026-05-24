@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
@@ -56,6 +57,7 @@ function ServiceComboboxField({
   onChange: (id: string, name: string) => void;
   error?: string;
 }) {
+  const t = useTranslations("financial.myPrices");
   const [search, setSearch] = useState(displayValue);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [options, setOptions] = useState<ServiceOption[]>([]);
@@ -104,7 +106,7 @@ function ServiceComboboxField({
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium text-gray-700">
-        Service <span className="text-red-500">*</span>
+        {t("fields.service")} <span className="text-red-500">*</span>
       </label>
       <div className="relative">
         <input
@@ -116,7 +118,7 @@ function ServiceComboboxField({
           }}
           onFocus={() => setShowDropdown(true)}
           onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-          placeholder="Search service…"
+          placeholder={t("fields.searchService")}
           className={cn(inputClass, error && "border-red-400")}
         />
         {showDropdown && options.length > 0 && (
@@ -162,6 +164,8 @@ export function ProviderOverrideDrawer({
   override,
   profileId,
 }: Props) {
+  const t = useTranslations("financial.myPrices");
+  const tCommon = useTranslations("financial.common");
   const orgId = useAuthContextStore((s) => s.organizationId) ?? "";
   const createMutation = useCreateProviderOverride(profileId);
   const updateMutation = useUpdateProviderOverride(profileId);
@@ -259,13 +263,13 @@ export function ProviderOverrideDrawer({
             <div className="min-w-0">
               <Dialog.Title className="text-lg font-medium text-gray-900">
                 {mode === "create"
-                  ? "Add Price Override"
-                  : "Edit Price Override"}
+                  ? t("addOverrideTitle")
+                  : t("editOverride")}
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-gray-400">
                 {mode === "create"
-                  ? "Set a personal price override for a service."
-                  : "Update your price override."}
+                  ? t("addOverrideDescription")
+                  : t("editOverrideDescription")}
               </Dialog.Description>
             </div>
             <Dialog.Close
@@ -297,7 +301,7 @@ export function ProviderOverrideDrawer({
               ) : (
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                    Service
+                    {t("fields.service")}
                   </label>
                   <input
                     type="text"
@@ -311,7 +315,7 @@ export function ProviderOverrideDrawer({
               {/* Price */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Price ({watchedCurrency || "EGP"}){" "}
+                  {t("fields.priceWithCurrency", { currency: watchedCurrency || "EGP" })}{" "}
                   <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -319,7 +323,7 @@ export function ProviderOverrideDrawer({
                   type="number"
                   min={0}
                   step="0.01"
-                  placeholder="0.00"
+                  placeholder={t("fields.pricePlaceholder")}
                   className={cn(
                     inputClass,
                     form.formState.errors.price && "border-red-400",
@@ -335,12 +339,12 @@ export function ProviderOverrideDrawer({
               {/* Currency */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Currency
+                  {t("fields.currency")}
                 </label>
                 <input
                   {...form.register("currency")}
                   type="text"
-                  placeholder="EGP"
+                  placeholder={t("fields.currencyPlaceholder")}
                   className={inputClass}
                 />
               </div>
@@ -349,7 +353,7 @@ export function ProviderOverrideDrawer({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                    Valid From <span className="text-gray-400">(optional)</span>
+                    {t("fields.validFrom")} <span className="text-gray-400">{tCommon("optional")}</span>
                   </label>
                   <input
                     {...form.register("valid_from")}
@@ -359,7 +363,7 @@ export function ProviderOverrideDrawer({
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                    Valid To <span className="text-gray-400">(optional)</span>
+                    {t("fields.validTo")} <span className="text-gray-400">{tCommon("optional")}</span>
                   </label>
                   <input
                     {...form.register("valid_to")}
@@ -378,18 +382,18 @@ export function ProviderOverrideDrawer({
                 onClick={handleClose}
                 disabled={isSaving}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <>
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                    Saving…
+                    {tCommon("saving")}
                   </>
                 ) : mode === "create" ? (
-                  "Add Override"
+                  t("addOverride")
                 ) : (
-                  "Save Changes"
+                  tCommon("saveChanges")
                 )}
               </Button>
             </div>

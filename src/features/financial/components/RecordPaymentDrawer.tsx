@@ -6,6 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useRecordPayment } from "../hooks/useRecordPayment";
@@ -29,12 +30,12 @@ type Props = {
   onSuccess?: () => void;
 };
 
-const PAYMENT_METHODS = [
-  { value: "CASH", label: "Cash" },
-  { value: "CARD", label: "Card" },
-  { value: "BANK_TRANSFER", label: "Bank Transfer" },
-  { value: "INSURANCE", label: "Insurance" },
-  { value: "OTHER", label: "Other" },
+const PAYMENT_METHOD_VALUES = [
+  "CASH",
+  "CARD",
+  "BANK_TRANSFER",
+  "INSURANCE",
+  "OTHER",
 ] as const;
 
 export function RecordPaymentDrawer({
@@ -45,6 +46,8 @@ export function RecordPaymentDrawer({
   currency = "EGP",
   onSuccess,
 }: Props) {
+  const t = useTranslations("financial.payments");
+  const tCommon = useTranslations("financial.common");
   const recordPayment = useRecordPayment();
 
   const {
@@ -116,11 +119,11 @@ export function RecordPaymentDrawer({
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
             <Dialog.Title className="text-base font-semibold text-gray-900">
-              Record Payment
+              {t("recordTitle")}
             </Dialog.Title>
             <Dialog.Close
               className="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-              aria-label="Close"
+              aria-label={tCommon("close")}
             >
               <X className="size-5" aria-hidden="true" />
             </Dialog.Close>
@@ -132,7 +135,7 @@ export function RecordPaymentDrawer({
               {/* Amount */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Amount ({currency})
+                  {t("fields.amountWithCurrency", { currency })}
                 </label>
                 <input
                   {...register("amount", { valueAsNumber: true })}
@@ -149,26 +152,26 @@ export function RecordPaymentDrawer({
               {/* Payment method */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Payment Method
+                  {t("fields.paymentMethod")}
                 </label>
                 <Controller
                   control={control}
                   name="payment_method"
                   render={({ field }) => (
                     <div className="grid grid-cols-2 gap-2">
-                      {PAYMENT_METHODS.map((m) => (
+                      {PAYMENT_METHOD_VALUES.map((value) => (
                         <button
-                          key={m.value}
+                          key={value}
                           type="button"
-                          onClick={() => field.onChange(m.value)}
+                          onClick={() => field.onChange(value)}
                           className={cn(
                             "rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
-                            field.value === m.value
+                            field.value === value
                               ? "border-blue-500 bg-blue-50 text-blue-700"
                               : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50",
                           )}
                         >
-                          {m.label}
+                          {t(`method.${value}`)}
                         </button>
                       ))}
                     </div>
@@ -179,7 +182,7 @@ export function RecordPaymentDrawer({
               {/* Payment date */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Payment Date
+                  {t("fields.paymentDate")}
                 </label>
                 <input
                   {...register("payment_date")}
@@ -194,12 +197,12 @@ export function RecordPaymentDrawer({
               {/* Reference number */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Reference Number <span className="text-gray-400">(optional)</span>
+                  {t("fields.referenceNumber")} <span className="text-gray-400">{tCommon("optional")}</span>
                 </label>
                 <input
                   {...register("reference_number")}
                   type="text"
-                  placeholder="e.g. TXN-12345"
+                  placeholder={t("fields.referenceNumberPlaceholder")}
                   className={inputClass}
                 />
               </div>
@@ -207,12 +210,12 @@ export function RecordPaymentDrawer({
               {/* Notes */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  Notes <span className="text-gray-400">(optional)</span>
+                  {t("fields.notes")} <span className="text-gray-400">{tCommon("optional")}</span>
                 </label>
                 <textarea
                   {...register("notes")}
                   rows={3}
-                  placeholder="Any additional notes…"
+                  placeholder={t("fields.notesPlaceholder")}
                   className={cn(inputClass, "resize-none")}
                 />
               </div>
@@ -226,16 +229,16 @@ export function RecordPaymentDrawer({
                 onClick={() => handleClose(false)}
                 disabled={recordPayment.isPending}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button type="submit" disabled={recordPayment.isPending}>
                 {recordPayment.isPending ? (
                   <>
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                    Recording…
+                    {t("recording")}
                   </>
                 ) : (
-                  "Record Payment"
+                  t("actions.record")
                 )}
               </Button>
             </div>

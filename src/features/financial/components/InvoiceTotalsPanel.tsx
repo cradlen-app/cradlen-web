@@ -1,4 +1,7 @@
+"use client";
+
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { formatMoney } from "../lib/format";
 
@@ -16,6 +19,7 @@ type Props = {
 };
 
 export function InvoiceTotalsPanel({ items, currency, className }: Props) {
+  const t = useTranslations("financial.invoice.totals");
   const { subtotal, totalDiscount, total } = useMemo(() => {
     const sub = items.reduce(
       (sum, item) => sum + item.unit_price * item.quantity,
@@ -40,14 +44,14 @@ export function InvoiceTotalsPanel({ items, currency, className }: Props) {
       )}
     >
       <div className="flex items-center justify-between py-1.5">
-        <span className="text-gray-500">Subtotal</span>
+        <span className="text-gray-500">{t("subtotal")}</span>
         <span className="font-medium text-gray-900">
           {formatMoney(subtotal, currency)}
         </span>
       </div>
 
       <div className="flex items-center justify-between py-1.5">
-        <span className="text-gray-500">Discount</span>
+        <span className="text-gray-500">{t("discount")}</span>
         <span className="font-medium text-red-600">
           -{formatMoney(totalDiscount, currency)}
         </span>
@@ -56,7 +60,7 @@ export function InvoiceTotalsPanel({ items, currency, className }: Props) {
       <div className="my-2 border-t border-gray-200" />
 
       <div className="flex items-center justify-between py-1.5">
-        <span className="font-semibold text-gray-900">Total</span>
+        <span className="font-semibold text-gray-900">{t("total")}</span>
         <span className="text-base font-semibold text-gray-900">
           {formatMoney(total, currency)}
         </span>

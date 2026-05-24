@@ -13,6 +13,7 @@ import {
   ExternalLink,
   FileText,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useInvoice } from "../hooks/useInvoice";
@@ -25,7 +26,7 @@ import { RecordPaymentDrawer } from "./RecordPaymentDrawer";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
 import { InvoiceDrawer } from "./InvoiceDrawer";
 import { formatMoney } from "../lib/format";
-import type { EmbeddedPerson, Payment } from "../types/financial.types";
+import type { EmbeddedPerson } from "../types/financial.types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -54,14 +55,6 @@ function personName(
     .trim();
   return composed || fallback;
 }
-
-const PAYMENT_METHOD_LABELS: Record<Payment["payment_method"], string> = {
-  CASH: "Cash",
-  CARD: "Card",
-  BANK_TRANSFER: "Bank Transfer",
-  INSURANCE: "Insurance",
-  OTHER: "Other",
-};
 
 // ── Loading Skeleton ──────────────────────────────────────────────────────────
 
@@ -113,6 +106,9 @@ type Props = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function InvoiceDetailPage({ invoiceId }: Props) {
+  const t = useTranslations("financial.invoice");
+  const tPay = useTranslations("financial.payments");
+  const tCommon = useTranslations("financial.common");
   const params = useParams<{ locale: string; orgId: string; branchId: string }>();
   const locale = params?.locale ?? "";
   const orgId = params?.orgId ?? "";
@@ -149,11 +145,11 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
             href={visitsHref}
             className="transition-colors hover:text-gray-900"
           >
-            Billing
+            {t("view.breadcrumbBilling")}
           </Link>
           <ChevronRight className="size-4 shrink-0 text-gray-400" aria-hidden="true" />
           <span className="font-medium text-gray-900">
-            {invoice ? `INV-${invoice.invoice_number}` : "Loading…"}
+            {invoice ? `INV-${invoice.invoice_number}` : tCommon("loading")}
           </span>
         </nav>
 
@@ -163,7 +159,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
         {/* Error state */}
         {!isLoading && !invoice && (
           <div className="flex h-96 items-center justify-center text-sm text-gray-500">
-            Invoice not found.
+            {t("view.notFound")}
           </div>
         )}
 
@@ -185,7 +181,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                     <InvoiceStatusBadge status={invoice.status} />
                   </div>
                   <p className="text-sm text-gray-500">
-                    Created on {formatDate(invoice.created_at)}
+                    {t("view.createdOn", { date: formatDate(invoice.created_at) })}
                   </p>
                   {/* Remaining balance */}
                   {invoice.total_amount - invoice.paid_amount > 0 && (
@@ -195,11 +191,12 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                         isPartiallyPaid ? "text-amber-600" : "text-gray-600",
                       )}
                     >
-                      Balance due:{" "}
-                      {formatMoney(
-                        invoice.total_amount - invoice.paid_amount,
-                        invoice.currency,
-                      )}
+                      {t("view.balanceDue", {
+                        amount: formatMoney(
+                          invoice.total_amount - invoice.paid_amount,
+                          invoice.currency,
+                        ),
+                      })}
                     </p>
                   )}
                 </div>
@@ -214,7 +211,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                       onClick={() => setVoidDialogOpen(true)}
                     >
                       <Ban className="size-3.5" aria-hidden="true" />
-                      Void
+                      {t("actions.voidShort")}
                     </Button>
                   )}
                   {canEdit && (
@@ -225,7 +222,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                       onClick={() => setEditDrawerOpen(true)}
                     >
                       <Pencil className="size-3.5" aria-hidden="true" />
-                      Edit
+                      {t("actions.edit")}
                     </Button>
                   )}
                   {canIssue && (
@@ -240,7 +237,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                       ) : (
                         <Send className="size-3.5" aria-hidden="true" />
                       )}
-                      Issue Invoice
+                      {t("actions.issue")}
                     </Button>
                   )}
                   {canRecordPayment && (
@@ -250,7 +247,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                       onClick={() => setRecordPaymentOpen(true)}
                     >
                       <CreditCard className="size-3.5" aria-hidden="true" />
-                      Record Payment
+                      {t("actions.recordPayment")}
                     </Button>
                   )}
                 </div>
@@ -262,13 +259,13 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
               {/* Left: metadata card */}
               <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 className="mb-4 text-sm font-semibold text-gray-700">
-                  Invoice Details
+                  {t("view.invoiceDetails")}
                 </h2>
                 <dl className="space-y-3 text-sm">
                   {/* Patient */}
                   {invoice.patient_id && (
                     <div className="flex items-start justify-between gap-2">
-                      <dt className="shrink-0 text-gray-500">Patient</dt>
+                      <dt className="shrink-0 text-gray-500">{t("fields.patient")}</dt>
                       <dd className="text-right font-medium text-gray-900">
                         <span className="block">
                           {personName(invoice.patient, invoice.patient_id)}
@@ -280,7 +277,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                   {/* Doctor */}
                   {invoice.assigned_doctor_id && (
                     <div className="flex items-start justify-between gap-2">
-                      <dt className="shrink-0 text-gray-500">Doctor</dt>
+                      <dt className="shrink-0 text-gray-500">{t("fields.doctor")}</dt>
                       <dd className="text-right font-medium text-gray-900">
                         <span className="block">
                           {personName(
@@ -295,13 +292,13 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                   {/* Visit link */}
                   {invoice.visit_id && (
                     <div className="flex items-start justify-between gap-2">
-                      <dt className="shrink-0 text-gray-500">Visit</dt>
+                      <dt className="shrink-0 text-gray-500">{t("fields.visit")}</dt>
                       <dd className="text-right">
                         <Link
                           href={`${dashboardBase}/visits/${invoice.visit_id}`}
                           className="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800 hover:underline"
                         >
-                          View Visit
+                          {t("view.viewVisit")}
                           <ExternalLink className="size-3.5" aria-hidden="true" />
                         </Link>
                       </dd>
@@ -310,16 +307,16 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
 
                   {/* Invoice type */}
                   <div className="flex items-start justify-between gap-2">
-                    <dt className="shrink-0 text-gray-500">Type</dt>
-                    <dd className="text-right font-medium text-gray-900 capitalize">
-                      {invoice.invoice_type.toLowerCase().replace(/_/g, " ")}
+                    <dt className="shrink-0 text-gray-500">{t("fields.type")}</dt>
+                    <dd className="text-right font-medium text-gray-900">
+                      {t(`types.${invoice.invoice_type}`)}
                     </dd>
                   </div>
 
                   {/* Issue date */}
                   {invoice.issued_at && (
                     <div className="flex items-start justify-between gap-2">
-                      <dt className="shrink-0 text-gray-500">Issued</dt>
+                      <dt className="shrink-0 text-gray-500">{t("fields.issued")}</dt>
                       <dd className="text-right font-medium text-gray-900">
                         {formatDate(invoice.issued_at)}
                       </dd>
@@ -329,7 +326,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                   {/* Due date */}
                   {invoice.due_date && (
                     <div className="flex items-start justify-between gap-2">
-                      <dt className="shrink-0 text-gray-500">Due Date</dt>
+                      <dt className="shrink-0 text-gray-500">{t("fields.dueDate")}</dt>
                       <dd className="text-right font-medium text-gray-900">
                         {formatDate(invoice.due_date)}
                       </dd>
@@ -339,7 +336,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                   {/* Notes */}
                   {invoice.notes && (
                     <div className="border-t border-gray-100 pt-3">
-                      <dt className="mb-1 text-gray-500">Notes</dt>
+                      <dt className="mb-1 text-gray-500">{t("fields.notes")}</dt>
                       <dd className="text-gray-900">{invoice.notes}</dd>
                     </div>
                   )}
@@ -351,29 +348,29 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                 {/* Line items table */}
                 <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                   <h2 className="mb-4 text-sm font-semibold text-gray-700">
-                    Line Items
+                    {t("view.lineItems")}
                   </h2>
                   <div className="overflow-x-auto rounded-xl border border-gray-100">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
                           <th className="px-4 py-2.5 text-left font-medium">
-                            Description
+                            {t("lineItems.description")}
                           </th>
                           <th className="px-4 py-2.5 text-center font-medium">
-                            Qty
+                            {t("lineItems.qty")}
                           </th>
                           <th className="px-4 py-2.5 text-right font-medium">
-                            Unit Price
+                            {t("lineItems.unitPrice")}
                           </th>
                           <th className="px-4 py-2.5 text-left font-medium">
-                            Pricing Source
+                            {t("lineItems.pricingSource")}
                           </th>
                           <th className="px-4 py-2.5 text-right font-medium">
-                            Discount
+                            {t("lineItems.discount")}
                           </th>
                           <th className="px-4 py-2.5 text-right font-medium">
-                            Total
+                            {t("lineItems.total")}
                           </th>
                         </tr>
                       </thead>
@@ -427,7 +424,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                 {/* Payment history table */}
                 <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                   <h2 className="mb-4 text-sm font-semibold text-gray-700">
-                    Payment History
+                    {t("view.paymentHistory")}
                   </h2>
 
                   {paymentsLoading ? (
@@ -441,7 +438,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                     </div>
                   ) : payments.length === 0 ? (
                     <p className="py-6 text-center text-sm text-gray-400">
-                      No payments recorded yet
+                      {t("view.noPayments")}
                     </p>
                   ) : (
                     <div className="overflow-x-auto rounded-xl border border-gray-100">
@@ -449,19 +446,19 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                         <thead>
                           <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
                             <th className="px-4 py-2.5 text-left font-medium">
-                              Date
+                              {t("payments.date")}
                             </th>
                             <th className="px-4 py-2.5 text-right font-medium">
-                              Amount
+                              {t("payments.amount")}
                             </th>
                             <th className="px-4 py-2.5 text-left font-medium">
-                              Method
+                              {t("payments.method")}
                             </th>
                             <th className="px-4 py-2.5 text-left font-medium">
-                              Reference
+                              {t("payments.reference")}
                             </th>
                             <th className="px-4 py-2.5 text-left font-medium">
-                              Recorded by
+                              {t("payments.recordedBy")}
                             </th>
                           </tr>
                         </thead>
@@ -484,7 +481,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                                   {formatMoney(payment.amount, payment.currency)}
                                 </td>
                                 <td className="px-4 py-3 text-gray-600">
-                                  {PAYMENT_METHOD_LABELS[payment.payment_method]}
+                                  {tPay(`method.${payment.payment_method}`)}
                                 </td>
                                 <td className="px-4 py-3 text-gray-500">
                                   {payment.reference_number ?? "—"}

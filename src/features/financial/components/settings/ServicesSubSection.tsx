@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertDialog } from "radix-ui";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { useServices } from "../../hooks/useServices";
@@ -11,15 +12,6 @@ import type { Service } from "../../types/financial.types";
 import { ServiceDrawer } from "./ServiceDrawer";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-const SERVICE_TYPE_LABELS: Record<string, string> = {
-  CONSULTATION: "Consultation",
-  PROCEDURE: "Procedure",
-  LAB_TEST: "Lab Test",
-  IMAGING: "Imaging",
-  ADMINISTRATIVE: "Administrative",
-  OTHER: "Other",
-};
 
 const SERVICE_TYPE_COLORS: Record<string, string> = {
   CONSULTATION: "bg-blue-50 text-blue-700",
@@ -45,22 +37,26 @@ function DeleteServiceDialog({
   onConfirm: () => void;
   isPending: boolean;
 }) {
+  const t = useTranslations("financial.services");
+  const tCommon = useTranslations("financial.common");
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
         <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
           <AlertDialog.Title className="text-lg font-medium text-gray-900">
-            Delete Service?
+            {t("deleteConfirm.title")}
           </AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-sm text-gray-500">
-            Are you sure you want to delete{" "}
-            <strong>{service?.name}</strong>? This action cannot be undone.
+            {t.rich("deleteConfirm.description", {
+              name: service?.name ?? "",
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </AlertDialog.Description>
           <div className="mt-5 flex justify-end gap-2">
             <AlertDialog.Cancel asChild>
               <Button type="button" variant="outline" disabled={isPending}>
-                Cancel
+                {tCommon("cancel")}
               </Button>
             </AlertDialog.Cancel>
             <AlertDialog.Action asChild>
@@ -76,10 +72,10 @@ function DeleteServiceDialog({
                 {isPending ? (
                   <>
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                    Deleting…
+                    {tCommon("deleting")}
                   </>
                 ) : (
-                  "Delete"
+                  t("deleteConfirm.confirm")
                 )}
               </Button>
             </AlertDialog.Action>
@@ -93,6 +89,7 @@ function DeleteServiceDialog({
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function ServicesSubSection() {
+  const t = useTranslations("financial.services");
   const { services, isLoading } = useServices();
   const deleteMutation = useDeleteService();
 
@@ -125,14 +122,14 @@ export function ServicesSubSection() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-medium text-gray-900">Services</h3>
+          <h3 className="text-base font-medium text-gray-900">{t("title")}</h3>
           <p className="mt-0.5 text-sm text-gray-500">
-            Manage the clinical services offered by your organization.
+            {t("description")}
           </p>
         </div>
         <Button type="button" size="sm" onClick={openCreate}>
           <Plus className="size-3.5" aria-hidden="true" />
-          New Service
+          {t("newService")}
         </Button>
       </div>
 
@@ -141,24 +138,24 @@ export function ServicesSubSection() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12 text-sm text-gray-400">
             <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
-            Loading services…
+            {t("loadingServices")}
           </div>
         ) : services.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-200 py-12 text-center">
-            <p className="text-sm font-medium text-gray-700">No services yet</p>
+            <p className="text-sm font-medium text-gray-700">{t("noServicesYet")}</p>
             <p className="mt-1 text-sm text-gray-400">
-              Click &ldquo;+ New Service&rdquo; to add one.
+              {t("clickNewService")}
             </p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
-                <th className="px-4 py-2.5 text-left font-medium">Code</th>
-                <th className="px-4 py-2.5 text-left font-medium">Name</th>
-                <th className="px-4 py-2.5 text-left font-medium">Type</th>
-                <th className="px-4 py-2.5 text-left font-medium">Specialties</th>
-                <th className="px-4 py-2.5 text-right font-medium">Actions</th>
+                <th className="px-4 py-2.5 text-left font-medium">{t("fields.code")}</th>
+                <th className="px-4 py-2.5 text-left font-medium">{t("fields.name")}</th>
+                <th className="px-4 py-2.5 text-left font-medium">{t("fields.type")}</th>
+                <th className="px-4 py-2.5 text-left font-medium">{t("fields.specialties")}</th>
+                <th className="px-4 py-2.5 text-right font-medium">{t("actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -181,8 +178,12 @@ export function ServicesSubSection() {
                           "bg-gray-100 text-gray-500",
                       )}
                     >
-                      {SERVICE_TYPE_LABELS[service.service_type] ??
-                        service.service_type}
+                      {((): string => {
+                        const known = ["CONSULTATION","PROCEDURE","LAB_TEST","IMAGING","ADMINISTRATIVE","OTHER"];
+                        return known.includes(service.service_type)
+                          ? t(`type.${service.service_type as "CONSULTATION" | "PROCEDURE" | "LAB_TEST" | "IMAGING" | "ADMINISTRATIVE" | "OTHER"}`)
+                          : service.service_type;
+                      })()}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -207,7 +208,7 @@ export function ServicesSubSection() {
                       <button
                         type="button"
                         onClick={() => openEdit(service)}
-                        aria-label="Edit service"
+                        aria-label={t("editServiceAria")}
                         className="inline-flex size-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
                       >
                         <Pencil className="size-4" aria-hidden="true" />
@@ -215,7 +216,7 @@ export function ServicesSubSection() {
                       <button
                         type="button"
                         onClick={() => setDeleteTarget(service)}
-                        aria-label="Delete service"
+                        aria-label={t("deleteServiceAria")}
                         className="inline-flex size-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                       >
                         <Trash2 className="size-4" aria-hidden="true" />
