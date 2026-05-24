@@ -183,7 +183,7 @@ export type InvoiceFilters = {
 // ── Payload types ─────────────────────────────────────────────────────────────
 
 export type CreateInvoiceItemPayload = {
-  service_id: string;
+  service_id?: string;
   quantity: number;
   unit_price?: number;
   discount?: number;

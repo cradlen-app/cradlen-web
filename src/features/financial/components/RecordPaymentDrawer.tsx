@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Dialog } from "radix-ui";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,6 +51,7 @@ export function RecordPaymentDrawer({
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -61,6 +63,10 @@ export function RecordPaymentDrawer({
       notes: "",
     },
   });
+
+  useEffect(() => {
+    setValue("amount", outstandingAmount);
+  }, [outstandingAmount, setValue]);
 
   function handleClose(next: boolean) {
     if (!next) reset();
@@ -76,7 +82,7 @@ export function RecordPaymentDrawer({
           method: data.payment_method,
           reference: data.reference_number || undefined,
           notes: data.notes || undefined,
-          paid_at: new Date(data.payment_date).toISOString(),
+          paid_at: new Date(data.payment_date + "T00:00:00").toISOString(),
         },
       },
       {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useFieldArray, Controller, type Control } from "react-hook-form";
+import { useFieldArray, Controller, type Control, type UseFormSetValue } from "react-hook-form";
 import { Trash2, Plus } from "lucide-react";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,10 @@ import { fetchServices } from "../lib/services.api";
 import { useResolvePrice } from "../hooks/useResolvePrice";
 import { InvoicePricingSourceBadge } from "./InvoicePricingSourceBadge";
 import type { InvoiceFormValues } from "./InvoiceDrawer";
-import type { PricingSource } from "../types/financial.types";
 
 type Props = {
   control: Control<InvoiceFormValues>;
+  setValue: UseFormSetValue<InvoiceFormValues>;
   orgId: string;
   branchId: string;
   profileId?: string;
@@ -33,6 +33,7 @@ const inputClass = cn(
 function LineItemRow({
   index,
   control,
+  setValue,
   orgId,
   branchId,
   profileId,
@@ -41,6 +42,7 @@ function LineItemRow({
 }: {
   index: number;
   control: Control<InvoiceFormValues>;
+  setValue: UseFormSetValue<InvoiceFormValues>;
   orgId: string;
   branchId: string;
   profileId?: string;
@@ -73,6 +75,14 @@ function LineItemRow({
     profileId,
   );
 
+  // Apply resolved price when available — must be at top level of component
+  useEffect(() => {
+    if (resolvedPrice && selectedServiceId) {
+      setValue(`items.${index}.unit_price`, resolvedPrice.price);
+      setValue(`items.${index}.pricing_source`, resolvedPrice.source);
+    }
+  }, [resolvedPrice, selectedServiceId, index, setValue]);
+
   return (
     <Controller
       control={control}
@@ -95,20 +105,6 @@ function LineItemRow({
             unit_price: svc.base_price,
           });
         }
-
-        // Apply resolved price when available
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useEffect(() => {
-          if (resolvedPrice && selectedServiceId === item.service_id) {
-            field.onChange({
-              ...item,
-              unit_price: resolvedPrice.price,
-              pricing_source: resolvedPrice.source,
-            });
-          }
-          // We intentionally exclude `item` from deps to avoid infinite loops
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [resolvedPrice, selectedServiceId]);
 
         return (
           <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] items-start gap-2 rounded-xl border border-gray-100 bg-gray-50/50 p-3">
@@ -194,7 +190,7 @@ function LineItemRow({
                   />
                   {item.pricing_source ? (
                     <InvoicePricingSourceBadge
-                      source={item.pricing_source as PricingSource}
+                      source={item.pricing_source}
                     />
                   ) : selectedServiceId && !isPriceLoading ? (
                     <span className="text-[11px] text-amber-600">No price configured</span>
@@ -258,7 +254,7 @@ const EMPTY_CUSTOM_ROW = {
   pricing_source: undefined,
 };
 
-export function InvoiceLineItemsEditor({ control, orgId, branchId, profileId }: Props) {
+export function InvoiceLineItemsEditor({ control, setValue, orgId, branchId, profileId }: Props) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
@@ -283,6 +279,7 @@ export function InvoiceLineItemsEditor({ control, orgId, branchId, profileId }: 
           key={field.id}
           index={index}
           control={control}
+          setValue={setValue}
           orgId={orgId}
           branchId={branchId}
           profileId={profileId}
