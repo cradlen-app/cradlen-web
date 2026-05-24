@@ -3,6 +3,7 @@ import type { ApiResponse } from "@/common/types/api.types";
 import type {
   CreateServicePayload,
   Service,
+  ServiceFilters,
   UpdateServicePayload,
 } from "../types/financial.types";
 
@@ -10,12 +11,21 @@ import type {
 
 export function fetchServices(
   orgId: string,
-  filters?: Record<string, string>,
+  filters?: ServiceFilters,
 ): Promise<ApiResponse<Service[]>> {
-  const params = new URLSearchParams(filters);
+  const params = new URLSearchParams();
+  if (filters?.serviceType) params.set("serviceType", filters.serviceType);
+  if (filters?.isActive != null) params.set("isActive", String(filters.isActive));
+  if (filters?.search) params.set("search", filters.search);
   const qs = params.toString();
   return apiAuthFetch<ApiResponse<Service[]>>(
     `/organizations/${orgId}/financial/services${qs ? `?${qs}` : ""}`,
+  );
+}
+
+export async function fetchService(orgId: string, id: string): Promise<ApiResponse<Service>> {
+  return apiAuthFetch<ApiResponse<Service>>(
+    `/api/backend/organizations/${orgId}/financial/services/${id}`,
   );
 }
 
