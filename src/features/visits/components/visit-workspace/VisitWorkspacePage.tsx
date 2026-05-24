@@ -7,13 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import {
+  canAccessBilling,
   isClinical,
-  showsBranchAggregate,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { getApiErrorMessage } from "@/common/errors/error";
 import { useUpdateVisitStatus } from "../../hooks/useUpdateVisitStatus";
 import { useVisit } from "../../hooks/useVisit";
+import { InvoiceDrawer } from "@/features/financial/components/InvoiceDrawer";
 import { CompleteVisitDialog } from "../CompleteVisitDialog";
 import { VisitWorkspaceHeader } from "./VisitWorkspaceHeader";
 import { VisitContextRail } from "./overview/VisitContextRail";
@@ -27,8 +28,6 @@ type Props = {
 
 type TabValue = "overview" | "history" | "examination";
 
-const TERMINAL_STATUSES = new Set(["COMPLETED", "CANCELLED", "NO_SHOW"]);
-
 export function VisitWorkspacePage({ visitId }: Props) {
   const t = useTranslations("visits.workspace");
   const tDetail = useTranslations("visits.detail");
@@ -40,6 +39,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const { data: visit, isLoading, isError } = useVisit(visitId);
   const updateStatus = useUpdateVisitStatus();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
 
   const handleNavigateToHistory = useCallback((sectionCode: string) => {
@@ -50,13 +50,10 @@ export function VisitWorkspacePage({ visitId }: Props) {
         block: "start",
       });
     });
-  }, []);
+  }, [setActiveTab]);
 
   const canComplete = isClinical(profile) && visit?.status === "IN_PROGRESS";
-  const canCancel =
-    !!visit &&
-    showsBranchAggregate(profile) &&
-    !TERMINAL_STATUSES.has(visit.status);
+  const showInvoiceBtn = canAccessBilling(profile);
 
   async function handleComplete() {
     if (!visit) return;
@@ -71,20 +68,6 @@ export function VisitWorkspacePage({ visitId }: Props) {
         branchId: visit.branchId,
       });
       toast.success(tDetail("completedToast"));
-    } catch (error) {
-      toast.error(getApiErrorMessage(error, tDetail("actionError")));
-    }
-  }
-
-  async function handleCancel() {
-    if (!visit) return;
-    try {
-      await updateStatus.mutateAsync({
-        visitId: visit.id,
-        status: "CANCELLED",
-        branchId: visit.branchId,
-      });
-      toast.success(tDetail("cancelledToast"));
     } catch (error) {
       toast.error(getApiErrorMessage(error, tDetail("actionError")));
     }
@@ -117,10 +100,10 @@ export function VisitWorkspacePage({ visitId }: Props) {
         organizationId={organizationId}
         branchId={branchId}
         canComplete={!!canComplete}
-        canCancel={canCancel}
         isMutating={updateStatus.isPending}
         onComplete={handleComplete}
-        onCancel={handleCancel}
+        showInvoice={showInvoiceBtn}
+        onInvoice={() => setInvoiceDrawerOpen(true)}
       />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
@@ -172,6 +155,16 @@ export function VisitWorkspacePage({ visitId }: Props) {
         onOpenChange={setCompleteDialogOpen}
         visit={visit}
         onCompleted={() => toast.success(tDetail("completedToast"))}
+      />
+
+      <InvoiceDrawer
+        open={invoiceDrawerOpen}
+        onOpenChange={setInvoiceDrawerOpen}
+        prefill={{
+          visitId: visit.id,
+          patientId: visit.patient.id,
+          doctorId: visit.assignedDoctorId,
+        }}
       />
     </main>
   );
