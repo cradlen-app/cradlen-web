@@ -8,12 +8,15 @@ import {
   getDefaultBranch,
 } from "@/features/auth/lib/current-user";
 import {
+  canAccessBilling,
   canCreateVisit as canCreateVisitPerm,
   hasAnyStaffRole,
   isReceptionist,
   showsAssignedVisits,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { InvoicePanel } from "@/features/financial/components/InvoicePanel";
+import { InvoicePanelButton } from "@/features/financial/components/InvoicePanelButton";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
@@ -31,6 +34,7 @@ export function VisitsPage() {
 
   const profileId = useAuthContextStore((s) => s.profileId);
   const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
+  const [invoicePanelOpen, setInvoicePanelOpen] = useState(false);
 
   useVisitSocket(profileId, branchId);
 
@@ -41,6 +45,7 @@ export function VisitsPage() {
   const canCreateVisit = canCreateVisitPerm(profile);
   // Anyone with a staff role and access to this page can manage visit status.
   const canManageStatus = hasAnyStaffRole(profile);
+  const showBilling = canAccessBilling(profile);
 
   return (
     <main className="space-y-6 p-6">
@@ -51,6 +56,12 @@ export function VisitsPage() {
           </h1>
           <p className="mt-0.5 text-xs text-gray-500">{t("breadcrumb")}</p>
         </div>
+        {showBilling && (
+          <InvoicePanelButton
+            onClick={() => setInvoicePanelOpen(true)}
+            pendingCount={0}
+          />
+        )}
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
@@ -86,6 +97,13 @@ export function VisitsPage() {
           />
         </aside>
       </div>
+
+      {showBilling && (
+        <InvoicePanel
+          open={invoicePanelOpen}
+          onOpenChange={setInvoicePanelOpen}
+        />
+      )}
     </main>
   );
 }
