@@ -246,6 +246,12 @@
     "subscription": {
       "branchLimitReached": "لقد وصلت إلى حد الفروع في خطتك ({current}/{limit}). قم بترقية اشتراكك لإضافة المزيد من الفروع.",
       "organizationLimitReached": "لقد وصلت إلى حد المنظمات في خطتك ({current}/{limit}). قم بترقية اشتراكك لإضافة المزيد من المنظمات."
+    },
+    "billing": "الفوترة",
+    "billingNav": {
+      "services": "الخدمات",
+      "priceLists": "قوائم الأسعار",
+      "myPrices": "أسعاري"
     }
   },
   "patientDashboard": {
@@ -642,7 +648,8 @@
           "MEDICAL_REP": "مندوب طبي"
         },
         "complete": "إنهاء الزيارة",
-        "cancelVisit": "إلغاء الزيارة"
+        "cancelVisit": "إلغاء الزيارة",
+        "invoice": "فاتورة"
       },
       "patient": {
         "unknown": "مريض غير معروف",
@@ -1160,6 +1167,125 @@
       "blocked": "تم حظر المندوب",
       "unblocked": "تم رفع الحظر عن المندوب",
       "error": "حدث خطأ ما"
+    }
+  },
+  "financial": {
+    "invoice": {
+      "title": "فاتورة",
+      "newInvoice": "فاتورة جديدة",
+      "status": {
+        "DRAFT": "مسودة",
+        "ISSUED": "صادرة",
+        "PARTIALLY_PAID": "مدفوعة جزئياً",
+        "PAID": "مدفوعة",
+        "VOID": "ملغاة",
+        "REFUNDED": "مستردة"
+      },
+      "pricingSource": {
+        "PROVIDER_OVERRIDE": "سعر الطبيب",
+        "BRANCH_OVERRIDE": "سعر الفرع",
+        "ORG_PRICE_LIST": "قائمة أسعار المنظمة",
+        "CUSTOM": "مخصص"
+      },
+      "actions": {
+        "issue": "إصدار الفاتورة",
+        "void": "إلغاء الفاتورة",
+        "recordPayment": "تسجيل دفعة",
+        "edit": "تعديل",
+        "saveAsDraft": "حفظ كمسودة"
+      },
+      "void": {
+        "title": "إلغاء الفاتورة؟",
+        "description": "لا يمكن التراجع عن هذا الإجراء. سيتم إلغاء الفاتورة بشكل دائم.",
+        "confirm": "إلغاء الفاتورة"
+      },
+      "panel": {
+        "title": "الفواتير",
+        "pendingBilling": "بانتظار الفوترة",
+        "invoiced": "تمت الفوترة",
+        "noVisits": "لا توجد زيارات اليوم"
+      },
+      "totals": {
+        "subtotal": "المجموع الفرعي",
+        "discount": "الخصم",
+        "total": "الإجمالي"
+      },
+      "fields": {
+        "patient": "المريض",
+        "visit": "الزيارة",
+        "doctor": "الطبيب",
+        "invoiceType": "نوع الفاتورة",
+        "dueDate": "تاريخ الاستحقاق",
+        "notes": "ملاحظات",
+        "remainingBalance": "الرصيد المتبقي"
+      }
+    },
+    "payments": {
+      "title": "المدفوعات",
+      "newPayment": "دفعة جديدة",
+      "method": {
+        "CASH": "نقدي",
+        "CARD": "بطاقة",
+        "BANK_TRANSFER": "تحويل بنكي",
+        "INSURANCE": "تأمين"
+      },
+      "fields": {
+        "amount": "المبلغ",
+        "paymentMethod": "طريقة الدفع",
+        "paymentDate": "تاريخ الدفع",
+        "referenceNumber": "رقم المرجع",
+        "notes": "ملاحظات"
+      },
+      "actions": {
+        "record": "تسجيل الدفعة"
+      }
+    },
+    "services": {
+      "title": "الخدمات",
+      "newService": "خدمة جديدة",
+      "fields": {
+        "code": "الرمز",
+        "name": "الاسم",
+        "description": "الوصف",
+        "type": "النوع",
+        "specialties": "التخصصات",
+        "active": "نشط"
+      },
+      "deleteConfirm": {
+        "title": "حذف الخدمة؟",
+        "description": "لا يمكن التراجع عن هذا الإجراء.",
+        "confirm": "حذف"
+      }
+    },
+    "priceLists": {
+      "title": "قوائم الأسعار",
+      "newList": "قائمة أسعار جديدة",
+      "scope": {
+        "org": "المنظمة",
+        "branch": "الفرع"
+      },
+      "default": "افتراضي",
+      "fields": {
+        "name": "الاسم",
+        "currency": "العملة",
+        "validFrom": "ساري من",
+        "validTo": "ساري حتى"
+      },
+      "items": {
+        "addService": "إضافة خدمة",
+        "unitPrice": "سعر الوحدة"
+      }
+    },
+    "myPrices": {
+      "title": "أسعاري المخصصة",
+      "addOverride": "إضافة سعر مخصص",
+      "fields": {
+        "service": "الخدمة",
+        "price": "السعر",
+        "currency": "العملة",
+        "validFrom": "ساري من",
+        "validTo": "ساري حتى"
+      }
     }
   }
 }
