@@ -111,3 +111,18 @@ export function canSearchPatients(profile?: UserProfile): boolean {
     isClinical(profile)
   );
 }
+
+/** Billing access — front-desk and owners can view and manage invoices/payments. */
+export function canAccessBilling(profile?: UserProfile): boolean {
+  return isOwner(profile) || isReceptionist(profile);
+}
+
+/** Billing admin — only owners can manage price lists, services, and org-level pricing config. */
+export function canManageBillingAdmin(profile?: UserProfile): boolean {
+  return isOwner(profile);
+}
+
+/** Provider price overrides — clinical staff can manage their own per-service prices. */
+export function canManageOwnPrices(profile?: UserProfile): boolean {
+  return isClinical(profile);
+}
