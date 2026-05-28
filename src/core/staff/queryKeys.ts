@@ -41,17 +41,25 @@ export const staffQueryKeys = {
     all: () => ["staff-invitations"] as const,
     list: (
       organizationId: string,
+      branchId: string,
       opts: { page: number; limit: number; status: string },
     ) =>
       [
         "staff-invitations",
         organizationId,
+        branchId,
         opts.page,
         opts.limit,
         opts.status,
       ] as const,
-    detail: (organizationId: string, invitationId: string) =>
-      ["staff-invitations", "detail", organizationId, invitationId] as const,
+    detail: (organizationId: string, branchId: string, invitationId: string) =>
+      [
+        "staff-invitations",
+        "detail",
+        organizationId,
+        branchId,
+        invitationId,
+      ] as const,
   },
 } as const;
 
