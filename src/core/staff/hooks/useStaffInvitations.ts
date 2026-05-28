@@ -46,41 +46,54 @@ export const STAFF_INVITATIONS_QUERY_KEY = staffQueryKeys.invitations.all();
 
 export function useStaffInvitations(
   organizationId: string | undefined,
-  _branchId: string | undefined,
+  branchId: string | undefined,
   { page = 1, limit = 100, status = "all" }: UseStaffInvitationsOptions = {},
   // Note: `status` only namespaces the cache. Backend has no `status` query param —
   // filter on the client (see spec §4.3).
 ) {
   return useQuery<{ data: ApiStaffInvitation[]; meta?: StaffInvitationsMeta }>({
-    queryKey: staffQueryKeys.invitations.list(organizationId ?? "", { page, limit, status }),
+    queryKey: staffQueryKeys.invitations.list(
+      organizationId ?? "",
+      branchId ?? "",
+      { page, limit, status },
+    ),
     queryFn: async () =>
       unwrapInvitations(
         await fetchStaffInvitations({
           organizationId: organizationId!,
+          branchId: branchId!,
           limit,
           page,
         }),
       ),
-    enabled: !!organizationId,
+    enabled: !!organizationId && !!branchId,
     staleTime: 60 * 1000,
   });
 }
 
 export function useStaffInvitation(
   organizationId: string | undefined,
+  branchId: string | undefined,
   invitationId: string | null,
 ) {
   return useQuery({
-    queryKey: staffQueryKeys.invitations.detail(organizationId ?? "", invitationId ?? ""),
+    queryKey: staffQueryKeys.invitations.detail(
+      organizationId ?? "",
+      branchId ?? "",
+      invitationId ?? "",
+    ),
     queryFn: async () =>
-      unwrapInvitation(await fetchStaffInvitation(organizationId!, invitationId!)),
-    enabled: !!organizationId && !!invitationId,
+      unwrapInvitation(
+        await fetchStaffInvitation(organizationId!, branchId!, invitationId!),
+      ),
+    enabled: !!organizationId && !!branchId && !!invitationId,
     staleTime: 60 * 1000,
   });
 }
 
 type ResendVariables = {
   organizationId: string;
+  branchId: string;
   invitationId: string;
 };
 
@@ -88,14 +101,15 @@ export function useResendStaffInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ organizationId, invitationId }: ResendVariables) =>
-      resendStaffInvitation(organizationId, invitationId),
+    mutationFn: ({ organizationId, branchId, invitationId }: ResendVariables) =>
+      resendStaffInvitation(organizationId, branchId, invitationId),
     onSuccess: async (_data, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: staffQueryKeys.invitations.all() }),
         queryClient.invalidateQueries({
           queryKey: staffQueryKeys.invitations.detail(
             variables.organizationId,
+            variables.branchId,
             variables.invitationId,
           ),
         }),
@@ -109,6 +123,7 @@ export function useResendStaffInvitation() {
 
 type DeleteVariables = {
   organizationId: string;
+  branchId: string;
   invitationId: string;
 };
 
@@ -116,8 +131,8 @@ export function useDeleteStaffInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ organizationId, invitationId }: DeleteVariables) =>
-      deleteStaffInvitation(organizationId, invitationId),
+    mutationFn: ({ organizationId, branchId, invitationId }: DeleteVariables) =>
+      deleteStaffInvitation(organizationId, branchId, invitationId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: staffQueryKeys.invitations.all(),

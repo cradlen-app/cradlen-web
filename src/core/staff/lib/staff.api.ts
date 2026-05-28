@@ -38,6 +38,7 @@ type FetchStaffOptions = {
 
 export type FetchStaffInvitationsOptions = {
   organizationId: string;
+  branchId: string;
   limit?: number;
   page?: number;
 };
@@ -94,18 +95,32 @@ export async function fetchAllStaff(
   return all;
 }
 
-export function inviteStaff(organizationId: string, data: InviteStaffRequest) {
-  return apiAuthFetch<InviteStaffResponse>(`/organizations/${organizationId}/invitations`, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export function inviteStaff(
+  organizationId: string,
+  branchId: string,
+  data: InviteStaffRequest,
+) {
+  return apiAuthFetch<InviteStaffResponse>(
+    `/organizations/${organizationId}/branches/${branchId}/invitations`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+  );
 }
 
-export function bulkInviteStaff(organizationId: string, data: BulkInviteStaffRequest) {
-  return apiAuthFetch<BulkInviteResponse>(`/organizations/${organizationId}/invitations/bulk`, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export function bulkInviteStaff(
+  organizationId: string,
+  branchId: string,
+  data: BulkInviteStaffRequest,
+) {
+  return apiAuthFetch<BulkInviteResponse>(
+    `/organizations/${organizationId}/branches/${branchId}/invitations/bulk`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+  );
 }
 
 export function createStaffDirect(organizationId: string, data: CreateStaffDirectRequest) {
@@ -147,45 +162,58 @@ export function unassignStaffFromBranch(
 
 export function fetchStaffInvitations({
   organizationId,
+  branchId,
   limit = 100,
   page = 1,
 }: FetchStaffInvitationsOptions) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   return apiAuthFetch<StaffInvitationsResponse>(
-    `/organizations/${organizationId}/invitations?${params}`,
+    `/organizations/${organizationId}/branches/${branchId}/invitations?${params}`,
   );
 }
 
-export function fetchStaffInvitation(organizationId: string, invitationId: string) {
+export function fetchStaffInvitation(
+  organizationId: string,
+  branchId: string,
+  invitationId: string,
+) {
   return apiAuthFetch<StaffInvitationResponse>(
-    `/organizations/${organizationId}/invitations/${invitationId}`,
+    `/organizations/${organizationId}/branches/${branchId}/invitations/${invitationId}`,
   );
 }
 
-export function deleteStaffInvitation(organizationId: string, invitationId: string) {
+export function deleteStaffInvitation(
+  organizationId: string,
+  branchId: string,
+  invitationId: string,
+) {
   return apiAuthFetch<StaffInvitationActionResponse>(
-    `/organizations/${organizationId}/invitations/${invitationId}`,
+    `/organizations/${organizationId}/branches/${branchId}/invitations/${invitationId}`,
     { method: "DELETE" },
   );
 }
 
-export function resendStaffInvitation(organizationId: string, invitationId: string) {
+export function resendStaffInvitation(
+  organizationId: string,
+  branchId: string,
+  invitationId: string,
+) {
   return apiAuthFetch<void>(
-    `/organizations/${organizationId}/invitations/${invitationId}/resend`,
+    `/organizations/${organizationId}/branches/${branchId}/invitations/${invitationId}/resend`,
     { method: "POST" },
   );
 }
 
-export function getInvitationPreview(invitation: string, token: string) {
+export function getInvitationPreview(invitationId: string, token: string) {
   return apiFetch<ApiResponse<InvitationPreview>>(
-    `/api/staff/invite/preview?invitation=${encodeURIComponent(invitation)}&token=${encodeURIComponent(token)}`,
+    `/api/staff/invite/preview?invitation_id=${encodeURIComponent(invitationId)}&token=${encodeURIComponent(token)}`,
   );
 }
 
-export function declineStaffInvite(invitation: string, token: string) {
+export function declineStaffInvite(invitationId: string, token: string) {
   return apiFetch<{ message: string }>("/staff/invite/decline", {
     method: "POST",
-    body: JSON.stringify({ invitation, token }),
+    body: JSON.stringify({ invitation_id: invitationId, token }),
   });
 }
 
