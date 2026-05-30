@@ -5,9 +5,7 @@ import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { MedicalRepTable } from "./MedicalRepTable";
 import { MedicalRepDrawer } from "./MedicalRepDrawer";
-import { BlockMedicalRepDialog } from "./BlockMedicalRepDialog";
 import { useMedicalReps } from "../hooks/useMedicalReps";
-import { useToggleMedicalRepStatus } from "../hooks/useToggleMedicalRepStatus";
 import type { MedicalRep } from "../types/medical-rep.types";
 
 const PAGE_LIMIT = 10;
@@ -20,7 +18,6 @@ export function MedicalRepPage() {
   const [statusFilter, setStatusFilter] = useState<"active" | "blocked" | "">("");
   const [selectedRep, setSelectedRep] = useState<MedicalRep | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [togglingRep, setTogglingRep] = useState<MedicalRep | null>(null);
 
   const deferredSearch = useDeferredValue(search);
 
@@ -31,31 +28,12 @@ export function MedicalRepPage() {
     status: statusFilter,
   });
 
-  const toggleStatus = useToggleMedicalRepStatus();
-
   function openDrawer(rep: MedicalRep) {
     setSelectedRep(rep);
     setDrawerOpen(true);
   }
 
-  function handleStatusClick(rep: MedicalRep) {
-    setTogglingRep(rep);
-  }
-
-  function handleToggleStatusFromDrawer(rep: MedicalRep) {
-    setDrawerOpen(false);
-    setTogglingRep(rep);
-  }
-
-  async function handleConfirmToggle() {
-    if (!togglingRep) return;
-    const nextStatus = togglingRep.status === "active" ? "blocked" : "active";
-    await toggleStatus.mutateAsync({ id: togglingRep.id, status: nextStatus });
-    setTogglingRep(null);
-    setDrawerOpen(false);
-  }
-
-  // Derive displayedRep from query cache so the drawer reflects server state after a toggle
+  // Derive displayedRep from query cache so the drawer reflects fresh server state
   const displayedRep = selectedRep
     ? (data?.data.find((r) => r.id === selectedRep.id) ?? selectedRep)
     : null;
@@ -111,7 +89,6 @@ export function MedicalRepPage() {
           reps={data?.data ?? []}
           isLoading={isLoading}
           onRowClick={openDrawer}
-          onStatusClick={handleStatusClick}
         />
       </div>
 
@@ -151,17 +128,6 @@ export function MedicalRepPage() {
         rep={displayedRep}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
-        onToggleStatus={handleToggleStatusFromDrawer}
-      />
-
-      {/* Block / Unblock dialog */}
-      <BlockMedicalRepDialog
-        rep={togglingRep}
-        onOpenChange={(open) => {
-          if (!open) setTogglingRep(null);
-        }}
-        onConfirm={() => void handleConfirmToggle()}
-        isPending={toggleStatus.isPending}
       />
     </div>
   );

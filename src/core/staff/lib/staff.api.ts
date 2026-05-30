@@ -50,10 +50,9 @@ function unwrap<T>(value: T | { data: T }): T {
   return value as T;
 }
 
-export async function fetchRoles(organizationId: string): Promise<ApiStaffRole[]> {
-  const response = await apiAuthFetch<ApiRolesResponse>(
-    `/organizations/${organizationId}/roles`,
-  );
+export async function fetchRoles(): Promise<ApiStaffRole[]> {
+  // Roles are global (not org-scoped); backend exposes a public lookup.
+  const response = await apiAuthFetch<ApiRolesResponse>(`/roles/lookup`);
   return Array.isArray(response) ? response : response.data;
 }
 
