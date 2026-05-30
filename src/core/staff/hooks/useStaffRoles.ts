@@ -12,7 +12,7 @@ export function useStaffRoles(
   return useQuery({
     queryKey: staffQueryKeys.roles(organizationId ?? ""),
     queryFn: async () => {
-      const roles = await fetchRoles(organizationId!);
+      const roles = await fetchRoles();
       return roles.map(mapApiRoleToFilter);
     },
     enabled: enabled && !!organizationId,

@@ -10,10 +10,9 @@ interface Props {
   rep: MedicalRep | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onToggleStatus: (rep: MedicalRep) => void;
 }
 
-export function MedicalRepDrawer({ rep, open, onOpenChange, onToggleStatus }: Props) {
+export function MedicalRepDrawer({ rep, open, onOpenChange }: Props) {
   const t = useTranslations("medicalRep.drawer");
   const locale = useLocale();
 
@@ -88,19 +87,6 @@ export function MedicalRepDrawer({ rep, open, onOpenChange, onToggleStatus }: Pr
                 {t("cancel")}
               </button>
             </Dialog.Close>
-            {rep && (
-              <button
-                type="button"
-                onClick={() => onToggleStatus(rep)}
-                className={
-                  rep.status === "active"
-                    ? "rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
-                    : "rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-primary/90"
-                }
-              >
-                {rep.status === "active" ? t("blockButton") : t("unblockButton")}
-              </button>
-            )}
           </div>
         </Dialog.Content>
       </Dialog.Portal>

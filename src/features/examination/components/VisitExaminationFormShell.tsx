@@ -8,7 +8,6 @@ import { TemplateRenderer } from "@/builder/renderer/TemplateRenderer";
 import { useTemplateExecution } from "@/builder/runtime/TemplateExecutionContext";
 import { buildTemplateSubmission } from "@/builder/templates/build-submission";
 import type { FormSectionDto, FormTemplateDto } from "@/builder/templates/template.types";
-import { SectionNotesInline } from "@/features/patient-history/components/SectionNotesInline";
 
 const EXAMINATION_GROUP = "Examination";
 
@@ -21,7 +20,6 @@ interface Props {
 
 export function VisitExaminationFormShell({
   template,
-  patientId,
   onSave,
   saving,
 }: Props) {
@@ -56,11 +54,6 @@ export function VisitExaminationFormShell({
         {isCollapsed ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
     );
-  };
-
-  const renderSectionBottomSlot = (section: FormSectionDto) => {
-    if (!isExaminationSection(section)) return null;
-    return <SectionNotesInline patientId={patientId} sectionCode={section.code} />;
   };
 
   async function handleSave() {
@@ -99,7 +92,6 @@ export function VisitExaminationFormShell({
           errors={errors}
           collapsedSections={collapsedSections}
           renderSectionHeaderSlot={renderSectionHeaderSlot}
-          renderSectionBottomSlot={renderSectionBottomSlot}
         />
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
