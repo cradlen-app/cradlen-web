@@ -136,7 +136,7 @@ export function StaffInvitationsPage({
   );
   const selectedFallback =
     invitations.find((invitation) => invitation.id === selectedId) ?? null;
-  const detailQuery = useStaffInvitation(organizationId, selectedId);
+  const detailQuery = useStaffInvitation(organizationId, branchId, selectedId);
   const resendInvitation = useResendStaffInvitation();
   const deleteInvitation = useDeleteStaffInvitation();
 
@@ -161,7 +161,7 @@ export function StaffInvitationsPage({
   const isDrawerOpen = !!selectedId;
 
   async function handleResend(invitation: ApiStaffInvitation) {
-    if (!organizationId) {
+    if (!organizationId || !branchId) {
       toast.error(t("noBranch"));
       return;
     }
@@ -170,7 +170,8 @@ export function StaffInvitationsPage({
 
     try {
       await resendInvitation.mutateAsync({
-        organizationId: organizationId,
+        organizationId,
+        branchId,
         invitationId: invitation.id,
       });
       toast.success(t("resendSuccess"));
@@ -183,14 +184,15 @@ export function StaffInvitationsPage({
 
   async function handleDelete() {
     if (!pendingDelete) return;
-    if (!organizationId) {
+    if (!organizationId || !branchId) {
       toast.error(t("noBranch"));
       return;
     }
 
     try {
       await deleteInvitation.mutateAsync({
-        organizationId: organizationId,
+        organizationId,
+        branchId,
         invitationId: pendingDelete.id,
       });
       toast.success(t("deleteSuccess"));

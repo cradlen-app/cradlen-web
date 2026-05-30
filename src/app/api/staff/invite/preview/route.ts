@@ -3,11 +3,11 @@ import { backendFetch, readBackendJson } from "@/infrastructure/auth-transport/b
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const invitation = searchParams.get("invitation") ?? "";
+  const invitationId = searchParams.get("invitation_id") ?? "";
   const token = searchParams.get("token") ?? "";
 
   const response = await backendFetch(
-    `/invitations/preview?invitation=${encodeURIComponent(invitation)}&token=${encodeURIComponent(token)}`,
+    `/invitations/preview?invitation_id=${encodeURIComponent(invitationId)}&token=${encodeURIComponent(token)}`,
   );
   const body = await readBackendJson(response);
 

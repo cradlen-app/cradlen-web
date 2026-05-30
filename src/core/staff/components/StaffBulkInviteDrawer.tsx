@@ -127,6 +127,7 @@ export function StaffBulkInviteDrawer({
     try {
       const response = await bulkMutation.mutateAsync({
         organizationId,
+        branchId,
         data: { invitations },
       });
       setResults(response.data.results);
@@ -141,10 +142,11 @@ export function StaffBulkInviteDrawer({
   }
 
   async function handleResend(row: BulkInviteResultRow) {
-    if (!organizationId) return;
+    if (!organizationId || !branchId) return;
     try {
       await resendMutation.mutateAsync({
         organizationId,
+        branchId,
         invitationId: row.id,
       });
       setResults(

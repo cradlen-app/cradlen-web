@@ -308,17 +308,21 @@ export function StaffCreateDrawer({
           return;
         }
 
-        // Invite by email
+        // Invite by email. Backend invariant: the path branchId must be in
+        // branch_ids, so we always merge it in (deduped).
         const inviteValues = values as StaffInviteFormValues;
         await inviteStaff.mutateAsync({
           organizationId,
+          branchId,
           data: {
             email: inviteValues.email,
             first_name: firstName,
             last_name: lastName,
             ...(inviteValues.phone ? { phone_number: inviteValues.phone } : {}),
             role_ids: [inviteValues.roleId],
-            branch_ids: inviteValues.branchIds,
+            branch_ids: Array.from(
+              new Set([branchId, ...inviteValues.branchIds]),
+            ),
             job_function_codes: inviteValues.jobFunctionCodes,
             specialty_codes: inviteValues.specialtyCodes,
             executive_title: inviteValues.executiveTitle ?? null,
