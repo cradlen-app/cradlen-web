@@ -182,29 +182,27 @@ export function bookMedicalRepVisit(body: BookMedicalRepVisitRequest) {
 }
 
 export function startVisit({
-  branchId,
   visitId,
 }: {
-  branchId: string;
+  branchId?: string;
   visitId: string;
 }) {
-  return apiAuthFetch<ApiVisitResponse>(
-    `/branches/${branchId}/visits/${visitId}/start`,
-    { method: "POST" },
-  );
+  return apiAuthFetch<ApiVisitResponse>(`/visits/${visitId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "IN_PROGRESS" } satisfies UpdateVisitStatusRequest),
+  });
 }
 
 export function cancelVisit({
-  branchId,
   visitId,
 }: {
-  branchId: string;
+  branchId?: string;
   visitId: string;
 }) {
-  return apiAuthFetch<ApiVisitResponse>(
-    `/branches/${branchId}/visits/${visitId}/cancel`,
-    { method: "POST" },
-  );
+  return apiAuthFetch<ApiVisitResponse>(`/visits/${visitId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "CANCELLED" } satisfies UpdateVisitStatusRequest),
+  });
 }
 
 export function updateVisitStatus({
