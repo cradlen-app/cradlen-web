@@ -2,11 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiAuthFetch, apiFetch } from "@/infrastructure/http/api";
 import {
   acceptStaffInvite,
+  bulkInviteStaff,
   deactivateStaff,
+  declineStaffInvite,
   deleteStaffInvitation,
   fetchStaff,
   fetchStaffInvitation,
   fetchStaffInvitations,
+  getInvitationPreview,
+  inviteStaff,
   resendStaffInvitation,
   unassignStaffFromBranch,
   updateStaff,
@@ -39,10 +43,10 @@ describe("staff api helpers", () => {
   });
 
   it("does not send a status query param to invitations list", async () => {
-    await fetchStaffInvitations({ organizationId: "org-1" });
+    await fetchStaffInvitations({ organizationId: "org-1", branchId: "branch-1" });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/organizations/org-1/invitations?page=1&limit=100",
+      "/organizations/org-1/branches/branch-1/invitations?page=1&limit=100",
     );
   });
 
@@ -77,23 +81,23 @@ describe("staff api helpers", () => {
     );
   });
 
-  it("calls organization-scoped invitation detail, delete, and resend endpoints", async () => {
-    await fetchStaffInvitation("org-1", "invite-1");
-    await deleteStaffInvitation("org-1", "invite-1");
-    await resendStaffInvitation("org-1", "invite-1");
+  it("calls branch-scoped invitation detail, delete, and resend endpoints", async () => {
+    await fetchStaffInvitation("org-1", "branch-1", "invite-1");
+    await deleteStaffInvitation("org-1", "branch-1", "invite-1");
+    await resendStaffInvitation("org-1", "branch-1", "invite-1");
 
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       1,
-      "/organizations/org-1/invitations/invite-1",
+      "/organizations/org-1/branches/branch-1/invitations/invite-1",
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       2,
-      "/organizations/org-1/invitations/invite-1",
+      "/organizations/org-1/branches/branch-1/invitations/invite-1",
       expect.objectContaining({ method: "DELETE" }),
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       3,
-      "/organizations/org-1/invitations/invite-1/resend",
+      "/organizations/org-1/branches/branch-1/invitations/invite-1/resend",
       expect.objectContaining({ method: "POST" }),
     );
   });
@@ -108,6 +112,46 @@ describe("staff api helpers", () => {
     expect(apiFetch).toHaveBeenCalledWith(
       "/staff/invite/accept",
       expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("posts inviteStaff and bulkInviteStaff to branch-scoped endpoints", async () => {
+    await inviteStaff("org-1", "branch-1", {
+      email: "x@y.com",
+      first_name: "X",
+      last_name: "Y",
+      role_ids: ["role-1"],
+      branch_ids: ["branch-1"],
+    });
+    await bulkInviteStaff("org-1", "branch-1", { invitations: [] });
+
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      1,
+      "/organizations/org-1/branches/branch-1/invitations",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(apiAuthFetch).toHaveBeenNthCalledWith(
+      2,
+      "/organizations/org-1/branches/branch-1/invitations/bulk",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("sends invitation_id (not invitation) on decline and preview wire format", async () => {
+    await declineStaffInvite("invite-1", "token-1");
+    await getInvitationPreview("invite-1", "token-1");
+
+    expect(apiFetch).toHaveBeenNthCalledWith(
+      1,
+      "/staff/invite/decline",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ invitation_id: "invite-1", token: "token-1" }),
+      }),
+    );
+    expect(apiFetch).toHaveBeenNthCalledWith(
+      2,
+      "/api/staff/invite/preview?invitation_id=invite-1&token=token-1",
     );
   });
 });

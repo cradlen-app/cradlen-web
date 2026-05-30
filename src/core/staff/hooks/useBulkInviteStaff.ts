@@ -13,11 +13,13 @@ export function useBulkInviteStaff() {
   return useMutation({
     mutationFn: ({
       organizationId,
+      branchId,
       data,
     }: {
       organizationId: string;
+      branchId: string;
       data: BulkInviteStaffRequest;
-    }) => bulkInviteStaff(organizationId, data),
+    }) => bulkInviteStaff(organizationId, branchId, data),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
         queryKey: staffQueryKeys.byOrg(variables.organizationId),
