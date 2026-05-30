@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { applyEffect } from "../rules/predicate.evaluator";
 import { useEvaluationContext, useTemplateExecution } from "../runtime/TemplateExecutionContext";
 import { useFieldValue, useSetFieldValue } from "../runtime/useFieldState";
@@ -14,8 +14,6 @@ import { MultiSelectInput } from "../fields/inputs/MultiSelectInput";
 import { ComputedInput } from "../fields/inputs/ComputedInput";
 import { EntitySearchInput } from "../fields/inputs/EntitySearchInput";
 import type { FormFieldDto, FormFieldType } from "../templates/template.types";
-import { FieldFlagPanel } from "./FieldFlagPanel";
-import type { FieldFlag } from "./field-flag.types";
 
 const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
   field: FormFieldDto;
@@ -42,10 +40,6 @@ const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
 interface Props {
   field: FormFieldDto;
   error?: string;
-  flagged?: boolean;
-  existingFlag?: FieldFlag;
-  onFlag?: (note?: string) => void;
-  onUnflag?: () => void;
 }
 
 /** Tailwind `col-span-N` class for every valid N (avoids dynamic class names). */
@@ -80,12 +74,11 @@ function resolveColSpan(field: FormFieldDto): number {
   return 6;
 }
 
-export function FieldRenderer({ field, error, flagged, existingFlag, onFlag, onUnflag }: Props) {
+export function FieldRenderer({ field, error }: Props) {
   const ctx = useEvaluationContext();
   const value = useFieldValue(field.code);
   const setFieldValue = useSetFieldValue();
   const { patchSearch } = useTemplateExecution();
-  const [flagPanelOpen, setFlagPanelOpen] = useState(false);
 
   const visible = useMemo(
     () => applyEffect(field.config?.logic?.predicates, "visible", ctx, true),
@@ -135,15 +128,7 @@ export function FieldRenderer({ field, error, flagged, existingFlag, onFlag, onU
   const span = resolveColSpan(field);
 
   return (
-    <div
-      className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}
-      onDoubleClick={(e) => {
-        if (!onFlag) return;
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'BUTTON') return;
-        setFlagPanelOpen((prev) => !prev);
-      }}
-    >
+    <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>
       <Input
         field={field}
         value={value}
@@ -151,17 +136,7 @@ export function FieldRenderer({ field, error, flagged, existingFlag, onFlag, onU
         required={required}
         disabled={!enabled}
         error={error}
-        flagged={flagged}
       />
-      {flagPanelOpen && onFlag && (
-        <FieldFlagPanel
-          key={existingFlag?.id ?? 'new'}
-          existingFlag={existingFlag}
-          onFlag={onFlag}
-          onUnflag={onUnflag ?? (() => {})}
-          onClose={() => setFlagPanelOpen(false)}
-        />
-      )}
     </div>
   );
 }

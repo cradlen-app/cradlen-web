@@ -8,7 +8,6 @@ interface Props {
   reps: MedicalRep[];
   isLoading: boolean;
   onRowClick: (rep: MedicalRep) => void;
-  onStatusClick: (rep: MedicalRep) => void;
 }
 
 const AVATAR_COLORS = [
@@ -33,7 +32,7 @@ function getAvatarColor(name: string) {
   return AVATAR_COLORS[code % AVATAR_COLORS.length];
 }
 
-export function MedicalRepTable({ reps, isLoading, onRowClick, onStatusClick }: Props) {
+export function MedicalRepTable({ reps, isLoading, onRowClick }: Props) {
   const t = useTranslations("medicalRep");
   const locale = useLocale();
 
@@ -106,21 +105,14 @@ export function MedicalRepTable({ reps, isLoading, onRowClick, onStatusClick }: 
                 <td className="px-4 py-3 text-sm text-gray-600">{formatRepDate(rep.last_visit_date, locale)}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{rep.visits_count}</td>
                 <td className="px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onStatusClick(rep);
-                    }}
-                    className="inline-flex items-center gap-1.5 text-sm transition-opacity hover:opacity-70"
-                  >
+                  <span className="inline-flex items-center gap-1.5 text-sm">
                     <span
                       className={`size-2 shrink-0 rounded-full ${isActive ? "bg-green-500" : "bg-red-500"}`}
                     />
                     <span className={isActive ? "text-green-600" : "text-red-600"}>
                       {isActive ? t("status.active") : t("status.blocked")}
                     </span>
-                  </button>
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-400">{rep.notes ?? "—"}</td>
               </tr>

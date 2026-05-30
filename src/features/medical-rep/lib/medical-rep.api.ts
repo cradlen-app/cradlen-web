@@ -11,10 +11,3 @@ export function fetchMedicalReps({ page, limit, search, status }: MedicalRepList
   if (status) params.set("status", status);
   return apiAuthFetch<MedicalRepListResponse>(`/medical-reps?${params}`);
 }
-
-export function toggleMedicalRepStatus(id: string, status: "active" | "blocked") {
-  return apiAuthFetch<void>(`/medical-reps/${id}/status`, {
-    method: "PATCH",
-    body: JSON.stringify({ status }),
-  });
-}
