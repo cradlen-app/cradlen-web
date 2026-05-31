@@ -1,32 +1,67 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TemplateRenderer } from "@/builder/renderer/TemplateRenderer";
-import { useTemplateExecution } from "@/builder/runtime/TemplateExecutionContext";
+import {
+  useEvaluationContext,
+  useTemplateExecution,
+} from "@/builder/runtime/TemplateExecutionContext";
 import { buildTemplateSubmission } from "@/builder/templates/build-submission";
+import { useCarePaths } from "@/features/care-paths/lib/useCarePaths";
+import {
+  HISTORY_SECTION_PREFIX,
+  OBGYN_EXAM_CONTAINERS,
+} from "@/features/examination/lib/history-binding";
 import type { FormSectionDto, FormTemplateDto } from "@/builder/templates/template.types";
 
 const EXAMINATION_GROUP = "Examination";
+const DEFAULT_CARE_PATH = "OBGYN_GENERAL";
 
 interface Props {
   template: FormTemplateDto;
   patientId: string;
+  specialtyCode?: string | null;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
 }
 
 export function VisitExaminationFormShell({
   template,
+  specialtyCode,
   onSave,
   saving,
 }: Props) {
   const t = useTranslations("examination.workspace");
   const execution = useTemplateExecution();
+  const ctx = useEvaluationContext();
   const [errors, setErrors] = useState<Record<string, string> | undefined>(undefined);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+
+  // Care-path-gated history sections: only the embedded `history_*` sections
+  // listed by the selected care path are rendered AND submitted.
+  const { data: carePaths = [] } = useCarePaths(specialtyCode);
+  const selectedPath =
+    (typeof ctx.case_path === "string" ? ctx.case_path : null) ??
+    DEFAULT_CARE_PATH;
+  const hiddenSectionCodes = useMemo(() => {
+    const active = new Set(
+      carePaths.find((cp) => cp.code === selectedPath)?.history_section_codes ??
+        [],
+    );
+    const hidden = new Set<string>();
+    for (const section of template.sections) {
+      if (
+        section.code.startsWith(HISTORY_SECTION_PREFIX) &&
+        !active.has(section.code)
+      ) {
+        hidden.add(section.code);
+      }
+    }
+    return hidden;
+  }, [carePaths, selectedPath, template.sections]);
 
   function toggleSection(code: string) {
     setCollapsedSections((prev) => {
@@ -58,7 +93,10 @@ export function VisitExaminationFormShell({
 
   async function handleSave() {
     setErrors(undefined);
-    const body = buildTemplateSubmission(template, execution.state);
+    const body = buildTemplateSubmission(template, execution.state, {
+      namespaceContainers: OBGYN_EXAM_CONTAINERS,
+      excludeSectionCodes: hiddenSectionCodes,
+    });
     try {
       await onSave(body);
     } catch (err) {
@@ -91,6 +129,7 @@ export function VisitExaminationFormShell({
           template={template}
           errors={errors}
           collapsedSections={collapsedSections}
+          hiddenSectionCodes={hiddenSectionCodes}
           renderSectionHeaderSlot={renderSectionHeaderSlot}
         />
       </div>

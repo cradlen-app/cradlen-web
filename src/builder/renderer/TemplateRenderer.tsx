@@ -39,6 +39,11 @@ interface Props {
    * group-level collapse). Passed as `collapsed` to each SectionContainer.
    */
   collapsedSections?: ReadonlySet<string>;
+  /**
+   * Section codes to omit entirely (not just collapse). e.g. care-path history
+   * sections not relevant to the selected path. Empty groups are dropped.
+   */
+  hiddenSectionCodes?: ReadonlySet<string>;
 }
 
 export function TemplateRenderer({
@@ -49,7 +54,11 @@ export function TemplateRenderer({
   renderSectionHeaderSlot,
   renderSectionBottomSlot,
   collapsedSections,
+  hiddenSectionCodes,
 }: Props) {
+  // Template-level read-only display mode (e.g. the OB/GYN full-history tab):
+  // every field renders as static text and repeatables lose add/remove.
+  const displayOnly = template.is_display_only ?? false;
   useDiscriminatorReset();
   useSpecialtyAutoFill();
   const ctx = useEvaluationContext();
@@ -72,10 +81,11 @@ export function TemplateRenderer({
       template.sections
         .slice()
         .sort((a, b) => a.order - b.order)
+        .filter((s: FormSectionDto) => !hiddenSectionCodes?.has(s.code))
         .filter((s: FormSectionDto) =>
           applyEffect(s.config?.logic?.predicates, "visible", ctx, true),
         ),
-    [template.sections, ctx],
+    [template.sections, ctx, hiddenSectionCodes],
   );
 
   const groups = useMemo(() => groupSections(visibleSections), [visibleSections]);
@@ -120,7 +130,11 @@ export function TemplateRenderer({
                   layout={section.is_repeatable ? "stack" : "grid"}
                 >
                   {section.is_repeatable ? (
-                    <RepeatableSectionRenderer section={section} errors={errors} />
+                    <RepeatableSectionRenderer
+                      section={section}
+                      errors={errors}
+                      displayOnly={displayOnly}
+                    />
                   ) : (
                     section.fields
                       .slice()
@@ -131,6 +145,7 @@ export function TemplateRenderer({
                           key={field.id}
                           field={field}
                           error={errors?.[field.code]}
+                          displayOnly={displayOnly}
                         />
                       ))
                   )}
