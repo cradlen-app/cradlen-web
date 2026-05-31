@@ -148,6 +148,12 @@ export interface FormTemplateDto {
   scope: FormScope;
   version: number;
   activated_at: string | Date | null;
+  /**
+   * When true the template renders read-only (static values, no inputs, no
+   * submit) — e.g. the OB/GYN "full history" tab. Drives display mode in the
+   * builder renderer.
+   */
+  is_display_only?: boolean;
   specialty_id: string | null;
   sections: FormSectionDto[];
 }

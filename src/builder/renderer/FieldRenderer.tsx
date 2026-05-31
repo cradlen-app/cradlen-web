@@ -13,6 +13,7 @@ import { SelectInput } from "../fields/inputs/SelectInput";
 import { MultiSelectInput } from "../fields/inputs/MultiSelectInput";
 import { ComputedInput } from "../fields/inputs/ComputedInput";
 import { EntitySearchInput } from "../fields/inputs/EntitySearchInput";
+import { ReadOnlyField } from "./ReadOnlyField";
 import type { FormFieldDto, FormFieldType } from "../templates/template.types";
 
 const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
@@ -40,6 +41,8 @@ const INPUT_BY_TYPE: Record<FormFieldType, React.ComponentType<{
 interface Props {
   field: FormFieldDto;
   error?: string;
+  /** Render the field's value as static text instead of an input. */
+  displayOnly?: boolean;
 }
 
 /** Tailwind `col-span-N` class for every valid N (avoids dynamic class names). */
@@ -74,7 +77,7 @@ function resolveColSpan(field: FormFieldDto): number {
   return 6;
 }
 
-export function FieldRenderer({ field, error }: Props) {
+export function FieldRenderer({ field, error, displayOnly = false }: Props) {
   const ctx = useEvaluationContext();
   const value = useFieldValue(field.code);
   const setFieldValue = useSetFieldValue();
@@ -103,6 +106,15 @@ export function FieldRenderer({ field, error }: Props) {
       // briefly during typing). Intentionally no-op here.
     }
     return null;
+  }
+
+  if (displayOnly) {
+    const span = resolveColSpan(field);
+    return (
+      <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>
+        <ReadOnlyField field={field} />
+      </div>
+    );
   }
 
   // Fields tagged with `ui.searchEntity` render as autocompletes regardless of

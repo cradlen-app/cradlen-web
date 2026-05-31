@@ -17,6 +17,7 @@ import {
   visitExaminationKey,
 } from "@/features/examination/api/useVisitExamination";
 import { VisitExaminationFormShell } from "@/features/examination/components/VisitExaminationFormShell";
+import { OBGYN_EXAM_CONTAINERS } from "@/features/examination/lib/history-binding";
 
 import type { Visit } from "@/features/visits/types/visits.types";
 
@@ -100,7 +101,9 @@ export function ExaminationTab({ visit }: Props) {
 
   const template = templateQuery.data;
   const envelope = enrichedEnvelope;
-  const initial = toInitialFormState(envelope, template);
+  const initial = toInitialFormState(envelope, template, {
+    namespaceContainers: OBGYN_EXAM_CONTAINERS,
+  });
 
   return (
     <TemplateExecutionContextProvider
@@ -113,6 +116,7 @@ export function ExaminationTab({ visit }: Props) {
       <VisitExaminationFormShell
         template={template}
         patientId={visit.patient.id}
+        specialtyCode={visit.specialtyCode ?? null}
         saving={patchMut.isPending || dataQuery.isFetching}
         onSave={async (body) => {
           try {
