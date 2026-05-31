@@ -1,19 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { toast } from "sonner";
 import { cn } from "@/common/utils/utils";
 import { getApiErrorMessage } from "@/common/errors/error";
+import { resolveSpecialtyExamination } from "@/features/examination/lib/specialty-resolver";
+import {
+  usePatchVisitExamination,
+  useVisitExamination,
+} from "@/features/examination/api/useVisitExamination";
 import { useUpdateVisit } from "../hooks/useUpdateVisit";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
-import {
-  CHIEF_COMPLAINT_CATEGORIES,
-  CHIEF_COMPLAINT_MAX,
-  type ChiefComplaintCategory,
-} from "../lib/visits.constants";
+import { CHIEF_COMPLAINT_MAX } from "../lib/visits.constants";
 import type { Visit } from "../types/visits.types";
 
 type Props = {
@@ -33,48 +34,73 @@ export function CompleteVisitDialog(props: Props) {
 
 function DialogBody({ visit, onOpenChange, onCompleted }: Props) {
   const t = useTranslations("visits.actions.completeRequiresChiefComplaint");
+
+  // Both the main complaint and the provisional diagnosis live on the encounter
+  // and are written via the examination PATCH (If-Match the examination_version).
+  const config = useMemo(
+    () =>
+      resolveSpecialtyExamination(visit?.specialtyCode ?? null, visit?.id ?? ""),
+    [visit?.specialtyCode, visit?.id],
+  );
+
+  const examQuery = useVisitExamination(config?.endpointPath ?? null);
+  const patchExam = usePatchVisitExamination(config?.endpointPath ?? "");
   const updateVisit = useUpdateVisit();
   const updateStatus = useUpdateVisitStatus();
-  const submitting = updateVisit.isPending || updateStatus.isPending;
 
-  const [chiefComplaint, setChiefComplaint] = useState(visit?.chiefComplaint ?? "");
-  const [categories, setCategories] = useState<ChiefComplaintCategory[]>(
-    (visit?.chiefComplaintMeta?.categories ?? []).filter((c): c is ChiefComplaintCategory =>
-      (CHIEF_COMPLAINT_CATEGORIES as readonly string[]).includes(c),
-    ),
-  );
+  const envelope = examQuery.data ?? null;
+  const loading = !!config && examQuery.isLoading;
+
+  // `null` = not yet edited → fall back to the loaded envelope value.
+  const [complaint, setComplaint] = useState<string | null>(null);
+  const [diagnosis, setDiagnosis] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function toggleCategory(cat: ChiefComplaintCategory) {
-    setCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
-    );
-  }
+  const complaintValue =
+    complaint ??
+    ((envelope?.chief_complaint as string | null) ?? visit?.chiefComplaint ?? "");
+  const diagnosisValue =
+    diagnosis ?? ((envelope?.provisional_diagnosis as string | null) ?? "");
+
+  const submitting =
+    patchExam.isPending || updateVisit.isPending || updateStatus.isPending;
 
   async function handleSubmit() {
     if (!visit) return;
-    const trimmed = chiefComplaint.trim();
-    if (!trimmed) {
+    const trimmedComplaint = complaintValue.trim();
+    if (!trimmedComplaint) {
       setError(t("required"));
       return;
     }
-    if (trimmed.length > CHIEF_COMPLAINT_MAX) {
+    if (trimmedComplaint.length > CHIEF_COMPLAINT_MAX) {
       setError(t("tooLong"));
+      return;
+    }
+    const trimmedDiagnosis = diagnosisValue.trim();
+    if (config && !trimmedDiagnosis) {
+      setError(t("diagnosisRequired"));
       return;
     }
     setError(null);
 
     try {
-      await updateVisit.mutateAsync({
-        visitId: visit.id,
-        body: {
-          chief_complaint: trimmed,
-          ...(categories.length
-            ? { chief_complaint_meta: { categories } }
-            : {}),
-        },
-        branchId: visit.branchId,
-      });
+      if (config && envelope) {
+        await patchExam.mutateAsync({
+          ifMatchVersion: envelope.examination_version,
+          body: {
+            chief_complaint: trimmedComplaint,
+            provisional_diagnosis: trimmedDiagnosis,
+          },
+        });
+      } else {
+        // Fallback when there's no examination surface (non-OB/GYN): persist the
+        // complaint via intake. The backend still gates the diagnosis on close.
+        await updateVisit.mutateAsync({
+          visitId: visit.id,
+          body: { chief_complaint: trimmedComplaint },
+          branchId: visit.branchId,
+        });
+      }
       await updateStatus.mutateAsync({
         visitId: visit.id,
         status: "COMPLETED",
@@ -99,58 +125,52 @@ function DialogBody({ visit, onOpenChange, onCompleted }: Props) {
           {t("description")}
         </Dialog.Description>
 
-        <div className="mt-4 space-y-3">
-          <label className="block">
-            <span className="text-xs font-medium text-brand-black">
-              {t("label")}
-            </span>
-            <textarea
-              value={chiefComplaint}
-              onChange={(e) => setChiefComplaint(e.target.value)}
-              rows={3}
-              maxLength={CHIEF_COMPLAINT_MAX}
-              placeholder={t("placeholder")}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-brand-black outline-none focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/20"
-            />
-            <div className="flex items-center justify-between pt-1">
-              {error ? (
-                <p className="text-[11px] text-red-500">{error}</p>
-              ) : (
-                <span />
-              )}
-              <span className="text-[11px] text-gray-400 tabular-nums">
-                {chiefComplaint.length}/{CHIEF_COMPLAINT_MAX}
-              </span>
-            </div>
-          </label>
-
-          <div>
-            <span className="text-xs font-medium text-brand-black">
-              {t("categoriesLabel")}
-            </span>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {CHIEF_COMPLAINT_CATEGORIES.map((cat) => {
-                const active = categories.includes(cat);
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => toggleCategory(cat)}
-                    aria-pressed={active}
-                    className={cn(
-                      "inline-flex h-8 items-center rounded-full border px-3 text-[11px] font-medium transition-colors",
-                      active
-                        ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
-                        : "border-gray-200 bg-white text-gray-500 hover:border-brand-primary/30 hover:text-brand-black",
-                    )}
-                  >
-                    {t(`categories.${cat}`)}
-                  </button>
-                );
-              })}
-            </div>
+        {loading ? (
+          <div className="flex items-center justify-center gap-2 py-10 text-xs text-gray-400">
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            {t("loading")}
           </div>
-        </div>
+        ) : (
+          <div className="mt-4 space-y-3">
+            <label className="block">
+              <span className="text-xs font-medium text-brand-black">
+                {t("label")}
+              </span>
+              <textarea
+                value={complaintValue}
+                onChange={(e) => setComplaint(e.target.value)}
+                rows={3}
+                maxLength={CHIEF_COMPLAINT_MAX}
+                placeholder={t("placeholder")}
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-brand-black outline-none focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/20"
+              />
+              <div className="flex items-center justify-end pt-1">
+                <span className="text-[11px] text-gray-400 tabular-nums">
+                  {complaintValue.length}/{CHIEF_COMPLAINT_MAX}
+                </span>
+              </div>
+            </label>
+
+            {config && (
+              <label className="block">
+                <span className="text-xs font-medium text-brand-black">
+                  {t("diagnosisLabel")}
+                </span>
+                <textarea
+                  value={diagnosisValue}
+                  onChange={(e) => setDiagnosis(e.target.value)}
+                  rows={2}
+                  placeholder={t("diagnosisPlaceholder")}
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-brand-black outline-none focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/20"
+                />
+              </label>
+            )}
+
+            {error ? (
+              <p className="text-[11px] text-red-500">{error}</p>
+            ) : null}
+          </div>
+        )}
 
         <div className="mt-5 flex items-center justify-end gap-2">
           <Dialog.Close className="inline-flex h-9 items-center rounded-full border border-gray-200 px-4 text-xs font-medium text-gray-600 hover:bg-gray-50">
@@ -159,13 +179,15 @@ function DialogBody({ visit, onOpenChange, onCompleted }: Props) {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={submitting}
+            disabled={submitting || loading}
             className={cn(
               "inline-flex h-9 items-center gap-1.5 rounded-full bg-brand-primary px-5 text-xs font-semibold text-white transition-colors hover:bg-brand-primary/90",
               "disabled:bg-brand-primary/50",
             )}
           >
-            {submitting && <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />}
+            {submitting && (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+            )}
             {t("submit")}
           </button>
         </div>
