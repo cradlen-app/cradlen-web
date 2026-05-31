@@ -21,12 +21,15 @@ import { VisitContextRail } from "./overview/VisitContextRail";
 import { ExaminationTab } from "./tabs/ExaminationTab";
 import { HistoryTab } from "./tabs/HistoryTab";
 import { OverviewTab } from "./tabs/OverviewTab";
+import { useVisitJourney } from "@/features/journeys/lib/useVisitJourney";
+import { JourneyClinicalTab } from "@/features/journeys/components/JourneyClinicalTab";
 
 type Props = {
   visitId: string;
 };
 
-type TabValue = "overview" | "history" | "examination";
+// Base tabs plus an optional dynamic `journey:<id>` tab for the active journey.
+type TabValue = string;
 
 export function VisitWorkspacePage({ visitId }: Props) {
   const t = useTranslations("visits.workspace");
@@ -37,6 +40,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const organizationId = useAuthContextStore((s) => s.organizationId);
 
   const { data: visit, isLoading, isError } = useVisit(visitId);
+  const { data: journey } = useVisitJourney(visitId);
   const updateStatus = useUpdateVisitStatus();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
@@ -54,6 +58,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
 
   const canComplete = isClinical(profile) && visit?.status === "IN_PROGRESS";
   const showInvoiceBtn = canAccessBilling(profile);
+
+  // At most one dynamic tab — the active journey's clinical surface, when its
+  // care path declares one. Absent → only the three base tabs render.
+  const journeyTab = journey?.clinical_surface ? journey : null;
+  const journeyTabValue = journeyTab ? `journey:${journeyTab.journey_id}` : null;
 
   async function handleComplete() {
     if (!visit) return;
@@ -119,6 +128,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
             <TabsTrigger value="examination">
               {t("tabs.examination")}
             </TabsTrigger>
+            {journeyTab && journeyTabValue && (
+              <TabsTrigger value={journeyTabValue}>
+                {journeyTab.clinical_surface!.label}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent
@@ -142,6 +156,14 @@ export function VisitWorkspacePage({ visitId }: Props) {
           >
             <ExaminationTab visit={visit} />
           </TabsContent>
+          {journeyTab && journeyTabValue && (
+            <TabsContent
+              value={journeyTabValue}
+              className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm p-6"
+            >
+              <JourneyClinicalTab visitId={visit.id} descriptor={journeyTab} />
+            </TabsContent>
+          )}
         </Tabs>
 
         <VisitContextRail
