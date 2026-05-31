@@ -11,7 +11,6 @@ import {
   isClinical,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { getApiErrorMessage } from "@/common/errors/error";
 import { useUpdateVisitStatus } from "../../hooks/useUpdateVisitStatus";
 import { useVisit } from "../../hooks/useVisit";
 import { InvoiceDrawer } from "@/features/financial/components/InvoiceDrawer";
@@ -64,22 +63,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const journeyTab = journey?.clinical_surface ? journey : null;
   const journeyTabValue = journeyTab ? `journey:${journeyTab.journey_id}` : null;
 
-  async function handleComplete() {
+  // Completion requires a main complaint + provisional diagnosis; the dialog
+  // loads the current values, validates, writes both, then completes.
+  function handleComplete() {
     if (!visit) return;
-    if (!visit.chiefComplaint?.trim()) {
-      setCompleteDialogOpen(true);
-      return;
-    }
-    try {
-      await updateStatus.mutateAsync({
-        visitId: visit.id,
-        status: "COMPLETED",
-        branchId: visit.branchId,
-      });
-      toast.success(tDetail("completedToast"));
-    } catch (error) {
-      toast.error(getApiErrorMessage(error, tDetail("actionError")));
-    }
+    setCompleteDialogOpen(true);
   }
 
   if (isLoading) {
