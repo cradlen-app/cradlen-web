@@ -11,13 +11,51 @@
  */
 
 import type {
+  BindingNamespace,
   FormFieldDto,
+  FormSectionDto,
   FormTemplateDto,
 } from "@/builder/templates/template.types";
 import type {
   RepeatableRow,
   SearchEntry,
 } from "@/builder/runtime/TemplateExecutionContext";
+
+type NamespaceContainers = Partial<Record<BindingNamespace, string>>;
+
+export interface InitialOptions {
+  /**
+   * Map a binding namespace to the envelope container key its values live
+   * under (mirror of build-submission's namespaceContainers). e.g. the exam
+   * envelope nests history under `obgyn_history`. Default: read at root.
+   */
+  namespaceContainers?: NamespaceContainers;
+}
+
+function pathHead(path: string | null | undefined): string | null {
+  if (!path) return null;
+  const dot = path.lastIndexOf(".");
+  return dot > 0 ? path.slice(0, dot) : null;
+}
+
+function sectionContainer(
+  section: FormSectionDto,
+  containers: NamespaceContainers,
+): string | undefined {
+  for (const f of section.fields) {
+    const ns = f.binding?.namespace;
+    if (ns && containers[ns]) return containers[ns];
+  }
+  return undefined;
+}
+
+function repeatableArrayKey(section: FormSectionDto): string {
+  for (const f of section.fields) {
+    const head = pathHead(f.binding?.path);
+    if (head) return head;
+  }
+  return section.code;
+}
 
 export interface TemplateEnvelope {
   version?: number;
@@ -63,17 +101,35 @@ function emptySearch(): SearchEntry {
   return { transientValue: "", suggestions: [], resolvedEntityId: null };
 }
 
+function containerSource(
+  envelope: TemplateEnvelope,
+  container: string | undefined,
+): unknown {
+  if (!container) return envelope;
+  const inner = envelope[container];
+  return inner && typeof inner === "object" ? inner : undefined;
+}
+
 export function toInitialFormState(
   envelope: TemplateEnvelope,
   template: FormTemplateDto,
+  options: InitialOptions = {},
 ): InitialFormState {
   const formValues: Record<string, unknown> = {};
   const searchState: Record<string, SearchEntry> = {};
   const repeatableRows: Record<string, RepeatableRow[]> = {};
+  const containers = options.namespaceContainers ?? {};
 
   for (const section of template.sections) {
     if (section.is_repeatable) {
-      const arr = envelope[section.code];
+      const source = containerSource(
+        envelope,
+        sectionContainer(section, containers),
+      );
+      const arr =
+        source && typeof source === "object"
+          ? (source as Record<string, unknown>)[repeatableArrayKey(section)]
+          : undefined;
       const trailingEmpty: RepeatableRow = { rowKey: newRowKey(), values: {} };
       if (!Array.isArray(arr)) {
         repeatableRows[section.code] = [trailingEmpty];
@@ -87,11 +143,14 @@ export function toInitialFormState(
       ];
       continue;
     }
-    // Singleton section — pull each field's value by its binding path.
+    // Singleton section — pull each field's value by its binding path,
+    // rooted at the namespace's envelope container when one is configured.
     for (const field of section.fields) {
       const path = field.binding?.path;
       if (!path) continue;
-      const value = getByPath(envelope, path);
+      const ns = field.binding?.namespace;
+      const source = containerSource(envelope, ns ? containers[ns] : undefined);
+      const value = getByPath(source, path);
       if (value !== undefined && value !== null) {
         formValues[field.code] = value;
         if (

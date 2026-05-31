@@ -91,12 +91,14 @@ export function PatientHistoryFormShell({
           collapsedGroups={visibility.hidden}
         />
       </div>
-      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
-        <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
-          {saving ? <Loader2 size={14} className="animate-spin" /> : null}
-          <span className="ml-2">{t("save")}</span>
-        </Button>
-      </div>
+      {!template.is_display_only && (
+        <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
+          <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
+            {saving ? <Loader2 size={14} className="animate-spin" /> : null}
+            <span className="ml-2">{t("save")}</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

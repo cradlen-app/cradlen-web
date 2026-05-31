@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Dialog } from "radix-ui";
 import { Loader2 } from "lucide-react";
 import { FieldShell } from "@/builder/fields/field-shell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
-import { fetchCarePaths } from "@/features/care-paths/lib/care-paths.api";
+import { useCarePaths } from "@/features/care-paths/lib/useCarePaths";
 import type { FieldInputProps } from "@/builder/fields/input-props";
 
 // Only GENERAL_GYN has a full profile implementation today.
@@ -28,16 +27,7 @@ export function CasePathInput({
       ? field.config.ui.specialtyCode
       : undefined;
 
-  const {
-    data: carePaths = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["care-paths", specialtyCode],
-    queryFn: ({ signal }) => fetchCarePaths(specialtyCode!, signal),
-    enabled: !!specialtyCode,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: carePaths = [], isLoading, isError } = useCarePaths(specialtyCode);
 
   const current = (value as string | null | undefined) ?? "OBGYN_GENERAL";
   const [pending, setPending] = useState<string | null>(null);

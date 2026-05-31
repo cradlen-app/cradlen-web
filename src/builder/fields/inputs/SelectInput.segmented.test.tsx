@@ -100,8 +100,8 @@ describe("SelectInput segmented variant", () => {
 describe("SelectInput case-path variant", () => {
   beforeEach(() => {
     vi.spyOn(carePathsApi, "fetchCarePaths").mockResolvedValue([
-      { code: "GENERAL_GYN", name: "General GYN" },
-      { code: "PREGNANCY", name: "Pregnancy" },
+      { id: "1", code: "GENERAL_GYN", name: "General GYN", order: 1, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [], history_section_codes: [] },
+      { id: "2", code: "PREGNANCY", name: "Pregnancy", order: 2, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [], history_section_codes: [] },
     ]);
   });
 
