@@ -70,8 +70,9 @@ export function RepeatableSectionRenderer({
     [section.fields],
   );
 
-  // In display mode, drop the resolved-id sibling fields (they'd show raw UUIDs)
-  // and the trailing empty capture row.
+  // Drop the resolved-id sibling fields of any ENTITY_SEARCH (e.g. medication_id,
+  // diagnosis_code). They're populated invisibly on pick and still submitted —
+  // they must never render as empty inputs (edit) or raw UUIDs (read-only).
   const idTargets = useMemo(() => {
     const set = new Set<string>();
     for (const f of section.fields) {
@@ -81,9 +82,7 @@ export function RepeatableSectionRenderer({
     return set;
   }, [section.fields]);
 
-  const fieldsToRender = displayOnly
-    ? sortedFields.filter((f) => !idTargets.has(f.code))
-    : sortedFields;
+  const fieldsToRender = sortedFields.filter((f) => !idTargets.has(f.code));
   const visibleRows = displayOnly
     ? rows.filter((r) => rowHasAnyValue(r.values))
     : rows;
