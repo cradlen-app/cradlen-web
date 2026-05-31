@@ -3,28 +3,43 @@
 import { BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useObgynHistorySummary } from "@/features/patient-history/api/useObgynHistorySummary";
-import {
-  buildClinicalDigest,
-  type ClinicalFlag,
-  type SignalSeverity,
-} from "@/features/patient-history/lib/clinical-digest/index";
+import type {
+  HistorySummaryFlag,
+  HistorySummarySection,
+  ObgynHistorySummary,
+  SummarySignalSeverity,
+} from "@/features/patient-history/api/obgyn-history-summary.api";
 
 type Props = { patientId: string; patientDateOfBirth?: string };
 
-const FLAG_STYLES: Record<SignalSeverity, string> = {
+const FLAG_STYLES: Record<SummarySignalSeverity, string> = {
   high: "bg-red-50 text-red-700 border border-red-100",
   medium: "bg-amber-50 text-amber-700 border border-amber-100",
   low: "bg-gray-100 text-gray-600",
   positive: "bg-green-50 text-green-700 border border-green-100",
 };
 
-function FlagChip({ flag }: { flag: ClinicalFlag }) {
+function FlagChip({ flag }: { flag: HistorySummaryFlag }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${FLAG_STYLES[flag.severity]}`}
     >
       {flag.label}
     </span>
+  );
+}
+
+function SectionRow({ section }: { section: HistorySummarySection }) {
+  const dim = section.status === "negative";
+  return (
+    <div className="flex gap-1.5 text-xs">
+      <span className="shrink-0 font-medium text-gray-500">
+        {section.label}:
+      </span>
+      <span className={dim ? "italic text-gray-400" : "text-gray-700"}>
+        {section.items.join(", ")}
+      </span>
+    </div>
   );
 }
 
@@ -42,7 +57,7 @@ function Skeleton() {
   );
 }
 
-export function ObgynHistorySummaryCard({ patientId, patientDateOfBirth }: Props) {
+export function ObgynHistorySummaryCard({ patientId }: Props) {
   const t = useTranslations("visits.workspace.obgynSummary");
   const { data, isLoading, isError } = useObgynHistorySummary(patientId);
 
@@ -60,34 +75,39 @@ export function ObgynHistorySummaryCard({ patientId, patientDateOfBirth }: Props
       ) : !data.history_exists ? (
         <p className="mt-3 text-xs italic text-gray-400">{t("noHistory")}</p>
       ) : (
-        <DigestView data={data} patientDateOfBirth={patientDateOfBirth} />
+        <SummaryView data={data} />
       )}
     </section>
   );
 }
 
-function DigestView({
-  data,
-  patientDateOfBirth,
-}: {
-  data: Parameters<typeof buildClinicalDigest>[0];
-  patientDateOfBirth?: string;
-}) {
-  const digest = buildClinicalDigest(data, patientDateOfBirth);
+function SummaryView({ data }: { data: ObgynHistorySummary }) {
+  const { identifier, flags, sections } = data;
+  const headerParts = [
+    identifier.age !== null ? `${identifier.age}y` : null,
+    identifier.gtpal_label,
+    identifier.lmp ? `LMP ${identifier.lmp}` : null,
+  ].filter(Boolean);
 
   return (
     <div className="mt-4 space-y-3">
-      <p className="text-sm font-semibold text-brand-primary">{digest.header}</p>
+      <p className="text-sm font-semibold text-brand-primary">
+        {headerParts.join(" • ") || "—"}
+      </p>
 
-      {digest.flags.length > 0 && (
+      {flags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {digest.flags.map((flag, i) => (
+          {flags.map((flag, i) => (
             <FlagChip key={i} flag={flag} />
           ))}
         </div>
       )}
 
-      <p className="text-xs leading-relaxed text-gray-600">{digest.summary}</p>
+      <div className="space-y-1">
+        {sections.map((section) => (
+          <SectionRow key={section.code} section={section} />
+        ))}
+      </div>
     </div>
   );
 }

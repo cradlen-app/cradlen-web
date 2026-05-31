@@ -1,64 +1,46 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 
-export interface ObstetricSummary {
-  gravida: number;
-  para: number;
-  abortion: number;
-  ectopic: number;
-  stillbirths: number;
+export type SummarySignalSeverity = "high" | "medium" | "low" | "positive";
+export type SummarySectionStatus = "positive" | "negative" | "unknown";
+
+export interface Gtpal {
+  g: number;
+  t: number;
+  p: number;
+  a: number;
+  l: number;
 }
 
-export interface GynecologicalBaseline {
-  age_at_menarche: number;
-  cycle_regularity: string;
-  dysmenorrhea: boolean;
+export interface HistorySummaryIdentifier {
+  age: number | null;
+  gtpal: Gtpal | null;
+  gtpal_label: string | null;
+  lmp: string | null;
 }
 
-export interface ChronicIllnesses {
+export interface HistorySummarySection {
+  code: string;
+  label: string;
   items: string[];
-  notes: string;
+  status: SummarySectionStatus;
 }
 
-export interface FamilyHistory {
-  gynecologic_cancers: string[];
-  chronic_illnesses: string[];
+export interface HistorySummaryFlag {
+  label: string;
+  severity: SummarySignalSeverity;
 }
 
-export interface SocialHistory {
-  smoking: string;
-  alcohol: string;
-}
-
-export interface ScreeningHistory {
-  pap_smear: string | null;
-  pap_smear_date: string | null;
-  mammography: string | null;
-  mammography_date: string | null;
-}
-
-export interface AllergySnapshot {
-  allergy_to: string;
-  severity: string | null;
-  associated_symptoms: string | null;
-}
-
-export interface MedicationSnapshot {
-  drug_name: string;
-  dose: string | null;
-  frequency: string | null;
-}
-
+/**
+ * Server-computed standard OB/GYN history summary: GTPAL identifier +
+ * problem-oriented sections (with pertinent negatives) + prioritized flags +
+ * a narrative. Mirrors the backend `ObgynHistorySummaryDto`.
+ */
 export interface ObgynHistorySummary {
   history_exists: boolean;
-  allergies: AllergySnapshot[];
-  current_medications: MedicationSnapshot[];
-  obstetric_summary: ObstetricSummary | null;
-  gynecological_baseline: GynecologicalBaseline | null;
-  medical_chronic_illnesses: ChronicIllnesses | null;
-  family_history: FamilyHistory | null;
-  social_history: SocialHistory | null;
-  screening_history: ScreeningHistory | null;
-  section_timestamps: Record<string, string> | null;
+  identifier: HistorySummaryIdentifier;
+  sections: HistorySummarySection[];
+  flags: HistorySummaryFlag[];
+  narrative: string;
 }
 
 export function fetchObgynHistorySummary(
