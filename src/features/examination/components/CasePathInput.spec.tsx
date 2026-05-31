@@ -6,10 +6,10 @@ import type { FieldInputProps } from "@/builder/fields/input-props";
 import * as carePathsApi from "@/features/care-paths/lib/care-paths.api";
 
 const MOCK_CARE_PATHS = [
-  { id: "1", code: "OBGYN_GENERAL", name: "General GYN", order: 1, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [] },
-  { id: "2", code: "OBGYN_PREGNANCY", name: "Pregnancy", order: 2, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [] },
-  { id: "3", code: "OBGYN_SURGICAL", name: "Surgical", order: 3, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [] },
-  { id: "4", code: "OBGYN_INFERTILITY", name: "Infertility", order: 4, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [] },
+  { id: "1", code: "OBGYN_GENERAL", name: "General GYN", order: 1, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [], history_section_codes: [] },
+  { id: "2", code: "OBGYN_PREGNANCY", name: "Pregnancy", order: 2, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [], history_section_codes: [] },
+  { id: "3", code: "OBGYN_SURGICAL", name: "Surgical", order: 3, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [], history_section_codes: [] },
+  { id: "4", code: "OBGYN_INFERTILITY", name: "Infertility", order: 4, description: null, specialty_id: "s1", organization_id: null, is_system: true, parent_id: null, episodes: [], history_section_codes: [] },
 ];
 
 function wrapper({ children }: { children: React.ReactNode }) {

@@ -32,10 +32,56 @@ import type {
   RepeatableRow,
 } from "@/builder/runtime/TemplateExecutionContext";
 import type {
+  BindingNamespace,
   FormFieldDto,
   FormSectionDto,
   FormTemplateDto,
 } from "@/builder/templates/template.types";
+
+/** The segment(s) before the binding path's tail (the repeatable collection
+ *  key), or null when the path is a single segment. e.g. `allergies.allergy_to`
+ *  → `allergies`; `custom_test_name` → null. */
+function pathHead(path: string | null | undefined): string | null {
+  if (!path) return null;
+  const dot = path.lastIndexOf(".");
+  return dot > 0 ? path.slice(0, dot) : null;
+}
+
+type NamespaceContainers = Partial<Record<BindingNamespace, string>>;
+
+/** The body container key for a section (from the first bound field's
+ *  namespace), or undefined to write at the body root. */
+function sectionContainer(
+  section: FormSectionDto,
+  containers: NamespaceContainers,
+): string | undefined {
+  for (const f of section.fields) {
+    const ns = f.binding?.namespace;
+    if (ns && containers[ns]) return containers[ns];
+  }
+  return undefined;
+}
+
+/** The array key for a repeatable section under its container: the binding-path
+ *  head of the first bound field, falling back to the section code. */
+function repeatableArrayKey(section: FormSectionDto): string {
+  for (const f of section.fields) {
+    const head = pathHead(f.binding?.path);
+    if (head) return head;
+  }
+  return section.code;
+}
+
+function containerTarget(
+  body: Record<string, unknown>,
+  container: string | undefined,
+): Record<string, unknown> {
+  if (!container) return body;
+  if (typeof body[container] !== "object" || body[container] === null) {
+    body[container] = {};
+  }
+  return body[container] as Record<string, unknown>;
+}
 
 function setByPath(
   target: Record<string, unknown>,
@@ -96,6 +142,18 @@ export interface BuildOptions {
    * the server soft-deletes any prior rows.
    */
   emitEmptySections?: ReadonlySet<string>;
+  /**
+   * Map a binding namespace to a body container key. Fields/sections of that
+   * namespace are nested under `body[container]` instead of the body root.
+   * Used by composite surfaces (e.g. the OB/GYN examination nests
+   * `PATIENT_OBGYN_HISTORY` under `obgyn_history`). Default: write at root.
+   */
+  namespaceContainers?: NamespaceContainers;
+  /**
+   * Section codes to skip entirely (e.g. history sections not relevant to the
+   * selected care path). Keeps render + submit consistent.
+   */
+  excludeSectionCodes?: ReadonlySet<string>;
 }
 
 export function buildTemplateSubmission(
@@ -105,8 +163,11 @@ export function buildTemplateSubmission(
 ): Record<string, unknown> {
   const body: Record<string, unknown> = {};
   const emitEmpty = options.emitEmptySections ?? new Set<string>();
+  const containers = options.namespaceContainers ?? {};
+  const exclude = options.excludeSectionCodes ?? new Set<string>();
 
   for (const section of template.sections) {
+    if (exclude.has(section.code)) continue;
     // Section-level visibility predicates evaluated against the singleton
     // context (repeatable rows evaluate their own predicates per-row).
     const sectionCtx = evaluationContext(state);
@@ -118,10 +179,12 @@ export function buildTemplateSubmission(
         .map((row) => rowToApi(row, section.fields, state))
         .filter((apiRow) => apiRow !== null) as Array<Record<string, unknown>>;
 
+      const target = containerTarget(body, sectionContainer(section, containers));
+      const arrayKey = repeatableArrayKey(section);
       if (apiRows.length > 0) {
-        body[section.code] = apiRows;
+        target[arrayKey] = apiRows;
       } else if (emitEmpty.has(section.code)) {
-        body[section.code] = [];
+        target[arrayKey] = [];
       }
       continue;
     }
@@ -140,7 +203,7 @@ export function buildTemplateSubmission(
 
       const value = state.formValues[field.code];
       if (isEmpty(value)) continue;
-      setByPath(body, path, value);
+      setByPath(containerTarget(body, containers[ns]), path, value);
     }
   }
 

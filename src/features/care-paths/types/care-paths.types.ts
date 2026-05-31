@@ -18,4 +18,10 @@ export interface CarePathDto {
   parent_id: string | null;
   order: number;
   episodes: CarePathEpisodeDto[];
+  /**
+   * Ordered codes of the embedded `history_*` examination sections relevant to
+   * this care path (resolved from CarePathHistorySection). Drives which patient-
+   * history sections the OB/GYN examination surfaces once this path is chosen.
+   */
+  history_section_codes: string[];
 }
