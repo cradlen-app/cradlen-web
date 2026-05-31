@@ -20,6 +20,20 @@ import type { FormSectionDto, FormTemplateDto } from "@/builder/templates/templa
 const EXAMINATION_GROUP = "Examination";
 const DEFAULT_CARE_PATH = "OBGYN_GENERAL";
 
+/**
+ * Sections that get an eye-icon hide/show toggle and start collapsed by
+ * default: the embedded care-path `history_*` sections and the body-system
+ * examination sections. Main complaint, care path, vitals, diagnosis, and
+ * treatment-plan sections stay always visible.
+ */
+function isToggleableSection(section: FormSectionDto): boolean {
+  const group = section.config?.ui?.group as string | undefined;
+  return (
+    group === EXAMINATION_GROUP ||
+    section.code.startsWith(HISTORY_SECTION_PREFIX)
+  );
+}
+
 interface Props {
   template: FormTemplateDto;
   patientId: string;
@@ -38,7 +52,12 @@ export function VisitExaminationFormShell({
   const execution = useTemplateExecution();
   const ctx = useEvaluationContext();
   const [errors, setErrors] = useState<Record<string, string> | undefined>(undefined);
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  // History + examination sections start collapsed; the doctor expands what
+  // they need via the per-section eye icon.
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
+    () =>
+      new Set(template.sections.filter(isToggleableSection).map((s) => s.code)),
+  );
 
   // Care-path-gated history sections: only the embedded `history_*` sections
   // listed by the selected care path are rendered AND submitted.
@@ -72,12 +91,8 @@ export function VisitExaminationFormShell({
     });
   }
 
-  function isExaminationSection(section: FormSectionDto): boolean {
-    return (section.config?.ui?.group as string | undefined) === EXAMINATION_GROUP;
-  }
-
   const renderSectionHeaderSlot = (section: FormSectionDto) => {
-    if (!isExaminationSection(section)) return undefined;
+    if (!isToggleableSection(section)) return undefined;
     const isCollapsed = collapsedSections.has(section.code);
     return (
       <button
