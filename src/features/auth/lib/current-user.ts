@@ -26,6 +26,15 @@ export function getOrganizationSpecialtyNames(profile?: UserProfile): string[] {
   return list.map(specialtyName);
 }
 
+/** Org specialty CODES (e.g. "OBGYN"); /auth/me returns objects with `code`. */
+export function getOrganizationSpecialtyCodes(profile?: UserProfile): string[] {
+  const list = profile?.organization?.specialties;
+  if (!list?.length) return [];
+  return list
+    .map((s) => (typeof s === "string" ? s : s.code))
+    .filter((c): c is string => !!c);
+}
+
 export function normalizeRoleName(name?: string | null): UserRole {
   const normalized = name?.toLowerCase();
 
