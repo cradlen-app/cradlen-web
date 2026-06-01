@@ -7,6 +7,8 @@ type PatientsTableProps = {
   patients: Patient[];
   selectedId: string | null;
   onSelect: (patient: Patient) => void;
+  /** Double-click to open the patient workspace (only for permitted roles). */
+  onOpen?: (patient: Patient) => void;
 };
 
 const COLUMNS = [
@@ -30,6 +32,7 @@ export function PatientsTable({
   patients,
   selectedId,
   onSelect,
+  onOpen,
 }: PatientsTableProps) {
   const t = useTranslations("patients");
 
@@ -64,6 +67,7 @@ export function PatientsTable({
             <tr
               key={patient.id}
               onClick={() => onSelect(patient)}
+              onDoubleClick={() => onOpen?.(patient)}
               aria-selected={selectedId === patient.id}
               className={cn(
                 "cursor-pointer border-b border-gray-50 transition-colors last:border-0",
