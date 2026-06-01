@@ -74,7 +74,6 @@ export function PatientSummaryCard({ patientId, fallbackFullName }: Props) {
                 : "—"
             }
           />
-          <Row label={t("bloodGroup")} value="A+" />
         </dl>
       </div>
     </section>

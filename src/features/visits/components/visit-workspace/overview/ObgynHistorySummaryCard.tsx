@@ -84,13 +84,13 @@ export function ObgynHistorySummaryCard({ patientId }: Props) {
 function SummaryView({ data }: { data: ObgynHistorySummary }) {
   const { identifier, flags, sections } = data;
   const headerParts = [
-    identifier.age !== null ? `${identifier.age}y` : null,
     identifier.gtpal_label,
     identifier.lmp ? `LMP ${identifier.lmp}` : null,
+    identifier.blood_group_rh,
   ].filter(Boolean);
 
   return (
-    <div className="mt-4 space-y-3">
+    <div className="my-4 space-y-3">
       <p className="text-sm font-semibold text-brand-primary">
         {headerParts.join(" • ") || "—"}
       </p>
