@@ -40,6 +40,8 @@ interface Props {
   specialtyCode?: string | null;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
+  /** Render the form static (no inputs, no Save) — viewing a past visit. */
+  readOnly?: boolean;
 }
 
 export function VisitExaminationFormShell({
@@ -47,6 +49,7 @@ export function VisitExaminationFormShell({
   specialtyCode,
   onSave,
   saving,
+  readOnly = false,
 }: Props) {
   const t = useTranslations("examination.workspace");
   const execution = useTemplateExecution();
@@ -146,14 +149,17 @@ export function VisitExaminationFormShell({
           collapsedSections={collapsedSections}
           hiddenSectionCodes={hiddenSectionCodes}
           renderSectionHeaderSlot={renderSectionHeaderSlot}
+          displayOnly={readOnly}
         />
       </div>
-      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
-        <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
-          {saving ? <Loader2 size={14} className="animate-spin" /> : null}
-          <span className="ml-2">{t("save")}</span>
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
+          <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
+            {saving ? <Loader2 size={14} className="animate-spin" /> : null}
+            <span className="ml-2">{t("save")}</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
