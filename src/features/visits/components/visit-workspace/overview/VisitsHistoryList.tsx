@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Clock, Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePatientVisitHistory } from "../../../hooks/usePatientVisitHistory";
+import { VisitDetailsDialog } from "./VisitDetailsDialog";
 
 type Props = {
   patientId: string;
@@ -58,6 +60,7 @@ function Section({
 export function VisitsHistoryList({ patientId, excludeVisitId }: Props) {
   const t = useTranslations("visits.workspace.history");
   const locale = useLocale();
+  const [detailVisitId, setDetailVisitId] = useState<string | null>(null);
   const { entries, isLoading, isLoadingMore, hasMore, loadMore } =
     usePatientVisitHistory({ patientId, excludeVisitId });
 
@@ -77,7 +80,7 @@ export function VisitsHistoryList({ patientId, excludeVisitId }: Props) {
         <h2 className="text-sm font-semibold text-brand-black">{t("title")}</h2>
       </header>
 
-      <ol className="mt-6 space-y-0">
+      <ol className="my-6 space-y-0">
         {isLoading ? (
           <>
             <SkeletonCard isLast={false} />
@@ -118,14 +121,14 @@ export function VisitsHistoryList({ patientId, excludeVisitId }: Props) {
                         />
                         {t("statusNormal")}
                       </span>
-                      <a
-                        href="#"
-                        onClick={(e) => e.preventDefault()}
+                      <button
+                        type="button"
+                        onClick={() => setDetailVisitId(entry.id)}
                         className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-primary/80"
                       >
                         <Eye className="size-3.5" aria-hidden="true" />
                         {t("visitDetails")}
-                      </a>
+                      </button>
                     </header>
 
                     {entry.diagnoses.length > 0 && (
@@ -179,6 +182,12 @@ export function VisitsHistoryList({ patientId, excludeVisitId }: Props) {
           </button>
         </div>
       )}
+
+      <VisitDetailsDialog
+        open={detailVisitId !== null}
+        onOpenChange={(o) => !o && setDetailVisitId(null)}
+        visitId={detailVisitId}
+      />
     </section>
   );
 }

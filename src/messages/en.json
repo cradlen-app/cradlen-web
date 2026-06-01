@@ -675,6 +675,7 @@
         "loading": "Loading...",
         "empty": "No previous visits found.",
         "visitDetails": "Visit Details",
+        "detailsTitle": "Visit Details",
         "diagnosis": "Diagnosis",
         "medications": "Medications",
         "investigations": "Investigations",
