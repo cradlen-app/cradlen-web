@@ -124,12 +124,34 @@ async function searchDiagnosesByQuery(query: string): Promise<EntityResult[]> {
   }));
 }
 
+interface LabTestListItem {
+  id: string;
+  code: string;
+  name: string;
+  category?: string | null;
+}
+
+async function searchLabTestsByQuery(query: string): Promise<EntityResult[]> {
+  const params = new URLSearchParams({ search: query });
+  const res = await apiAuthFetch<{ data: LabTestListItem[] }>(
+    `/lab-tests?${params.toString()}`,
+  );
+  // `category` is mirrored into the line's Type dropdown via `fillFields`.
+  return res.data.map((t) => ({
+    id: t.id,
+    label: t.name,
+    subtitle: [t.code, t.category].filter(Boolean).join(" · "),
+    raw: t,
+  }));
+}
+
 export const ENTITY_REGISTRY: Record<string, EntitySearchFn> = {
   patient: searchPatientsByQuery,
   medical_rep: searchMedicalReps,
   guardian: searchGuardiansByQuery,
   medication: searchMedicationsByQuery,
   diagnosis: searchDiagnosesByQuery,
+  lab_test: searchLabTestsByQuery,
 };
 
 export function getEntitySearchFn(kind: string): EntitySearchFn | undefined {
