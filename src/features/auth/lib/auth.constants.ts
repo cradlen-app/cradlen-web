@@ -52,6 +52,14 @@ export const CLINICAL_JOB_FUNCTIONS: readonly JobFunctionCode[] = [
   JOB_FUNCTION_CODE.NURSE,
 ];
 
+/** Clinical job functions that are physicians (clinical minus NURSE/ASSISTANT). */
+export const DOCTOR_JOB_FUNCTIONS: readonly JobFunctionCode[] = [
+  JOB_FUNCTION_CODE.OBGYN,
+  JOB_FUNCTION_CODE.ANESTHESIOLOGIST,
+  JOB_FUNCTION_CODE.PEDIATRICIAN,
+  JOB_FUNCTION_CODE.OTHER_DOCTOR,
+];
+
 export const EXECUTIVE_TITLE = {
   CEO: "CEO",
   COO: "COO",
