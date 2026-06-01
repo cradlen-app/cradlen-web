@@ -16,7 +16,6 @@ export interface VisitExaminationEnvelope {
 
 export interface PatchVisitExaminationArgs {
   endpointPath: string;
-  ifMatchVersion: number;
   body: Record<string, unknown>;
 }
 
@@ -29,12 +28,10 @@ export function getVisitExamination(
 
 export function patchVisitExamination({
   endpointPath,
-  ifMatchVersion,
   body,
 }: PatchVisitExaminationArgs): Promise<{ data: VisitExaminationEnvelope }> {
   return apiAuthFetch<{ data: VisitExaminationEnvelope }>(endpointPath, {
     method: "PATCH",
-    headers: { "If-Match": `version:${ifMatchVersion}` },
     body: JSON.stringify(body),
   });
 }
