@@ -44,6 +44,12 @@ interface Props {
    * sections not relevant to the selected path. Empty groups are dropped.
    */
   hiddenSectionCodes?: ReadonlySet<string>;
+  /**
+   * Force the whole template to render read-only (static text, repeatables
+   * lose add/remove) regardless of `template.is_display_only`. Used to view a
+   * past visit's examination in a read-only modal.
+   */
+  displayOnly?: boolean;
 }
 
 export function TemplateRenderer({
@@ -55,10 +61,12 @@ export function TemplateRenderer({
   renderSectionBottomSlot,
   collapsedSections,
   hiddenSectionCodes,
+  displayOnly: displayOnlyProp,
 }: Props) {
-  // Template-level read-only display mode (e.g. the OB/GYN full-history tab):
-  // every field renders as static text and repeatables lose add/remove.
-  const displayOnly = template.is_display_only ?? false;
+  // Read-only display mode: an explicit prop override (read-only modal) wins,
+  // otherwise the template-level flag (e.g. the OB/GYN full-history tab). Every
+  // field renders as static text and repeatables lose add/remove.
+  const displayOnly = displayOnlyProp ?? template.is_display_only ?? false;
   useDiscriminatorReset();
   useSpecialtyAutoFill();
   const ctx = useEvaluationContext();
