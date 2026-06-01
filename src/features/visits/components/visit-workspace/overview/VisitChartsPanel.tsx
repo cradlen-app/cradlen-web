@@ -34,7 +34,7 @@ export function VisitChartsPanel({ patientId, excludeVisitId }: Props) {
       )}
 
       {!isLoading && !isError && (
-        <div className="mt-4 space-y-6">
+        <div className="my-4 space-y-6">
           <div>
             <h3 className="mb-2 text-sm font-medium text-brand-primary">
               {t("bp.title")}

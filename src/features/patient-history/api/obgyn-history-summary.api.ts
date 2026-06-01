@@ -16,6 +16,7 @@ export interface HistorySummaryIdentifier {
   gtpal: Gtpal | null;
   gtpal_label: string | null;
   lmp: string | null;
+  blood_group_rh: string | null;
 }
 
 export interface HistorySummarySection {

@@ -22,13 +22,15 @@ import type { Visit } from "@/features/visits/types/visits.types";
 
 interface Props {
   visit: Visit;
+  /** Render the examination static (no inputs, no Save) — viewing a past visit. */
+  readOnly?: boolean;
 }
 
 function isNotFound(err: unknown): boolean {
   return err instanceof ApiError && err.status === 404;
 }
 
-export function ExaminationTab({ visit }: Props) {
+export function ExaminationTab({ visit, readOnly = false }: Props) {
   const t = useTranslations("examination.workspace");
   const config = useMemo(
     () => resolveSpecialtyExamination(visit.specialtyCode ?? null, visit.id),
@@ -104,8 +106,11 @@ export function ExaminationTab({ visit }: Props) {
         template={template}
         patientId={visit.patient.id}
         specialtyCode={visit.specialtyCode ?? null}
-        saving={patchMut.isPending || dataQuery.isFetching}
+        readOnly={readOnly}
+        saving={readOnly ? false : patchMut.isPending || dataQuery.isFetching}
         onSave={async (body) => {
+          // Never invoked in read-only mode (the Save button is not rendered).
+          if (readOnly) return;
           try {
             await patchMut.mutateAsync({ body });
             toast.success(t("saved"));
