@@ -1027,7 +1027,6 @@
       "save": "Save",
       "saved": "Examination saved.",
       "saveError": "Could not save examination.",
-      "staleVersion": "Someone else updated this examination. Reloading the latest version.",
       "loading": "Loading examination…",
       "loadError": "Could not load examination.",
       "showSection": "Show section group",

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
@@ -14,7 +14,6 @@ import { resolveSpecialtyExamination } from "@/features/examination/lib/specialt
 import {
   usePatchVisitExamination,
   useVisitExamination,
-  visitExaminationKey,
 } from "@/features/examination/api/useVisitExamination";
 import { VisitExaminationFormShell } from "@/features/examination/components/VisitExaminationFormShell";
 import { OBGYN_EXAM_CONTAINERS } from "@/features/examination/lib/history-binding";
@@ -29,24 +28,12 @@ function isNotFound(err: unknown): boolean {
   return err instanceof ApiError && err.status === 404;
 }
 
-function isStaleVersion(err: unknown): boolean {
-  if (!(err instanceof ApiError)) return false;
-  if (err.status === 412) return true;
-  if (err.status === 409) {
-    const body = err.body as { error?: { code?: string } } | undefined;
-    return body?.error?.code === "STALE_VERSION";
-  }
-  return false;
-}
-
 export function ExaminationTab({ visit }: Props) {
   const t = useTranslations("examination.workspace");
   const config = useMemo(
     () => resolveSpecialtyExamination(visit.specialtyCode ?? null, visit.id),
     [visit.specialtyCode, visit.id],
   );
-
-  const qc = useQueryClient();
 
   const templateQuery = useQuery({
     queryKey: config
@@ -120,19 +107,9 @@ export function ExaminationTab({ visit }: Props) {
         saving={patchMut.isPending || dataQuery.isFetching}
         onSave={async (body) => {
           try {
-            await patchMut.mutateAsync({
-              ifMatchVersion: envelope.examination_version,
-              body,
-            });
+            await patchMut.mutateAsync({ body });
             toast.success(t("saved"));
           } catch (err) {
-            if (isStaleVersion(err)) {
-              toast.warning(t("staleVersion"));
-              await qc.invalidateQueries({
-                queryKey: visitExaminationKey(config.endpointPath),
-              });
-              return;
-            }
             const message =
               err instanceof Error ? err.message : t("saveError");
             toast.error(message);
