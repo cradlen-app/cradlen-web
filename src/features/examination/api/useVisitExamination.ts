@@ -11,18 +11,6 @@ import {
 export const visitExaminationKey = (endpointPath: string) =>
   ["visit-examination", endpointPath] as const;
 
-/** A 412 (or 409 STALE_VERSION) from the examination PATCH — the optimistic
- *  concurrency token didn't match the row's current version. */
-function isStaleVersionError(err: unknown): boolean {
-  if (!(err instanceof ApiError)) return false;
-  if (err.status === 412) return true;
-  if (err.status === 409) {
-    const body = err.body as { error?: { code?: string } } | undefined;
-    return body?.error?.code === "STALE_VERSION";
-  }
-  return false;
-}
-
 export function useVisitExamination(endpointPath: string | null) {
   return useQuery({
     queryKey: endpointPath
@@ -47,23 +35,8 @@ export function usePatchVisitExamination(endpointPath: string) {
   return useMutation({
     mutationFn: async (args: Omit<PatchVisitExaminationArgs, "endpointPath">) => {
       await qc.cancelQueries({ queryKey: visitExaminationKey(endpointPath) });
-      try {
-        const res = await patchVisitExamination({ endpointPath, ...args });
-        return res.data;
-      } catch (err) {
-        if (!isStaleVersionError(err)) throw err;
-        // Single-writer rebase: a stale token here is almost always an upstream
-        // retry of the slow PATCH that already applied (the first attempt bumped
-        // the version). Re-read the current version and replay the same edits
-        // once. Field writes are absolute, so replaying is idempotent for data.
-        const fresh = await getVisitExamination(endpointPath);
-        const res = await patchVisitExamination({
-          endpointPath,
-          ifMatchVersion: fresh.data.examination_version,
-          body: args.body,
-        });
-        return res.data;
-      }
+      const res = await patchVisitExamination({ endpointPath, ...args });
+      return res.data;
     },
     onSuccess: (data) => {
       void qc.cancelQueries({ queryKey: visitExaminationKey(endpointPath) });

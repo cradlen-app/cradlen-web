@@ -86,7 +86,6 @@ function DialogBody({ visit, onOpenChange, onCompleted }: Props) {
     try {
       if (config && envelope) {
         await patchExam.mutateAsync({
-          ifMatchVersion: envelope.examination_version,
           body: {
             chief_complaint: trimmedComplaint,
             provisional_diagnosis: trimmedDiagnosis,
