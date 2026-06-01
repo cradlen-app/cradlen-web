@@ -69,6 +69,10 @@ interface MedicationListItem {
   generic_name?: string | null;
   form?: string | null;
   strength?: string | null;
+  default_dose_amount?: number | null;
+  default_dose_unit?: string | null;
+  default_dose_frequency?: string | null;
+  notes?: string | null;
 }
 
 async function searchMedicationsByQuery(query: string): Promise<EntityResult[]> {
@@ -76,11 +80,47 @@ async function searchMedicationsByQuery(query: string): Promise<EntityResult[]> 
   const res = await apiAuthFetch<{ data: MedicationListItem[] }>(
     `/medications?${params.toString()}`,
   );
-  return res.data.map((m) => ({
-    id: m.id,
-    label: m.name,
-    subtitle: [m.strength, m.form, m.generic_name].filter(Boolean).join(" · "),
-    raw: m,
+  return res.data.map((m) => {
+    // Readable default dose for the line's "Dose / frequency" field (filled
+    // on pick via the drug_search field's `fillFields`).
+    const defaultDose = [
+      m.default_dose_amount != null
+        ? `${m.default_dose_amount}${m.default_dose_unit ?? ""}`
+        : null,
+      m.default_dose_frequency,
+    ]
+      .filter(Boolean)
+      .join(" / ");
+    return {
+      id: m.id,
+      label: m.name,
+      subtitle: [m.strength, m.form, m.generic_name].filter(Boolean).join(" · "),
+      raw: { ...m, default_dose: defaultDose },
+    };
+  });
+}
+
+interface DiagnosisCodeListItem {
+  id: string;
+  code: string;
+  description: string;
+  chapter?: string | null;
+  specialty_code?: string | null;
+  billable?: boolean;
+}
+
+async function searchDiagnosesByQuery(query: string): Promise<EntityResult[]> {
+  const params = new URLSearchParams({ search: query });
+  const res = await apiAuthFetch<{ data: DiagnosisCodeListItem[] }>(
+    `/diagnosis-codes?${params.toString()}`,
+  );
+  // `id = code`: the resolved value mirrors the ICD-10 code into the paired
+  // `diagnosis_code` field (via `fillFields`); codes are unique → safe key.
+  return res.data.map((d) => ({
+    id: d.code,
+    label: d.description,
+    subtitle: [d.code, d.chapter].filter(Boolean).join(" · "),
+    raw: d,
   }));
 }
 
@@ -89,6 +129,7 @@ export const ENTITY_REGISTRY: Record<string, EntitySearchFn> = {
   medical_rep: searchMedicalReps,
   guardian: searchGuardiansByQuery,
   medication: searchMedicationsByQuery,
+  diagnosis: searchDiagnosesByQuery,
 };
 
 export function getEntitySearchFn(kind: string): EntitySearchFn | undefined {
