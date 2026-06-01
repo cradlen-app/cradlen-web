@@ -4,6 +4,10 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
+import { useRouter } from "@/i18n/navigation";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { canOpenPatientWorkspace } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import type { ApiJourneyStatus } from "@/features/visits/types/visits.api.types";
 import type { PatientFilter } from "../types/patients.types";
@@ -45,7 +49,11 @@ function toJourneyStatusParam(filter: PatientFilter): ApiJourneyStatus | undefin
 
 export function PatientsPage() {
   const t = useTranslations("patients");
+  const router = useRouter();
   const branchId = useAuthContextStore((state) => state.branchId);
+  const organizationId = useAuthContextStore((state) => state.organizationId);
+  const { data: currentUser } = useCurrentUser();
+  const canOpen = canOpenPatientWorkspace(getActiveProfile(currentUser));
   const [filter, setFilter] = useState<PatientFilter>("all");
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
@@ -106,6 +114,14 @@ export function PatientsPage() {
               patients={pagedPatients}
               selectedId={selectedId}
               onSelect={(p) => setSelectedId(p.id)}
+              onOpen={
+                canOpen && organizationId && branchId
+                  ? (p) =>
+                      router.push(
+                        `/${organizationId}/${branchId}/dashboard/patients/${p.id}`,
+                      )
+                  : undefined
+              }
             />
           )}
         </div>

@@ -53,6 +53,17 @@
     "noBranch": "No branch selected. Please select a branch to view patients.",
     "noResults": "No patients match the current filter.",
     "showResults": "show {count} of {total} results",
+    "workspace": {
+      "title": "Patient",
+      "back": "Patients",
+      "loadError": "Failed to load patient",
+      "notAuthorized": "You don't have permission to view patient details.",
+      "tabsAria": "Patient sections",
+      "tabs": {
+        "overview": "Overview",
+        "history": "History"
+      }
+    },
     "pagination": {
       "prev": "Previous page",
       "next": "Next page",
