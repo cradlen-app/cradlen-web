@@ -1,5 +1,6 @@
 import {
   CLINICAL_JOB_FUNCTIONS,
+  DOCTOR_JOB_FUNCTIONS,
   JOB_FUNCTION_CODE,
   STAFF_API_ROLE,
   type JobFunctionCode,
@@ -75,6 +76,17 @@ export function isClinical(profile?: UserProfile): boolean {
     if (fn.is_clinical) return true;
   }
   return CLINICAL_JOB_FUNCTIONS.some((c) => codes.has(c));
+}
+
+/** A physician (OBGYN / ANESTHESIOLOGIST / PEDIATRICIAN / OTHER_DOCTOR) — clinical minus nurses/assistants. */
+export function isDoctor(profile?: UserProfile): boolean {
+  const codes = profileJobFunctionCodes(profile);
+  return DOCTOR_JOB_FUNCTIONS.some((c) => codes.has(c));
+}
+
+/** Who may open the read-only patient workspace: owners, branch managers, and doctors. */
+export function canOpenPatientWorkspace(profile?: UserProfile): boolean {
+  return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);
 }
 
 // Staff-area permissions moved to their owning module:
