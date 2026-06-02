@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { formatRepDate } from "../lib/medical-rep.utils";
 import { fetchMedicalRepVisits } from "../lib/medical-rep.api";
 import type { MedicalRep } from "../types/medical-rep.types";
@@ -22,6 +23,11 @@ export function MedicalRepDrawer({ rep, open, onOpenChange }: Props) {
   const router = useRouter();
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
+  const { data: specialties } = useOrgSpecialties(organizationId);
+  const specialtyFocusLabel = rep?.specialty_focus
+    ? (specialties?.find((s) => s.code === rep.specialty_focus)?.name ??
+      rep.specialty_focus)
+    : "—";
 
   const visitsQuery = useQuery({
     queryKey: ["medical-rep-visits", "by-rep", rep?.id],
@@ -68,7 +74,7 @@ export function MedicalRepDrawer({ rep, open, onOpenChange }: Props) {
                 <ReadField label={t("company")} value={rep.company_name ?? "—"} />
                 <ReadField
                   label={t("specialtyFocus")}
-                  value={rep.specialty_focus ?? "—"}
+                  value={specialtyFocusLabel}
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <ReadField label={t("lastVisit")} value={formatRepDate(rep.last_visit_date, locale)} />
