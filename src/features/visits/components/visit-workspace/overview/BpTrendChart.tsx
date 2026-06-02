@@ -40,8 +40,12 @@ function formatDate(iso: string) {
 }
 
 export function BpTrendChart({ points, emptyLabel }: Props) {
-  const data = points.map((p) => ({
-    date: formatDate(p.completed_at),
+  // `i` is a unique x category (the row index) so recharts' active-index hover
+  // tracking stays stable even when several visits fall on the same day; the
+  // readable date is carried separately as `label` for ticks + the tooltip.
+  const data = points.map((p, i) => ({
+    i,
+    label: formatDate(p.completed_at),
     systolic: p.systolic_bp,
     diastolic: p.diastolic_bp,
   }));
@@ -64,9 +68,22 @@ export function BpTrendChart({ points, emptyLabel }: Props) {
         <ReferenceArea y1={130} y2={140} fill="#fef9c3" fillOpacity={0.4} />
         {/* Stage 2 HBP: ≥ 140 */}
         <ReferenceArea y1={140} y2={210} fill="#fee2e2" fillOpacity={0.35} />
-        <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+        <XAxis
+          dataKey="i"
+          tick={{ fontSize: 10 }}
+          tickFormatter={(v: number) => data[v]?.label ?? ""}
+        />
         <YAxis tick={{ fontSize: 10 }} domain={[40, 210]} />
-        <ChartTooltip content={<ChartTooltipContent />} />
+        <ChartTooltip
+          cursor={{ stroke: "#cbd5e1", strokeWidth: 1 }}
+          content={
+            <ChartTooltipContent
+              labelFormatter={(_, payload) =>
+                (payload?.[0]?.payload as { label?: string } | undefined)?.label ?? ""
+              }
+            />
+          }
+        />
         <ChartLegend content={<ChartLegendContent />} />
         <Line
           type="monotone"
@@ -74,6 +91,7 @@ export function BpTrendChart({ points, emptyLabel }: Props) {
           stroke="var(--color-systolic)"
           strokeWidth={2}
           dot={{ r: 3 }}
+          activeDot={{ r: 5 }}
         />
         <Line
           type="monotone"
@@ -81,6 +99,7 @@ export function BpTrendChart({ points, emptyLabel }: Props) {
           stroke="var(--color-diastolic)"
           strokeWidth={2}
           dot={{ r: 3 }}
+          activeDot={{ r: 5 }}
         />
       </LineChart>
     </ChartContainer>

@@ -47,7 +47,7 @@ export function PatientOverview({
             excludeVisitId={excludeVisitId}
           />
           {isObgyn && (
-            <div className="pt-6">
+            <div>
               <VisitChartsPanel
                 patientId={patientId}
                 excludeVisitId={excludeVisitId}

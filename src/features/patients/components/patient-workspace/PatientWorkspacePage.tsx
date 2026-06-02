@@ -62,12 +62,15 @@ export function PatientWorkspacePage({ patientId }: Props) {
   return (
     <main className="flex h-full flex-col gap-6 overflow-hidden p-6">
       <header className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs text-gray-400">
+        <div className="flex items-center gap-2 text-lg text-gray-400">
           <Link
             href={patientsHref}
             className="inline-flex items-center gap-1 font-medium text-brand-primary hover:text-brand-primary/80"
           >
-            <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+            <ChevronLeft
+              className="size-3.5 rtl:rotate-180"
+              aria-hidden="true"
+            />
             {t("back")}
           </Link>
           <span aria-hidden="true">/</span>
@@ -75,9 +78,6 @@ export function PatientWorkspacePage({ patientId }: Props) {
             {fullName || (isLoading ? "…" : t("title"))}
           </span>
         </div>
-        <h1 className="text-lg font-semibold text-brand-black">
-          {fullName || (isError ? t("loadError") : t("title"))}
-        </h1>
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
@@ -92,7 +92,10 @@ export function PatientWorkspacePage({ patientId }: Props) {
             <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="min-h-0 flex-1 overflow-hidden">
+          <TabsContent
+            value="overview"
+            className="min-h-0 flex-1 overflow-hidden"
+          >
             <PatientOverview
               patientId={patientId}
               specialtyCode={specialtyCode}
