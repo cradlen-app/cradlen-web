@@ -175,20 +175,6 @@ function RepHistoryCard({
             )}
           </Section>
 
-          <Section title={t("outcome")}>
-            <p className="text-xs text-gray-700">{outcome}</p>
-          </Section>
-
-          <Section title={t("notes")}>
-            {entry.notes ? (
-              <p className="whitespace-pre-wrap text-xs text-gray-700">
-                {entry.notes}
-              </p>
-            ) : (
-              <p className="text-xs text-gray-400">—</p>
-            )}
-          </Section>
-
           <Section title={t("products")}>
             {entry.products.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
