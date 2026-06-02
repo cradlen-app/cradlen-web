@@ -1198,6 +1198,13 @@
         "lastVisit": "آخر زيارة",
         "promoted": "الأدوية المروَّج لها"
       },
+      "products": {
+        "label": "المنتجات التي تمت مناقشتها",
+        "searchPlaceholder": "ابحث أو أضف دواءً…",
+        "empty": "لم يتم اختيار منتجات",
+        "addNew": "إضافة \"{name}\"",
+        "remove": "إزالة"
+      },
       "status": {
         "COMPLETED": "مكتملة",
         "CANCELLED": "ملغاة",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -21,6 +21,10 @@ import { useUpdateMedRepVisitStatus } from "@/features/visits/hooks/useUpdateMed
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { formatRepDate } from "../../lib/medical-rep.utils";
+import {
+  ProductsDiscussed,
+  type SelectedMedication,
+} from "./ProductsDiscussed";
 
 const TEMPLATE_CODE = "medical_rep_visit";
 
@@ -47,6 +51,7 @@ interface RepExamEnvelope {
   examination_version: number;
   status: RepStatus;
   overview: RepExamOverview;
+  discussed_medications: { id: string; name: string }[];
   [key: string]: unknown;
 }
 
@@ -80,6 +85,16 @@ export function MedicalRepVisitPage({ visitId }: Props) {
   const { data: specialties } = useOrgSpecialties(organizationId);
 
   const envelope = (dataQuery.data ?? null) as RepExamEnvelope | null;
+
+  // "Products discussed" selection (lifted out of the template — bespoke picker).
+  // Re-synced from the server whenever the envelope (re)loads or version bumps.
+  const [selectedMeds, setSelectedMeds] = useState<SelectedMedication[]>([]);
+  const examVersion = envelope?.examination_version;
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (envelope) setSelectedMeds(envelope.discussed_medications ?? []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [envelope?.visit_id, examVersion]);
 
   const repsHref =
     organizationId && branchId
@@ -221,8 +236,13 @@ export function MedicalRepVisitPage({ visitId }: Props) {
           </dl>
         </section>
 
-        {/* Visit (editable, template-driven) */}
-        <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5">
+        {/* Visit (editable) */}
+        <section className="min-w-0 space-y-5 rounded-2xl border border-gray-100 bg-white p-5">
+          <ProductsDiscussed
+            value={selectedMeds}
+            onChange={setSelectedMeds}
+            disabled={isClosed}
+          />
           <TemplateExecutionContextProvider
             key={envelope.examination_version}
             template={template}
@@ -238,8 +258,17 @@ export function MedicalRepVisitPage({ visitId }: Props) {
               saving={patchMut.isPending || dataQuery.isFetching}
               onSave={async (body) => {
                 if (isClosed) return;
+                // "Products discussed" lives outside the template — fold the
+                // bespoke picker selection into the same PATCH body.
+                const merged = {
+                  ...body,
+                  products: selectedMeds.map((m) => ({
+                    medication_id: m.id,
+                    name: m.name,
+                  })),
+                };
                 try {
-                  await patchMut.mutateAsync({ body });
+                  await patchMut.mutateAsync({ body: merged });
                   toast.success(tExam("saved"));
                 } catch (err) {
                   toast.error(
