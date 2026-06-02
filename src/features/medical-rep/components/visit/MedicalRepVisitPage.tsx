@@ -19,6 +19,7 @@ import {
 import { VisitExaminationFormShell } from "@/features/examination/components/VisitExaminationFormShell";
 import { useUpdateMedRepVisitStatus } from "@/features/visits/hooks/useUpdateMedRepVisitStatus";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { formatRepDate } from "../../lib/medical-rep.utils";
 
 const TEMPLATE_CODE = "medical_rep_visit";
@@ -76,6 +77,7 @@ export function MedicalRepVisitPage({ visitId }: Props) {
   const dataQuery = useVisitExamination(endpointPath);
   const patchMut = usePatchVisitExamination(endpointPath);
   const statusMut = useUpdateMedRepVisitStatus();
+  const { data: specialties } = useOrgSpecialties(organizationId);
 
   const envelope = (dataQuery.data ?? null) as RepExamEnvelope | null;
 
@@ -179,7 +181,13 @@ export function MedicalRepVisitPage({ visitId }: Props) {
             />
             <OverviewField
               label={t("overview.specialtyFocus")}
-              value={overview.specialty_focus ?? "—"}
+              value={
+                overview.specialty_focus
+                  ? (specialties?.find(
+                      (s) => s.code === overview.specialty_focus,
+                    )?.name ?? overview.specialty_focus)
+                  : "—"
+              }
             />
             <OverviewField
               label={t("overview.lastVisit")}
