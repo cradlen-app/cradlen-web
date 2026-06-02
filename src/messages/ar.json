@@ -1149,10 +1149,22 @@
       "phone": "الهاتف",
       "nationalId": "الرقم القومي",
       "company": "الشركة",
+      "specialtyFocus": "التخصص",
       "lastVisit": "آخر زيارة",
       "totalVisits": "إجمالي الزيارات",
       "products": "المنتجات",
       "notes": "ملاحظات",
+      "visits": "الزيارات",
+      "visitsLoading": "جاري تحميل الزيارات…",
+      "noVisits": "لا توجد زيارات بعد",
+      "visitStatus": {
+        "SCHEDULED": "مجدولة",
+        "CHECKED_IN": "تم تسجيل الوصول",
+        "IN_PROGRESS": "قيد التنفيذ",
+        "COMPLETED": "مكتملة",
+        "CANCELLED": "ملغاة",
+        "NO_SHOW": "لم يحضر"
+      },
       "blockButton": "حظر المندوب",
       "unblockButton": "رفع الحظر",
       "cancel": "إلغاء"
@@ -1169,6 +1181,28 @@
       "blocked": "تم حظر المندوب",
       "unblocked": "تم رفع الحظر عن المندوب",
       "error": "حدث خطأ ما"
+    },
+    "visit": {
+      "title": "الزيارة",
+      "back": "المندوب الطبي",
+      "loading": "جاري التحميل…",
+      "loadError": "تعذّر تحميل هذه الزيارة.",
+      "complete": "إنهاء الزيارة",
+      "completedToast": "تم إنهاء الزيارة",
+      "completeError": "تعذّر إنهاء الزيارة",
+      "overview": {
+        "title": "نظرة عامة",
+        "name": "الاسم",
+        "company": "الشركة",
+        "specialtyFocus": "التخصص",
+        "lastVisit": "آخر زيارة",
+        "promoted": "الأدوية المروَّج لها"
+      },
+      "status": {
+        "COMPLETED": "مكتملة",
+        "CANCELLED": "ملغاة",
+        "NO_SHOW": "لم يحضر"
+      }
     }
   },
   "financial": {
