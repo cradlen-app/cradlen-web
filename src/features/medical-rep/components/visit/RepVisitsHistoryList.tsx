@@ -134,7 +134,6 @@ function RepHistoryCard({
   const t = useTranslations("medicalRep.visit.history");
   const locale = useLocale();
   const purpose = entry.purpose ? t(`purposeValue.${entry.purpose}`) : "—";
-  const outcome = entry.outcome ? t(`outcomeValue.${entry.outcome}`) : "—";
 
   return (
     <li className="flex items-stretch gap-4">

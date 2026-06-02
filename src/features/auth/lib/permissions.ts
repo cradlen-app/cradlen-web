@@ -89,6 +89,11 @@ export function canOpenPatientWorkspace(profile?: UserProfile): boolean {
   return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);
 }
 
+/** Who may open the read-only medical-rep overview page: owners, branch managers, and doctors. */
+export function canOpenMedicalRepOverview(profile?: UserProfile): boolean {
+  return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);
+}
+
 // Staff-area permissions moved to their owning module:
 //   `staffCan.{read,manage,editRoles,delete}` (pure helpers) and the
 //   `staff.{read,manage,editRoles,delete}` kernel ids from `@/core/staff/api`.
