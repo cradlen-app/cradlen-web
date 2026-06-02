@@ -274,3 +274,20 @@ export function getTodayIso(now = new Date()) {
   const dd = String(now.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 }
+
+/**
+ * Workspace route for a visit. Medical-rep visits open the rep workspace; all
+ * others open the patient visit workspace. Routing by kind avoids opening a rep
+ * visit against the patient workspace (which calls patient-only endpoints with
+ * the rep visit id and 404s).
+ */
+export function visitWorkspacePath(
+  visit: Pick<Visit, "id" | "kind">,
+  organizationId: string | null | undefined,
+  branchId: string | null | undefined,
+): string {
+  const base = `/${organizationId}/${branchId}/dashboard`;
+  return visit.kind === "medical_rep"
+    ? `${base}/medical-rep/${visit.id}`
+    : `${base}/visits/${visit.id}`;
+}

@@ -9,6 +9,7 @@ import { ApiError } from "@/infrastructure/http/api";
 import { cn } from "@/common/utils/utils";
 import { useUnifiedMyCurrentVisit } from "../hooks/useUnifiedCurrentVisit";
 import { useStartVisit } from "../hooks/useStartVisit";
+import { visitWorkspacePath } from "../lib/visits.utils";
 import type { Visit } from "../types/visits.types";
 import {
   VisitPriorityBadge,
@@ -54,7 +55,7 @@ function CurrentVisitRow({
   }
 
   function handleOpen() {
-    router.push(`/${organizationId}/${branchId}/dashboard/visits/${visit.id}`);
+    router.push(visitWorkspacePath(visit, organizationId, branchId));
   }
 
   return (
