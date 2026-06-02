@@ -1,9 +1,11 @@
 "use client";
 
-import { Clock } from "lucide-react";
+import { useState } from "react";
+import { Clock, Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMedicalRepVisitHistory } from "../../hooks/useMedicalRepVisitHistory";
 import type { MedicalRepVisitHistoryItem } from "../../types/medical-rep.types";
+import { RepVisitDetailsDialog } from "./RepVisitDetailsDialog";
 
 type Props = {
   visitId: string;
@@ -58,6 +60,7 @@ function Section({
 export function RepVisitsHistoryList({ visitId }: Props) {
   const t = useTranslations("medicalRep.visit.history");
   const locale = useLocale();
+  const [detail, setDetail] = useState<MedicalRepVisitHistoryItem | null>(null);
   const { entries, isLoading, isLoadingMore, hasMore, loadMore } =
     useMedicalRepVisitHistory(visitId);
 
@@ -88,6 +91,7 @@ export function RepVisitsHistoryList({ visitId }: Props) {
                 entry={entry}
                 isLast={isLast}
                 date={formatDate(entry.scheduled_at, locale)}
+                onOpenDetails={() => setDetail(entry)}
               />
             );
           })
@@ -106,6 +110,12 @@ export function RepVisitsHistoryList({ visitId }: Props) {
           </button>
         </div>
       )}
+
+      <RepVisitDetailsDialog
+        item={detail}
+        open={detail !== null}
+        onOpenChange={(o) => !o && setDetail(null)}
+      />
     </section>
   );
 }
@@ -114,10 +124,12 @@ function RepHistoryCard({
   entry,
   isLast,
   date,
+  onOpenDetails,
 }: {
   entry: MedicalRepVisitHistoryItem;
   isLast: boolean;
   date: string;
+  onOpenDetails: () => void;
 }) {
   const t = useTranslations("medicalRep.visit.history");
   const locale = useLocale();
@@ -137,6 +149,17 @@ function RepHistoryCard({
 
       <div className={isLast ? "flex-1" : "flex-1 pb-6"}>
         <article className="rounded-xl border border-gray-100 p-4">
+          <header className="flex items-center justify-end">
+            <button
+              type="button"
+              onClick={onOpenDetails}
+              className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-primary/80"
+            >
+              <Eye className="size-3.5" aria-hidden="true" />
+              {t("visitDetails")}
+            </button>
+          </header>
+
           {(purpose || outcome) && (
             <Section title={t("purpose")}>
               {purpose && <p className="text-xs text-gray-700">{purpose}</p>}
@@ -173,6 +196,14 @@ function RepHistoryCard({
               </p>
             )}
           </Section>
+
+          {entry.notes && (
+            <Section title={t("notes")}>
+              <p className="whitespace-pre-wrap text-xs text-gray-700">
+                {entry.notes}
+              </p>
+            </Section>
+          )}
         </article>
       </div>
     </li>
