@@ -1149,10 +1149,22 @@
       "phone": "Phone",
       "nationalId": "National ID",
       "company": "Company",
+      "specialtyFocus": "Specialty focus",
       "lastVisit": "Last Visit",
       "totalVisits": "Total Visits",
       "products": "Products",
       "notes": "Notes",
+      "visits": "Visits",
+      "visitsLoading": "Loading visits…",
+      "noVisits": "No visits yet",
+      "visitStatus": {
+        "SCHEDULED": "Scheduled",
+        "CHECKED_IN": "Checked in",
+        "IN_PROGRESS": "In progress",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "NO_SHOW": "No show"
+      },
       "blockButton": "Block Rep",
       "unblockButton": "Unblock Rep",
       "cancel": "Cancel"
@@ -1169,6 +1181,28 @@
       "blocked": "Rep blocked",
       "unblocked": "Rep unblocked",
       "error": "Something went wrong"
+    },
+    "visit": {
+      "title": "Visit",
+      "back": "Medical Rep",
+      "loading": "Loading…",
+      "loadError": "Could not load this visit.",
+      "complete": "Complete Visit",
+      "completedToast": "Visit completed",
+      "completeError": "Could not complete the visit",
+      "overview": {
+        "title": "Overview",
+        "name": "Name",
+        "company": "Company",
+        "specialtyFocus": "Specialty focus",
+        "lastVisit": "Last Visit",
+        "promoted": "Medicines promoted"
+      },
+      "status": {
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "NO_SHOW": "No show"
+      }
     }
   },
   "financial": {
