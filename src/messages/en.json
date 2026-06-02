@@ -1198,6 +1198,13 @@
         "lastVisit": "Last Visit",
         "promoted": "Medicines promoted"
       },
+      "products": {
+        "label": "Products discussed",
+        "searchPlaceholder": "Search or add a medicine…",
+        "empty": "No products selected",
+        "addNew": "Add \"{name}\"",
+        "remove": "Remove"
+      },
       "status": {
         "COMPLETED": "Completed",
         "CANCELLED": "Cancelled",
