@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { useUpdateVisitStatus } from "../hooks/useUpdateVisitStatus";
 import { useUpdateMedRepVisitStatus } from "../hooks/useUpdateMedRepVisitStatus";
+import { visitWorkspacePath } from "../lib/visits.utils";
 import type { Visit, VisitStatus } from "../types/visits.types";
 import type { ApiMedicalRepVisitStatus } from "../types/visits.api.types";
 import { BookVisitDrawer } from "./BookVisitDrawer";
@@ -247,7 +248,7 @@ export function WaitingListTable({
                       size="sm"
                       onClick={() =>
                         router.push(
-                          `/${organizationId}/${branchId}/dashboard/visits/${visit.id}`,
+                          visitWorkspacePath(visit, organizationId, branchId),
                         )
                       }
                       className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"

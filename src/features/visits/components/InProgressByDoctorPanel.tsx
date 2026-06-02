@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { type DoctorGroup } from "../hooks/useBranchInProgress";
 import { useUnifiedBranchInProgress } from "../hooks/useUnifiedBranchInProgress";
+import { visitWorkspacePath } from "../lib/visits.utils";
 import type { Visit } from "../types/visits.types";
 import {
   VisitPriorityBadge,
@@ -138,9 +139,7 @@ function InProgressRow({
             type="button"
             size="sm"
             onClick={() =>
-              router.push(
-                `/${organizationId}/${branchId}/dashboard/visits/${visit.id}`,
-              )
+              router.push(visitWorkspacePath(visit, organizationId, branchId))
             }
             className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
           >
