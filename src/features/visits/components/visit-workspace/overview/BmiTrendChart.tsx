@@ -21,7 +21,8 @@ type Props = {
 };
 
 type ChartPoint = {
-  date: string;
+  i: number;
+  label: string;
   bmi: number | null;
   weight_kg: number | null;
 };
@@ -34,17 +35,15 @@ function formatDate(iso: string) {
 function CustomTooltipContent({
   active,
   payload,
-  label,
 }: {
   active?: boolean;
   payload?: Array<{ payload: ChartPoint }>;
-  label?: string;
 }) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
   return (
     <div className="rounded border border-gray-200 bg-white px-2 py-1 text-xs shadow">
-      <p className="font-medium text-gray-700">{label}</p>
+      <p className="font-medium text-gray-700">{p.label}</p>
       {p.bmi != null && <p>BMI: {p.bmi.toFixed(1)}</p>}
       {p.weight_kg != null && <p>Weight: {p.weight_kg} kg</p>}
     </div>
@@ -52,8 +51,11 @@ function CustomTooltipContent({
 }
 
 export function BmiTrendChart({ points, emptyLabel }: Props) {
-  const data: ChartPoint[] = points.map((p) => ({
-    date: formatDate(p.completed_at),
+  // `i` is a unique x category so hover tracking stays stable across same-day
+  // visits; the readable date is carried as `label` for ticks + the tooltip.
+  const data: ChartPoint[] = points.map((p, i) => ({
+    i,
+    label: formatDate(p.completed_at),
     bmi: p.bmi,
     weight_kg: p.weight_kg,
   }));
@@ -78,15 +80,23 @@ export function BmiTrendChart({ points, emptyLabel }: Props) {
         <ReferenceArea y1={25} y2={30} fill="#fef9c3" fillOpacity={0.45} />
         {/* Obese: ≥ 30 */}
         <ReferenceArea y1={30} y2={50} fill="#fee2e2" fillOpacity={0.35} />
-        <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+        <XAxis
+          dataKey="i"
+          tick={{ fontSize: 10 }}
+          tickFormatter={(v: number) => data[v]?.label ?? ""}
+        />
         <YAxis tick={{ fontSize: 10 }} domain={[10, 50]} />
-        <ChartTooltip content={<CustomTooltipContent />} />
+        <ChartTooltip
+          cursor={{ stroke: "#cbd5e1", strokeWidth: 1 }}
+          content={<CustomTooltipContent />}
+        />
         <Line
           type="monotone"
           dataKey="bmi"
           stroke="var(--color-bmi)"
           strokeWidth={2}
           dot={{ r: 3 }}
+          activeDot={{ r: 5 }}
         />
       </LineChart>
     </ChartContainer>
