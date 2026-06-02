@@ -133,8 +133,8 @@ function RepHistoryCard({
 }) {
   const t = useTranslations("medicalRep.visit.history");
   const locale = useLocale();
-  const purpose = entry.purpose ? t(`purposeValue.${entry.purpose}`) : null;
-  const outcome = entry.outcome ? t(`outcomeValue.${entry.outcome}`) : null;
+  const purpose = entry.purpose ? t(`purposeValue.${entry.purpose}`) : "—";
+  const outcome = entry.outcome ? t(`outcomeValue.${entry.outcome}`) : "—";
 
   return (
     <li className="flex items-stretch gap-4">
@@ -160,31 +160,9 @@ function RepHistoryCard({
             </button>
           </header>
 
-          {(purpose || outcome) && (
-            <Section title={t("purpose")}>
-              {purpose && <p className="text-xs text-gray-700">{purpose}</p>}
-              {outcome && (
-                <p className="text-xs text-gray-500">
-                  {t("outcome")}: {outcome}
-                </p>
-              )}
-            </Section>
-          )}
-
-          {entry.products.length > 0 && (
-            <Section title={t("products")}>
-              <div className="flex flex-wrap gap-1.5">
-                {entry.products.map((p) => (
-                  <span
-                    key={p.id}
-                    className="rounded-md border border-gray-200 px-2 py-0.5 text-xs text-gray-600"
-                  >
-                    {p.name}
-                  </span>
-                ))}
-              </div>
-            </Section>
-          )}
+          <Section title={t("purpose")}>
+            <p className="text-xs text-gray-700">{purpose}</p>
+          </Section>
 
           <Section title={t("samples")}>
             <p className="text-xs text-gray-700">
@@ -197,13 +175,36 @@ function RepHistoryCard({
             )}
           </Section>
 
-          {entry.notes && (
-            <Section title={t("notes")}>
+          <Section title={t("outcome")}>
+            <p className="text-xs text-gray-700">{outcome}</p>
+          </Section>
+
+          <Section title={t("notes")}>
+            {entry.notes ? (
               <p className="whitespace-pre-wrap text-xs text-gray-700">
                 {entry.notes}
               </p>
-            </Section>
-          )}
+            ) : (
+              <p className="text-xs text-gray-400">—</p>
+            )}
+          </Section>
+
+          <Section title={t("products")}>
+            {entry.products.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {entry.products.map((p) => (
+                  <span
+                    key={p.id}
+                    className="rounded-md border border-gray-200 px-2 py-0.5 text-xs text-gray-600"
+                  >
+                    {p.name}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">—</p>
+            )}
+          </Section>
         </article>
       </div>
     </li>
