@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Dialog } from "radix-ui";
 import { X } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
@@ -20,13 +20,33 @@ interface Props {
   medication: Medication | null;
   onSubmit: (values: MedicationFormValues) => Promise<void>;
   isPending: boolean;
+  /** Pre-fill values for create mode (e.g. the drug name typed elsewhere). */
+  createDefaults?: Partial<MedicationFormValues>;
 }
 
-export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isPending }: Props) {
+export function MedicationDrawer({
+  open,
+  onOpenChange,
+  medication,
+  onSubmit,
+  isPending,
+  createDefaults,
+}: Props) {
   const t = useTranslations("medications.drawer");
   const isEdit = medication !== null;
 
   const { data: repsData } = useMedicalReps({ page: 1, limit: 100, search: "" });
+
+  // The dropdown only fetches the first 100 reps; ensure the medication's
+  // currently-linked rep is always present so it renders by name (not a bare id)
+  // even when it falls outside that page.
+  const linkedRep = medication?.medical_reps?.[0];
+  const repOptions = useMemo(() => {
+    const list = repsData?.data ?? [];
+    return linkedRep && !list.some((r) => r.id === linkedRep.id)
+      ? [linkedRep, ...list]
+      : list;
+  }, [repsData, linkedRep]);
 
   const codeManuallyEdited = useRef(false);
 
@@ -70,7 +90,7 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
             defaultDoseUnit: medication.default_dose_unit ?? "",
             defaultDoseFrequency: medication.default_dose_frequency ?? "",
             defaultDoseRoute: medication.default_dose_route ?? "",
-            medicalRepId: medication.medical_reps[0]?.id ?? "",
+            medicalRepId: medication.medical_reps?.[0]?.id ?? "",
           }
         : {
             code: "", name: "", genericName: "", form: "", strength: "",
@@ -78,9 +98,10 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
             defaultDoseAmount: "", defaultDoseUnit: "",
             defaultDoseFrequency: "", defaultDoseRoute: "",
             medicalRepId: "",
+            ...createDefaults,
           },
     );
-  }, [open, isEdit, medication, reset]);
+  }, [open, isEdit, medication, reset, createDefaults]);
 
   const watchedName = watch("name");
   const watchedStrength = watch("strength");
@@ -315,7 +336,7 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
                       className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                     >
                       <option value="">{t("fields.medicalRepPlaceholder")}</option>
-                      {repsData?.data.map((rep) => (
+                      {repOptions.map((rep) => (
                         <option key={rep.id} value={rep.id}>
                           {rep.full_name}{rep.company_name ? ` — ${rep.company_name}` : ""}
                         </option>
