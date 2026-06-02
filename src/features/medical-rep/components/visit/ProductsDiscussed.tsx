@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Dialog } from "radix-ui";
 import { Loader2, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   getEntitySearchFn,
   type EntityResult,
 } from "@/builder/fields/entity.registry";
+import { MedicationDrawer } from "@/features/medications/components/MedicationDrawer";
+import { useCreateMedication } from "@/features/medications/hooks/useManageMedications";
+import type { MedicationFormValues } from "@/features/medications/lib/medications.schemas";
+import type {
+  CreateMedicationRequest,
+  Medication,
+} from "@/features/medications/types/medications.types";
 
 export interface SelectedMedication {
   /** Catalog id when picked from search; absent when typed as a new drug. */
@@ -32,11 +38,15 @@ interface Props {
 const inputClass =
   "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10";
 
+function emptyToUndefined(v: string | undefined): string | undefined {
+  return v === undefined ? undefined : v.trim() || undefined;
+}
+
 /**
  * "Products discussed" picker: chips of selected medicines + a catalog search
- * box. Picking a result adds it by id; typing a name with no match opens a
- * dialog to enter the full new-medicine details — the server resolves/creates
- * it in the catalog and promotes it to the rep on save.
+ * box. Picking a result adds it by id; typing a name with no match opens the
+ * shared Medicines drawer to create the full medicine, which is then added as a
+ * chip (and promoted to the rep on save).
  */
 export function ProductsDiscussed({ value, onChange, disabled }: Props) {
   const t = useTranslations("medicalRep.visit.products");
@@ -48,6 +58,7 @@ export function ProductsDiscussed({ value, onChange, disabled }: Props) {
   const [newName, setNewName] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const searchFn = useMemo(() => getEntitySearchFn("medication"), []);
+  const createMed = useCreateMedication();
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query), 300);
@@ -108,6 +119,36 @@ export function ProductsDiscussed({ value, onChange, disabled }: Props) {
 
   function remove(index: number) {
     onChange(value.filter((_, i) => i !== index));
+  }
+
+  async function handleCreateMedicine(values: MedicationFormValues) {
+    const req: CreateMedicationRequest = {
+      code: values.code,
+      name: values.name,
+      generic_name: emptyToUndefined(values.genericName),
+      form: emptyToUndefined(values.form),
+      strength: emptyToUndefined(values.strength),
+      category: emptyToUndefined(values.category),
+      company: emptyToUndefined(values.company),
+      notes: emptyToUndefined(values.notes),
+      default_dose_amount: values.defaultDoseAmount?.trim()
+        ? parseFloat(values.defaultDoseAmount)
+        : undefined,
+      default_dose_unit: emptyToUndefined(values.defaultDoseUnit),
+      default_dose_frequency: emptyToUndefined(values.defaultDoseFrequency),
+      default_dose_route: emptyToUndefined(values.defaultDoseRoute),
+      medical_rep_id: values.medicalRepId || undefined,
+    };
+    // Throws on failure (the hook toasts) — the drawer stays open for a retry.
+    const res = await createMed.mutateAsync(req);
+    const med =
+      res && typeof res === "object" && "data" in res
+        ? (res as { data: Medication }).data
+        : (res as unknown as Medication);
+    if (med?.id) {
+      add({ id: med.id, name: med.name, strength: med.strength ?? undefined });
+    }
+    setNewName(null);
   }
 
   const trimmed = query.trim();
@@ -206,170 +247,17 @@ export function ProductsDiscussed({ value, onChange, disabled }: Props) {
       ) : null}
 
       {newName !== null ? (
-        <NewMedicationDialog
-          initialName={newName}
-          onCancel={() => setNewName(null)}
-          onAdd={(med) => {
-            add(med);
-            setNewName(null);
+        <MedicationDrawer
+          open
+          medication={null}
+          createDefaults={{ name: newName }}
+          isPending={createMed.isPending}
+          onOpenChange={(o) => {
+            if (!o) setNewName(null);
           }}
+          onSubmit={handleCreateMedicine}
         />
       ) : null}
     </div>
-  );
-}
-
-function NewMedicationDialog({
-  initialName,
-  onAdd,
-  onCancel,
-}: {
-  initialName: string;
-  onAdd: (med: SelectedMedication) => void;
-  onCancel: () => void;
-}) {
-  const t = useTranslations("medicalRep.visit.products.newDialog");
-  const [form, setForm] = useState({
-    name: initialName,
-    generic_name: "",
-    strength: "",
-    form: "",
-    company: "",
-    default_dose_route: "",
-    default_dose_amount: "",
-    default_dose_unit: "",
-    default_dose_frequency: "",
-  });
-
-  function field(key: keyof typeof form) {
-    return {
-      value: form[key],
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-        setForm((f) => ({ ...f, [key]: e.target.value })),
-    };
-  }
-
-  function submit() {
-    const name = form.name.trim();
-    if (!name) return;
-    const amount = form.default_dose_amount.trim();
-    onAdd({
-      name,
-      generic_name: form.generic_name.trim() || undefined,
-      strength: form.strength.trim() || undefined,
-      form: form.form.trim() || undefined,
-      company: form.company.trim() || undefined,
-      default_dose_route: form.default_dose_route.trim() || undefined,
-      default_dose_amount: amount ? Number(amount) : undefined,
-      default_dose_unit: form.default_dose_unit.trim() || undefined,
-      default_dose_frequency: form.default_dose_frequency.trim() || undefined,
-    });
-  }
-
-  return (
-    <Dialog.Root open onOpenChange={(o) => (o ? null : onCancel())}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/25" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-[41] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
-          <Dialog.Title className="text-base font-semibold text-brand-black">
-            {t("title")}
-          </Dialog.Title>
-          <Dialog.Description className="sr-only">
-            {t("title")}
-          </Dialog.Description>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <Labeled label={t("name")} className="col-span-2">
-              <input className={inputClass} {...field("name")} />
-            </Labeled>
-            <Labeled label={t("genericName")}>
-              <input className={inputClass} {...field("generic_name")} />
-            </Labeled>
-            <Labeled label={t("strength")}>
-              <input
-                className={inputClass}
-                placeholder="500mg"
-                {...field("strength")}
-              />
-            </Labeled>
-            <Labeled label={t("form")}>
-              <input
-                className={inputClass}
-                placeholder="Tablet"
-                {...field("form")}
-              />
-            </Labeled>
-            <Labeled label={t("company")}>
-              <input className={inputClass} {...field("company")} />
-            </Labeled>
-            <Labeled label={t("doseAmount")}>
-              <input
-                type="number"
-                min={0}
-                className={inputClass}
-                {...field("default_dose_amount")}
-              />
-            </Labeled>
-            <Labeled label={t("doseUnit")}>
-              <input
-                className={inputClass}
-                placeholder="mg"
-                {...field("default_dose_unit")}
-              />
-            </Labeled>
-            <Labeled label={t("doseFrequency")}>
-              <input
-                className={inputClass}
-                placeholder="BID"
-                {...field("default_dose_frequency")}
-              />
-            </Labeled>
-            <Labeled label={t("route")}>
-              <input
-                className={inputClass}
-                placeholder="Oral"
-                {...field("default_dose_route")}
-              />
-            </Labeled>
-          </div>
-
-          <div className="mt-5 flex items-center justify-end gap-2">
-            <Dialog.Close asChild>
-              <button
-                type="button"
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-              >
-                {t("cancel")}
-              </button>
-            </Dialog.Close>
-            <button
-              type="button"
-              onClick={submit}
-              disabled={!form.name.trim()}
-              className="rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-primary/90 disabled:opacity-40"
-            >
-              {t("add")}
-            </button>
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
-}
-
-function Labeled({
-  label,
-  className,
-  children,
-}: {
-  label: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className={`flex flex-col gap-1 ${className ?? ""}`}>
-      <span className="text-xs font-medium text-gray-500">{label}</span>
-      {children}
-    </label>
   );
 }

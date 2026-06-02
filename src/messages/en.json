@@ -1111,7 +1111,8 @@
     "delete": {
       "title": "Delete {name}?",
       "description": "This will remove {name} from your catalog. This action cannot be undone.",
-      "confirm": "Delete",
+      "delete": "Delete",
+      "deleting": "Deleting…",
       "cancel": "Cancel"
     }
   },

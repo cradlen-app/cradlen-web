@@ -92,7 +92,7 @@ export function MedicalRepTable({ reps, isLoading, onRowClick }: Props) {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{rep.phone ?? "—"}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{rep.phone_number ?? "—"}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">
                   {products.length > 0 ? products.join(" · ") : "—"}
                 </td>

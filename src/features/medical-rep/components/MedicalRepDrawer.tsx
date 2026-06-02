@@ -69,7 +69,7 @@ export function MedicalRepDrawer({ rep, open, onOpenChange }: Props) {
           <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
             {rep && (
               <>
-                <ReadField label={t("phone")} value={rep.phone ?? "—"} />
+                <ReadField label={t("phone")} value={rep.phone_number ?? "—"} />
                 <ReadField label={t("nationalId")} value={rep.national_id ?? "—"} />
                 <ReadField label={t("company")} value={rep.company_name ?? "—"} />
                 <ReadField
