@@ -1203,7 +1203,21 @@
         "searchPlaceholder": "ابحث أو أضف دواءً…",
         "empty": "لم يتم اختيار منتجات",
         "addNew": "إضافة \"{name}\"",
-        "remove": "إزالة"
+        "remove": "إزالة",
+        "newDialog": {
+          "title": "إضافة دواء جديد",
+          "name": "الاسم",
+          "genericName": "الاسم العلمي",
+          "strength": "التركيز",
+          "form": "الشكل",
+          "company": "الشركة",
+          "route": "طريقة الإعطاء",
+          "doseAmount": "مقدار الجرعة",
+          "doseUnit": "وحدة الجرعة",
+          "doseFrequency": "التكرار",
+          "add": "إضافة الدواء",
+          "cancel": "إلغاء"
+        }
       },
       "status": {
         "COMPLETED": "مكتملة",
