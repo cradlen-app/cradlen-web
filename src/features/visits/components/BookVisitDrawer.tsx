@@ -6,6 +6,7 @@ import { Dialog } from "radix-ui";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/common/utils/utils";
+import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/infrastructure/http/api";
 import { useFormTemplate } from "@/builder/templates/useFormTemplate";
 import {
@@ -149,6 +150,7 @@ export function BookVisitDrawer({
               <DrawerBody
                 template={filteredTemplate}
                 branchId={branchId}
+                organizationId={organizationId}
                 branchName={branchName}
                 onClose={() => onOpenChange(false)}
                 editingVisit={editingVisit ?? null}
@@ -182,6 +184,7 @@ function stripDiscriminatorSections(
 interface BodyProps {
   template: FormTemplateDto;
   branchId: string | null | undefined;
+  organizationId: string | null | undefined;
   branchName?: string;
   onClose: () => void;
   editingVisit: Visit | null;
@@ -190,11 +193,13 @@ interface BodyProps {
 function DrawerBody({
   template,
   branchId,
+  organizationId,
   branchName,
   onClose,
   editingVisit,
 }: BodyProps) {
   const t = useTranslations("visits");
+  const router = useRouter();
   const { state } = useTemplateExecution();
   const bookVisit = useBookVisit();
   const bookMedicalRepVisit = useBookMedicalRepVisit();
@@ -270,12 +275,21 @@ function DrawerBody({
       }
 
       if (isMedicalRep) {
-        await bookMedicalRepVisit.mutateAsync(
+        const res = await bookMedicalRepVisit.mutateAsync(
           body as unknown as BookMedicalRepVisitRequest,
         );
-      } else {
-        await bookVisit.mutateAsync(body as unknown as BookVisitRequest);
+        toast.success(t("create.successMessage"));
+        onClose();
+        // Land on the new rep visit's workspace (the "new visit" surface).
+        const newVisitId = res?.data?.visit?.id;
+        if (newVisitId && organizationId && branchId) {
+          router.push(
+            `/${organizationId}/${branchId}/dashboard/medical-rep/${newVisitId}`,
+          );
+        }
+        return;
       }
+      await bookVisit.mutateAsync(body as unknown as BookVisitRequest);
       toast.success(t("create.successMessage"));
       onClose();
     } catch (error) {

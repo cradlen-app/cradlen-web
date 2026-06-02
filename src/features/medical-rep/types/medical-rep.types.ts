@@ -4,6 +4,7 @@ export interface MedicalRep {
   company_name: string | null;
   national_id: string | null;
   phone: string | null;
+  specialty_focus: string | null;
   products: string[];
   last_visit_date: string | null;
   visits_count: number;

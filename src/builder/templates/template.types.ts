@@ -19,7 +19,8 @@ export type BindingNamespace =
   | "VISIT_VITALS"
   | "VISIT_OBGYN_ENCOUNTER"
   | "VISIT_INVESTIGATION"
-  | "PRESCRIPTION_ITEM";
+  | "PRESCRIPTION_ITEM"
+  | "MEDICAL_REP_VISIT";
 
 export type FormFieldType =
   | "TEXT"
