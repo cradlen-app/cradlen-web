@@ -49,3 +49,23 @@ export interface MedicalRepListResponse {
   data: MedicalRep[];
   meta: MedicalRepListMeta;
 }
+
+/** Raw rep record from `GET /medical-reps/:id`. */
+export interface MedicalRepDetail {
+  id: string;
+  organization_id: string;
+  full_name: string;
+  company_name: string;
+  national_id: string | null;
+  phone_number: string | null;
+  email: string | null;
+  specialty_focus: string | null;
+  notes: string | null;
+}
+
+/** A medication linked to a rep, from `GET /medical-reps/:repId/medications`. */
+export interface MedicalRepMedicationLink {
+  medication_id: string;
+  code: string;
+  name: string;
+}

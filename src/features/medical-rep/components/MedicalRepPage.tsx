@@ -3,20 +3,27 @@
 import { useState, useDeferredValue } from "react";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
+import { useRouter } from "@/i18n/navigation";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { canOpenMedicalRepOverview } from "@/features/auth/lib/permissions";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { MedicalRepTable } from "./MedicalRepTable";
-import { MedicalRepDrawer } from "./MedicalRepDrawer";
 import { useMedicalReps } from "../hooks/useMedicalReps";
-import type { MedicalRep } from "../types/medical-rep.types";
 
 const PAGE_LIMIT = 10;
 
 export function MedicalRepPage() {
   const t = useTranslations("medicalRep");
 
+  const router = useRouter();
+  const organizationId = useAuthContextStore((s) => s.organizationId);
+  const branchId = useAuthContextStore((s) => s.branchId);
+  const { data: currentUser } = useCurrentUser();
+  const canOpen = canOpenMedicalRepOverview(getActiveProfile(currentUser));
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [selectedRep, setSelectedRep] = useState<MedicalRep | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const deferredSearch = useDeferredValue(search);
 
@@ -25,16 +32,6 @@ export function MedicalRepPage() {
     limit: PAGE_LIMIT,
     search: deferredSearch,
   });
-
-  function openDrawer(rep: MedicalRep) {
-    setSelectedRep(rep);
-    setDrawerOpen(true);
-  }
-
-  // Derive displayedRep from query cache so the drawer reflects fresh server state
-  const displayedRep = selectedRep
-    ? (data?.data.find((r) => r.id === selectedRep.id) ?? selectedRep)
-    : null;
 
   const total = data?.meta.total ?? 0;
   const totalPages = Math.ceil(total / PAGE_LIMIT);
@@ -73,7 +70,14 @@ export function MedicalRepPage() {
         <MedicalRepTable
           reps={data?.data ?? []}
           isLoading={isLoading}
-          onRowClick={openDrawer}
+          onOpen={
+            canOpen && organizationId && branchId
+              ? (rep) =>
+                  router.push(
+                    `/${organizationId}/${branchId}/dashboard/medical-rep/rep/${rep.id}`,
+                  )
+              : undefined
+          }
         />
       </div>
 
@@ -107,13 +111,6 @@ export function MedicalRepPage() {
           </div>
         </div>
       )}
-
-      {/* Drawer */}
-      <MedicalRepDrawer
-        rep={displayedRep}
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-      />
     </div>
   );
 }

@@ -7,7 +7,8 @@ import type { MedicalRep } from "../types/medical-rep.types";
 interface Props {
   reps: MedicalRep[];
   isLoading: boolean;
-  onRowClick: (rep: MedicalRep) => void;
+  /** Double-click to open the rep overview page (only for permitted roles). */
+  onOpen?: (rep: MedicalRep) => void;
 }
 
 const AVATAR_COLORS = [
@@ -32,7 +33,7 @@ function getAvatarColor(name: string) {
   return AVATAR_COLORS[code % AVATAR_COLORS.length];
 }
 
-export function MedicalRepTable({ reps, isLoading, onRowClick }: Props) {
+export function MedicalRepTable({ reps, isLoading, onOpen }: Props) {
   const t = useTranslations("medicalRep");
   const locale = useLocale();
 
@@ -74,8 +75,10 @@ export function MedicalRepTable({ reps, isLoading, onRowClick }: Props) {
             return (
               <tr
                 key={rep.id}
-                onClick={() => onRowClick(rep)}
-                className="cursor-pointer border-t border-gray-100 hover:bg-gray-50"
+                onDoubleClick={() => onOpen?.(rep)}
+                className={`border-t border-gray-100 ${
+                  onOpen ? "cursor-pointer select-none hover:bg-gray-50" : ""
+                }`}
               >
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
