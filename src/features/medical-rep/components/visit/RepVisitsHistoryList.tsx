@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { Clock, Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMedicalRepVisitHistory } from "../../hooks/useMedicalRepVisitHistory";
+import {
+  useMedicalRepVisitHistory,
+  type VisitHistorySource,
+} from "../../hooks/useMedicalRepVisitHistory";
 import type { MedicalRepVisitHistoryItem } from "../../types/medical-rep.types";
 import { RepVisitDetailsDialog } from "./RepVisitDetailsDialog";
 
 type Props = {
-  visitId: string;
+  source: VisitHistorySource;
 };
 
 function formatDate(iso: string, locale: string) {
@@ -57,12 +60,12 @@ function Section({
   );
 }
 
-export function RepVisitsHistoryList({ visitId }: Props) {
+export function RepVisitsHistoryList({ source }: Props) {
   const t = useTranslations("medicalRep.visit.history");
   const locale = useLocale();
   const [detail, setDetail] = useState<MedicalRepVisitHistoryItem | null>(null);
   const { entries, isLoading, isLoadingMore, hasMore, loadMore } =
-    useMedicalRepVisitHistory(visitId);
+    useMedicalRepVisitHistory(source);
 
   return (
     <section>
@@ -134,7 +137,6 @@ function RepHistoryCard({
   const t = useTranslations("medicalRep.visit.history");
   const locale = useLocale();
   const purpose = entry.purpose ? t(`purposeValue.${entry.purpose}`) : "—";
-  const outcome = entry.outcome ? t(`outcomeValue.${entry.outcome}`) : "—";
 
   return (
     <li className="flex items-stretch gap-4">
@@ -172,20 +174,6 @@ function RepHistoryCard({
               <p className="text-xs text-gray-500">
                 {t("followUp")}: {formatDate(entry.follow_up_date, locale)}
               </p>
-            )}
-          </Section>
-
-          <Section title={t("outcome")}>
-            <p className="text-xs text-gray-700">{outcome}</p>
-          </Section>
-
-          <Section title={t("notes")}>
-            {entry.notes ? (
-              <p className="whitespace-pre-wrap text-xs text-gray-700">
-                {entry.notes}
-              </p>
-            ) : (
-              <p className="text-xs text-gray-400">—</p>
             )}
           </Section>
 
