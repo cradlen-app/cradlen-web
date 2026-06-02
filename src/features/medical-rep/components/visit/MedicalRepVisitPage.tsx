@@ -202,7 +202,7 @@ export function MedicalRepVisitPage({ visitId }: Props) {
             <div className="grid h-full grid-cols-1 md:grid-cols-[320px_minmax(0,1fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
               <RepSummaryCard overview={overview} specialties={specialties} />
               <div className="flex h-full flex-col gap-6 overflow-y-auto p-5">
-                <RepVisitsHistoryList visitId={visitId} />
+                <RepVisitsHistoryList source={{ visitId }} />
               </div>
             </div>
           </section>
