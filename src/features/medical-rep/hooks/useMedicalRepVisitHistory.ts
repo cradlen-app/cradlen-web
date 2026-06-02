@@ -1,22 +1,37 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchMedicalRepVisitHistory } from "../lib/medical-rep.api";
+import {
+  fetchMedicalRepVisitHistory,
+  fetchMedicalRepVisitHistoryByRep,
+} from "../lib/medical-rep.api";
 import { medicalRepQueryKeys } from "../lib/medical-rep.queryKeys";
 import type { MedicalRepVisitHistoryItem } from "../types/medical-rep.types";
 
 const PAGE_SIZE = 3;
 
-/** Paginated past-visit timeline for the rep of `visitId` (3 at a time). */
-export function useMedicalRepVisitHistory(visitId: string) {
+/** Either a single visit's "other visits" history, or a whole rep's history. */
+export type VisitHistorySource = { visitId: string } | { repId: string };
+
+/** Paginated past-visit timeline for a visit or a rep (3 at a time). */
+export function useMedicalRepVisitHistory(source: VisitHistorySource) {
+  const byVisit = "visitId" in source;
   const query = useInfiniteQuery({
-    queryKey: medicalRepQueryKeys.visitHistory(visitId),
+    queryKey: byVisit
+      ? medicalRepQueryKeys.visitHistory(source.visitId)
+      : medicalRepQueryKeys.visitHistoryByRep(source.repId),
     queryFn: ({ pageParam }) =>
-      fetchMedicalRepVisitHistory({
-        visitId,
-        page: pageParam,
-        limit: PAGE_SIZE,
-      }),
+      byVisit
+        ? fetchMedicalRepVisitHistory({
+            visitId: source.visitId,
+            page: pageParam,
+            limit: PAGE_SIZE,
+          })
+        : fetchMedicalRepVisitHistoryByRep({
+            repId: source.repId,
+            page: pageParam,
+            limit: PAGE_SIZE,
+          }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       const loaded = allPages.flatMap((p) => p.data).length;
