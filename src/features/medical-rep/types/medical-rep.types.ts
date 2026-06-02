@@ -17,6 +17,34 @@ export interface MedicalRepListMeta {
   hasMore: boolean;
 }
 
+export interface MedicalRepVisitHistoryProduct {
+  id: string;
+  name: string;
+}
+
+export interface MedicalRepVisitHistoryItem {
+  id: string;
+  scheduled_at: string;
+  completed_at: string | null;
+  status: string;
+  purpose: string | null;
+  outcome: string | null;
+  samples_received: boolean;
+  follow_up_date: string | null;
+  notes: string | null;
+  products: MedicalRepVisitHistoryProduct[];
+}
+
+export interface MedicalRepVisitHistoryResponse {
+  data: MedicalRepVisitHistoryItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages?: number;
+  };
+}
+
 export interface MedicalRepListResponse {
   data: MedicalRep[];
   meta: MedicalRepListMeta;

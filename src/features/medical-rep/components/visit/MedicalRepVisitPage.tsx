@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchFormTemplate } from "@/builder/templates/templates.api";
 import { queryKeys } from "@/lib/queryKeys";
 import { TemplateExecutionContextProvider } from "@/builder/runtime/TemplateExecutionContext";
@@ -20,11 +21,12 @@ import { VisitExaminationFormShell } from "@/features/examination/components/Vis
 import { useUpdateMedRepVisitStatus } from "@/features/visits/hooks/useUpdateMedRepVisitStatus";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
-import { formatRepDate } from "../../lib/medical-rep.utils";
 import {
   ProductsDiscussed,
   type SelectedMedication,
 } from "./ProductsDiscussed";
+import { RepSummaryCard } from "./RepSummaryCard";
+import { RepVisitsHistoryList } from "./RepVisitsHistoryList";
 
 const TEMPLATE_CODE = "medical_rep_visit";
 
@@ -41,6 +43,7 @@ type RepStatus = (typeof STATUS_CHAIN)[number] | "CANCELLED" | "NO_SHOW";
 interface RepExamOverview {
   full_name: string;
   company_name: string;
+  phone_number: string | null;
   specialty_focus: string | null;
   last_visit_at: string | null;
   promoted_medications: string[];
@@ -66,7 +69,6 @@ function isNotFound(err: unknown): boolean {
 export function MedicalRepVisitPage({ visitId }: Props) {
   const t = useTranslations("medicalRep.visit");
   const tExam = useTranslations("examination.workspace");
-  const locale = useLocale();
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
   const endpointPath = `/medical-rep-visits/${visitId}/examination`;
@@ -182,121 +184,81 @@ export function MedicalRepVisitPage({ visitId }: Props) {
         )}
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
-        {/* Left column: rep context + products discussed */}
-        <div className="space-y-6">
-        {/* Overview (read-only rep context) */}
-        <section className="h-fit rounded-2xl border border-gray-100 bg-white p-5">
-          <h2 className="mb-4 text-sm font-semibold text-brand-black">
-            {t("overview.title")}
-          </h2>
-          <dl className="space-y-3">
-            <OverviewField label={t("overview.name")} value={overview.full_name} />
-            <OverviewField
-              label={t("overview.company")}
-              value={overview.company_name}
-            />
-            <OverviewField
-              label={t("overview.specialtyFocus")}
-              value={
-                overview.specialty_focus
-                  ? (specialties?.find(
-                      (s) => s.code === overview.specialty_focus,
-                    )?.name ?? overview.specialty_focus)
-                  : "—"
-              }
-            />
-            <OverviewField
-              label={t("overview.lastVisit")}
-              value={
-                overview.last_visit_at
-                  ? formatRepDate(overview.last_visit_at, locale)
-                  : "—"
-              }
-            />
-            <div>
-              <dt className="mb-1.5 text-xs font-medium text-gray-400">
-                {t("overview.promoted")}
-              </dt>
-              <dd>
-                {overview.promoted_medications.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {overview.promoted_medications.map((m) => (
-                      <span
-                        key={m}
-                        className="rounded-md border border-gray-200 px-2 py-0.5 text-xs text-gray-600"
-                      >
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-sm text-gray-400">—</span>
-                )}
-              </dd>
-            </div>
-          </dl>
-        </section>
+      <Tabs
+        defaultValue="overview"
+        className="flex min-h-0 flex-1 flex-col gap-4"
+      >
+        <TabsList aria-label={t("tabsAria")}>
+          <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
+          <TabsTrigger value="visit">{t("tabs.visit")}</TabsTrigger>
+        </TabsList>
 
-        {/* Products discussed (bespoke picker — saved with the form) */}
-        <section className="rounded-2xl border border-gray-100 bg-white p-5">
-          <ProductsDiscussed
-            value={selectedMeds}
-            onChange={setSelectedMeds}
-            disabled={isClosed}
-          />
-        </section>
-        </div>
+        {/* Overview: rep profile card + visits-history timeline */}
+        <TabsContent
+          value="overview"
+          className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]"
+        >
+          <div className="h-fit">
+            <RepSummaryCard overview={overview} specialties={specialties} />
+          </div>
+          <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5">
+            <RepVisitsHistoryList visitId={visitId} />
+          </section>
+        </TabsContent>
 
-        {/* Visit (editable) */}
-        <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5">
-          <TemplateExecutionContextProvider
-            key={envelope.examination_version}
-            template={template}
-            initialFormValues={initial.formValues}
-            initialSearchState={initial.searchState}
-            initialRepeatableRows={initial.repeatableRows}
-          >
-            <VisitExaminationFormShell
+        {/* Visit: editable examination form + products-discussed picker */}
+        <TabsContent
+          value="visit"
+          className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]"
+        >
+          <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5">
+            <TemplateExecutionContextProvider
+              key={envelope.examination_version}
               template={template}
-              patientId={visitId}
-              specialtyCode={null}
-              readOnly={isClosed}
-              saving={patchMut.isPending || dataQuery.isFetching}
-              onSave={async (body) => {
-                if (isClosed) return;
-                // "Products discussed" lives outside the template — fold the
-                // bespoke picker selection into the same PATCH body.
-                const merged = {
-                  ...body,
-                  products: selectedMeds.map((m) => ({
-                    medication_id: m.id,
-                    name: m.name,
-                  })),
-                };
-                try {
-                  await patchMut.mutateAsync({ body: merged });
-                  toast.success(tExam("saved"));
-                } catch (err) {
-                  toast.error(
-                    err instanceof Error ? err.message : tExam("saveError"),
-                  );
-                  throw err;
-                }
-              }}
-            />
-          </TemplateExecutionContextProvider>
-        </section>
-      </div>
-    </main>
-  );
-}
+              initialFormValues={initial.formValues}
+              initialSearchState={initial.searchState}
+              initialRepeatableRows={initial.repeatableRows}
+            >
+              <VisitExaminationFormShell
+                template={template}
+                patientId={visitId}
+                specialtyCode={null}
+                readOnly={isClosed}
+                saving={patchMut.isPending || dataQuery.isFetching}
+                onSave={async (body) => {
+                  if (isClosed) return;
+                  // "Products discussed" lives outside the template — fold the
+                  // bespoke picker selection into the same PATCH body.
+                  const merged = {
+                    ...body,
+                    products: selectedMeds.map((m) => ({
+                      medication_id: m.id,
+                      name: m.name,
+                    })),
+                  };
+                  try {
+                    await patchMut.mutateAsync({ body: merged });
+                    toast.success(tExam("saved"));
+                  } catch (err) {
+                    toast.error(
+                      err instanceof Error ? err.message : tExam("saveError"),
+                    );
+                    throw err;
+                  }
+                }}
+              />
+            </TemplateExecutionContextProvider>
+          </section>
 
-function OverviewField({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="mb-0.5 text-xs font-medium text-gray-400">{label}</dt>
-      <dd className="text-sm text-brand-black">{value}</dd>
-    </div>
+          <section className="h-fit rounded-2xl border border-gray-100 bg-white p-5">
+            <ProductsDiscussed
+              value={selectedMeds}
+              onChange={setSelectedMeds}
+              disabled={isClosed}
+            />
+          </section>
+        </TabsContent>
+      </Tabs>
+    </main>
   );
 }
