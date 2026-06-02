@@ -20,9 +20,18 @@ interface Props {
   medication: Medication | null;
   onSubmit: (values: MedicationFormValues) => Promise<void>;
   isPending: boolean;
+  /** Pre-fill values for create mode (e.g. the drug name typed elsewhere). */
+  createDefaults?: Partial<MedicationFormValues>;
 }
 
-export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isPending }: Props) {
+export function MedicationDrawer({
+  open,
+  onOpenChange,
+  medication,
+  onSubmit,
+  isPending,
+  createDefaults,
+}: Props) {
   const t = useTranslations("medications.drawer");
   const isEdit = medication !== null;
 
@@ -78,9 +87,10 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
             defaultDoseAmount: "", defaultDoseUnit: "",
             defaultDoseFrequency: "", defaultDoseRoute: "",
             medicalRepId: "",
+            ...createDefaults,
           },
     );
-  }, [open, isEdit, medication, reset]);
+  }, [open, isEdit, medication, reset, createDefaults]);
 
   const watchedName = watch("name");
   const watchedStrength = watch("strength");
