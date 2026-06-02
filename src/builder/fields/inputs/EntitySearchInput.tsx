@@ -94,6 +94,12 @@ export function EntitySearchInput({
       // own value so the submission body carries both.
       setFieldValue(idTarget, result.id);
       setFieldValue(field.code, result.label);
+    } else {
+      // No hidden id sibling — the field carries its own value binding (e.g. the
+      // diagnosis `description`). Mirror the picked label into form values so the
+      // submission serializes the selected catalog text, not the free-typed
+      // search query left behind by the allowCreate `onChange` path.
+      setFieldValue(field.code, result.label);
     }
     if ((fillFields || fillEntitySearches) && result.raw && typeof result.raw === "object") {
       const raw = result.raw as Record<string, unknown>;
