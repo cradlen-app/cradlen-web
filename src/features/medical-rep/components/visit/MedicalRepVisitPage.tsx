@@ -183,6 +183,8 @@ export function MedicalRepVisitPage({ visitId }: Props) {
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
+        {/* Left column: rep context + products discussed */}
+        <div className="space-y-6">
         {/* Overview (read-only rep context) */}
         <section className="h-fit rounded-2xl border border-gray-100 bg-white p-5">
           <h2 className="mb-4 text-sm font-semibold text-brand-black">
@@ -236,13 +238,18 @@ export function MedicalRepVisitPage({ visitId }: Props) {
           </dl>
         </section>
 
-        {/* Visit (editable) */}
-        <section className="min-w-0 space-y-5 rounded-2xl border border-gray-100 bg-white p-5">
+        {/* Products discussed (bespoke picker — saved with the form) */}
+        <section className="rounded-2xl border border-gray-100 bg-white p-5">
           <ProductsDiscussed
             value={selectedMeds}
             onChange={setSelectedMeds}
             disabled={isClosed}
           />
+        </section>
+        </div>
+
+        {/* Visit (editable) */}
+        <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5">
           <TemplateExecutionContextProvider
             key={envelope.examination_version}
             template={template}
