@@ -26,7 +26,7 @@ export function MedicationDrawer({ open, onOpenChange, medication, onSubmit, isP
   const t = useTranslations("medications.drawer");
   const isEdit = medication !== null;
 
-  const { data: repsData } = useMedicalReps({ page: 1, limit: 100, search: "", status: "active" });
+  const { data: repsData } = useMedicalReps({ page: 1, limit: 100, search: "" });
 
   const codeManuallyEdited = useRef(false);
 
