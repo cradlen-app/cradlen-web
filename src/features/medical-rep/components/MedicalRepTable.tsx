@@ -57,18 +57,12 @@ export function MedicalRepTable({ reps, isLoading, onRowClick }: Props) {
           <th className="px-4 py-2.5 text-start text-xs font-semibold uppercase tracking-wide text-gray-500">
             {t("table.visits")}
           </th>
-          <th className="px-4 py-2.5 text-start text-xs font-semibold uppercase tracking-wide text-gray-500">
-            {t("table.status")}
-          </th>
-          <th className="px-4 py-2.5 text-start text-xs font-semibold uppercase tracking-wide text-gray-500">
-            {t("table.notes")}
-          </th>
         </tr>
       </thead>
       <tbody>
         {reps.length === 0 ? (
           <tr>
-            <td colSpan={7} className="py-16 text-center text-sm text-gray-400">
+            <td colSpan={5} className="py-16 text-center text-sm text-gray-400">
               {t("table.empty")}
             </td>
           </tr>
@@ -76,7 +70,7 @@ export function MedicalRepTable({ reps, isLoading, onRowClick }: Props) {
           reps.map((rep) => {
             const initials = getInitials(rep.full_name);
             const color = getAvatarColor(rep.full_name);
-            const isActive = rep.status === "active";
+            const products = rep.products ?? [];
             return (
               <tr
                 key={rep.id}
@@ -100,21 +94,10 @@ export function MedicalRepTable({ reps, isLoading, onRowClick }: Props) {
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-600">{rep.phone ?? "—"}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">
-                  {rep.products.length > 0 ? rep.products.join(" · ") : "—"}
+                  {products.length > 0 ? products.join(" · ") : "—"}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-600">{formatRepDate(rep.last_visit_date, locale)}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{rep.visits_count}</td>
-                <td className="px-4 py-3">
-                  <span className="inline-flex items-center gap-1.5 text-sm">
-                    <span
-                      className={`size-2 shrink-0 rounded-full ${isActive ? "bg-green-500" : "bg-red-500"}`}
-                    />
-                    <span className={isActive ? "text-green-600" : "text-red-600"}>
-                      {isActive ? t("status.active") : t("status.blocked")}
-                    </span>
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-400">{rep.notes ?? "—"}</td>
               </tr>
             );
           })
@@ -143,8 +126,6 @@ function TableSkeleton() {
             <td className="px-4 py-3"><div className="h-4 w-20 animate-pulse rounded bg-gray-100" /></td>
             <td className="px-4 py-3"><div className="h-4 w-20 animate-pulse rounded bg-gray-100" /></td>
             <td className="px-4 py-3"><div className="h-4 w-8 animate-pulse rounded bg-gray-100" /></td>
-            <td className="px-4 py-3"><div className="h-5 w-14 animate-pulse rounded-full bg-gray-100" /></td>
-            <td className="px-4 py-3"><div className="h-4 w-24 animate-pulse rounded bg-gray-100" /></td>
           </tr>
         ))}
       </tbody>

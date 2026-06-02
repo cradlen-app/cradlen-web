@@ -1123,25 +1123,14 @@
   "medicalRep": {
     "title": "المندوب الطبي",
     "search": "بحث ....",
-    "statusFilter": {
-      "all": "الحالة",
-      "active": "نشط",
-      "blocked": "محظور"
-    },
     "table": {
       "name": "الاسم",
       "phone": "الهاتف",
       "products": "المنتجات",
       "lastVisit": "آخر زيارة",
       "visits": "الزيارات",
-      "status": "الحالة",
-      "notes": "ملاحظات",
       "empty": "لا يوجد مندوبون طبيون",
       "showing": "عرض {from}–{to} من {total} نتيجة"
-    },
-    "status": {
-      "active": "نشط",
-      "blocked": "محظور"
     },
     "drawer": {
       "breadcrumb": "المندوب الطبي",
@@ -1153,7 +1142,6 @@
       "lastVisit": "آخر زيارة",
       "totalVisits": "إجمالي الزيارات",
       "products": "المنتجات",
-      "notes": "ملاحظات",
       "visits": "الزيارات",
       "visitsLoading": "جاري تحميل الزيارات…",
       "noVisits": "لا توجد زيارات بعد",
@@ -1203,7 +1191,21 @@
         "searchPlaceholder": "ابحث أو أضف دواءً…",
         "empty": "لم يتم اختيار منتجات",
         "addNew": "إضافة \"{name}\"",
-        "remove": "إزالة"
+        "remove": "إزالة",
+        "newDialog": {
+          "title": "إضافة دواء جديد",
+          "name": "الاسم",
+          "genericName": "الاسم العلمي",
+          "strength": "التركيز",
+          "form": "الشكل",
+          "company": "الشركة",
+          "route": "طريقة الإعطاء",
+          "doseAmount": "مقدار الجرعة",
+          "doseUnit": "وحدة الجرعة",
+          "doseFrequency": "التكرار",
+          "add": "إضافة الدواء",
+          "cancel": "إلغاء"
+        }
       },
       "status": {
         "COMPLETED": "مكتملة",

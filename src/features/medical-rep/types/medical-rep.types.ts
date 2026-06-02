@@ -8,8 +8,6 @@ export interface MedicalRep {
   products: string[];
   last_visit_date: string | null;
   visits_count: number;
-  status: "active" | "blocked";
-  notes: string | null;
 }
 
 export interface MedicalRepListMeta {
