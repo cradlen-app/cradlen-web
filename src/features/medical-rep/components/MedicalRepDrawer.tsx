@@ -84,9 +84,9 @@ export function MedicalRepDrawer({ rep, open, onOpenChange }: Props) {
                 {/* Products */}
                 <div>
                   <p className="mb-1.5 text-sm font-semibold text-gray-700">{t("products")}</p>
-                  {rep.products.length > 0 ? (
+                  {(rep.products ?? []).length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                      {rep.products.map((p) => (
+                      {(rep.products ?? []).map((p) => (
                         <span
                           key={p}
                           className="rounded-md border border-gray-200 px-2.5 py-1 text-xs text-gray-600"
@@ -98,12 +98,6 @@ export function MedicalRepDrawer({ rep, open, onOpenChange }: Props) {
                   ) : (
                     <p className="text-sm text-gray-400">—</p>
                   )}
-                </div>
-
-                {/* Notes */}
-                <div>
-                  <p className="mb-1.5 text-sm font-semibold text-gray-700">{t("notes")}</p>
-                  <p className="text-sm text-gray-600">{rep.notes ?? "—"}</p>
                 </div>
 
                 {/* Visits — click to open the visit workspace */}

@@ -3,13 +3,12 @@ import type { MedicalRepListResponse } from "../types/medical-rep.types";
 import type { MedicalRepListParams } from "./medical-rep.queryKeys";
 import type { ApiMedicalRepVisitListResponse } from "@/features/visits/types/visits.api.types";
 
-export function fetchMedicalReps({ page, limit, search, status }: MedicalRepListParams) {
+export function fetchMedicalReps({ page, limit, search }: MedicalRepListParams) {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   });
   if (search.trim()) params.set("search", search.trim());
-  if (status) params.set("status", status);
   return apiAuthFetch<MedicalRepListResponse>(`/medical-reps?${params}`);
 }
 

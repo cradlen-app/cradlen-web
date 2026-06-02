@@ -1123,25 +1123,14 @@
   "medicalRep": {
     "title": "Medical Rep",
     "search": "Search ....",
-    "statusFilter": {
-      "all": "Status",
-      "active": "Active",
-      "blocked": "Blocked"
-    },
     "table": {
       "name": "Name",
       "phone": "Phone",
       "products": "Products",
       "lastVisit": "Last Visit",
       "visits": "Visits",
-      "status": "Status",
-      "notes": "Notes",
       "empty": "No medical reps found",
       "showing": "show {from}–{to} of {total} results"
-    },
-    "status": {
-      "active": "Active",
-      "blocked": "Blocked"
     },
     "drawer": {
       "breadcrumb": "Medical Rep",
@@ -1153,7 +1142,6 @@
       "lastVisit": "Last Visit",
       "totalVisits": "Total Visits",
       "products": "Products",
-      "notes": "Notes",
       "visits": "Visits",
       "visitsLoading": "Loading visits…",
       "noVisits": "No visits yet",
