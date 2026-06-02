@@ -42,7 +42,7 @@ export function RepSummaryCard({ overview, specialties }: Props) {
     : "—";
 
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-100 bg-white">
+    <section className="overflow-hidden">
       <div className="h-16 bg-brand-primary" aria-hidden="true" />
       <div className="-mt-8 flex flex-col items-center px-6 pb-6">
         <div

@@ -1198,6 +1198,8 @@
         "empty": "لا توجد زيارات سابقة",
         "loading": "جارٍ التحميل…",
         "loadMore": "تحميل المزيد",
+        "visitDetails": "تفاصيل الزيارة",
+        "detailsTitle": "تفاصيل الزيارة",
         "purpose": "الغرض",
         "outcome": "النتيجة",
         "products": "المنتجات التي نوقشت",
@@ -1205,6 +1207,7 @@
         "samplesYes": "تم استلام عينات",
         "samplesNo": "لم يتم استلام عينات",
         "followUp": "المتابعة",
+        "notes": "ملاحظات",
         "purposeValue": {
           "PRODUCT_DETAILING": "عرض المنتج",
           "SAMPLE_DROP": "تسليم عينات",
