@@ -1179,13 +1179,47 @@
       "complete": "Complete Visit",
       "completedToast": "Visit completed",
       "completeError": "Could not complete the visit",
+      "tabsAria": "Medical rep visit sections",
+      "tabs": {
+        "overview": "Overview",
+        "visit": "Visit"
+      },
       "overview": {
         "title": "Overview",
         "name": "Name",
         "company": "Company",
+        "phone": "Phone number",
         "specialtyFocus": "Specialty focus",
         "lastVisit": "Last Visit",
         "promoted": "Medicines promoted"
+      },
+      "history": {
+        "title": "Visits History",
+        "empty": "No previous visits",
+        "loading": "Loading…",
+        "loadMore": "Load more",
+        "purpose": "Purpose",
+        "outcome": "Outcome",
+        "products": "Products discussed",
+        "samples": "Samples & follow-up",
+        "samplesYes": "Samples received",
+        "samplesNo": "No samples received",
+        "followUp": "Follow-up",
+        "purposeValue": {
+          "PRODUCT_DETAILING": "Product detailing",
+          "SAMPLE_DROP": "Sample drop",
+          "CONFERENCE_INVITE": "Conference invite",
+          "PRICE_UPDATE": "Price update",
+          "FOLLOW_UP": "Follow-up",
+          "COURTESY": "Courtesy",
+          "OTHER": "Other"
+        },
+        "outcomeValue": {
+          "NONE": "None",
+          "SCHEDULE_FOLLOWUP": "Schedule follow-up",
+          "SHARE_MATERIALS": "Share materials",
+          "NOT_INTERESTED": "Not interested"
+        }
       },
       "products": {
         "label": "Products discussed",

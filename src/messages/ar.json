@@ -1179,13 +1179,47 @@
       "complete": "إنهاء الزيارة",
       "completedToast": "تم إنهاء الزيارة",
       "completeError": "تعذّر إنهاء الزيارة",
+      "tabsAria": "أقسام زيارة المندوب الطبي",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "visit": "الزيارة"
+      },
       "overview": {
         "title": "نظرة عامة",
         "name": "الاسم",
         "company": "الشركة",
+        "phone": "رقم الهاتف",
         "specialtyFocus": "التخصص",
         "lastVisit": "آخر زيارة",
         "promoted": "الأدوية المروَّج لها"
+      },
+      "history": {
+        "title": "سجل الزيارات",
+        "empty": "لا توجد زيارات سابقة",
+        "loading": "جارٍ التحميل…",
+        "loadMore": "تحميل المزيد",
+        "purpose": "الغرض",
+        "outcome": "النتيجة",
+        "products": "المنتجات التي نوقشت",
+        "samples": "العينات والمتابعة",
+        "samplesYes": "تم استلام عينات",
+        "samplesNo": "لم يتم استلام عينات",
+        "followUp": "المتابعة",
+        "purposeValue": {
+          "PRODUCT_DETAILING": "عرض المنتج",
+          "SAMPLE_DROP": "تسليم عينات",
+          "CONFERENCE_INVITE": "دعوة لمؤتمر",
+          "PRICE_UPDATE": "تحديث الأسعار",
+          "FOLLOW_UP": "متابعة",
+          "COURTESY": "زيارة مجاملة",
+          "OTHER": "أخرى"
+        },
+        "outcomeValue": {
+          "NONE": "لا شيء",
+          "SCHEDULE_FOLLOWUP": "جدولة متابعة",
+          "SHARE_MATERIALS": "مشاركة مواد",
+          "NOT_INTERESTED": "غير مهتم"
+        }
       },
       "products": {
         "label": "المنتجات التي تمت مناقشتها",
