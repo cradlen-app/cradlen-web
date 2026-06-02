@@ -15,7 +15,6 @@ export function MedicalRepPage() {
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<"active" | "blocked" | "">("");
   const [selectedRep, setSelectedRep] = useState<MedicalRep | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -25,7 +24,6 @@ export function MedicalRepPage() {
     page,
     limit: PAGE_LIMIT,
     search: deferredSearch,
-    status: statusFilter,
   });
 
   function openDrawer(rep: MedicalRep) {
@@ -51,20 +49,7 @@ export function MedicalRepPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-100 px-6 pb-3">
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value as "active" | "blocked" | "");
-            setPage(1);
-          }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
-        >
-          <option value="">{t("statusFilter.all")}</option>
-          <option value="active">{t("statusFilter.active")}</option>
-          <option value="blocked">{t("statusFilter.blocked")}</option>
-        </select>
-
+      <div className="flex items-center justify-end gap-4 border-b border-gray-100 px-6 pb-3">
         <div className="relative">
           <Search
             className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
