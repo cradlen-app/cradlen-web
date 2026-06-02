@@ -193,69 +193,71 @@ export function MedicalRepVisitPage({ visitId }: Props) {
           <TabsTrigger value="visit">{t("tabs.visit")}</TabsTrigger>
         </TabsList>
 
-        {/* Overview: rep profile card + visits-history timeline */}
-        <TabsContent
-          value="overview"
-          className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]"
-        >
-          <div className="h-fit">
-            <RepSummaryCard overview={overview} specialties={specialties} />
-          </div>
-          <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5">
-            <RepVisitsHistoryList visitId={visitId} />
+        {/* Overview: one card — rep profile card + visits-history timeline */}
+        <TabsContent value="overview" className="min-h-0 flex-1 overflow-hidden">
+          <section className="h-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <div className="grid h-full grid-cols-1 md:grid-cols-[320px_minmax(0,1fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
+              <RepSummaryCard overview={overview} specialties={specialties} />
+              <div className="flex h-full flex-col gap-6 overflow-y-auto p-5">
+                <RepVisitsHistoryList visitId={visitId} />
+              </div>
+            </div>
           </section>
         </TabsContent>
 
-        {/* Visit: editable examination form + products-discussed picker */}
-        <TabsContent
-          value="visit"
-          className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]"
-        >
-          <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5">
-            <TemplateExecutionContextProvider
-              key={envelope.examination_version}
-              template={template}
-              initialFormValues={initial.formValues}
-              initialSearchState={initial.searchState}
-              initialRepeatableRows={initial.repeatableRows}
-            >
-              <VisitExaminationFormShell
-                template={template}
-                patientId={visitId}
-                specialtyCode={null}
-                readOnly={isClosed}
-                saving={patchMut.isPending || dataQuery.isFetching}
-                onSave={async (body) => {
-                  if (isClosed) return;
-                  // "Products discussed" lives outside the template — fold the
-                  // bespoke picker selection into the same PATCH body.
-                  const merged = {
-                    ...body,
-                    products: selectedMeds.map((m) => ({
-                      medication_id: m.id,
-                      name: m.name,
-                    })),
-                  };
-                  try {
-                    await patchMut.mutateAsync({ body: merged });
-                    toast.success(tExam("saved"));
-                  } catch (err) {
-                    toast.error(
-                      err instanceof Error ? err.message : tExam("saveError"),
-                    );
-                    throw err;
-                  }
-                }}
-              />
-            </TemplateExecutionContextProvider>
-          </section>
+        {/* Visit: one card — editable form + products-discussed rail */}
+        <TabsContent value="visit" className="min-h-0 flex-1 overflow-hidden">
+          <section className="h-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <div className="grid h-full grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
+              <div className="flex h-full min-h-0 flex-col p-5">
+                <TemplateExecutionContextProvider
+                  key={envelope.examination_version}
+                  template={template}
+                  initialFormValues={initial.formValues}
+                  initialSearchState={initial.searchState}
+                  initialRepeatableRows={initial.repeatableRows}
+                >
+                  <VisitExaminationFormShell
+                    template={template}
+                    patientId={visitId}
+                    specialtyCode={null}
+                    readOnly={isClosed}
+                    saving={patchMut.isPending || dataQuery.isFetching}
+                    onSave={async (body) => {
+                      if (isClosed) return;
+                      // "Products discussed" lives outside the template — fold
+                      // the bespoke picker selection into the same PATCH body.
+                      const merged = {
+                        ...body,
+                        products: selectedMeds.map((m) => ({
+                          medication_id: m.id,
+                          name: m.name,
+                        })),
+                      };
+                      try {
+                        await patchMut.mutateAsync({ body: merged });
+                        toast.success(tExam("saved"));
+                      } catch (err) {
+                        toast.error(
+                          err instanceof Error
+                            ? err.message
+                            : tExam("saveError"),
+                        );
+                        throw err;
+                      }
+                    }}
+                  />
+                </TemplateExecutionContextProvider>
+              </div>
 
-          <section className="h-fit rounded-2xl border border-gray-100 bg-white p-5">
-            <ProductsDiscussed
-              value={selectedMeds}
-              onChange={setSelectedMeds}
-              disabled={isClosed}
-            />
+              <div className="h-full overflow-y-auto p-5">
+                <ProductsDiscussed
+                  value={selectedMeds}
+                  onChange={setSelectedMeds}
+                  disabled={isClosed}
+                />
+              </div>
+            </div>
           </section>
         </TabsContent>
       </Tabs>

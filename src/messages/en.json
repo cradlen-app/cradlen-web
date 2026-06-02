@@ -1198,6 +1198,8 @@
         "empty": "No previous visits",
         "loading": "Loading…",
         "loadMore": "Load more",
+        "visitDetails": "Visit Details",
+        "detailsTitle": "Visit details",
         "purpose": "Purpose",
         "outcome": "Outcome",
         "products": "Products discussed",
@@ -1205,6 +1207,7 @@
         "samplesYes": "Samples received",
         "samplesNo": "No samples received",
         "followUp": "Follow-up",
+        "notes": "Notes",
         "purposeValue": {
           "PRODUCT_DETAILING": "Product detailing",
           "SAMPLE_DROP": "Sample drop",
