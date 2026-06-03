@@ -30,6 +30,8 @@ export const PROFILES: PatientProfile[] = [
     dateOfBirth: "1992-04-18",
     nationalId: "29204180101234",
     avatar: "👩",
+    bloodType: "AB+",
+    heightCm: 165,
   },
   {
     id: "pat-child-1",
@@ -39,6 +41,8 @@ export const PROFILES: PatientProfile[] = [
     dateOfBirth: "2019-09-02",
     nationalId: "11909020101234",
     avatar: "🧒",
+    bloodType: "O+",
+    heightCm: 116,
   },
   {
     id: "pat-child-2",
@@ -48,6 +52,8 @@ export const PROFILES: PatientProfile[] = [
     dateOfBirth: "2022-01-27",
     nationalId: "12201270101234",
     avatar: "👶",
+    bloodType: "A+",
+    heightCm: 98,
   },
 ];
 
@@ -174,6 +180,7 @@ export const MEDICATIONS: Record<string, PortalMedication[]> = {
       clinic: CLINICS.maadi,
       startDate: "2026-01-15",
       status: "active",
+      daysLeft: 28,
     },
     {
       id: "med-self-2",
@@ -185,6 +192,7 @@ export const MEDICATIONS: Record<string, PortalMedication[]> = {
       clinic: CLINICS.nasrCity,
       startDate: "2026-03-02",
       status: "active",
+      daysLeft: 12,
     },
     {
       id: "med-self-3",
@@ -208,6 +216,7 @@ export const MEDICATIONS: Record<string, PortalMedication[]> = {
       clinic: CLINICS.nasrCity,
       startDate: "2026-06-01",
       status: "active",
+      daysLeft: 20,
     },
   ],
   "pat-child-2": [],
