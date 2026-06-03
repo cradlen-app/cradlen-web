@@ -22,7 +22,7 @@ export function DocumentsScreen() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-2xl space-y-4">
       <div className="flex items-start justify-between gap-3">
         <ScreenHeader
           title={t("documents.title")}
