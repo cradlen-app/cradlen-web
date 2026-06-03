@@ -29,7 +29,7 @@ export function VisitWorkspaceHeader({
   onInvoice,
 }: Props) {
   const t = useTranslations("visits.workspace.header");
-  const dashboardHref = `/${organizationId}/${branchId}/dashboard` as const;
+  const visitsHref = `/${organizationId}/${branchId}/dashboard/visits` as const;
   const patientsHref =
     `/${organizationId}/${branchId}/dashboard/patients` as const;
   const patientHref =
@@ -40,7 +40,7 @@ export function VisitWorkspaceHeader({
       <div>
         <div className="flex items-center gap-2">
           <Link
-            href={dashboardHref as Parameters<typeof Link>[0]["href"]}
+            href={visitsHref as Parameters<typeof Link>[0]["href"]}
             aria-label={t("backToVisits")}
             className="inline-flex size-7 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-black"
           >
