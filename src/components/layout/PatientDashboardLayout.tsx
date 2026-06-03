@@ -18,7 +18,7 @@ export function PatientDashboardLayout({ children }: { children: ReactNode }) {
       <div className="flex flex-1 overflow-hidden lg:pb-3">
         <PatientSidebar />
         <main className="flex-1 overflow-y-auto px-4 py-4 pb-24 lg:pb-6">
-          <div className="mx-auto w-full max-w-2xl">{children}</div>
+          <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
       </div>
       <PatientBottomTabs />

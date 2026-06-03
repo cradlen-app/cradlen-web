@@ -23,7 +23,7 @@ export function ProfileScreen() {
   const dependents = profiles?.filter((p) => p.kind === "dependent") ?? [];
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-2xl space-y-4">
       <ScreenHeader title={t("profile.title")} />
 
       {isLoading || !self ? (

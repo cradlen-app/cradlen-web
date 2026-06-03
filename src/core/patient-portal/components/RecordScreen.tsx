@@ -15,7 +15,7 @@ export function RecordScreen() {
   const latestVitals = record?.vitals.at(-1);
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-2xl space-y-4">
       <ScreenHeader title={t("record.title")} />
 
       {/* Vitals */}

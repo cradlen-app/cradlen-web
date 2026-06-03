@@ -29,7 +29,7 @@ export function AppointmentsScreen() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-2xl space-y-4">
       <ScreenHeader title={t("appointments.title")} />
 
       {isLoading ? (
