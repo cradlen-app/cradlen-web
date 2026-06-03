@@ -276,10 +276,10 @@ export function getTodayIso(now = new Date()) {
 }
 
 /**
- * Workspace route for a visit. Medical-rep visits open the rep workspace; all
- * others open the patient visit workspace. Routing by kind avoids opening a rep
- * visit against the patient workspace (which calls patient-only endpoints with
- * the rep visit id and 404s).
+ * Workspace route for a visit. Both kinds open the unified visit workspace at
+ * `/dashboard/visits/:id`; medical-rep visits carry `?kind=medical_rep` so the
+ * page renders the rep workspace body + breadcrumb instead of the patient one
+ * (the patient workspace calls patient-only endpoints that 404 on a rep id).
  */
 export function visitWorkspacePath(
   visit: Pick<Visit, "id" | "kind">,
@@ -288,6 +288,6 @@ export function visitWorkspacePath(
 ): string {
   const base = `/${organizationId}/${branchId}/dashboard`;
   return visit.kind === "medical_rep"
-    ? `${base}/medical-rep/${visit.id}`
+    ? `${base}/visits/${visit.id}?kind=medical_rep`
     : `${base}/visits/${visit.id}`;
 }

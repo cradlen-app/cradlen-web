@@ -653,6 +653,8 @@
         "title": "الزيارات",
         "breadcrumbAria": "مسار الزيارة",
         "crumbPatients": "المرضى",
+        "crumbVisitCurrent": "الزيارة",
+        "backToVisits": "العودة إلى الزيارات",
         "crumbVisit": {
           "VISIT": "زيارة جديدة",
           "FOLLOW_UP": "متابعة",
@@ -1174,6 +1176,10 @@
     "visit": {
       "title": "الزيارة",
       "back": "المندوب الطبي",
+      "breadcrumbAria": "مسار الزيارة",
+      "crumbMedicalReps": "المندوبون الطبيون",
+      "crumbVisitCurrent": "الزيارة",
+      "backToVisits": "العودة إلى الزيارات",
       "loading": "جاري التحميل…",
       "loadError": "تعذّر تحميل هذه الزيارة.",
       "complete": "إنهاء الزيارة",

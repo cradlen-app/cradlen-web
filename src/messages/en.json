@@ -652,7 +652,9 @@
       "header": {
         "title": "Visits",
         "breadcrumbAria": "Visit breadcrumb",
-        "crumbPatients": "patients",
+        "crumbPatients": "Patients",
+        "crumbVisitCurrent": "Visit",
+        "backToVisits": "Back to visits",
         "crumbVisit": {
           "VISIT": "new visit",
           "FOLLOW_UP": "follow-up",
@@ -1174,6 +1176,10 @@
     "visit": {
       "title": "Visit",
       "back": "Medical Rep",
+      "breadcrumbAria": "Visit breadcrumb",
+      "crumbMedicalReps": "Medical reps",
+      "crumbVisitCurrent": "Visit",
+      "backToVisits": "Back to visits",
       "loading": "Loading…",
       "loadError": "Could not load this visit.",
       "complete": "Complete Visit",

@@ -2,9 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
-import { Link } from "@/i18n/navigation";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import {
@@ -75,17 +75,12 @@ export function MedicalRepOverviewPage({ repId }: Props) {
   return (
     <main className="flex h-full flex-col gap-5 overflow-hidden p-6">
       <header className="flex flex-col gap-1">
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <Link
-            href={repsHref}
-            className="inline-flex items-center gap-1 font-medium text-brand-primary hover:text-brand-primary/80"
-          >
-            <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden />
-            {t("back")}
-          </Link>
-          <span aria-hidden>/</span>
-          <span>{rep.full_name}</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { label: t("crumbMedicalReps"), href: repsHref },
+            { label: rep.full_name },
+          ]}
+        />
         <h1 className="text-lg font-semibold text-brand-black">
           {rep.full_name}
         </h1>

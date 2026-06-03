@@ -8,6 +8,7 @@ import { ChevronLeft, Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchFormTemplate } from "@/builder/templates/templates.api";
 import { queryKeys } from "@/lib/queryKeys";
@@ -51,6 +52,7 @@ interface RepExamOverview {
 
 interface RepExamEnvelope {
   visit_id: string;
+  medical_rep_id: string;
   examination_version: number;
   status: RepStatus;
   overview: RepExamOverview;
@@ -98,10 +100,12 @@ export function MedicalRepVisitPage({ visitId }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [envelope?.visit_id, examVersion]);
 
-  const repsHref =
+  const base =
     organizationId && branchId
-      ? `/${organizationId}/${branchId}/dashboard/medical-rep`
-      : "/dashboard/medical-rep";
+      ? `/${organizationId}/${branchId}/dashboard`
+      : "/dashboard";
+  const dashboardHref = base;
+  const repsHref = `${base}/medical-rep`;
 
   const isClosed = useMemo(
     () =>
@@ -151,20 +155,29 @@ export function MedicalRepVisitPage({ visitId }: Props) {
     <main className="flex h-full flex-col gap-5 overflow-hidden p-6">
       <header className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-xs text-gray-400">
+          <div className="flex items-center gap-2">
             <Link
-              href={repsHref}
-              className="inline-flex items-center gap-1 font-medium text-brand-primary hover:text-brand-primary/80"
+              href={dashboardHref}
+              aria-label={t("backToVisits")}
+              className="inline-flex size-7 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-black"
             >
-              <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden />
-              {t("back")}
+              <ChevronLeft className="size-5 rtl:rotate-180" aria-hidden />
             </Link>
-            <span aria-hidden>/</span>
-            <span>{overview.full_name}</span>
+            <h1 className="text-lg font-semibold text-brand-black">
+              {t("title")}
+            </h1>
           </div>
-          <h1 className="text-lg font-semibold text-brand-black">
-            {t("title")}
-          </h1>
+          <Breadcrumbs
+            ariaLabel={t("breadcrumbAria")}
+            items={[
+              { label: t("crumbMedicalReps"), href: repsHref },
+              {
+                label: overview.full_name,
+                href: `${repsHref}/rep/${envelope.medical_rep_id}`,
+              },
+              { label: t("crumbVisitCurrent") },
+            ]}
+          />
         </div>
         {!isClosed ? (
           <Button
