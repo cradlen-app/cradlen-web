@@ -280,11 +280,12 @@ function DrawerBody({
         );
         toast.success(t("create.successMessage"));
         onClose();
-        // Land on the new rep visit's workspace (the "new visit" surface).
+        // Land on the new rep visit's workspace — the unified visit route, with
+        // `?kind=medical_rep` so it renders the rep workspace body.
         const newVisitId = res?.data?.visit?.id;
         if (newVisitId && organizationId && branchId) {
           router.push(
-            `/${organizationId}/${branchId}/dashboard/medical-rep/${newVisitId}`,
+            `/${organizationId}/${branchId}/dashboard/visits/${newVisitId}?kind=medical_rep`,
           );
         }
         return;
