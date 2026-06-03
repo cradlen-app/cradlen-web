@@ -1,0 +1,26 @@
+/**
+ * Owned TanStack Query namespace for the patient-portal module.
+ *
+ * Keys are scoped by the active patient profile id (self or dependent) so that
+ * switching profiles fetches/caches independently. The kernel verifies no other
+ * module claims the `patient-portal` root key (see manifest.queryKeyRoot).
+ */
+export const patientPortalQueryKeys = {
+  /** Broad key — matches everything for the module. */
+  all: () => ["patient-portal"] as const,
+  profiles: () => ["patient-portal", "profiles"] as const,
+  healthRecord: (patientId: string) =>
+    ["patient-portal", "health-record", patientId] as const,
+  medications: (patientId: string) =>
+    ["patient-portal", "medications", patientId] as const,
+  labOrders: (patientId: string) =>
+    ["patient-portal", "lab-orders", patientId] as const,
+  documents: (patientId: string) =>
+    ["patient-portal", "documents", patientId] as const,
+  appointments: (patientId: string) =>
+    ["patient-portal", "appointments", patientId] as const,
+  home: (patientId: string) => ["patient-portal", "home", patientId] as const,
+} as const;
+
+/** Root key registered with the kernel's QueryKeyRegistry. */
+export const PATIENT_PORTAL_QUERY_KEY_ROOT = ["patient-portal"] as const;
