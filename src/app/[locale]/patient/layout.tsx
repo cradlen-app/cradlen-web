@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { setRequestLocale } from "next-intl/server";
 
-import { PatientPortalShell } from "@/core/patient-portal/pages";
+import { PatientDashboardLayout } from "@/components/layout/PatientDashboardLayout";
 
 type Props = {
   children: ReactNode;
@@ -12,5 +12,5 @@ export default async function PatientPortalLayout({ children, params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <PatientPortalShell>{children}</PatientPortalShell>;
+  return <PatientDashboardLayout>{children}</PatientDashboardLayout>;
 }
