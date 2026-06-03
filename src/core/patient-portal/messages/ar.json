@@ -1,0 +1,134 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "record": "السجل",
+    "medications": "الأدوية",
+    "tests": "الفحوصات",
+    "appointments": "المواعيد",
+    "documents": "المستندات",
+    "profile": "الملف الشخصي"
+  },
+  "shell": {
+    "brand": "كرادلن",
+    "logout": "تسجيل الخروج",
+    "switchProfile": "تبديل الملف",
+    "you": "أنا",
+    "dependent": "تابع"
+  },
+  "home": {
+    "greeting": "مرحبًا، {name}",
+    "subtitle": "نظرة سريعة على حالتك الصحية.",
+    "nextAppointment": "الموعد القادم",
+    "noUpcoming": "لا توجد مواعيد قادمة",
+    "latestResults": "أحدث النتائج",
+    "seeAll": "عرض الكل",
+    "activeJourney": "الرحلة النشطة",
+    "reminders": "تذكيرات",
+    "noReminders": "لا شيء للقيام به الآن",
+    "quickUpload": "رفع",
+    "quickRecord": "السجل",
+    "quickMeds": "الأدوية",
+    "quickTests": "الفحوصات"
+  },
+  "record": {
+    "title": "السجل الصحي",
+    "vitalsTrend": "مؤشرات حيوية",
+    "bloodPressure": "ضغط الدم",
+    "weight": "الوزن",
+    "bmi": "مؤشر كتلة الجسم",
+    "allergies": "الحساسية",
+    "noAllergies": "لا توجد حساسية معروفة",
+    "timeline": "سجل الزيارات",
+    "diagnosis": "التشخيص",
+    "noVisits": "لا توجد زيارات مسجلة بعد"
+  },
+  "medications": {
+    "title": "الأدوية",
+    "active": "الحالية",
+    "past": "السابقة",
+    "dose": "الجرعة",
+    "frequency": "التكرار",
+    "prescribedBy": "وصفها",
+    "since": "منذ {date}",
+    "none": "لا توجد أدوية مسجلة"
+  },
+  "tests": {
+    "title": "التحاليل والفحوصات",
+    "awaiting": "بانتظار نتائجك",
+    "awaitingHint": "طلب طبيبك هذه الفحوصات — ارفع النتائج عند توفرها.",
+    "ordered": "الفحوصات المطلوبة",
+    "uploadResult": "رفع النتيجة",
+    "viewResult": "عرض النتيجة",
+    "orderedBy": "طلبها {doctor}",
+    "none": "لا توجد فحوصات مطلوبة"
+  },
+  "documents": {
+    "title": "المستندات",
+    "subtitle": "الملفات التي شاركتها مع عياداتك.",
+    "none": "لم ترفع أي مستندات بعد",
+    "files": "{count, plural, one {ملف #} other {# ملفات}}",
+    "uploadedOn": "تم الرفع {date}",
+    "newUpload": "رفع مستند"
+  },
+  "appointments": {
+    "title": "المواعيد",
+    "upcoming": "القادمة",
+    "past": "السابقة",
+    "none": "لا توجد مواعيد",
+    "bookingNote": "لحجز موعد جديد، تواصل مع عيادتك."
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "account": "الحساب",
+    "nationalId": "الرقم القومي",
+    "dateOfBirth": "تاريخ الميلاد",
+    "dependents": "التابعون",
+    "manageDependents": "إدارة التابعين",
+    "viewing": "تعرض الآن"
+  },
+  "upload": {
+    "title": "رفع إلى طبيبك",
+    "step1": "اختر الطلب",
+    "step2": "أضف الملفات",
+    "step3": "المراجعة والإرسال",
+    "orderedByDoctor": "مطلوب من طبيبك",
+    "general": "عام / ليس من طلب",
+    "generalHint": "إرفاق بزيارة يدويًا",
+    "selectVisit": "الزيارة",
+    "addFiles": "أضف الملفات",
+    "addMore": "أضف المزيد — كاميرا · صور · ملفات",
+    "filesHint": "ملفات PDF وصور، يُسمح بعدة ملفات",
+    "forPatient": "لـ",
+    "clinicDoctor": "العيادة / الطبيب",
+    "type": "النوع",
+    "note": "ملاحظة (اختياري)",
+    "notePlaceholder": "أضف ملاحظة…",
+    "send": "إرسال إلى الطبيب",
+    "sentTitle": "تم الإرسال إلى {doctor}",
+    "sentBody": "{count, plural, one {ملف #} other {# ملفات}} مرفقة بـ {order} في {clinic}.",
+    "done": "تم",
+    "removeFile": "إزالة",
+    "noOrders": "لا توجد طلبات مفتوحة — يمكنك إرفاق مستند عام."
+  },
+  "kind": {
+    "lab_result": "نتيجة تحليل",
+    "scan": "أشعة",
+    "other": "أخرى"
+  },
+  "status": {
+    "awaiting_upload": "بانتظار الرفع",
+    "pending_review": "قيد المراجعة",
+    "result_ready": "النتيجة جاهزة",
+    "completed": "مكتمل",
+    "reviewed": "تمت المراجعة",
+    "upcoming": "قادم",
+    "cancelled": "ملغى"
+  },
+  "common": {
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "doctor": "الطبيب",
+    "clinic": "العيادة",
+    "loading": "جارٍ التحميل…"
+  }
+}
