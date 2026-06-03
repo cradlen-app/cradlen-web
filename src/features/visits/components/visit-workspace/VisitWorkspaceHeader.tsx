@@ -1,8 +1,9 @@
 "use client";
 
-import { CheckCircle2, ChevronRight, Loader2, Receipt } from "lucide-react";
+import { CheckCircle2, ChevronLeft, Loader2, Receipt } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { cn } from "@/common/utils/utils";
 import type { Visit } from "../../types/visits.types";
 
@@ -17,10 +18,6 @@ type Props = {
   onInvoice: () => void;
 };
 
-function shortVisitId(id: string) {
-  return `#${id.replace(/-/g, "").slice(0, 16)}`;
-}
-
 export function VisitWorkspaceHeader({
   visit,
   organizationId,
@@ -32,40 +29,36 @@ export function VisitWorkspaceHeader({
   onInvoice,
 }: Props) {
   const t = useTranslations("visits.workspace.header");
+  const dashboardHref = `/${organizationId}/${branchId}/dashboard` as const;
   const patientsHref =
     `/${organizationId}/${branchId}/dashboard/patients` as const;
+  const patientHref =
+    `/${organizationId}/${branchId}/dashboard/patients/${visit.patient.id}` as const;
 
   return (
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-semibold text-brand-black">
-          {t("title")}
-        </h1>
-        <nav
-          aria-label={t("breadcrumbAria")}
-          className="mt-1 flex flex-wrap items-center gap-1 text-xs text-gray-500"
-        >
+        <div className="flex items-center gap-2">
           <Link
-            href={patientsHref as Parameters<typeof Link>[0]["href"]}
-            className="hover:text-brand-primary"
+            href={dashboardHref as Parameters<typeof Link>[0]["href"]}
+            aria-label={t("backToVisits")}
+            className="inline-flex size-7 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-black"
           >
-            {t("crumbPatients")}
+            <ChevronLeft className="size-5 rtl:rotate-180" aria-hidden="true" />
           </Link>
-          <ChevronRight
-            className="size-3 text-gray-300 rtl:rotate-180"
-            aria-hidden="true"
-          />
-          <span className="font-medium text-gray-600">
-            {shortVisitId(visit.id)}
-          </span>
-          <ChevronRight
-            className="size-3 text-gray-300 rtl:rotate-180"
-            aria-hidden="true"
-          />
-          <span className="text-brand-primary">
-            {t(`crumbVisit.${visit.type}`)}
-          </span>
-        </nav>
+          <h1 className="text-2xl font-semibold text-brand-black">
+            {t("title")}
+          </h1>
+        </div>
+        <Breadcrumbs
+          ariaLabel={t("breadcrumbAria")}
+          className="mt-1"
+          items={[
+            { label: t("crumbPatients"), href: patientsHref },
+            { label: visit.patient.fullName, href: patientHref },
+            { label: t("crumbVisitCurrent") },
+          ]}
+        />
       </div>
 
       <div className="flex items-center gap-2">
