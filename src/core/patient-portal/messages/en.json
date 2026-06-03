@@ -1,0 +1,134 @@
+{
+  "nav": {
+    "home": "Home",
+    "record": "Record",
+    "medications": "Meds",
+    "tests": "Tests",
+    "appointments": "Visits",
+    "documents": "Documents",
+    "profile": "Profile"
+  },
+  "shell": {
+    "brand": "Cradlen",
+    "logout": "Logout",
+    "switchProfile": "Switch profile",
+    "you": "Me",
+    "dependent": "Dependent"
+  },
+  "home": {
+    "greeting": "Hello, {name}",
+    "subtitle": "Here's your health at a glance.",
+    "nextAppointment": "Next appointment",
+    "noUpcoming": "No upcoming appointments",
+    "latestResults": "Latest results",
+    "seeAll": "See all",
+    "activeJourney": "Active journey",
+    "reminders": "Reminders",
+    "noReminders": "Nothing to do right now",
+    "quickUpload": "Upload",
+    "quickRecord": "Record",
+    "quickMeds": "Meds",
+    "quickTests": "Tests"
+  },
+  "record": {
+    "title": "Health record",
+    "vitalsTrend": "Vitals trend",
+    "bloodPressure": "Blood pressure",
+    "weight": "Weight",
+    "bmi": "BMI",
+    "allergies": "Allergies",
+    "noAllergies": "No known allergies",
+    "timeline": "Visit timeline",
+    "diagnosis": "Diagnosis",
+    "noVisits": "No visits recorded yet"
+  },
+  "medications": {
+    "title": "Medications",
+    "active": "Current",
+    "past": "Past",
+    "dose": "Dose",
+    "frequency": "Frequency",
+    "prescribedBy": "Prescribed by",
+    "since": "Since {date}",
+    "none": "No medications on record"
+  },
+  "tests": {
+    "title": "Lab & tests",
+    "awaiting": "Awaiting your results",
+    "awaitingHint": "Your doctor ordered these — upload the results when you have them.",
+    "ordered": "Ordered tests",
+    "uploadResult": "Upload result",
+    "viewResult": "View result",
+    "orderedBy": "Ordered by {doctor}",
+    "none": "No tests ordered"
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Files you've shared with your clinics.",
+    "none": "You haven't uploaded any documents yet",
+    "files": "{count, plural, one {# file} other {# files}}",
+    "uploadedOn": "Uploaded {date}",
+    "newUpload": "Upload document"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "none": "No appointments",
+    "bookingNote": "To book a new appointment, contact your clinic."
+  },
+  "profile": {
+    "title": "Profile",
+    "account": "Account",
+    "nationalId": "National ID",
+    "dateOfBirth": "Date of birth",
+    "dependents": "Dependents",
+    "manageDependents": "Manage dependents",
+    "viewing": "Now viewing"
+  },
+  "upload": {
+    "title": "Upload to your doctor",
+    "step1": "Pick the order",
+    "step2": "Add files",
+    "step3": "Review & send",
+    "orderedByDoctor": "Ordered by your doctor",
+    "general": "General / not from an order",
+    "generalHint": "Attach to a visit manually",
+    "selectVisit": "Visit",
+    "addFiles": "Add files",
+    "addMore": "Add more — camera · photos · files",
+    "filesHint": "PDFs and images, multiple allowed",
+    "forPatient": "For",
+    "clinicDoctor": "Clinic / doctor",
+    "type": "Type",
+    "note": "Note (optional)",
+    "notePlaceholder": "Add a note…",
+    "send": "Send to doctor",
+    "sentTitle": "Sent to {doctor}",
+    "sentBody": "{count, plural, one {# file} other {# files}} attached to your {order} at {clinic}.",
+    "done": "Done",
+    "removeFile": "Remove",
+    "noOrders": "No open orders — you can still attach a general document."
+  },
+  "kind": {
+    "lab_result": "Lab result",
+    "scan": "Scan",
+    "other": "Other"
+  },
+  "status": {
+    "awaiting_upload": "Awaiting upload",
+    "pending_review": "Pending review",
+    "result_ready": "Result ready",
+    "completed": "Completed",
+    "reviewed": "Reviewed",
+    "upcoming": "Upcoming",
+    "cancelled": "Cancelled"
+  },
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "doctor": "Doctor",
+    "clinic": "Clinic",
+    "loading": "Loading…"
+  }
+}
