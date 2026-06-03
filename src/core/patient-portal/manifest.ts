@@ -10,8 +10,9 @@ import { PATIENT_PORTAL_QUERY_KEY_ROOT } from "./queryKeys";
  * `./pages` — those re-export React client components that must not load during
  * kernel boot in non-DOM contexts (server `getRequestConfig`, Vitest).
  *
- * `nav` is empty: the portal navigates via its own responsive shell
- * (`PatientPortalShell`), not the staff dashboard sidebar.
+ * `nav` is empty: the portal navigates via its own app-shell chrome
+ * (`PatientDashboardLayout` in `@/components/layout`), not the staff
+ * dashboard sidebar.
  */
 const patientPortalManifest: ModuleManifest = {
   id: "patient-portal",

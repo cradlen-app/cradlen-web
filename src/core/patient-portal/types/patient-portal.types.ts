@@ -29,6 +29,10 @@ export interface PatientProfile {
   nationalId?: string;
   /** Emoji avatar placeholder for the prototype. */
   avatar?: string;
+  /** Blood group, e.g. "AB+". */
+  bloodType?: string;
+  /** Height in centimetres. */
+  heightCm?: number;
 }
 
 export interface VitalsPoint {
@@ -74,6 +78,8 @@ export interface PortalMedication {
   startDate: string;
   endDate?: string;
   status: MedicationStatus;
+  /** Remaining days in the course (active meds), for the Home preview. */
+  daysLeft?: number;
 }
 
 /**
