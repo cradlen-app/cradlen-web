@@ -422,6 +422,10 @@
       "submitButton": "Sign in",
       "noticeAccountExists": "You already have an account. Please sign in below.",
       "forgotPassword": "Forgot your password?",
+      "orDivider": "or",
+      "patientSignIn": {
+        "cta": "Sign in as a patient"
+      },
       "newToCommunity": "New to our community ?",
       "copyright": "2026 CRADLEN. All rights reserved.",
       "termsOfService": "Terms of Service",
@@ -441,6 +445,63 @@
       },
       "toasts": {
         "resumingRegistration": "Your registration is incomplete — redirecting to continue sign-up."
+      }
+    },
+    "patientSignIn": {
+      "title": "Patient sign in",
+      "nationalIdLabel": "National ID",
+      "passwordLabel": "Password",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "submitButton": "Sign in",
+      "newToCommunity": "New to our community ?",
+      "errors": {
+        "nationalIdRequired": "National ID is required",
+        "nationalIdInvalid": "Enter a valid 14-digit National ID",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordLowercase": "Password must contain a lowercase letter",
+        "passwordUppercase": "Password must contain an uppercase letter",
+        "passwordNumber": "Password must contain a number",
+        "passwordSymbol": "Password must contain a symbol",
+        "invalidCredentials": "Invalid National ID or password",
+        "serverError": "Something went wrong. Please try again."
+      }
+    },
+    "patientSignUp": {
+      "alreadyHaveAccount": "Already have an account?",
+      "step1Label": "Your details",
+      "step2Label": "Password",
+      "nationalIdLabel": "National ID",
+      "nationalIdPlaceholder": "14-digit National ID",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "+20 100 000 0000",
+      "dateOfBirthLabel": "Date of birth",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Enter your password again",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "nextButton": "Next",
+      "backButton": "Back",
+      "submitButton": "Create account",
+      "errors": {
+        "nationalIdRequired": "National ID is required",
+        "nationalIdInvalid": "Enter a valid 14-digit National ID",
+        "phoneRequired": "Phone number is required",
+        "invalidPhone": "Enter a valid phone number",
+        "dateOfBirthRequired": "Date of birth is required",
+        "dateOfBirthInvalid": "Enter a valid date of birth",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordLowercase": "Password must contain a lowercase letter",
+        "passwordUppercase": "Password must contain an uppercase letter",
+        "passwordNumber": "Password must contain a number",
+        "passwordSymbol": "Password must contain a symbol",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordMismatch": "Passwords do not match",
+        "signupStartFailed": "We couldn't find a patient record matching these details.",
+        "serverError": "Something went wrong. Please try again."
       }
     },
     "selectProfile": {
