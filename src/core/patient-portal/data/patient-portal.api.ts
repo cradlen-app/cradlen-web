@@ -51,8 +51,44 @@ function clone<T>(value: T): T {
 const documentsState: Record<string, PortalDocument[]> = clone(DOCUMENTS);
 const labOrdersState: Record<string, LabOrder[]> = clone(LAB_ORDERS);
 
-export function fetchProfiles(): Promise<PatientProfile[]> {
-  return delay(clone(PROFILES));
+/** Minimal shape of the `/api/patient-auth/me` payload this module consumes. */
+type PatientMeResponse = {
+  data: {
+    accessible_patients: {
+      id: string;
+      full_name: string;
+      date_of_birth: string;
+      relation: string; // "SELF" or a GuardianRelation value
+    }[];
+  };
+};
+
+/**
+ * The profile list is real: it reflects the signed-in account's accessible
+ * patients (just themselves for a patient, the guarded patients for a guardian).
+ * Clinical/demographic data is still mock, so each real patient is overlaid onto
+ * a fixture profile **by index** — preserving the fixture id (e.g. `pat-self`)
+ * so the active-profile data lookups keep resolving. Falls back to the raw
+ * fixtures if the call fails (e.g. local mock dev).
+ */
+export async function fetchProfiles(): Promise<PatientProfile[]> {
+  try {
+    const me = await apiFetch<PatientMeResponse>("/api/patient-auth/me");
+    return me.data.accessible_patients.map((real, i) => {
+      const base = PROFILES[i] ?? { id: real.id, avatar: "👤" };
+      const isSelf = real.relation === "SELF";
+      return {
+        ...base,
+        id: base.id ?? real.id,
+        kind: isSelf ? "self" : "dependent",
+        fullName: real.full_name,
+        dateOfBirth: real.date_of_birth,
+        relation: isSelf ? undefined : real.relation,
+      };
+    });
+  } catch {
+    return clone(PROFILES);
+  }
 }
 
 export function fetchHealthRecord(patientId: string): Promise<HealthRecord> {
