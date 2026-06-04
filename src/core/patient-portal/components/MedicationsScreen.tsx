@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { cn } from "@/common/utils/utils";
 import { formatDate } from "../lib/format";
+import { courseUnit, formUnitKey, MED_FORM_ICON } from "../lib/medications";
 import { useMedications } from "../hooks/usePortalData";
 import type { PortalMedication } from "../types/patient-portal.types";
-import { ClinicTag, EmptyState, ScreenHeader, SectionCard } from "./portal-ui";
+import { ClinicTag, EmptyState, ScreenHeader } from "./portal-ui";
 
 export function MedicationsScreen() {
   const t = useTranslations("patientPortal");
@@ -22,7 +25,7 @@ export function MedicationsScreen() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-4">
       <ScreenHeader title={t("medications.title")} />
 
       {isLoading ? (
@@ -31,28 +34,24 @@ export function MedicationsScreen() {
         <EmptyState message={t("medications.none")} />
       ) : (
         <>
-          <SectionCard title={t("medications.active")}>
+          <CollapsibleSection title={t("medications.active")} count={active.length}>
             {active.length === 0 ? (
               <p className="py-1 text-sm text-gray-400">
                 {t("medications.none")}
               </p>
             ) : (
-              <ul className="divide-y divide-gray-100">
-                {active.map((m) => (
-                  <MedRow key={m.id} med={m} />
-                ))}
-              </ul>
+              <MedGrid meds={active} />
             )}
-          </SectionCard>
+          </CollapsibleSection>
 
           {past.length > 0 && (
-            <SectionCard title={t("medications.past")}>
-              <ul className="divide-y divide-gray-100">
-                {past.map((m) => (
-                  <MedRow key={m.id} med={m} muted />
-                ))}
-              </ul>
-            </SectionCard>
+            <CollapsibleSection
+              title={t("medications.past")}
+              count={past.length}
+              defaultOpen={false}
+            >
+              <MedGrid meds={past} muted />
+            </CollapsibleSection>
           )}
         </>
       )}
@@ -60,31 +59,135 @@ export function MedicationsScreen() {
   );
 }
 
-function MedRow({ med, muted }: { med: PortalMedication; muted?: boolean }) {
-  const t = useTranslations("patientPortal");
-  const locale = useLocale();
+/** Collapsible card matching the portal's `SectionCard` styling, with a chevron. */
+function CollapsibleSection({
+  title,
+  count,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  count?: number;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <li className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-semibold text-brand-black">
-            {med.name}
-          </p>
-          {muted && (
-            <span className="text-[10px] text-gray-400">
-              {t("medications.past")}
+    <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-2"
+      >
+        <span className="flex items-center gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-gray-400">
+            {title}
+          </h2>
+          {count != null && (
+            <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
+              {count}
             </span>
           )}
-        </div>
-        <p className="text-xs text-gray-600">
-          {med.dose} · {med.frequency}
-        </p>
-        <p className="mt-0.5 text-xs text-gray-400">
-          {t("medications.prescribedBy")} {med.prescriberName} ·{" "}
-          {t("medications.since", { date: formatDate(med.startDate, locale) })}
-        </p>
-      </div>
-      <ClinicTag clinic={med.clinic} />
-    </li>
+        </span>
+        <ChevronDown
+          className={cn(
+            "size-4 text-gray-400 transition-transform",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+      {open && <div className="mt-3">{children}</div>}
+    </section>
   );
+}
+
+function MedGrid({ meds, muted }: { meds: PortalMedication[]; muted?: boolean }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {meds.map((m) => (
+        <MedicationCard key={m.id} med={m} muted={muted} />
+      ))}
+    </div>
+  );
+}
+
+function MedicationCard({
+  med,
+  muted,
+}: {
+  med: PortalMedication;
+  muted?: boolean;
+}) {
+  const t = useTranslations("patientPortal");
+  const locale = useLocale();
+
+  const Icon = MED_FORM_ICON[med.form ?? "other"];
+  const dosage = useDosageLine(med);
+
+  return (
+    <article
+      className={cn(
+        "flex flex-col rounded-xl border border-gray-100 bg-white p-3",
+        muted && "opacity-70",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-secondary/10 text-brand-primary">
+            <Icon className="size-4" />
+          </span>
+          <p className="truncate text-sm font-semibold text-brand-black">
+            {med.name} - {med.dose}
+          </p>
+        </div>
+        {med.drugClass && (
+          <span className="shrink-0 text-[11px] text-gray-400">
+            {t(`medications.class.${med.drugClass}`)}
+          </span>
+        )}
+      </div>
+
+      <p className="mt-2 text-center text-xs text-gray-600">{dosage}</p>
+
+      <div className="mt-2 flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
+        <span className="truncate text-xs text-gray-500">
+          {med.prescriberName}
+        </span>
+        <span className="shrink-0 text-[10px] uppercase tracking-wide text-gray-400">
+          {formatDate(med.startDate, locale)}
+        </span>
+      </div>
+
+      <div className="mt-2">
+        <ClinicTag clinic={med.clinic} />
+      </div>
+    </article>
+  );
+}
+
+/** Builds "1 tab / 8 h · before meals · 1 month", falling back to dose · frequency. */
+function useDosageLine(med: PortalMedication): string {
+  const t = useTranslations("patientPortal");
+
+  const primaryParts: string[] = [];
+  if (med.amountPerDose != null && med.form) {
+    primaryParts.push(
+      `${med.amountPerDose} ${t(`medications.unit.${formUnitKey(med.form)}`)}`,
+    );
+  }
+  if (med.intervalHours != null) {
+    primaryParts.push(t("medications.everyHours", { count: med.intervalHours }));
+  }
+
+  const segments: string[] = [];
+  if (primaryParts.length > 0) segments.push(primaryParts.join(" / "));
+  if (med.foodTiming) segments.push(t(`medications.food.${med.foodTiming}`));
+  if (med.courseDays != null) {
+    const { key, count } = courseUnit(med.courseDays);
+    segments.push(t(`medications.${key}`, { count }));
+  }
+
+  if (segments.length === 0) return `${med.dose} · ${med.frequency}`;
+  return segments.join(" · ");
 }

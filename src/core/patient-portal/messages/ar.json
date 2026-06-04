@@ -78,7 +78,30 @@
     "frequency": "التكرار",
     "prescribedBy": "وصفها",
     "since": "منذ {date}",
-    "none": "لا توجد أدوية مسجلة"
+    "none": "لا توجد أدوية مسجلة",
+    "everyHours": "كل {count} ساعة",
+    "class": {
+      "antibiotic": "مضاد حيوي",
+      "antispasmodic": "مضاد للتقلصات",
+      "analgesic": "مسكّن",
+      "supplement": "مكمّل غذائي",
+      "vitamin": "فيتامين"
+    },
+    "unit": {
+      "tablet": "قرص",
+      "capsule": "كبسولة",
+      "injection": "حقنة",
+      "drops": "نقطة",
+      "syrup": "مل"
+    },
+    "food": {
+      "before_meal": "قبل الأكل",
+      "after_meal": "بعد الأكل",
+      "with_food": "مع الأكل"
+    },
+    "durationDays": "{count, plural, one {يوم} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}",
+    "durationWeeks": "{count, plural, one {أسبوع} two {أسبوعان} few {# أسابيع} many {# أسبوعًا} other {# أسبوع}}",
+    "durationMonths": "{count, plural, one {شهر} two {شهران} few {# أشهر} many {# شهرًا} other {# شهر}}"
   },
   "tests": {
     "title": "التحاليل والفحوصات",
