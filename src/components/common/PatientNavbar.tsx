@@ -48,7 +48,7 @@ export function PatientNavbar() {
 
   // Validate the real patient session beyond the optimistic proxy gate: if the
   // token is missing/invalid, bounce to the patient sign-in.
-  const { isError: sessionInvalid } = usePatientMe();
+  const { data: me, isError: sessionInvalid } = usePatientMe();
   useEffect(() => {
     if (sessionInvalid) router.replace("/patient/signin");
   }, [sessionInvalid, router]);
@@ -87,7 +87,7 @@ export function PatientNavbar() {
             </span>
             <div className="flex flex-col items-start leading-none gap-0.5">
               <span className="text-sm text-brand-black whitespace-nowrap">
-                {self?.fullName ?? "—"}
+                {me?.display_name ?? self?.fullName ?? "—"}
               </span>
               <span
                 className={cn(
