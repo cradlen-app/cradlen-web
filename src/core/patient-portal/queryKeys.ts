@@ -8,6 +8,8 @@
 export const patientPortalQueryKeys = {
   /** Broad key — matches everything for the module. */
   all: () => ["patient-portal"] as const,
+  /** The authenticated patient/guardian identity from /patient-auth/me. */
+  me: () => ["patient-portal", "me"] as const,
   profiles: () => ["patient-portal", "profiles"] as const,
   healthRecord: (patientId: string) =>
     ["patient-portal", "health-record", patientId] as const,

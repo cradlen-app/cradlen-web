@@ -1,12 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import Image from "next/image";
 import { Bell, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import Logo from "@/public/Logo.png";
 import { cn } from "@/common/utils/utils";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { usePatientMe } from "@/features/auth/hooks/usePatientAuth";
 import { usePatientProfiles } from "@/core/patient-portal/api";
 import { PatientProfileSwitcher } from "./PatientProfileSwitcher";
 
@@ -40,8 +42,16 @@ function IconButton({
  */
 export function PatientNavbar() {
   const t = useTranslations("patientPortal");
+  const router = useRouter();
   const { data: profiles } = usePatientProfiles();
   const self = profiles?.find((p) => p.kind === "self");
+
+  // Validate the real patient session beyond the optimistic proxy gate: if the
+  // token is missing/invalid, bounce to the patient sign-in.
+  const { isError: sessionInvalid } = usePatientMe();
+  useEffect(() => {
+    if (sessionInvalid) router.replace("/patient/signin");
+  }, [sessionInvalid, router]);
 
   return (
     <header className="relative h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0">

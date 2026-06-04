@@ -219,6 +219,21 @@ export function SignInForm() {
       >
         {t("forgotPassword")}
       </Link>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3 text-xs text-gray-400">
+        <span className="h-px flex-1 bg-gray-200" />
+        {t("orDivider")}
+        <span className="h-px flex-1 bg-gray-200" />
+      </div>
+
+      {/* Sign in as a patient */}
+      <Link
+        href="/patient/signin"
+        className="w-full rounded-full border border-brand-primary py-3.5 text-center text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary/5"
+      >
+        {t("patientSignIn.cta")}
+      </Link>
     </form>
   );
 }
