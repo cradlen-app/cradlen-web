@@ -45,12 +45,15 @@ export function SectionCard({
   );
 }
 
-/** Provenance pill showing which clinic an aggregated item came from. */
-export function ClinicTag({ clinic }: { clinic: Clinic }) {
+/**
+ * Provenance pill showing which clinic an aggregated item came from. When `org`
+ * is provided it reads "Organization · Branch"; otherwise just the branch name.
+ */
+export function ClinicTag({ clinic, org }: { clinic: Clinic; org?: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-md border border-brand-secondary bg-brand-secondary/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-primary">
       <MapPin className="size-2.5" />
-      {clinic.name}
+      {org ? `${org} · ${clinic.name}` : clinic.name}
     </span>
   );
 }

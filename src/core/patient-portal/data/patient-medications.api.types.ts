@@ -27,7 +27,10 @@ export interface ApiPatientMedicationItem {
   is_current: boolean;
   /** Already formatted as "Dr. <first> <last>". */
   doctor_name: string | null;
+  /** The branch name the visit took place at. */
   clinic_name: string | null;
+  /** The organization (clinic group) the branch belongs to. */
+  organization_name: string | null;
 }
 
 export interface ApiPatientMedicationsResponse {
