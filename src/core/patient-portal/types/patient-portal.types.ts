@@ -67,6 +67,26 @@ export interface PortalVisit {
 
 export type MedicationStatus = "active" | "past";
 
+/** Dosage form — drives the card icon and the per-dose unit label. */
+export type MedicationForm =
+  | "tablet"
+  | "capsule"
+  | "injection"
+  | "drops"
+  | "syrup"
+  | "other";
+
+/** When to take the medication relative to meals. */
+export type FoodTiming = "before_meal" | "after_meal" | "with_food";
+
+/** Therapeutic class, shown as a small label on the card. */
+export type MedicationClass =
+  | "antibiotic"
+  | "antispasmodic"
+  | "analgesic"
+  | "supplement"
+  | "vitamin";
+
 export interface PortalMedication {
   id: string;
   name: string;
@@ -80,6 +100,18 @@ export interface PortalMedication {
   status: MedicationStatus;
   /** Remaining days in the course (active meds), for the Home preview. */
   daysLeft?: number;
+  /** Therapeutic class label, e.g. "antibiotic". */
+  drugClass?: MedicationClass;
+  /** Dosage form; drives the card icon and dose unit. */
+  form?: MedicationForm;
+  /** Units taken per dose, e.g. 1 → "1 tab". */
+  amountPerDose?: number;
+  /** Hours between doses, e.g. 8 → "8 h". */
+  intervalHours?: number;
+  /** Relation to meals. */
+  foodTiming?: FoodTiming;
+  /** Total course length in days; formatted as days/weeks/months. */
+  courseDays?: number;
 }
 
 /**
