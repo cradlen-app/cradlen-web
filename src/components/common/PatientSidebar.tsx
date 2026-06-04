@@ -8,7 +8,7 @@ import { cn } from "@/common/utils/utils";
 import { PATIENT_NAV, patientHref } from "./patient-nav";
 import { PatientProfileSwitcher } from "./PatientProfileSwitcher";
 import { SidebarNav, type SidebarNavItem } from "./SidebarNav";
-import { useLogout } from "./hooks/useLogout";
+import { usePatientLogout } from "@/features/auth/hooks/usePatientAuth";
 
 const NAV_ITEMS: SidebarNavItem[] = PATIENT_NAV.map(({ path, key, icon }) => ({
   path,
@@ -25,7 +25,7 @@ const NAV_ITEMS: SidebarNavItem[] = PATIENT_NAV.map(({ path, key, icon }) => ({
 export function PatientSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const t = useTranslations("patientPortal");
-  const { handleLogout } = useLogout();
+  const logout = usePatientLogout();
 
   return (
     <aside
@@ -66,10 +66,11 @@ export function PatientSidebar() {
       <div className="px-2 py-3 border-t border-gray-100">
         <button
           type="button"
-          onClick={() => void handleLogout()}
+          onClick={() => logout.mutate()}
+          disabled={logout.isPending}
           title={collapsed ? t("shell.logout") : undefined}
           className={cn(
-            "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150",
+            "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150 disabled:opacity-50",
             collapsed && "justify-center px-0",
           )}
         >

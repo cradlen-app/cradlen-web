@@ -77,7 +77,7 @@ export function ProfileScreen() {
                             {d.fullName}
                           </span>
                           <span className="block text-xs text-gray-400">
-                            {d.relation}
+                            {t("shell.dependent")}
                             {age !== undefined ? ` · ${age}` : ""}
                           </span>
                         </span>
