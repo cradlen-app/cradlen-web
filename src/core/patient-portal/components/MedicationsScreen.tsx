@@ -138,7 +138,7 @@ function MedicationCard({
             <Icon className="size-4" />
           </span>
           <p className="truncate text-sm font-semibold text-brand-black">
-            {med.name} - {med.dose}
+            {med.name}
           </p>
         </div>
         {med.drugClass && (
@@ -150,6 +150,12 @@ function MedicationCard({
 
       <p className="mt-2 text-center text-xs text-gray-600">{dosage}</p>
 
+      {med.instructions && (
+        <p className="mt-1 text-center text-[11px] text-gray-400">
+          {t("medications.instructions")}: {med.instructions}
+        </p>
+      )}
+
       <div className="mt-2 flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
         <span className="truncate text-xs text-gray-500">
           {med.prescriberName}
@@ -160,7 +166,7 @@ function MedicationCard({
       </div>
 
       <div className="mt-2">
-        <ClinicTag clinic={med.clinic} />
+        <ClinicTag clinic={med.clinic} org={med.organizationName} />
       </div>
     </article>
   );
@@ -188,6 +194,12 @@ function useDosageLine(med: PortalMedication): string {
     segments.push(t(`medications.${key}`, { count }));
   }
 
-  if (segments.length === 0) return `${med.dose} · ${med.frequency}`;
+  // Live (non-structured) path: fall back to the raw prescription fields.
+  if (segments.length === 0) {
+    return [med.dose, med.frequency, med.route].filter(Boolean).join(" · ");
+  }
+
+  // Structured path: append the route as a trailing segment when present.
+  if (med.route) segments.push(med.route);
   return segments.join(" · ");
 }

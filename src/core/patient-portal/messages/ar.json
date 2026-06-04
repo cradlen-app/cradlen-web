@@ -76,6 +76,8 @@
     "past": "السابقة",
     "dose": "الجرعة",
     "frequency": "التكرار",
+    "route": "طريق الإعطاء",
+    "instructions": "تعليمات",
     "prescribedBy": "وصفها",
     "since": "منذ {date}",
     "none": "لا توجد أدوية مسجلة",
