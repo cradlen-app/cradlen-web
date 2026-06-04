@@ -24,6 +24,7 @@ function makeItem(
     is_current: true,
     doctor_name: "Dr. Sara Mansour",
     clinic_name: "Cradlen Maadi",
+    organization_name: "Jasmin Clinic",
     ...overrides,
   };
 }
@@ -43,6 +44,26 @@ describe("mapApiMedication", () => {
       status: "active",
     });
     expect(med.clinic).toEqual({ id: "Cradlen Maadi", name: "Cradlen Maadi" });
+  });
+
+  it("passes through route, instructions, and organization name", () => {
+    const med = mapApiMedication(
+      makeItem({ route: "oral", instructions: "after meals" }),
+      "active",
+    );
+    expect(med.route).toBe("oral");
+    expect(med.instructions).toBe("after meals");
+    expect(med.organizationName).toBe("Jasmin Clinic");
+  });
+
+  it("maps absent route/instructions/organization to undefined", () => {
+    const med = mapApiMedication(
+      makeItem({ route: null, instructions: null, organization_name: null }),
+      "active",
+    );
+    expect(med.route).toBeUndefined();
+    expect(med.instructions).toBeUndefined();
+    expect(med.organizationName).toBeUndefined();
   });
 
   it("takes status from the bucket, not the item flag", () => {

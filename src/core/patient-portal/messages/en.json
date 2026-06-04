@@ -76,6 +76,8 @@
     "past": "Past",
     "dose": "Dose",
     "frequency": "Frequency",
+    "route": "Route",
+    "instructions": "Instructions",
     "prescribedBy": "Prescribed by",
     "since": "Since {date}",
     "none": "No medications on record",

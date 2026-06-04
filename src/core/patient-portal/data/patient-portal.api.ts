@@ -29,7 +29,6 @@ import {
   DOCUMENTS,
   HEALTH_RECORDS,
   LAB_ORDERS,
-  PROFILES,
   REMINDERS,
 } from "./fixtures";
 
@@ -64,31 +63,25 @@ type PatientMeResponse = {
 };
 
 /**
- * The profile list is real: it reflects the signed-in account's accessible
- * patients (just themselves for a patient, the guarded patients for a guardian).
- * Clinical/demographic data is still mock, so each real patient is overlaid onto
- * a fixture profile **by index** — preserving the fixture id (e.g. `pat-self`)
- * so the active-profile data lookups keep resolving. Falls back to the raw
- * fixtures if the call fails (e.g. local mock dev).
+ * The profile list is the real signed-in account: the patient themselves, or
+ * the patients a guardian may act on — straight from `/patient-auth/me`, with no
+ * mock fixtures or fallback. Demographic fields the backend doesn't yet return
+ * (avatar, blood type, height, national id) are simply absent; consumers render
+ * a placeholder. Errors surface to the query (the navbar's `usePatientMe`
+ * governs the sign-in redirect).
  */
 export async function fetchProfiles(): Promise<PatientProfile[]> {
-  try {
-    const me = await apiFetch<PatientMeResponse>("/api/patient-auth/me");
-    return me.data.accessible_patients.map((real, i) => {
-      const base = PROFILES[i] ?? { id: real.id, avatar: "👤" };
-      const isSelf = real.relation === "SELF";
-      return {
-        ...base,
-        id: base.id ?? real.id,
-        kind: isSelf ? "self" : "dependent",
-        fullName: real.full_name,
-        dateOfBirth: real.date_of_birth,
-        relation: isSelf ? undefined : real.relation,
-      };
-    });
-  } catch {
-    return clone(PROFILES);
-  }
+  const me = await apiFetch<PatientMeResponse>("/api/patient-auth/me");
+  return me.data.accessible_patients.map((real) => {
+    const isSelf = real.relation === "SELF";
+    return {
+      id: real.id,
+      kind: isSelf ? "self" : "dependent",
+      fullName: real.full_name,
+      dateOfBirth: real.date_of_birth,
+      relation: isSelf ? undefined : real.relation,
+    };
+  });
 }
 
 export function fetchHealthRecord(patientId: string): Promise<HealthRecord> {
