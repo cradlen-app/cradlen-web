@@ -78,7 +78,30 @@
     "frequency": "Frequency",
     "prescribedBy": "Prescribed by",
     "since": "Since {date}",
-    "none": "No medications on record"
+    "none": "No medications on record",
+    "everyHours": "{count} h",
+    "class": {
+      "antibiotic": "Antibiotic",
+      "antispasmodic": "Antispasmodic",
+      "analgesic": "Analgesic",
+      "supplement": "Supplement",
+      "vitamin": "Vitamin"
+    },
+    "unit": {
+      "tablet": "tab",
+      "capsule": "cap",
+      "injection": "inj",
+      "drops": "drop",
+      "syrup": "ml"
+    },
+    "food": {
+      "before_meal": "before meals",
+      "after_meal": "after meals",
+      "with_food": "with food"
+    },
+    "durationDays": "{count, plural, one {# day} other {# days}}",
+    "durationWeeks": "{count, plural, one {# week} other {# weeks}}",
+    "durationMonths": "{count, plural, one {# month} other {# months}}"
   },
   "tests": {
     "title": "Lab & tests",
