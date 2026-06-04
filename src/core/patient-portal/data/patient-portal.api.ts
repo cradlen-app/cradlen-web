@@ -1,13 +1,18 @@
 /**
  * Patient portal data access — the single swap point for the real backend.
  *
- * Today every function resolves from in-memory fixtures behind a short delay.
- * When patient-scoped endpoints exist, replace each body with an
- * `apiAuthFetch("/...")` call; the return types and all callers stay identical.
+ * `fetchMedications` is wired to the live patient-scoped endpoint
+ * (`/api/patient-portal/medications`). The remaining functions still resolve
+ * from in-memory fixtures until their backends exist; replace each body with a
+ * patient-scoped fetch the same way when they do — the return types and all
+ * callers stay identical.
  *
  * Uploads mutate a module-local clone of the fixtures so the prototype reflects
  * new documents and flips the related lab order to "pending_review".
  */
+import { apiFetch } from "@/infrastructure/http/api";
+import { mapApiMedication } from "../lib/map-medication";
+import type { ApiPatientMedicationsResponse } from "./patient-medications.api.types";
 import type {
   Appointment,
   HealthRecord,
@@ -24,7 +29,6 @@ import {
   DOCUMENTS,
   HEALTH_RECORDS,
   LAB_ORDERS,
-  MEDICATIONS,
   PROFILES,
   REMINDERS,
 } from "./fixtures";
@@ -61,8 +65,17 @@ export function fetchHealthRecord(patientId: string): Promise<HealthRecord> {
   return delay(clone(record));
 }
 
-export function fetchMedications(patientId: string): Promise<PortalMedication[]> {
-  return delay(clone(MEDICATIONS[patientId] ?? []));
+export async function fetchMedications(
+  patientId: string,
+): Promise<PortalMedication[]> {
+  const qs = patientId ? `?patient_id=${encodeURIComponent(patientId)}` : "";
+  const res = await apiFetch<ApiPatientMedicationsResponse>(
+    `/api/patient-portal/medications${qs}`,
+  );
+  return [
+    ...res.data.current.map((m) => mapApiMedication(m, "active")),
+    ...res.data.past.map((m) => mapApiMedication(m, "past")),
+  ];
 }
 
 export function fetchLabOrders(patientId: string): Promise<LabOrder[]> {
