@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import {
   AUTH_REFRESH_TOKEN_MAX_AGE,
   PATIENT_AUTH_REFRESH_TOKEN_COOKIE,
@@ -134,6 +134,63 @@ export async function getValidPatientAccessToken(): Promise<{
   } catch {
     return { accessToken: null, refreshedTokens: null };
   }
+}
+
+/**
+ * Read-only check for a usable patient session, for server components (e.g. the
+ * portal layout) that cannot persist rotated cookies. Deliberately does NOT
+ * refresh: a valid access token, or a refresh cookie (which the API routes will
+ * spend), is enough. Mirrors the proxy's `hasPatientAccess`.
+ */
+export async function hasPatientSessionCookies(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const access = cookieStore.get(PATIENT_AUTH_TOKEN_COOKIE)?.value;
+  const refresh = cookieStore.get(PATIENT_AUTH_REFRESH_TOKEN_COOKIE)?.value;
+  return Boolean((access && !isExpiredJwt(access)) || refresh);
+}
+
+// --- Authenticated backend proxy ----------------------------------------------
+
+/**
+ * Forwards a request to the backend with the patient's access token, rotating it
+ * via the refresh cookie when expired. The single guard behind every patient
+ * data route — mirrors the staff `proxyAuthenticatedRequest`, minus the
+ * selection-token / org-header machinery patients don't have.
+ */
+export async function proxyAuthenticatedPatientRequest(
+  request: NextRequest,
+  backendPath: string,
+) {
+  const body = ["GET", "HEAD"].includes(request.method)
+    ? undefined
+    : await request.arrayBuffer();
+
+  const { accessToken, refreshedTokens } = await getValidPatientAccessToken();
+  if (!accessToken) {
+    const res = NextResponse.json(
+      { message: "Authentication required" },
+      { status: 401 },
+    );
+    clearPatientAuthCookies(res);
+    return res;
+  }
+
+  const backendResponse = await backendFetch(backendPath, {
+    method: request.method,
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body,
+  });
+
+  const res =
+    backendResponse.status === 204
+      ? new NextResponse(null, { status: 204 })
+      : NextResponse.json(await readBackendJson(backendResponse), {
+          status: backendResponse.status,
+        });
+
+  if (refreshedTokens) setPatientAuthCookies(res, refreshedTokens);
+  if (backendResponse.status === 401) clearPatientAuthCookies(res);
+  return res;
 }
 
 // --- Token-issuing response helpers -------------------------------------------
