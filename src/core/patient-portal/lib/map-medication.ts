@@ -8,7 +8,6 @@
  * do not parse them into `amountPerDose` / `intervalHours` / `courseDays`.
  */
 import type {
-  MedicationClass,
   MedicationForm,
   MedicationStatus,
   PortalMedication,
@@ -24,28 +23,11 @@ const FORMS: ReadonlySet<MedicationForm> = new Set([
   "other",
 ]);
 
-const CLASSES: ReadonlySet<MedicationClass> = new Set([
-  "antibiotic",
-  "antispasmodic",
-  "analgesic",
-  "supplement",
-  "vitamin",
-]);
-
 /** Known dosage form (lowercased), or `"other"` for an unrecognized value. */
 function mapForm(form: string | null): MedicationForm | undefined {
   if (!form) return undefined;
   const key = form.trim().toLowerCase();
   return FORMS.has(key as MedicationForm) ? (key as MedicationForm) : "other";
-}
-
-/** Known therapeutic class (lowercased), or `undefined` to hide the label. */
-function mapClass(category: string | null): MedicationClass | undefined {
-  if (!category) return undefined;
-  const key = category.trim().toLowerCase();
-  return CLASSES.has(key as MedicationClass)
-    ? (key as MedicationClass)
-    : undefined;
 }
 
 const DAY_MS = 86_400_000;
@@ -83,7 +65,7 @@ export function mapApiMedication(
     endDate: item.end_date ?? undefined,
     status,
     daysLeft: status === "active" ? daysLeftFrom(item.end_date) : undefined,
-    drugClass: mapClass(item.category),
+    category: item.category ?? undefined,
     form: mapForm(item.form),
   };
 }
