@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
 import { formatDate } from "../lib/format";
-import { courseUnit, formUnitKey, MED_FORM_ICON } from "../lib/medications";
+import { MED_FORM_ICON } from "../lib/medications";
 import { useMedications } from "../hooks/usePortalData";
 import type { PortalMedication } from "../types/patient-portal.types";
 import { ClinicTag, EmptyState, ScreenHeader } from "./portal-ui";
@@ -123,7 +123,6 @@ function MedicationCard({
   const locale = useLocale();
 
   const Icon = MED_FORM_ICON[med.form ?? "other"];
-  const dosage = useDosageLine(med);
 
   return (
     <article
@@ -141,20 +140,26 @@ function MedicationCard({
             {med.name}
           </p>
         </div>
-        {med.drugClass && (
-          <span className="shrink-0 text-[11px] text-gray-400">
-            {t(`medications.class.${med.drugClass}`)}
+        {med.category && (
+          <span className="shrink-0 rounded-full bg-brand-secondary/10 px-2 py-0.5 text-[11px] font-medium text-brand-primary">
+            {med.category}
           </span>
         )}
       </div>
 
-      <p className="mt-2 text-center text-xs text-gray-600">{dosage}</p>
-
-      {med.instructions && (
-        <p className="mt-1 text-center text-[11px] text-gray-400">
-          {t("medications.instructions")}: {med.instructions}
-        </p>
-      )}
+      <div className="mt-2 flex flex-col gap-1">
+        <DetailRow label={t("medications.dose")} value={med.dose} />
+        <DetailRow label={t("medications.frequency")} value={med.frequency} />
+        {med.route && (
+          <DetailRow label={t("medications.route")} value={med.route} />
+        )}
+        {med.instructions && (
+          <DetailRow
+            label={t("medications.instructions")}
+            value={med.instructions}
+          />
+        )}
+      </div>
 
       <div className="mt-2 flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
         <span className="truncate text-xs text-gray-500">
@@ -172,34 +177,12 @@ function MedicationCard({
   );
 }
 
-/** Builds "1 tab / 8 h · before meals · 1 month", falling back to dose · frequency. */
-function useDosageLine(med: PortalMedication): string {
-  const t = useTranslations("patientPortal");
-
-  const primaryParts: string[] = [];
-  if (med.amountPerDose != null && med.form) {
-    primaryParts.push(
-      `${med.amountPerDose} ${t(`medications.unit.${formUnitKey(med.form)}`)}`,
-    );
-  }
-  if (med.intervalHours != null) {
-    primaryParts.push(t("medications.everyHours", { count: med.intervalHours }));
-  }
-
-  const segments: string[] = [];
-  if (primaryParts.length > 0) segments.push(primaryParts.join(" / "));
-  if (med.foodTiming) segments.push(t(`medications.food.${med.foodTiming}`));
-  if (med.courseDays != null) {
-    const { key, count } = courseUnit(med.courseDays);
-    segments.push(t(`medications.${key}`, { count }));
-  }
-
-  // Live (non-structured) path: fall back to the raw prescription fields.
-  if (segments.length === 0) {
-    return [med.dose, med.frequency, med.route].filter(Boolean).join(" · ");
-  }
-
-  // Structured path: append the route as a trailing segment when present.
-  if (med.route) segments.push(med.route);
-  return segments.join(" · ");
+/** A single labeled detail row inside a medication card. */
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-3 text-xs">
+      <span className="shrink-0 text-gray-400">{label}</span>
+      <span className="text-end font-medium text-gray-700">{value}</span>
+    </div>
+  );
 }
