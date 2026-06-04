@@ -87,15 +87,15 @@ describe("mapApiMedication", () => {
     ).toBeUndefined();
   });
 
-  it("maps a known therapeutic class and omits an unknown one", () => {
+  it("passes the raw category through (any value), null → undefined", () => {
     expect(
-      mapApiMedication(makeItem({ category: "Supplement" }), "active").drugClass,
-    ).toBe("supplement");
+      mapApiMedication(makeItem({ category: "Supplement" }), "active").category,
+    ).toBe("Supplement");
     expect(
-      mapApiMedication(makeItem({ category: "Hormone" }), "active").drugClass,
-    ).toBeUndefined();
+      mapApiMedication(makeItem({ category: "Antacid" }), "active").category,
+    ).toBe("Antacid");
     expect(
-      mapApiMedication(makeItem({ category: null }), "active").drugClass,
+      mapApiMedication(makeItem({ category: null }), "active").category,
     ).toBeUndefined();
   });
 

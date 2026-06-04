@@ -106,8 +106,8 @@ export interface PortalMedication {
   status: MedicationStatus;
   /** Remaining days in the course (active meds), for the Home preview. */
   daysLeft?: number;
-  /** Therapeutic class label, e.g. "antibiotic". */
-  drugClass?: MedicationClass;
+  /** Therapeutic category, shown as a label, e.g. "Antibiotic" (raw backend value). */
+  category?: string;
   /** Dosage form; drives the card icon and dose unit. */
   form?: MedicationForm;
   /** Units taken per dose, e.g. 1 → "1 tab". */
