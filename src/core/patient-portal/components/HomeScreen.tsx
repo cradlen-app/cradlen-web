@@ -13,7 +13,7 @@ import { PatientProfileCard } from "./home/PatientProfileCard";
  */
 export function HomeScreen() {
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-6xl space-y-5">
       <WelcomeHeader />
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-5">
