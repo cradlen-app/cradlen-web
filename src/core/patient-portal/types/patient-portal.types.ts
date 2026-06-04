@@ -93,8 +93,14 @@ export interface PortalMedication {
   genericName?: string;
   dose: string;
   frequency: string;
+  /** Administration route, e.g. "oral". */
+  route?: string;
+  /** Free-text usage instructions, e.g. "after meals". */
+  instructions?: string;
   prescriberName: string;
   clinic: Clinic;
+  /** Organization (clinic group) the prescribing branch belongs to. */
+  organizationName?: string;
   startDate: string;
   endDate?: string;
   status: MedicationStatus;
