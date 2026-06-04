@@ -422,6 +422,10 @@
       "submitButton": "تسجيل الدخول",
       "noticeAccountExists": "لديك حساب بالفعل. يرجى تسجيل الدخول أدناه.",
       "forgotPassword": "هل نسيت كلمة المرور ؟",
+      "orDivider": "أو",
+      "patientSignIn": {
+        "cta": "تسجيل الدخول كمريض"
+      },
       "newToCommunity": "عضو جديد في مجتمعنا ؟",
       "copyright": "2026 CRADLEN. جميع الحقوق محفوظة.",
       "termsOfService": "شروط الخدمة",
@@ -441,6 +445,63 @@
       },
       "toasts": {
         "resumingRegistration": "تسجيلك غير مكتمل — جارٍ إعادة التوجيه لاستكمال إنشاء الحساب."
+      }
+    },
+    "patientSignIn": {
+      "title": "تسجيل دخول المريض",
+      "nationalIdLabel": "الرقم القومي",
+      "passwordLabel": "كلمة المرور",
+      "showPassword": "إظهار",
+      "hidePassword": "إخفاء",
+      "submitButton": "تسجيل الدخول",
+      "newToCommunity": "عضو جديد في مجتمعنا ؟",
+      "errors": {
+        "nationalIdRequired": "الرقم القومي مطلوب",
+        "nationalIdInvalid": "أدخل رقمًا قوميًا صحيحًا مكونًا من 14 رقمًا",
+        "passwordRequired": "كلمة المرور مطلوبة",
+        "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "passwordLowercase": "يجب أن تحتوي كلمة المرور على حرف صغير",
+        "passwordUppercase": "يجب أن تحتوي كلمة المرور على حرف كبير",
+        "passwordNumber": "يجب أن تحتوي كلمة المرور على رقم",
+        "passwordSymbol": "يجب أن تحتوي كلمة المرور على رمز",
+        "invalidCredentials": "الرقم القومي أو كلمة المرور غير صحيحة",
+        "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "patientSignUp": {
+      "alreadyHaveAccount": "لديك حساب بالفعل ؟",
+      "step1Label": "بياناتك",
+      "step2Label": "كلمة المرور",
+      "nationalIdLabel": "الرقم القومي",
+      "nationalIdPlaceholder": "الرقم القومي المكون من 14 رقمًا",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "+20 100 000 0000",
+      "dateOfBirthLabel": "تاريخ الميلاد",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+      "showPassword": "إظهار",
+      "hidePassword": "إخفاء",
+      "nextButton": "التالي",
+      "backButton": "رجوع",
+      "submitButton": "إنشاء حساب",
+      "errors": {
+        "nationalIdRequired": "الرقم القومي مطلوب",
+        "nationalIdInvalid": "أدخل رقمًا قوميًا صحيحًا مكونًا من 14 رقمًا",
+        "phoneRequired": "رقم الهاتف مطلوب",
+        "invalidPhone": "أدخل رقم هاتف صحيح",
+        "dateOfBirthRequired": "تاريخ الميلاد مطلوب",
+        "dateOfBirthInvalid": "أدخل تاريخ ميلاد صحيح",
+        "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "passwordLowercase": "يجب أن تحتوي كلمة المرور على حرف صغير",
+        "passwordUppercase": "يجب أن تحتوي كلمة المرور على حرف كبير",
+        "passwordNumber": "يجب أن تحتوي كلمة المرور على رقم",
+        "passwordSymbol": "يجب أن تحتوي كلمة المرور على رمز",
+        "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+        "passwordMismatch": "كلمتا المرور غير متطابقتين",
+        "signupStartFailed": "لم نتمكن من العثور على سجل مريض مطابق لهذه البيانات.",
+        "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
       }
     },
     "selectProfile": {
