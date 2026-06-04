@@ -8,7 +8,10 @@ import { useTranslations } from "next-intl";
 import LogoIcon from "@/public/Logo-icon.png";
 import { cn } from "@/common/utils/utils";
 import { Link } from "@/i18n/navigation";
-import { usePatientLogout } from "@/features/auth/hooks/usePatientAuth";
+import {
+  usePatientLogout,
+  usePatientMe,
+} from "@/features/auth/hooks/usePatientAuth";
 import {
   useActivePatientId,
   usePatientProfiles,
@@ -37,10 +40,16 @@ export function PatientProfileSwitcher({
   const activeId = useActivePatientId();
   const setActive = usePatientProfileStore((s) => s.setActiveProfile);
   const logout = usePatientLogout();
+  const { data: me } = usePatientMe();
 
+  // The account holder (self) shows the real signed-in identity; dependents
+  // stay on fixtures until patient-scoped data is wired.
+  const selfName = me?.display_name;
   const active = profiles?.find((p) => p.id === activeId);
   const activeLabel =
-    active?.kind === "self" ? t("shell.you") : (active?.fullName ?? "");
+    active?.kind === "self"
+      ? (selfName ?? t("shell.you"))
+      : (active?.fullName ?? "");
 
   // Collapsed sidebar: just the brand logo, no switching affordance.
   if (variant === "sidebar" && collapsed) {
@@ -68,7 +77,9 @@ export function PatientProfileSwitcher({
           </span>
           <span className="flex min-w-0 flex-1 flex-col leading-tight">
             <span className="truncate text-sm text-brand-black">
-              {active?.fullName}
+              {active?.kind === "self"
+                ? (selfName ?? active?.fullName)
+                : active?.fullName}
             </span>
             <span className="truncate text-[11px] text-gray-400">
               {active?.kind === "self" ? t("shell.you") : active?.relation}
@@ -139,7 +150,7 @@ export function PatientProfileSwitcher({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium text-brand-black">
-                      {p.fullName}
+                      {p.kind === "self" ? (selfName ?? p.fullName) : p.fullName}
                     </span>
                     <span className="block truncate text-xs text-gray-400">
                       {p.kind === "self" ? t("shell.you") : p.relation}

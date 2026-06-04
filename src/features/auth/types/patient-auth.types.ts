@@ -24,11 +24,20 @@ export type PatientSignupStartResponse = {
   meta: Record<string, unknown>;
 };
 
+export type PatientSummary = {
+  id: string;
+  full_name: string;
+  date_of_birth: string; // YYYY-MM-DD
+  relation: string; // "SELF" or a GuardianRelation value
+};
+
 export type PatientIdentity = {
   user_id: string;
   patient_id: string | null;
   guardian_id: string | null;
   accessible_patient_ids: string[];
+  display_name: string;
+  accessible_patients: PatientSummary[];
 };
 
 export type PatientMeResponse = {
