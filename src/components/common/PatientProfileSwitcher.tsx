@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronDown, Check, FileUp, User } from "lucide-react";
+import { ChevronDown, Check, FileUp, LogOut, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import LogoIcon from "@/public/Logo-icon.png";
 import { cn } from "@/common/utils/utils";
 import { Link } from "@/i18n/navigation";
+import { usePatientLogout } from "@/features/auth/hooks/usePatientAuth";
 import {
   useActivePatientId,
   usePatientProfiles,
@@ -35,6 +36,7 @@ export function PatientProfileSwitcher({
   const { data: profiles } = usePatientProfiles();
   const activeId = useActivePatientId();
   const setActive = usePatientProfileStore((s) => s.setActiveProfile);
+  const logout = usePatientLogout();
 
   const active = profiles?.find((p) => p.id === activeId);
   const activeLabel =
@@ -170,6 +172,22 @@ export function PatientProfileSwitcher({
                 </Link>
               </div>
             )}
+
+            <div className="mt-1 border-t border-gray-100 pt-1">
+              <button
+                type="button"
+                role="menuitem"
+                disabled={logout.isPending}
+                onClick={() => {
+                  setOpen(false);
+                  logout.mutate();
+                }}
+                className="flex w-full items-center gap-3 px-3 py-2.5 text-start text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              >
+                <LogOut className="size-4 shrink-0" />
+                {t("shell.logout")}
+              </button>
+            </div>
           </div>
         </>
       )}
