@@ -214,6 +214,12 @@ export interface PortalTest {
   organizationName?: string;
   /** Viewable result attachment, present once reviewed (clinic-published). */
   resultUrl?: string;
+  /**
+   * Patient-uploaded result files. Client-side optimistic mock for now — the
+   * backend has no patient-upload endpoint yet — so these persist per session
+   * via `uploadInvestigationFiles`. Empty/absent renders as "No Uploaded Files".
+   */
+  files?: UploadFile[];
   /** Present once a clinician has reviewed the result. */
   review?: PortalTestReview;
 }
