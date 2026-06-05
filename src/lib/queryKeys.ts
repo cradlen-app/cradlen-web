@@ -75,6 +75,13 @@ export const queryKeys = {
       ["notifications", opts] as const,
   },
 
+  // ── Investigations (doctor review) ────────────────────────────────────────
+  investigations: {
+    /** Broad key — matches all investigation queries. */
+    all: () => ["investigations"] as const,
+    review: (id: string) => ["investigations", "review", id] as const,
+  },
+
   // ── Calendar ──────────────────────────────────────────────────────────────
   calendar: {
     /** Broad key — matches all calendar queries. */
