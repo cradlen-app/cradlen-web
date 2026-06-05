@@ -71,6 +71,8 @@
     "medications": "الأدوية",
     "investigations": "الفحوصات",
     "noVisits": "لا توجد زيارات مسجلة بعد",
+    "loadMore": "تحميل المزيد",
+    "loading": "جارٍ التحميل…",
     "typeLabel": {
       "VISIT": "زيارة",
       "FOLLOW_UP": "متابعة"
