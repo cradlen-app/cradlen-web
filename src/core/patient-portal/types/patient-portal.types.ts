@@ -52,6 +52,12 @@ export interface Allergy {
 
 export type VisitStatus = "completed" | "scheduled" | "cancelled";
 
+/** Appointment type — mirrors the staff `ApiVisitHistoryEntry.appointment_type`. */
+export type VisitType = "VISIT" | "FOLLOW_UP";
+
+/** Clinical urgency, drives the colored-dot pill on the visit card. */
+export type VisitPriority = "normal" | "urgent" | "emergency";
+
 /** A past or scheduled clinical encounter, surfaced in the health record. */
 export interface PortalVisit {
   id: string;
@@ -63,6 +69,16 @@ export interface PortalVisit {
   diagnosis?: string;
   notes?: string;
   status: VisitStatus;
+  /** Appointment type, shown as a label on the history card. */
+  type?: VisitType;
+  /** Clinical urgency, shown as a colored-dot pill. */
+  priority?: VisitPriority;
+  /** Prescribed medications, as display strings e.g. "Calcium Carbonate 500mg". */
+  medications?: string[];
+  /** Ordered investigations, e.g. "Complete blood count (CBC)". */
+  investigations?: string[];
+  /** Organization (clinic group) the visit's branch belongs to, for the tag. */
+  organizationName?: string;
 }
 
 export type MedicationStatus = "active" | "past";
