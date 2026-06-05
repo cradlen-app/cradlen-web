@@ -41,7 +41,7 @@ export function mapApiInvestigation(
     status: reviewed ? "reviewed" : "pending",
     clinic: { id: branchName, name: branchName },
     organizationName: item.organization_name ?? undefined,
-    results: item.result_attachments.map((a) => ({
+    results: (item.result_attachments ?? []).map((a) => ({
       id: a.id,
       url: a.url,
       contentType: a.content_type ?? undefined,
