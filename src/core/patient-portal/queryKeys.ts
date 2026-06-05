@@ -21,6 +21,14 @@ export const patientPortalQueryKeys = {
     ["patient-portal", "medications", patientId] as const,
   labOrders: (patientId: string) =>
     ["patient-portal", "lab-orders", patientId] as const,
+  investigations: (patientId: string, status?: string, type?: string) =>
+    [
+      "patient-portal",
+      "investigations",
+      patientId,
+      status ?? "all",
+      type ?? "all",
+    ] as const,
   documents: (patientId: string) =>
     ["patient-portal", "documents", patientId] as const,
   appointments: (patientId: string) =>
