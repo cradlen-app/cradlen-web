@@ -68,31 +68,32 @@ export function VisitsHistory() {
 
                 <div className={isLast ? "flex-1" : "flex-1 pb-6"}>
                   <article className="rounded-xl border border-gray-100 p-4">
-                    <header className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs font-medium text-gray-700">
-                        {t(`record.typeLabel.${visit.type ?? "VISIT"}`)}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
-                        <span
-                          className={cn(
-                            "size-1.5 rounded-full",
-                            PRIORITY_DOT[priority],
-                          )}
-                          aria-hidden="true"
+                    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-gray-700">
+                          {t(`record.typeLabel.${visit.type ?? "VISIT"}`)}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                          <span
+                            className={cn(
+                              "size-1.5 rounded-full",
+                              PRIORITY_DOT[priority],
+                            )}
+                            aria-hidden="true"
+                          />
+                          {t(`record.priority.${priority}`)}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-gray-500">
+                          {visit.doctorName} · {visit.specialty}
+                        </span>
+                        <ClinicTag
+                          clinic={visit.clinic}
+                          org={visit.organizationName}
                         />
-                        {t(`record.priority.${priority}`)}
-                      </span>
+                      </div>
                     </header>
-
-                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs text-gray-500">
-                        {visit.doctorName} · {visit.specialty}
-                      </span>
-                      <ClinicTag
-                        clinic={visit.clinic}
-                        org={visit.organizationName}
-                      />
-                    </div>
 
                     {visit.diagnosis && (
                       <Section title={t("record.diagnosis")}>
