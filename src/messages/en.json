@@ -551,6 +551,31 @@
       "country": "Country"
     }
   },
+  "investigationReview": {
+    "title": "Investigations",
+    "close": "Close",
+    "notes": "Notes",
+    "notesPlaceholder": "Add your review notes…",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Review saved",
+    "noResult": "No result uploaded yet",
+    "fields": {
+      "patient": "Patient",
+      "visitId": "Visit ID",
+      "status": "Status",
+      "updatedAt": "updated at",
+      "type": "Type",
+      "testName": "Test Name",
+      "reason": "Reason"
+    },
+    "status": {
+      "ORDERED": "Ordered",
+      "RESULTED": "Pending",
+      "REVIEWED": "Reviewed",
+      "CANCELLED": "Cancelled"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all as read",

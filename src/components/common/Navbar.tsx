@@ -13,6 +13,7 @@ import { useSidebar } from "@/components/layout/SidebarContext";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
 import { NotificationDropdown } from "@/features/notifications/components/NotificationDropdown";
+import { InvestigationReviewDrawer } from "@/features/investigations/components/InvestigationReviewDrawer";
 import { Link } from "@/i18n/navigation";
 
 function UserAvatar({
@@ -107,6 +108,9 @@ export function Navbar() {
       >
         <Image src={Logo} alt="CRADLEN" className="w-auto" />
       </Link>
+
+      {/* Global doctor-side investigation review drawer (opened from notifications) */}
+      <InvestigationReviewDrawer />
 
       {/* Right section */}
       <div className="flex items-center gap-1">

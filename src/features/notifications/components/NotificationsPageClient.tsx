@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/common/utils/utils";
+import { useInvestigationReviewStore } from "@/features/investigations/store/investigationReviewStore";
 import { useNotifications } from "../hooks/useNotifications";
 import { NotificationItem } from "./NotificationItem";
 import type { Notification, NotificationCategory } from "../types/notification.types";
@@ -47,6 +48,11 @@ export function NotificationsPageClient() {
 
   function handleItemClick(notification: Notification) {
     markAsRead(notification.id);
+    const investigationId = notification.metadata?.investigationId;
+    if (typeof investigationId === "string") {
+      useInvestigationReviewStore.getState().open(investigationId);
+      return;
+    }
     if (notification.navigate_to) {
       router.push(notification.navigate_to as Parameters<typeof router.push>[0]);
     }
