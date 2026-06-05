@@ -38,8 +38,11 @@ export interface ApiPatientInvestigationItem {
   reviewed_by_name: string | null;
   /** Result text; null until the result is REVIEWED. */
   result_text: string | null;
-  /** Visible result files (patient-uploaded always; clinic files when REVIEWED). */
-  result_attachments: ApiInvestigationAttachment[];
+  /**
+   * Visible result files (patient-uploaded always; clinic files when REVIEWED).
+   * Optional: omitted by older API builds, so consumers must null-guard it.
+   */
+  result_attachments?: ApiInvestigationAttachment[];
   visit_id: string;
   /** ISO timestamp of the visit the investigation was ordered in. */
   visit_date: string;
