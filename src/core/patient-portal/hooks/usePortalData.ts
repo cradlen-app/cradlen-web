@@ -7,6 +7,7 @@ import {
   fetchDocuments,
   fetchHealthRecord,
   fetchLabOrders,
+  fetchInvestigations,
   fetchMedications,
   fetchObgynHistory,
   fetchReminders,
@@ -43,6 +44,49 @@ export function useVisitHistory() {
         patientId: patientId as string,
         page: pageParam,
         limit: 10,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.flatMap((p) => p.data).length;
+      return loaded < lastPage.meta.total ? allPages.length + 1 : undefined;
+    },
+    enabled: Boolean(patientId),
+  });
+
+  const entries = query.data?.pages.flatMap((p) => p.data) ?? [];
+
+  return {
+    entries,
+    isLoading: query.isLoading,
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore: query.hasNextPage,
+    loadMore: query.fetchNextPage,
+  };
+}
+
+/**
+ * Paginated investigations (lab tests & imaging) for the patient currently in
+ * view (newest first), as an infinite query against the live endpoint. Scoped
+ * by the real backend patient id (see `useResolvedPatientId`) and gated until
+ * that id resolves, so the request never targets a stale fixture id.
+ */
+export function useInvestigations(
+  filters: { status?: string; type?: string } = {},
+) {
+  const patientId = useResolvedPatientId();
+  const query = useInfiniteQuery({
+    queryKey: patientPortalQueryKeys.investigations(
+      patientId ?? "none",
+      filters.status,
+      filters.type,
+    ),
+    queryFn: ({ pageParam }) =>
+      fetchInvestigations({
+        patientId: patientId as string,
+        page: pageParam,
+        limit: 10,
+        status: filters.status,
+        type: filters.type,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
