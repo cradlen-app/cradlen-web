@@ -1,19 +1,34 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type DragEvent, type ReactNode } from "react";
 import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  FileText,
   FlaskConical,
+  SlidersHorizontal,
+  UploadCloud,
   UserRound,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatDate } from "../lib/format";
 import { useInvestigations } from "../hooks/usePortalData";
-import type { PortalTest, PortalTestStatus } from "../types/patient-portal.types";
+import { useUploadInvestigationFiles } from "../hooks/useUploadInvestigationFiles";
+import type {
+  PortalTest,
+  PortalTestStatus,
+  UploadFile,
+} from "../types/patient-portal.types";
 import { ClinicTag, EmptyState, ScreenHeader } from "./portal-ui";
 
 /** Backend `InvestigationStatus` values offered as filters (Cancelled excluded). */
@@ -32,26 +47,33 @@ export function TestsScreen() {
     <div className="flex h-full w-full flex-col gap-4">
       <ScreenHeader title={t("tests.title")} />
 
-      <div className="space-y-2">
-        <FilterChips
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-brand-primary">
+          <SlidersHorizontal className="size-5" />
+        </span>
+        <FilterPill
           label={t("tests.fields.status")}
           value={status}
-          options={STATUS_FILTERS}
           onChange={setStatus}
-          renderLabel={(opt) =>
-            t(`tests.statusFilter.${opt}` as Parameters<typeof t>[0])
-          }
-          allLabel={t("tests.filterAll")}
+          options={[
+            { value: undefined, label: t("tests.filterAll") },
+            ...STATUS_FILTERS.map((s) => ({
+              value: s,
+              label: t(`tests.statusFilter.${s}` as Parameters<typeof t>[0]),
+            })),
+          ]}
         />
-        <FilterChips
+        <FilterPill
           label={t("tests.fields.type")}
           value={type}
-          options={TYPE_FILTERS}
           onChange={setType}
-          renderLabel={(opt) =>
-            t(`tests.type.${opt.toLowerCase()}` as Parameters<typeof t>[0])
-          }
-          allLabel={t("tests.filterAll")}
+          options={[
+            { value: undefined, label: t("tests.filterAll") },
+            ...TYPE_FILTERS.map((s) => ({
+              value: s,
+              label: t(`tests.type.${s.toLowerCase()}` as Parameters<typeof t>[0]),
+            })),
+          ]}
         />
       </div>
 
@@ -87,73 +109,75 @@ export function TestsScreen() {
   );
 }
 
-/** A labeled row of segmented filter pills; an "All" pill clears the filter. */
-function FilterChips({
+/**
+ * A large dropdown pill showing the selected filter value (e.g. "Status: All").
+ * The "All" option (radio value `"all"`) clears the filter (`undefined`).
+ */
+function FilterPill({
   label,
   value,
   options,
   onChange,
-  renderLabel,
-  allLabel,
 }: {
   label: string;
   value: string | undefined;
-  options: readonly string[];
+  options: { value: string | undefined; label: string }[];
   onChange: (next: string | undefined) => void;
-  renderLabel: (option: string) => string;
-  allLabel: string;
 }) {
+  const selected = options.find((o) => o.value === value) ?? options[0];
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="me-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-        {label}
-      </span>
-      <Chip active={value === undefined} onClick={() => onChange(undefined)}>
-        {allLabel}
-      </Chip>
-      {options.map((opt) => (
-        <Chip
-          key={opt}
-          active={value === opt}
-          onClick={() => onChange(value === opt ? undefined : opt)}
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex h-12 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-sm hover:bg-gray-50 data-[state=open]:border-brand-primary">
+        <span className="text-gray-400">{label}:</span>
+        <span className="font-semibold text-brand-black">{selected.label}</span>
+        <ChevronDown className="size-4 text-gray-400" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-48">
+        <DropdownMenuRadioGroup
+          value={value ?? "all"}
+          onValueChange={(v) => onChange(v === "all" ? undefined : v)}
         >
-          {renderLabel(opt)}
-        </Chip>
-      ))}
-    </div>
-  );
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-        active
-          ? "border-brand-primary bg-brand-primary text-white"
-          : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
-      )}
-    >
-      {children}
-    </button>
+          {options.map((o) => (
+            <DropdownMenuRadioItem key={o.value ?? "all"} value={o.value ?? "all"}>
+              {o.label}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 function TestCard({ test }: { test: PortalTest }) {
   const t = useTranslations("patientPortal");
   const locale = useLocale();
+  const upload = useUploadInvestigationFiles();
+  const fileInput = useRef<HTMLInputElement>(null);
+
   const [open, setOpen] = useState(false);
+  const [pending, setPending] = useState<UploadFile[]>([]);
+  const [dragging, setDragging] = useState(false);
+
+  const uploaded = test.files ?? [];
+  const hasFiles = uploaded.length > 0;
+  const isPending = test.status === "pending";
+
+  function addFiles(list: FileList | null) {
+    if (!list) return;
+    setPending((prev) => [...prev, ...Array.from(list).map(toUploadFile)]);
+  }
+
+  function onDrop(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setDragging(false);
+    addFiles(e.dataTransfer.files);
+  }
+
+  async function save() {
+    if (pending.length === 0) return;
+    await upload.mutateAsync({ investigationId: test.id, files: pending });
+    setPending([]);
+  }
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm border-s-4 border-s-brand-primary">
@@ -200,6 +224,56 @@ function TestCard({ test }: { test: PortalTest }) {
               </DetailRow>
             )}
 
+            {hasFiles && (
+              <div className="space-y-1.5 pt-1">
+                {uploaded.map((f) => (
+                  <FileChip key={f.id} file={f} />
+                ))}
+              </div>
+            )}
+
+            {isPending && (
+              <div className="pt-1">
+                {pending.map((f) => (
+                  <FileChip key={f.id} file={f} />
+                ))}
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={onDrop}
+                  className={cn(
+                    "mt-2 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-7 text-center transition-colors",
+                    dragging
+                      ? "border-brand-primary bg-brand-primary/5"
+                      : "border-gray-300 bg-gray-50/60",
+                  )}
+                >
+                  <UploadCloud className="size-7 text-gray-400" />
+                  <p className="text-xs text-gray-500">
+                    {t("tests.dropzone")}{" "}
+                    <button
+                      type="button"
+                      onClick={() => fileInput.current?.click()}
+                      className="font-semibold text-brand-primary underline underline-offset-2"
+                    >
+                      {t("tests.browse")}
+                    </button>
+                  </p>
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    multiple
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    onChange={(e) => addFiles(e.target.files)}
+                  />
+                </div>
+              </div>
+            )}
+
             {test.review && (
               <div className="pt-2">
                 <div className="mb-2 flex items-center gap-2">
@@ -241,16 +315,38 @@ function TestCard({ test }: { test: PortalTest }) {
             <div className="pt-1">
               <ClinicTag clinic={test.clinic} org={test.organizationName} />
             </div>
+
+            {isPending && (
+              <div className="flex justify-end pt-1.5">
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={pending.length === 0 || upload.isPending}
+                  className="rounded-full bg-brand-secondary px-7 py-1.5 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+                >
+                  {upload.isPending ? t("common.loading") : t("tests.save")}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-2">
-            <span className="truncate text-xs text-gray-500">
-              {t("tests.drShort", { doctor: test.doctorName })}
-            </span>
-            <StatusDot
-              status={test.status}
-              label={t(`status.${test.status}` as Parameters<typeof t>[0])}
-            />
+          <div className="space-y-3">
+            {hasFiles ? (
+              <FileChip file={uploaded[0]} />
+            ) : (
+              <p className="text-center text-sm text-gray-400">
+                {t("tests.noFiles")}
+              </p>
+            )}
+            <div className="flex items-center justify-between gap-2">
+              <span className="truncate text-xs text-gray-500">
+                {t("tests.drShort", { doctor: stripDrPrefix(test.doctorName) })}
+              </span>
+              <StatusDot
+                status={test.status}
+                label={t(`status.${test.status}` as Parameters<typeof t>[0])}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -294,4 +390,31 @@ function StatusDot({
       </span>
     </span>
   );
+}
+
+/**
+ * Strips a leading honorific ("Dr." / "Dr" / Arabic "د.") so the `DR: {doctor}`
+ * footer doesn't read "DR: Dr. …" when the backend name already includes it.
+ */
+function stripDrPrefix(name: string): string {
+  return name.replace(/^\s*(dr\.?|د\.?)\s+/i, "");
+}
+
+function FileChip({ file }: { file: UploadFile }) {
+  return (
+    <div className="flex items-center justify-center gap-1.5">
+      <FileText className="size-4 shrink-0 text-red-500" />
+      <span className="truncate text-sm text-gray-600">{file.name}</span>
+    </div>
+  );
+}
+
+function toUploadFile(file: File, idx: number): UploadFile {
+  const isPdf = file.type === "application/pdf" || file.name.endsWith(".pdf");
+  return {
+    id: `${Date.now()}-${idx}-${file.name}`,
+    name: file.name,
+    sizeLabel: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+    type: isPdf ? "pdf" : "image",
+  };
 }
