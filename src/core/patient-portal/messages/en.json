@@ -227,5 +227,12 @@
     "doctor": "Doctor",
     "clinic": "Clinic",
     "loading": "Loading…"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "unreadCount": "{count, plural, one {# unread} other {# unread}}",
+    "allCaughtUp": "You're all caught up",
+    "allCaughtUpSub": "New updates from your clinic will show up here."
   }
 }

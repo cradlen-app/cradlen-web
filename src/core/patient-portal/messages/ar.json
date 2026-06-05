@@ -227,5 +227,12 @@
     "doctor": "الطبيب",
     "clinic": "العيادة",
     "loading": "جارٍ التحميل…"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "markAllRead": "تعليم الكل كمقروء",
+    "unreadCount": "{count, plural, zero {# غير مقروء} one {# غير مقروء} two {# غير مقروء} few {# غير مقروءة} many {# غير مقروءًا} other {# غير مقروء}}",
+    "allCaughtUp": "لا جديد لديك",
+    "allCaughtUpSub": "ستظهر هنا التحديثات الجديدة من عيادتك."
   }
 }
