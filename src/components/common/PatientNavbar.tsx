@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import { Bell, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import Logo from "@/public/Logo.png";
@@ -10,6 +10,7 @@ import { cn } from "@/common/utils/utils";
 import { Link, useRouter } from "@/i18n/navigation";
 import { usePatientMe } from "@/features/auth/hooks/usePatientAuth";
 import { usePatientProfiles } from "@/core/patient-portal/api";
+import { PatientNotificationBell } from "@/core/patient-portal";
 import { PatientProfileSwitcher } from "./PatientProfileSwitcher";
 
 function IconButton({
@@ -66,9 +67,7 @@ export function PatientNavbar() {
 
       {/* Right section */}
       <div className="ms-auto flex items-center gap-1">
-        <IconButton label="Notifications" badge>
-          <Bell className="size-5" />
-        </IconButton>
+        <PatientNotificationBell />
         <IconButton label="Messages">
           <Mail className="size-5" />
         </IconButton>
