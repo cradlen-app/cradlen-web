@@ -14,8 +14,10 @@
 import { apiFetch } from "@/infrastructure/http/api";
 import { mapApiMedication } from "../lib/map-medication";
 import { mapApiVisit } from "../lib/map-visit";
+import { mapApiInvestigation } from "../lib/map-investigation";
 import type { ApiPatientMedicationsResponse } from "./patient-medications.api.types";
 import type { ApiPatientVisitsResponse } from "./patient-visits.api.types";
+import type { ApiPatientInvestigationsResponse } from "./patient-investigations.api.types";
 import type {
   ApiPortalHistoryGroup,
   ApiPortalHistoryResponse,
@@ -27,6 +29,7 @@ import type {
   PatientProfile,
   PortalDocument,
   PortalMedication,
+  PortalTest,
   PortalVisit,
   Reminder,
   UploadDocumentInput,
@@ -134,6 +137,51 @@ export async function fetchVisitHistory({
 
   return {
     data: res.data.map(mapApiVisit),
+    meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
+  };
+}
+
+/** One page of investigations, mapped to the portal `PortalTest` view model. */
+export type InvestigationsPage = {
+  data: PortalTest[];
+  meta: { page: number; limit: number; total: number };
+};
+
+/**
+ * Paginated investigations (lab tests & imaging) for a patient, newest first,
+ * from the live patient-scoped endpoint. The backend wraps the list as
+ * `{ data, meta }` and gates result content on REVIEWED; each item is mapped to
+ * the portal `PortalTest` view model. An empty `patientId` lets the backend
+ * resolve all patients the caller may access.
+ */
+export async function fetchInvestigations({
+  patientId,
+  page = 1,
+  limit = 10,
+  status,
+  type,
+}: {
+  patientId: string;
+  page?: number;
+  limit?: number;
+  /** Backend `InvestigationStatus` (ORDERED | RESULTED | REVIEWED | CANCELLED). */
+  status?: string;
+  /** Backend `LabTestCategory` (LAB | IMAGING | OTHER). */
+  type?: string;
+}): Promise<InvestigationsPage> {
+  const search = new URLSearchParams();
+  if (patientId) search.set("patient_id", patientId);
+  search.set("page", String(page));
+  search.set("limit", String(limit));
+  if (status) search.set("status", status);
+  if (type) search.set("type", type);
+
+  const res = await apiFetch<ApiPatientInvestigationsResponse>(
+    `/api/patient-portal/investigations?${search.toString()}`,
+  );
+
+  return {
+    data: res.data.map(mapApiInvestigation),
     meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
   };
 }

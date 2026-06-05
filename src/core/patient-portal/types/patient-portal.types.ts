@@ -181,6 +181,43 @@ export interface UploadFile {
   type: UploadFileType;
 }
 
+/**
+ * A test/investigation in the patient-facing "Tests" screen. Read-only view of
+ * the patient's lab/imaging orders, fed by the live `/patient-portal/
+ * investigations` endpoint (see `lib/map-investigation.ts`). Carries the
+ * doctor's instructions and, once reviewed, the clinician's review and a
+ * viewable result attachment.
+ */
+export type PortalTestStatus = "pending" | "reviewed";
+
+export interface PortalTestReview {
+  /** ISO date the clinician reviewed the result. */
+  date: string;
+  notes?: string;
+  reviewerName?: string;
+}
+
+export interface PortalTest {
+  id: string;
+  /** Display name, e.g. "CBC Test". */
+  name: string;
+  /** Ordered date (ISO). */
+  date: string;
+  doctorName: string;
+  /** Drives the "Type" label, e.g. "Laboratory Test". */
+  category: LabCategory;
+  notes?: string;
+  status: PortalTestStatus;
+  /** Provenance, per module convention. */
+  clinic: Clinic;
+  /** Organization (clinic group) the ordering branch belongs to, for the tag. */
+  organizationName?: string;
+  /** Viewable result attachment, present once reviewed (clinic-published). */
+  resultUrl?: string;
+  /** Present once a clinician has reviewed the result. */
+  review?: PortalTestReview;
+}
+
 export type DocumentStatus = "pending_review" | "reviewed";
 
 export type DocumentKind = "lab_result" | "scan" | "other";
