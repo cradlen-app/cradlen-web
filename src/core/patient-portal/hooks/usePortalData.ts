@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import {
   fetchAppointments,
@@ -9,6 +9,7 @@ import {
   fetchLabOrders,
   fetchMedications,
   fetchReminders,
+  fetchVisitHistory,
 } from "../data/patient-portal.api";
 import { patientPortalQueryKeys } from "../queryKeys";
 import { useActivePatientId } from "./usePatientProfiles";
@@ -24,6 +25,35 @@ export function useHealthRecord() {
     queryKey: patientPortalQueryKeys.healthRecord(patientId),
     queryFn: () => fetchHealthRecord(patientId),
   });
+}
+
+/**
+ * Paginated visit history for the active profile (newest first), as an infinite
+ * query — mirrors the staff `usePatientVisitHistory`. Returns flattened
+ * `entries` plus load-more controls for the timeline.
+ */
+export function useVisitHistory() {
+  const patientId = useActivePatientId();
+  const query = useInfiniteQuery({
+    queryKey: patientPortalQueryKeys.visitHistory(patientId),
+    queryFn: ({ pageParam }) =>
+      fetchVisitHistory({ patientId, page: pageParam, limit: 10 }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.flatMap((p) => p.data).length;
+      return loaded < lastPage.meta.total ? allPages.length + 1 : undefined;
+    },
+  });
+
+  const entries = query.data?.pages.flatMap((p) => p.data) ?? [];
+
+  return {
+    entries,
+    isLoading: query.isLoading,
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore: query.hasNextPage,
+    loadMore: query.fetchNextPage,
+  };
 }
 
 /**

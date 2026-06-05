@@ -71,6 +71,8 @@
     "medications": "Medications",
     "investigations": "Investigations",
     "noVisits": "No visits recorded yet",
+    "loadMore": "Load more",
+    "loading": "Loading…",
     "typeLabel": {
       "VISIT": "Visit",
       "FOLLOW_UP": "Follow-up"
