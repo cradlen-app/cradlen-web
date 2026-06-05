@@ -71,6 +71,8 @@
     "medications": "Medications",
     "investigations": "Investigations",
     "noVisits": "No visits recorded yet",
+    "noHistory": "No history recorded yet",
+    "expandAria": "Expand section",
     "loadMore": "Load more",
     "loading": "Loading…",
     "typeLabel": {

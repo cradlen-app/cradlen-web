@@ -3,8 +3,9 @@
 import { useTranslations } from "next-intl";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EmptyState, ScreenHeader } from "./portal-ui";
+import { ScreenHeader } from "./portal-ui";
 import { VisitsHistory } from "./VisitsHistory";
+import { PatientHistory } from "./PatientHistory";
 
 export function RecordScreen() {
   const t = useTranslations("patientPortal");
@@ -29,9 +30,7 @@ export function RecordScreen() {
         </TabsContent>
 
         <TabsContent value="history" className="min-h-0 flex-1">
-          <section className="flex h-full items-center justify-center rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <EmptyState message={t("record.historyComingSoon")} />
-          </section>
+          <PatientHistory />
         </TabsContent>
       </Tabs>
     </div>

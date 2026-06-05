@@ -8,6 +8,7 @@ import {
   fetchHealthRecord,
   fetchLabOrders,
   fetchMedications,
+  fetchObgynHistory,
   fetchReminders,
   fetchVisitHistory,
 } from "../data/patient-portal.api";
@@ -108,6 +109,20 @@ export function useMedications() {
   return useQuery({
     queryKey: patientPortalQueryKeys.medications(patientId ?? "none"),
     queryFn: () => fetchMedications(patientId as string),
+    enabled: Boolean(patientId),
+  });
+}
+
+/**
+ * Read-only OB/GYN history (display-ready groups) for the patient currently in
+ * view, scoped by the real backend patient id and gated until it resolves.
+ */
+export function usePatientHistory() {
+  const patientId = useResolvedPatientId();
+
+  return useQuery({
+    queryKey: patientPortalQueryKeys.history(patientId ?? "none"),
+    queryFn: () => fetchObgynHistory(patientId as string),
     enabled: Boolean(patientId),
   });
 }
