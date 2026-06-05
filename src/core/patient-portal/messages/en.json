@@ -133,6 +133,12 @@
     "dropzone": "Drag & drop files or",
     "browse": "Browse",
     "save": "Save",
+    "removeFile": "Remove file",
+    "uploadError": "Upload failed. Please try again.",
+    "fileTooLarge": "Each file must be 15 MB or smaller.",
+    "unsupportedType": "Only PDF, PNG, JPEG, or WebP files are allowed.",
+    "maxFiles": "You can upload up to {max} files.",
+    "resultsCount": "{count, plural, one {# result file} other {# result files}}",
     "loadMore": "Load more",
     "filterAll": "All",
     "statusFilter": {
