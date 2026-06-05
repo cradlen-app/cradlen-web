@@ -20,6 +20,7 @@ import type {
   PatientProfile,
   PortalDocument,
   PortalMedication,
+  PortalVisit,
   Reminder,
   UploadDocumentInput,
 } from "../types/patient-portal.types";
@@ -92,6 +93,36 @@ export function fetchHealthRecord(patientId: string): Promise<HealthRecord> {
     allergies: [],
   };
   return delay(clone(record));
+}
+
+/** One page of visit history. Shape mirrors staff `ApiVisitHistoryResponse`. */
+export type VisitHistoryPage = {
+  data: PortalVisit[];
+  meta: { page: number; limit: number; total: number };
+};
+
+/**
+ * Paginated visit history for a patient, newest first. Slices the in-memory
+ * fixtures today; swapping to a real patient-scoped endpoint later keeps this
+ * return type and all callers identical.
+ */
+export function fetchVisitHistory({
+  patientId,
+  page = 1,
+  limit = 10,
+}: {
+  patientId: string;
+  page?: number;
+  limit?: number;
+}): Promise<VisitHistoryPage> {
+  const all = HEALTH_RECORDS[patientId]?.visits ?? [];
+  const start = (page - 1) * limit;
+  return delay(
+    clone({
+      data: all.slice(start, start + limit),
+      meta: { page, limit, total: all.length },
+    }),
+  );
 }
 
 export async function fetchMedications(
