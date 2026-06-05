@@ -28,21 +28,27 @@ export function useHealthRecord() {
 }
 
 /**
- * Paginated visit history for the active profile (newest first), as an infinite
- * query — mirrors the staff `usePatientVisitHistory`. Returns flattened
- * `entries` plus load-more controls for the timeline.
+ * Paginated visit history for the patient currently in view (newest first), as
+ * an infinite query against the live endpoint. Scoped by the real backend
+ * patient id (see `useResolvedPatientId`) and gated until that id resolves, so
+ * the request never targets a stale fixture id.
  */
 export function useVisitHistory() {
-  const patientId = useActivePatientId();
+  const patientId = useResolvedPatientId();
   const query = useInfiniteQuery({
-    queryKey: patientPortalQueryKeys.visitHistory(patientId),
+    queryKey: patientPortalQueryKeys.visitHistory(patientId ?? "none"),
     queryFn: ({ pageParam }) =>
-      fetchVisitHistory({ patientId, page: pageParam, limit: 10 }),
+      fetchVisitHistory({
+        patientId: patientId as string,
+        page: pageParam,
+        limit: 10,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       const loaded = allPages.flatMap((p) => p.data).length;
       return loaded < lastPage.meta.total ? allPages.length + 1 : undefined;
     },
+    enabled: Boolean(patientId),
   });
 
   const entries = query.data?.pages.flatMap((p) => p.data) ?? [];
@@ -75,20 +81,29 @@ function usePatientIdentity() {
 }
 
 /**
- * Live medications for the patient currently in view, scoped by the real
- * backend patient id. Resolves the id from the authenticated identity (not the
+ * The real backend patient id for the patient currently in view, used by the
+ * live (non-fixture) hooks. Resolves from the authenticated identity (not the
  * fixture profile store, so the other prototype screens are untouched): the
  * active profile id when it is a real accessible id, otherwise the account
- * holder (`patient_id`) or the first accessible patient.
+ * holder (`patient_id`) or the first accessible patient. `undefined` while the
+ * identity is still loading — callers gate their query with `enabled`.
  */
-export function useMedications() {
+function useResolvedPatientId(): string | undefined {
   const { data: identity } = usePatientIdentity();
   const activeFixtureId = useActivePatientId();
 
   const accessible = identity?.accessible_patient_ids ?? [];
-  const patientId = accessible.includes(activeFixtureId)
+  return accessible.includes(activeFixtureId)
     ? activeFixtureId
     : (identity?.patient_id ?? accessible[0]);
+}
+
+/**
+ * Live medications for the patient currently in view, scoped by the real
+ * backend patient id and gated until that id resolves.
+ */
+export function useMedications() {
+  const patientId = useResolvedPatientId();
 
   return useQuery({
     queryKey: patientPortalQueryKeys.medications(patientId ?? "none"),
