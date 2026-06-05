@@ -71,6 +71,8 @@
     "medications": "الأدوية",
     "investigations": "الفحوصات",
     "noVisits": "لا توجد زيارات مسجلة بعد",
+    "noHistory": "لا يوجد سجل مسجل بعد",
+    "expandAria": "توسيع القسم",
     "loadMore": "تحميل المزيد",
     "loading": "جارٍ التحميل…",
     "typeLabel": {

@@ -36,6 +36,7 @@ export {
 export {
   useHealthRecord,
   useMedications,
+  usePatientHistory,
   useLabOrders,
   useDocuments,
   useAppointments,
