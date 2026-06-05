@@ -1,8 +1,9 @@
 /**
  * Patient portal data access — the single swap point for the real backend.
  *
- * `fetchMedications` and `fetchVisitHistory` are wired to live patient-scoped
- * endpoints (`/api/patient-portal/medications`, `/api/patient-portal/visits`).
+ * `fetchMedications`, `fetchVisitHistory`, and `fetchObgynHistory` are wired to
+ * live patient-scoped endpoints (`/api/patient-portal/medications`, `…/visits`,
+ * `…/obgyn-history`).
  * The remaining functions still resolve from in-memory fixtures until their
  * backends exist; replace each body with a patient-scoped fetch the same way
  * when they do — the return types and all callers stay identical.
@@ -15,6 +16,10 @@ import { mapApiMedication } from "../lib/map-medication";
 import { mapApiVisit } from "../lib/map-visit";
 import type { ApiPatientMedicationsResponse } from "./patient-medications.api.types";
 import type { ApiPatientVisitsResponse } from "./patient-visits.api.types";
+import type {
+  ApiPortalHistoryGroup,
+  ApiPortalHistoryResponse,
+} from "./patient-history.api.types";
 import type {
   Appointment,
   HealthRecord,
@@ -131,6 +136,22 @@ export async function fetchVisitHistory({
     data: res.data.map(mapApiVisit),
     meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
   };
+}
+
+/**
+ * Read-only OB/GYN history for a patient, as display-ready groups from the live
+ * patient-scoped endpoint. The backend already composes labeled sections/rows,
+ * so the portal renders them generically — no field mapping here. Returns an
+ * empty array when the patient has no recorded history.
+ */
+export async function fetchObgynHistory(
+  patientId: string,
+): Promise<ApiPortalHistoryGroup[]> {
+  const qs = patientId ? `?patient_id=${encodeURIComponent(patientId)}` : "";
+  const res = await apiFetch<{ data: ApiPortalHistoryResponse }>(
+    `/api/patient-portal/obgyn-history${qs}`,
+  );
+  return res.data.groups;
 }
 
 export async function fetchMedications(
