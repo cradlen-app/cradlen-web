@@ -121,14 +121,32 @@
     "durationMonths": "{count, plural, one {# month} other {# months}}"
   },
   "tests": {
-    "title": "Lab & tests",
-    "awaiting": "Awaiting your results",
-    "awaitingHint": "Your doctor ordered these — upload the results when you have them.",
-    "ordered": "Ordered tests",
-    "uploadResult": "Upload result",
-    "viewResult": "View result",
+    "title": "Tests",
+    "none": "No tests ordered",
     "orderedBy": "Ordered by {doctor}",
-    "none": "No tests ordered"
+    "drShort": "DR: {doctor}",
+    "review": "Review",
+    "reviewDate": "Date",
+    "reviewNotes": "Notes",
+    "viewResult": "View result",
+    "loadMore": "Load more",
+    "filterAll": "All",
+    "statusFilter": {
+      "ORDERED": "Ordered",
+      "RESULTED": "Resulted",
+      "REVIEWED": "Reviewed"
+    },
+    "fields": {
+      "status": "Status",
+      "doctor": "Doctor",
+      "type": "Type",
+      "notes": "Notes"
+    },
+    "type": {
+      "lab": "Laboratory Test",
+      "imaging": "Imaging",
+      "other": "Other"
+    }
   },
   "documents": {
     "title": "Documents",
@@ -189,6 +207,7 @@
     "result_ready": "Result ready",
     "completed": "Completed",
     "reviewed": "Reviewed",
+    "pending": "Pending",
     "upcoming": "Upcoming",
     "cancelled": "Cancelled"
   },
