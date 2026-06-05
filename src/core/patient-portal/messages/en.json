@@ -129,6 +129,10 @@
     "reviewDate": "Date",
     "reviewNotes": "Notes",
     "viewResult": "View result",
+    "noFiles": "No Uploaded Files",
+    "dropzone": "Drag & drop files or",
+    "browse": "Browse",
+    "save": "Save",
     "loadMore": "Load more",
     "filterAll": "All",
     "statusFilter": {

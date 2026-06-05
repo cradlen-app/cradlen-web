@@ -129,6 +129,10 @@
     "reviewDate": "التاريخ",
     "reviewNotes": "ملاحظات",
     "viewResult": "عرض النتيجة",
+    "noFiles": "لا توجد ملفات مرفوعة",
+    "dropzone": "اسحب الملفات وأفلتها أو",
+    "browse": "تصفح",
+    "save": "حفظ",
     "loadMore": "تحميل المزيد",
     "filterAll": "الكل",
     "statusFilter": {
