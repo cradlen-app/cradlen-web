@@ -1,10 +1,16 @@
 "use client";
 
-import { useRef, useState, type DragEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+  type ReactNode,
+} from "react";
 import {
   ChevronDown,
   ChevronUp,
-  ExternalLink,
   FileText,
   FlaskConical,
   SlidersHorizontal,
@@ -279,9 +285,9 @@ function TestCard({ test }: { test: PortalTest }) {
             )}
 
             {results.length > 0 && (
-              <div className="space-y-1.5 pt-1">
+              <div className="flex flex-wrap gap-2 pt-1">
                 {results.map((r) => (
-                  <ResultChip
+                  <ResultThumb
                     key={r.id}
                     result={r}
                     label={t("tests.viewResult")}
@@ -298,16 +304,22 @@ function TestCard({ test }: { test: PortalTest }) {
 
             {editable && (
               <div className="pt-1">
-                {pending.map((f, i) => (
-                  <PendingChip
-                    key={`${f.name}-${i}`}
-                    file={f}
-                    onRemove={() =>
-                      setPending((prev) => prev.filter((_, idx) => idx !== i))
-                    }
-                    removeLabel={t("tests.removeFile")}
-                  />
-                ))}
+                {pending.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {pending.map((f, i) => (
+                      <PendingThumb
+                        key={`${f.name}-${i}`}
+                        file={f}
+                        onRemove={() =>
+                          setPending((prev) =>
+                            prev.filter((_, idx) => idx !== i),
+                          )
+                        }
+                        removeLabel={t("tests.removeFile")}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {remaining > 0 && (
                   <div
@@ -466,8 +478,80 @@ function stripDrPrefix(name: string): string {
   return name.replace(/^\s*(dr\.?|د\.?)\s+/i, "");
 }
 
-/** An uploaded/published result file: a View link, optionally removable. */
-function ResultChip({
+/** Uppercase file extension from a name or URL, e.g. "image.png" → "PNG". */
+function extLabel(nameOrUrl: string): string {
+  const clean = nameOrUrl.split(/[?#]/)[0];
+  const dot = clean.lastIndexOf(".");
+  const ext = dot >= 0 ? clean.slice(dot + 1) : "";
+  return ext ? ext.toUpperCase() : "FILE";
+}
+
+/** A square preview tile: the image when available, else a file icon + extension. */
+function Thumb({
+  imageUrl,
+  name,
+  ext,
+  href,
+  onRemove,
+  removeLabel,
+}: {
+  imageUrl: string | null;
+  name: string;
+  ext: string;
+  href?: string;
+  onRemove?: () => void;
+  removeLabel: string;
+}) {
+  const inner = imageUrl ? (
+    // eslint-disable-next-line @next/next/no-img-element -- blob/presigned URLs aren't optimizable by next/image
+    <img
+      src={imageUrl}
+      alt={name}
+      title={name}
+      className="size-full object-cover"
+    />
+  ) : (
+    <span className="flex size-full flex-col items-center justify-center gap-1 text-gray-400">
+      <FileText className="size-6" />
+      <span className="text-[10px] font-semibold uppercase">{ext}</span>
+    </span>
+  );
+
+  return (
+    <div className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={name}
+          className="block size-full"
+        >
+          {inner}
+        </a>
+      ) : (
+        inner
+      )}
+      {onRemove && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRemove();
+          }}
+          aria-label={removeLabel}
+          className="absolute end-1 top-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
+        >
+          <X className="size-3" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** An uploaded/published result file as a thumbnail; opens on click, optionally removable. */
+function ResultThumb({
   result,
   label,
   onRemove,
@@ -478,34 +562,21 @@ function ResultChip({
   onRemove?: () => void;
   removeLabel: string;
 }) {
+  const isImage = (result.contentType ?? "").startsWith("image/");
   return (
-    <div className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-1.5">
-      <a
-        href={result.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium text-brand-primary underline underline-offset-2"
-      >
-        <FileText className="size-4 shrink-0" />
-        <span className="truncate">{label}</span>
-        <ExternalLink className="size-3.5 shrink-0" />
-      </a>
-      {onRemove && (
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label={removeLabel}
-          className="shrink-0 text-gray-400 hover:text-red-500"
-        >
-          <X className="size-4" />
-        </button>
-      )}
-    </div>
+    <Thumb
+      imageUrl={isImage ? result.url : null}
+      name={label}
+      ext={extLabel(result.url)}
+      href={result.url}
+      onRemove={onRemove}
+      removeLabel={removeLabel}
+    />
   );
 }
 
-/** A picked-but-not-yet-uploaded file. */
-function PendingChip({
+/** A picked-but-not-yet-uploaded file as a thumbnail (local object-URL preview). */
+function PendingThumb({
   file,
   onRemove,
   removeLabel,
@@ -514,23 +585,24 @@ function PendingChip({
   onRemove: () => void;
   removeLabel: string;
 }) {
+  const isImage = file.type.startsWith("image/");
+  const imageUrl = useMemo(
+    () => (isImage ? URL.createObjectURL(file) : null),
+    [file, isImage],
+  );
+  useEffect(
+    () => () => {
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+    },
+    [imageUrl],
+  );
   return (
-    <div className="flex items-center justify-between gap-2 py-1">
-      <span className="inline-flex min-w-0 items-center gap-1.5">
-        <FileText className="size-4 shrink-0 text-red-500" />
-        <span className="truncate text-sm text-gray-600">{file.name}</span>
-        <span className="shrink-0 text-[11px] text-gray-400">
-          {(file.size / (1024 * 1024)).toFixed(1)} MB
-        </span>
-      </span>
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={removeLabel}
-        className="shrink-0 text-gray-400 hover:text-red-500"
-      >
-        <X className="size-4" />
-      </button>
-    </div>
+    <Thumb
+      imageUrl={imageUrl}
+      name={file.name}
+      ext={extLabel(file.name)}
+      onRemove={onRemove}
+      removeLabel={removeLabel}
+    />
   );
 }
