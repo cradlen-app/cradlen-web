@@ -121,14 +121,32 @@
     "durationMonths": "{count, plural, one {شهر} two {شهران} few {# أشهر} many {# شهرًا} other {# شهر}}"
   },
   "tests": {
-    "title": "التحاليل والفحوصات",
-    "awaiting": "بانتظار نتائجك",
-    "awaitingHint": "طلب طبيبك هذه الفحوصات — ارفع النتائج عند توفرها.",
-    "ordered": "الفحوصات المطلوبة",
-    "uploadResult": "رفع النتيجة",
-    "viewResult": "عرض النتيجة",
+    "title": "الفحوصات",
+    "none": "لا توجد فحوصات مطلوبة",
     "orderedBy": "طلبها {doctor}",
-    "none": "لا توجد فحوصات مطلوبة"
+    "drShort": "د: {doctor}",
+    "review": "المراجعة",
+    "reviewDate": "التاريخ",
+    "reviewNotes": "ملاحظات",
+    "viewResult": "عرض النتيجة",
+    "loadMore": "تحميل المزيد",
+    "filterAll": "الكل",
+    "statusFilter": {
+      "ORDERED": "مطلوب",
+      "RESULTED": "ظهرت النتيجة",
+      "REVIEWED": "تمت المراجعة"
+    },
+    "fields": {
+      "status": "الحالة",
+      "doctor": "الطبيب",
+      "type": "النوع",
+      "notes": "ملاحظات"
+    },
+    "type": {
+      "lab": "تحليل معملي",
+      "imaging": "أشعة",
+      "other": "أخرى"
+    }
   },
   "documents": {
     "title": "المستندات",
@@ -189,6 +207,7 @@
     "result_ready": "النتيجة جاهزة",
     "completed": "مكتمل",
     "reviewed": "تمت المراجعة",
+    "pending": "قيد الانتظار",
     "upcoming": "قادم",
     "cancelled": "ملغى"
   },
