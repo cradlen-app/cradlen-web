@@ -7,9 +7,16 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { cn } from "@/common/utils/utils";
+import { useInvestigationReviewStore } from "@/features/investigations/store/investigationReviewStore";
 import { useNotifications } from "../hooks/useNotifications";
 import { NotificationItem } from "./NotificationItem";
 import type { Notification } from "../types/notification.types";
+
+/** Investigation id a notification deep-links to, when present in its metadata. */
+function investigationIdOf(n: Notification): string | undefined {
+  const id = n.metadata?.investigationId;
+  return typeof id === "string" ? id : undefined;
+}
 
 const DROPDOWN_LIMIT = 6;
 
@@ -36,6 +43,11 @@ export function NotificationDropdown() {
 
   function handleItemClick(notification: Notification) {
     markAsRead(notification.id);
+    const investigationId = investigationIdOf(notification);
+    if (investigationId) {
+      useInvestigationReviewStore.getState().open(investigationId);
+      return;
+    }
     if (notification.navigate_to) {
       router.push(
         notification.navigate_to as Parameters<typeof router.push>[0],
