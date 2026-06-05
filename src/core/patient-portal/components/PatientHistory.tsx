@@ -43,7 +43,7 @@ export function PatientHistory() {
   }
 
   return (
-    <section className="h-full space-y-6 overflow-y-auto rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+    <section className="h-full space-y-3 overflow-y-auto rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       {groups.map((group) => (
         <HistoryGroup
           key={group.code}
@@ -63,14 +63,23 @@ function HistoryGroup({
   expandLabel: string;
 }) {
   return (
-    <div>
-      <header className="mb-3 flex items-center gap-2">
-        <FileText className="size-4 text-brand-primary" aria-hidden="true" />
-        <h2 className="text-sm font-semibold text-brand-black">
-          {group.label}
-        </h2>
-      </header>
-      <div className="space-y-2">
+    <details className="group/history rounded-2xl border border-gray-100 [&_summary::-webkit-details-marker]:hidden">
+      <summary
+        className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-2xl px-4 py-3 hover:bg-gray-50"
+        aria-label={`${expandLabel}: ${group.label}`}
+      >
+        <span className="flex items-center gap-2">
+          <FileText className="size-4 text-brand-primary" aria-hidden="true" />
+          <span className="text-sm font-semibold text-brand-black">
+            {group.label}
+          </span>
+        </span>
+        <ChevronDown
+          className="size-4 flex-none text-gray-400 transition-transform group-open/history:rotate-180"
+          aria-hidden="true"
+        />
+      </summary>
+      <div className="space-y-2 px-3 pb-3 pt-1">
         {group.sections.map((section) => (
           <HistorySectionPanel
             key={section.code}
@@ -79,7 +88,7 @@ function HistoryGroup({
           />
         ))}
       </div>
-    </div>
+    </details>
   );
 }
 
@@ -91,7 +100,7 @@ function HistorySectionPanel({
   expandLabel: string;
 }) {
   return (
-    <details className="group rounded-xl border border-gray-100 [&_summary::-webkit-details-marker]:hidden">
+    <details className="group/section rounded-xl border border-gray-100 [&_summary::-webkit-details-marker]:hidden">
       <summary
         className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-4 py-3 hover:bg-gray-50"
         aria-label={`${expandLabel}: ${section.label}`}
@@ -100,7 +109,7 @@ function HistorySectionPanel({
           {section.label}
         </span>
         <ChevronDown
-          className="size-4 flex-none text-gray-400 transition-transform group-open:rotate-180"
+          className="size-4 flex-none text-gray-400 transition-transform group-open/section:rotate-180"
           aria-hidden="true"
         />
       </summary>
