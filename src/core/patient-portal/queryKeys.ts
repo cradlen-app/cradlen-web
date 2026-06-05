@@ -34,6 +34,8 @@ export const patientPortalQueryKeys = {
   appointments: (patientId: string) =>
     ["patient-portal", "appointments", patientId] as const,
   home: (patientId: string) => ["patient-portal", "home", patientId] as const,
+  /** Notifications are account-wide (across the caller's accessible patients). */
+  notifications: () => ["patient-portal", "notifications"] as const,
 } as const;
 
 /** Root key registered with the kernel's QueryKeyRegistry. */

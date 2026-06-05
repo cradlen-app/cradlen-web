@@ -25,6 +25,26 @@ export function formatDayMonth(
   }).format(d);
 }
 
+/** Locale-aware relative time, e.g. "2 hours ago" / "just now". */
+export function formatRelative(
+  iso: string | undefined,
+  locale: string,
+): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+
+  const diffSec = Math.round((d.getTime() - Date.now()) / 1000);
+  const abs = Math.abs(diffSec);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+  if (abs < 60) return rtf.format(Math.round(diffSec), "second");
+  if (abs < 3600) return rtf.format(Math.round(diffSec / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), "hour");
+  if (abs < 2592000) return rtf.format(Math.round(diffSec / 86400), "day");
+  return formatDate(iso, locale);
+}
+
 export function ageFromDob(
   iso: string | undefined,
 ): number | undefined {

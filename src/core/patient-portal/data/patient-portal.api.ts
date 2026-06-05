@@ -21,6 +21,7 @@ import type {
   ApiPatientInvestigationsResponse,
   ApiResultUploadUrl,
 } from "./patient-investigations.api.types";
+import type { ApiPatientNotificationsResponse } from "./patient-notifications.api.types";
 import type {
   ApiPortalHistoryGroup,
   ApiPortalHistoryResponse,
@@ -253,6 +254,31 @@ export async function removeInvestigationAttachment({
     `/api/patient-portal/investigations/${investigationId}/result/${attachmentId}`,
     { method: "DELETE" },
   );
+}
+
+/** One page of the patient's notifications (newest first), with the unread count. */
+export function fetchPatientNotifications({
+  limit = 20,
+}: {
+  limit?: number;
+} = {}): Promise<ApiPatientNotificationsResponse> {
+  return apiFetch<ApiPatientNotificationsResponse>(
+    `/api/patient-portal/notifications?limit=${limit}`,
+  );
+}
+
+/** Marks one notification read. */
+export async function markPatientNotificationRead(id: string): Promise<void> {
+  await apiFetch(`/api/patient-portal/notifications/${id}/read`, {
+    method: "PATCH",
+  });
+}
+
+/** Marks all of the patient's notifications read. */
+export async function markAllPatientNotificationsRead(): Promise<void> {
+  await apiFetch(`/api/patient-portal/notifications/read-all`, {
+    method: "PATCH",
+  });
 }
 
 /**
