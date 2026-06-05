@@ -17,7 +17,10 @@ import { mapApiVisit } from "../lib/map-visit";
 import { mapApiInvestigation } from "../lib/map-investigation";
 import type { ApiPatientMedicationsResponse } from "./patient-medications.api.types";
 import type { ApiPatientVisitsResponse } from "./patient-visits.api.types";
-import type { ApiPatientInvestigationsResponse } from "./patient-investigations.api.types";
+import type {
+  ApiPatientInvestigationsResponse,
+  ApiResultUploadUrl,
+} from "./patient-investigations.api.types";
 import type {
   ApiPortalHistoryGroup,
   ApiPortalHistoryResponse,
@@ -33,7 +36,6 @@ import type {
   PortalVisit,
   Reminder,
   UploadDocumentInput,
-  UploadFile,
 } from "../types/patient-portal.types";
 import {
   APPOINTMENTS,
@@ -61,14 +63,6 @@ function clone<T>(value: T): T {
 /** Mutable in-memory state, seeded from fixtures, so uploads persist per session. */
 const documentsState: Record<string, PortalDocument[]> = clone(DOCUMENTS);
 const labOrdersState: Record<string, LabOrder[]> = clone(LAB_ORDERS);
-
-/**
- * Client-side optimistic store of patient-uploaded investigation result files,
- * keyed by investigation id. The backend has no patient-upload endpoint yet, so
- * Save persists here for the session and `fetchInvestigations` merges it onto
- * the live rows. Swap `uploadInvestigationFiles` for a real call when it exists.
- */
-const investigationUploads: Record<string, UploadFile[]> = {};
 
 /** Minimal shape of the `/api/patient-auth/me` payload this module consumes. */
 type PatientMeResponse = {
@@ -190,33 +184,75 @@ export async function fetchInvestigations({
   );
 
   return {
-    // Merge any session-local patient uploads onto the live rows.
-    data: res.data.map(mapApiInvestigation).map((t) => ({
-      ...t,
-      files: investigationUploads[t.id] ?? [],
-    })),
+    data: res.data.map(mapApiInvestigation),
     meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
   };
 }
 
 /**
- * Mock upload of patient result files to an investigation. Persists to the
- * session-local overlay so the card reflects the new files after Save; the live
- * `fetchInvestigations` merges it back in. Replace the body with a patient-scoped
- * upload endpoint when it exists — the signature and callers stay identical.
+ * Uploads one result file to an investigation via the presigned R2 flow:
+ * ask the API for a presigned PUT, upload the bytes **directly to R2** (a plain
+ * `fetch`, not the `/api` proxy), then confirm the object key. The browser→R2
+ * PUT relies on the bucket's CORS policy allowing this origin.
  */
-export function uploadInvestigationFiles({
+async function uploadOneResultFile(
+  investigationId: string,
+  file: File,
+): Promise<void> {
+  const presign = await apiFetch<{ data: ApiResultUploadUrl }>(
+    `/api/patient-portal/investigations/${investigationId}/result-upload-url`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        content_type: file.type,
+        size_bytes: file.size,
+      }),
+    },
+  );
+
+  const put = await fetch(presign.data.upload_url, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": presign.data.content_type },
+  });
+  if (!put.ok) {
+    throw new Error("Upload failed");
+  }
+
+  await apiFetch(
+    `/api/patient-portal/investigations/${investigationId}/result`,
+    { method: "POST", body: JSON.stringify({ key: presign.data.key }) },
+  );
+}
+
+/**
+ * Uploads result files to an investigation, sequentially so the server-side cap
+ * is respected and a failure stops the rest.
+ */
+export async function uploadInvestigationResult({
   investigationId,
   files,
 }: {
   investigationId: string;
-  files: UploadFile[];
-}): Promise<UploadFile[]> {
-  investigationUploads[investigationId] = [
-    ...(investigationUploads[investigationId] ?? []),
-    ...files,
-  ];
-  return delay(clone(investigationUploads[investigationId]));
+  files: File[];
+}): Promise<void> {
+  for (const file of files) {
+    await uploadOneResultFile(investigationId, file);
+  }
+}
+
+/** Removes a result file the patient uploaded (allowed before review). */
+export async function removeInvestigationAttachment({
+  investigationId,
+  attachmentId,
+}: {
+  investigationId: string;
+  attachmentId: string;
+}): Promise<void> {
+  await apiFetch(
+    `/api/patient-portal/investigations/${investigationId}/result/${attachmentId}`,
+    { method: "DELETE" },
+  );
 }
 
 /**

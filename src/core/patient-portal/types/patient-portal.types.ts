@@ -197,6 +197,16 @@ export interface PortalTestReview {
   reviewerName?: string;
 }
 
+/** A visible result file (presigned URL) attached to a test. */
+export interface PortalTestResult {
+  id: string;
+  /** Short-lived presigned GET URL. */
+  url: string;
+  contentType?: string;
+  /** PATIENT | CLINIC | EXTERNAL_LAB — drives whether the patient may remove it. */
+  source: string;
+}
+
 export interface PortalTest {
   id: string;
   /** Display name, e.g. "CBC Test". */
@@ -212,14 +222,8 @@ export interface PortalTest {
   clinic: Clinic;
   /** Organization (clinic group) the ordering branch belongs to, for the tag. */
   organizationName?: string;
-  /** Viewable result attachment, present once reviewed (clinic-published). */
-  resultUrl?: string;
-  /**
-   * Patient-uploaded result files. Client-side optimistic mock for now — the
-   * backend has no patient-upload endpoint yet — so these persist per session
-   * via `uploadInvestigationFiles`. Empty/absent renders as "No Uploaded Files".
-   */
-  files?: UploadFile[];
+  /** Visible result files (patient-uploaded and, once reviewed, clinic files). */
+  results: PortalTestResult[];
   /** Present once a clinician has reviewed the result. */
   review?: PortalTestReview;
 }

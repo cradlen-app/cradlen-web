@@ -2,9 +2,10 @@
  * Boundary mapping from the backend investigation wire shape
  * (`ApiPatientInvestigationItem`) to the portal's `PortalTest` view model.
  *
- * Pure (no React/i18n). Result content is exposed by the backend only once the
- * investigation is REVIEWED; this mapper mirrors that gate defensively — review
- * details and the result attachment are surfaced only for `REVIEWED` rows.
+ * Pure (no React/i18n). The backend already gates visibility (it only sends
+ * `result_attachments` / `result_text` the patient may see), so this mapper
+ * trusts those fields rather than re-gating. The clinician `review` block is
+ * surfaced only for `REVIEWED` rows (reviewer/date are review-only fields).
  */
 import type {
   LabCategory,
@@ -40,7 +41,12 @@ export function mapApiInvestigation(
     status: reviewed ? "reviewed" : "pending",
     clinic: { id: branchName, name: branchName },
     organizationName: item.organization_name ?? undefined,
-    resultUrl: reviewed ? (item.result_attachment_url ?? undefined) : undefined,
+    results: item.result_attachments.map((a) => ({
+      id: a.id,
+      url: a.url,
+      contentType: a.content_type ?? undefined,
+      source: a.source,
+    })),
     review: reviewed
       ? {
           date: item.reviewed_at ?? item.ordered_at,
