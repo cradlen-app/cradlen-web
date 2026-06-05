@@ -551,6 +551,31 @@
       "country": "الدولة"
     }
   },
+  "investigationReview": {
+    "title": "الفحوصات",
+    "close": "إغلاق",
+    "notes": "ملاحظات",
+    "notesPlaceholder": "أضف ملاحظات مراجعتك…",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم حفظ المراجعة",
+    "noResult": "لم يتم رفع نتيجة بعد",
+    "fields": {
+      "patient": "المريض",
+      "visitId": "رقم الزيارة",
+      "status": "الحالة",
+      "updatedAt": "آخر تحديث",
+      "type": "النوع",
+      "testName": "اسم الفحص",
+      "reason": "السبب"
+    },
+    "status": {
+      "ORDERED": "مطلوب",
+      "RESULTED": "قيد الانتظار",
+      "REVIEWED": "تمت المراجعة",
+      "CANCELLED": "ملغى"
+    }
+  },
   "notifications": {
     "title": "الإشعارات",
     "markAllRead": "تحديد الكل كمقروء",
