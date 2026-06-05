@@ -33,6 +33,7 @@ import type {
   PortalVisit,
   Reminder,
   UploadDocumentInput,
+  UploadFile,
 } from "../types/patient-portal.types";
 import {
   APPOINTMENTS,
@@ -60,6 +61,14 @@ function clone<T>(value: T): T {
 /** Mutable in-memory state, seeded from fixtures, so uploads persist per session. */
 const documentsState: Record<string, PortalDocument[]> = clone(DOCUMENTS);
 const labOrdersState: Record<string, LabOrder[]> = clone(LAB_ORDERS);
+
+/**
+ * Client-side optimistic store of patient-uploaded investigation result files,
+ * keyed by investigation id. The backend has no patient-upload endpoint yet, so
+ * Save persists here for the session and `fetchInvestigations` merges it onto
+ * the live rows. Swap `uploadInvestigationFiles` for a real call when it exists.
+ */
+const investigationUploads: Record<string, UploadFile[]> = {};
 
 /** Minimal shape of the `/api/patient-auth/me` payload this module consumes. */
 type PatientMeResponse = {
@@ -181,9 +190,33 @@ export async function fetchInvestigations({
   );
 
   return {
-    data: res.data.map(mapApiInvestigation),
+    // Merge any session-local patient uploads onto the live rows.
+    data: res.data.map(mapApiInvestigation).map((t) => ({
+      ...t,
+      files: investigationUploads[t.id] ?? [],
+    })),
     meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
   };
+}
+
+/**
+ * Mock upload of patient result files to an investigation. Persists to the
+ * session-local overlay so the card reflects the new files after Save; the live
+ * `fetchInvestigations` merges it back in. Replace the body with a patient-scoped
+ * upload endpoint when it exists — the signature and callers stay identical.
+ */
+export function uploadInvestigationFiles({
+  investigationId,
+  files,
+}: {
+  investigationId: string;
+  files: UploadFile[];
+}): Promise<UploadFile[]> {
+  investigationUploads[investigationId] = [
+    ...(investigationUploads[investigationId] ?? []),
+    ...files,
+  ];
+  return delay(clone(investigationUploads[investigationId]));
 }
 
 /**
