@@ -1,18 +1,20 @@
 /**
  * Patient portal data access — the single swap point for the real backend.
  *
- * `fetchMedications` is wired to the live patient-scoped endpoint
- * (`/api/patient-portal/medications`). The remaining functions still resolve
- * from in-memory fixtures until their backends exist; replace each body with a
- * patient-scoped fetch the same way when they do — the return types and all
- * callers stay identical.
+ * `fetchMedications` and `fetchVisitHistory` are wired to live patient-scoped
+ * endpoints (`/api/patient-portal/medications`, `/api/patient-portal/visits`).
+ * The remaining functions still resolve from in-memory fixtures until their
+ * backends exist; replace each body with a patient-scoped fetch the same way
+ * when they do — the return types and all callers stay identical.
  *
  * Uploads mutate a module-local clone of the fixtures so the prototype reflects
  * new documents and flips the related lab order to "pending_review".
  */
 import { apiFetch } from "@/infrastructure/http/api";
 import { mapApiMedication } from "../lib/map-medication";
+import { mapApiVisit } from "../lib/map-visit";
 import type { ApiPatientMedicationsResponse } from "./patient-medications.api.types";
+import type { ApiPatientVisitsResponse } from "./patient-visits.api.types";
 import type {
   Appointment,
   HealthRecord,
@@ -102,11 +104,12 @@ export type VisitHistoryPage = {
 };
 
 /**
- * Paginated visit history for a patient, newest first. Slices the in-memory
- * fixtures today; swapping to a real patient-scoped endpoint later keeps this
- * return type and all callers identical.
+ * Paginated COMPLETED visit history for a patient, newest first, from the live
+ * patient-scoped endpoint. The backend wraps the list as `{ data, meta }`; each
+ * item is mapped to the portal `PortalVisit` view model. An empty `patientId`
+ * lets the backend resolve all patients the caller may access.
  */
-export function fetchVisitHistory({
+export async function fetchVisitHistory({
   patientId,
   page = 1,
   limit = 10,
@@ -115,14 +118,19 @@ export function fetchVisitHistory({
   page?: number;
   limit?: number;
 }): Promise<VisitHistoryPage> {
-  const all = HEALTH_RECORDS[patientId]?.visits ?? [];
-  const start = (page - 1) * limit;
-  return delay(
-    clone({
-      data: all.slice(start, start + limit),
-      meta: { page, limit, total: all.length },
-    }),
+  const search = new URLSearchParams();
+  if (patientId) search.set("patient_id", patientId);
+  search.set("page", String(page));
+  search.set("limit", String(limit));
+
+  const res = await apiFetch<ApiPatientVisitsResponse>(
+    `/api/patient-portal/visits?${search.toString()}`,
   );
+
+  return {
+    data: res.data.map(mapApiVisit),
+    meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
+  };
 }
 
 export async function fetchMedications(
