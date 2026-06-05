@@ -133,6 +133,12 @@
     "dropzone": "اسحب الملفات وأفلتها أو",
     "browse": "تصفح",
     "save": "حفظ",
+    "removeFile": "إزالة الملف",
+    "uploadError": "فشل الرفع. حاول مرة أخرى.",
+    "fileTooLarge": "يجب ألا يتجاوز حجم كل ملف 15 ميجابايت.",
+    "unsupportedType": "يُسمح فقط بملفات PDF أو PNG أو JPEG أو WebP.",
+    "maxFiles": "يمكنك رفع حتى {max} ملفات.",
+    "resultsCount": "{count, plural, zero {# ملف نتيجة} one {# ملف نتيجة} two {ملفا نتيجة} few {# ملفات نتائج} many {# ملف نتيجة} other {# ملف نتيجة}}",
     "loadMore": "تحميل المزيد",
     "filterAll": "الكل",
     "statusFilter": {

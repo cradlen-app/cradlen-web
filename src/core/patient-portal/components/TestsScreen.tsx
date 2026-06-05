@@ -10,6 +10,7 @@ import {
   SlidersHorizontal,
   UploadCloud,
   UserRound,
+  X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -23,11 +24,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDate } from "../lib/format";
 import { useInvestigations } from "../hooks/usePortalData";
-import { useUploadInvestigationFiles } from "../hooks/useUploadInvestigationFiles";
+import {
+  useRemoveInvestigationAttachment,
+  useUploadInvestigationResult,
+} from "../hooks/useUploadInvestigationResult";
 import type {
   PortalTest,
+  PortalTestResult,
   PortalTestStatus,
-  UploadFile,
 } from "../types/patient-portal.types";
 import { ClinicTag, EmptyState, ScreenHeader } from "./portal-ui";
 
@@ -35,6 +39,16 @@ import { ClinicTag, EmptyState, ScreenHeader } from "./portal-ui";
 const STATUS_FILTERS = ["ORDERED", "RESULTED", "REVIEWED"] as const;
 /** Backend `LabTestCategory` values offered as filters. */
 const TYPE_FILTERS = ["LAB", "IMAGING", "OTHER"] as const;
+
+/** Mirror the backend upload limits (config defaults). */
+const ALLOWED_TYPES = [
+  "application/pdf",
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+];
+const MAX_BYTES = 15_000_000;
+const MAX_FILES = 10;
 
 export function TestsScreen() {
   const t = useTranslations("patientPortal");
@@ -151,20 +165,43 @@ function FilterPill({
 function TestCard({ test }: { test: PortalTest }) {
   const t = useTranslations("patientPortal");
   const locale = useLocale();
-  const upload = useUploadInvestigationFiles();
+  const upload = useUploadInvestigationResult();
+  const removeAttachment = useRemoveInvestigationAttachment();
   const fileInput = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
-  const [pending, setPending] = useState<UploadFile[]>([]);
+  const [pending, setPending] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const uploaded = test.files ?? [];
-  const hasFiles = uploaded.length > 0;
-  const isPending = test.status === "pending";
+  const results = test.results;
+  const isReviewed = test.status === "reviewed";
+  // The patient may add/remove files until the result is reviewed.
+  const editable = !isReviewed;
+  const remaining = MAX_FILES - results.length - pending.length;
+  const busy = upload.isPending || removeAttachment.isPending;
 
   function addFiles(list: FileList | null) {
     if (!list) return;
-    setPending((prev) => [...prev, ...Array.from(list).map(toUploadFile)]);
+    setError(null);
+    const next: File[] = [];
+    for (const file of Array.from(list)) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setError(t("tests.unsupportedType"));
+        continue;
+      }
+      if (file.size > MAX_BYTES) {
+        setError(t("tests.fileTooLarge"));
+        continue;
+      }
+      next.push(file);
+    }
+    if (next.length === 0) return;
+    setPending((prev) => {
+      const room = MAX_FILES - results.length - prev.length;
+      if (next.length > room) setError(t("tests.maxFiles", { max: MAX_FILES }));
+      return [...prev, ...next.slice(0, Math.max(0, room))];
+    });
   }
 
   function onDrop(e: DragEvent<HTMLDivElement>) {
@@ -175,8 +212,25 @@ function TestCard({ test }: { test: PortalTest }) {
 
   async function save() {
     if (pending.length === 0) return;
-    await upload.mutateAsync({ investigationId: test.id, files: pending });
-    setPending([]);
+    setError(null);
+    try {
+      await upload.mutateAsync({ investigationId: test.id, files: pending });
+      setPending([]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("tests.uploadError"));
+    }
+  }
+
+  async function removeUploaded(attachmentId: string) {
+    setError(null);
+    try {
+      await removeAttachment.mutateAsync({
+        investigationId: test.id,
+        attachmentId,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("tests.uploadError"));
+    }
   }
 
   return (
@@ -224,55 +278,77 @@ function TestCard({ test }: { test: PortalTest }) {
               </DetailRow>
             )}
 
-            {hasFiles && (
+            {results.length > 0 && (
               <div className="space-y-1.5 pt-1">
-                {uploaded.map((f) => (
-                  <FileChip key={f.id} file={f} />
+                {results.map((r) => (
+                  <ResultChip
+                    key={r.id}
+                    result={r}
+                    label={t("tests.viewResult")}
+                    onRemove={
+                      editable && r.source === "PATIENT" && !busy
+                        ? () => removeUploaded(r.id)
+                        : undefined
+                    }
+                    removeLabel={t("tests.removeFile")}
+                  />
                 ))}
               </div>
             )}
 
-            {isPending && (
+            {editable && (
               <div className="pt-1">
-                {pending.map((f) => (
-                  <FileChip key={f.id} file={f} />
-                ))}
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragging(true);
-                  }}
-                  onDragLeave={() => setDragging(false)}
-                  onDrop={onDrop}
-                  className={cn(
-                    "mt-2 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-7 text-center transition-colors",
-                    dragging
-                      ? "border-brand-primary bg-brand-primary/5"
-                      : "border-gray-300 bg-gray-50/60",
-                  )}
-                >
-                  <UploadCloud className="size-7 text-gray-400" />
-                  <p className="text-xs text-gray-500">
-                    {t("tests.dropzone")}{" "}
-                    <button
-                      type="button"
-                      onClick={() => fileInput.current?.click()}
-                      className="font-semibold text-brand-primary underline underline-offset-2"
-                    >
-                      {t("tests.browse")}
-                    </button>
-                  </p>
-                  <input
-                    ref={fileInput}
-                    type="file"
-                    multiple
-                    accept="image/*,application/pdf"
-                    className="hidden"
-                    onChange={(e) => addFiles(e.target.files)}
+                {pending.map((f, i) => (
+                  <PendingChip
+                    key={`${f.name}-${i}`}
+                    file={f}
+                    onRemove={() =>
+                      setPending((prev) => prev.filter((_, idx) => idx !== i))
+                    }
+                    removeLabel={t("tests.removeFile")}
                   />
-                </div>
+                ))}
+
+                {remaining > 0 && (
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragging(true);
+                    }}
+                    onDragLeave={() => setDragging(false)}
+                    onDrop={onDrop}
+                    className={cn(
+                      "mt-2 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-7 text-center transition-colors",
+                      dragging
+                        ? "border-brand-primary bg-brand-primary/5"
+                        : "border-gray-300 bg-gray-50/60",
+                    )}
+                  >
+                    <UploadCloud className="size-7 text-gray-400" />
+                    <p className="text-xs text-gray-500">
+                      {t("tests.dropzone")}{" "}
+                      <button
+                        type="button"
+                        onClick={() => fileInput.current?.click()}
+                        className="font-semibold text-brand-primary underline underline-offset-2"
+                      >
+                        {t("tests.browse")}
+                      </button>
+                    </p>
+                    <input
+                      ref={fileInput}
+                      type="file"
+                      multiple
+                      accept="image/*,application/pdf"
+                      className="hidden"
+                      onChange={(e) => addFiles(e.target.files)}
+                    />
+                  </div>
+                )}
               </div>
             )}
+
+            {error && <p className="text-xs text-red-600">{error}</p>}
 
             {test.review && (
               <div className="pt-2">
@@ -300,28 +376,16 @@ function TestCard({ test }: { test: PortalTest }) {
               </div>
             )}
 
-            {test.resultUrl && (
-              <a
-                href={test.resultUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 pt-1 text-sm font-semibold text-brand-primary underline underline-offset-2"
-              >
-                <ExternalLink className="size-4" />
-                {t("tests.viewResult")}
-              </a>
-            )}
-
             <div className="pt-1">
               <ClinicTag clinic={test.clinic} org={test.organizationName} />
             </div>
 
-            {isPending && (
+            {editable && pending.length > 0 && (
               <div className="flex justify-end pt-1.5">
                 <button
                   type="button"
                   onClick={save}
-                  disabled={pending.length === 0 || upload.isPending}
+                  disabled={busy}
                   className="rounded-full bg-brand-secondary px-7 py-1.5 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
                 >
                   {upload.isPending ? t("common.loading") : t("tests.save")}
@@ -331,8 +395,10 @@ function TestCard({ test }: { test: PortalTest }) {
           </div>
         ) : (
           <div className="space-y-3">
-            {hasFiles ? (
-              <FileChip file={uploaded[0]} />
+            {results.length > 0 ? (
+              <p className="text-center text-sm text-brand-primary">
+                {t("tests.resultsCount", { count: results.length })}
+              </p>
             ) : (
               <p className="text-center text-sm text-gray-400">
                 {t("tests.noFiles")}
@@ -400,21 +466,71 @@ function stripDrPrefix(name: string): string {
   return name.replace(/^\s*(dr\.?|د\.?)\s+/i, "");
 }
 
-function FileChip({ file }: { file: UploadFile }) {
+/** An uploaded/published result file: a View link, optionally removable. */
+function ResultChip({
+  result,
+  label,
+  onRemove,
+  removeLabel,
+}: {
+  result: PortalTestResult;
+  label: string;
+  onRemove?: () => void;
+  removeLabel: string;
+}) {
   return (
-    <div className="flex items-center justify-center gap-1.5">
-      <FileText className="size-4 shrink-0 text-red-500" />
-      <span className="truncate text-sm text-gray-600">{file.name}</span>
+    <div className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-1.5">
+      <a
+        href={result.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium text-brand-primary underline underline-offset-2"
+      >
+        <FileText className="size-4 shrink-0" />
+        <span className="truncate">{label}</span>
+        <ExternalLink className="size-3.5 shrink-0" />
+      </a>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={removeLabel}
+          className="shrink-0 text-gray-400 hover:text-red-500"
+        >
+          <X className="size-4" />
+        </button>
+      )}
     </div>
   );
 }
 
-function toUploadFile(file: File, idx: number): UploadFile {
-  const isPdf = file.type === "application/pdf" || file.name.endsWith(".pdf");
-  return {
-    id: `${Date.now()}-${idx}-${file.name}`,
-    name: file.name,
-    sizeLabel: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-    type: isPdf ? "pdf" : "image",
-  };
+/** A picked-but-not-yet-uploaded file. */
+function PendingChip({
+  file,
+  onRemove,
+  removeLabel,
+}: {
+  file: File;
+  onRemove: () => void;
+  removeLabel: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2 py-1">
+      <span className="inline-flex min-w-0 items-center gap-1.5">
+        <FileText className="size-4 shrink-0 text-red-500" />
+        <span className="truncate text-sm text-gray-600">{file.name}</span>
+        <span className="shrink-0 text-[11px] text-gray-400">
+          {(file.size / (1024 * 1024)).toFixed(1)} MB
+        </span>
+      </span>
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={removeLabel}
+        className="shrink-0 text-gray-400 hover:text-red-500"
+      >
+        <X className="size-4" />
+      </button>
+    </div>
+  );
 }
