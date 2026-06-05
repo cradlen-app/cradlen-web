@@ -6,16 +6,9 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/common/utils/utils";
 import { formatDate } from "../lib/format";
-import type {
-  PortalVisit,
-  VisitPriority,
-} from "../types/patient-portal.types";
+import { useVisitHistory } from "../hooks/usePortalData";
+import type { VisitPriority } from "../types/patient-portal.types";
 import { ClinicTag, EmptyState } from "./portal-ui";
-
-type Props = {
-  visits: PortalVisit[];
-  isLoading: boolean;
-};
 
 const PRIORITY_DOT: Record<VisitPriority, string> = {
   normal: "bg-emerald-500",
@@ -25,16 +18,18 @@ const PRIORITY_DOT: Record<VisitPriority, string> = {
 
 /**
  * Visit history timeline for the patient portal Record screen. Mirrors the
- * staff-side `VisitsHistoryList`: a left date rail with a connector line and
- * per-visit cards showing visit type, a priority pill, the doctor, the
+ * staff-side `VisitsHistoryList`: a paginated left date rail with a connector
+ * line and per-visit cards showing visit type, a priority pill, the doctor, the
  * originating clinic, and labeled Diagnosis / Medications / Investigations.
  */
-export function VisitsHistory({ visits, isLoading }: Props) {
+export function VisitsHistory() {
   const t = useTranslations("patientPortal");
   const locale = useLocale();
+  const { entries, isLoading, isLoadingMore, hasMore, loadMore } =
+    useVisitHistory();
 
   return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+    <section className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       <header className="mb-4 flex items-center gap-2">
         <Clock className="size-4 text-brand-primary" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-brand-black">
@@ -42,20 +37,20 @@ export function VisitsHistory({ visits, isLoading }: Props) {
         </h2>
       </header>
 
-      <ol className="space-y-0">
+      <ol className="min-h-0 flex-1 space-y-0 overflow-y-auto">
         {isLoading ? (
           <>
             <SkeletonCard isLast={false} />
             <SkeletonCard isLast={false} />
             <SkeletonCard isLast={true} />
           </>
-        ) : visits.length === 0 ? (
+        ) : entries.length === 0 ? (
           <li>
             <EmptyState message={t("record.noVisits")} />
           </li>
         ) : (
-          visits.map((visit, index) => {
-            const isLast = index === visits.length - 1;
+          entries.map((visit, index) => {
+            const isLast = index === entries.length - 1 && !hasMore;
             const priority = visit.priority ?? "normal";
             return (
               <li key={visit.id} className="flex items-stretch gap-4">
@@ -136,6 +131,19 @@ export function VisitsHistory({ visits, isLoading }: Props) {
           })
         )}
       </ol>
+
+      {hasMore && (
+        <div className="mt-2 flex justify-center">
+          <button
+            type="button"
+            onClick={() => loadMore()}
+            disabled={isLoadingMore}
+            className="inline-flex h-9 items-center justify-center rounded-full bg-brand-primary px-6 text-xs font-semibold text-white hover:bg-brand-primary/90 disabled:opacity-60"
+          >
+            {isLoadingMore ? t("record.loading") : t("record.loadMore")}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
