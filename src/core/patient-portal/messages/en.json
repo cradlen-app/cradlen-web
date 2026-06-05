@@ -60,15 +60,26 @@
   },
   "record": {
     "title": "Health record",
-    "vitalsTrend": "Vitals trend",
-    "bloodPressure": "Blood pressure",
-    "weight": "Weight",
-    "bmi": "BMI",
-    "allergies": "Allergies",
-    "noAllergies": "No known allergies",
-    "timeline": "Visit timeline",
+    "tabsAria": "Health record sections",
+    "tabs": {
+      "overview": "Overview",
+      "history": "History"
+    },
+    "historyComingSoon": "Coming soon",
+    "historyTitle": "Visits History",
     "diagnosis": "Diagnosis",
-    "noVisits": "No visits recorded yet"
+    "medications": "Medications",
+    "investigations": "Investigations",
+    "noVisits": "No visits recorded yet",
+    "typeLabel": {
+      "VISIT": "Visit",
+      "FOLLOW_UP": "Follow-up"
+    },
+    "priority": {
+      "normal": "Normal",
+      "urgent": "Urgent",
+      "emergency": "Emergency"
+    }
   },
   "medications": {
     "title": "Medications",

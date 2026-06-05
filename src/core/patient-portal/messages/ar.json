@@ -60,15 +60,26 @@
   },
   "record": {
     "title": "السجل الصحي",
-    "vitalsTrend": "مؤشرات حيوية",
-    "bloodPressure": "ضغط الدم",
-    "weight": "الوزن",
-    "bmi": "مؤشر كتلة الجسم",
-    "allergies": "الحساسية",
-    "noAllergies": "لا توجد حساسية معروفة",
-    "timeline": "سجل الزيارات",
+    "tabsAria": "أقسام السجل الصحي",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "history": "السجل"
+    },
+    "historyComingSoon": "قريبًا",
+    "historyTitle": "سجل الزيارات",
     "diagnosis": "التشخيص",
-    "noVisits": "لا توجد زيارات مسجلة بعد"
+    "medications": "الأدوية",
+    "investigations": "الفحوصات",
+    "noVisits": "لا توجد زيارات مسجلة بعد",
+    "typeLabel": {
+      "VISIT": "زيارة",
+      "FOLLOW_UP": "متابعة"
+    },
+    "priority": {
+      "normal": "عادية",
+      "urgent": "عاجلة",
+      "emergency": "طارئة"
+    }
   },
   "medications": {
     "title": "الأدوية",
