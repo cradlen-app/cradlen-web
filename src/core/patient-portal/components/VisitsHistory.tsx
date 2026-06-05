@@ -73,6 +73,8 @@ export function VisitsHistory() {
                         <span className="text-xs font-medium text-gray-700">
                           {t(`record.typeLabel.${visit.type ?? "VISIT"}`)}
                         </span>
+                      </div>
+                      <div>
                         <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
                           <span
                             className={cn(
@@ -166,10 +168,7 @@ function SkeletonCard({ isLast }: { isLast: boolean }) {
       <div className="flex w-20 flex-none flex-col items-center sm:w-24">
         <span className="h-3.5 w-16 animate-pulse rounded bg-gray-200" />
         {!isLast && (
-          <span
-            className="mt-2 w-px flex-1 bg-gray-200"
-            aria-hidden="true"
-          />
+          <span className="mt-2 w-px flex-1 bg-gray-200" aria-hidden="true" />
         )}
       </div>
       <div className={isLast ? "flex-1" : "flex-1 pb-6"}>
