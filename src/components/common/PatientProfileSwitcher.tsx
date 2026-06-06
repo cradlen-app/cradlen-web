@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Check, FileUp, LogOut, User } from "lucide-react";
+import { ChevronDown, Check, LogOut, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
@@ -164,14 +164,6 @@ export function PatientProfileSwitcher({
 
             {variant === "navbar" && (
               <div className="mt-1 border-t border-gray-100 pt-1">
-                <Link
-                  href="/patient/documents"
-                  onClick={() => setOpen(false)}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50"
-                >
-                  <FileUp className="size-4 shrink-0" />
-                  {t("nav.documents")}
-                </Link>
                 <Link
                   href="/patient/profile"
                   onClick={() => setOpen(false)}
