@@ -61,13 +61,7 @@
   },
   "record": {
     "title": "Health record",
-    "tabsAria": "Health record sections",
-    "tabs": {
-      "overview": "Overview",
-      "history": "History"
-    },
     "historyComingSoon": "Coming soon",
-    "historyTitle": "Visits History",
     "diagnosis": "Diagnosis",
     "medications": "Medications",
     "investigations": "Investigations",
