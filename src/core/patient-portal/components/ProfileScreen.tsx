@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { LogOut } from "lucide-react";
 
 import { cn } from "@/common/utils/utils";
 import { ageFromDob } from "../lib/format";
@@ -84,14 +83,6 @@ export function ProfileScreen() {
             </ul>
           )}
         </SectionCard>
-
-        <button
-          type="button"
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-100 bg-red-50 py-3 text-sm font-semibold text-red-600"
-        >
-          <LogOut className="size-4" />
-          {t("shell.logout")}
-        </button>
       </div>
     </div>
   );

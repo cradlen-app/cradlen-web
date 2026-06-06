@@ -9,7 +9,7 @@ import { formatDate } from "../lib/format";
 import { MED_FORM_ICON } from "../lib/medications";
 import { useMedications } from "../hooks/usePortalData";
 import type { PortalMedication } from "../types/patient-portal.types";
-import { ClinicTag, EmptyState, ScreenHeader } from "./portal-ui";
+import { EmptyState, ScreenHeader } from "./portal-ui";
 
 export function MedicationsScreen() {
   const t = useTranslations("patientPortal");
@@ -25,7 +25,7 @@ export function MedicationsScreen() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-24 lg:pb-0">
       <ScreenHeader title={t("medications.title")} />
 
       {isLoading ? (
@@ -148,7 +148,6 @@ function MedicationCard({
       </div>
 
       <div className="mt-2 flex flex-col gap-1">
-        <DetailRow label={t("medications.dose")} value={med.dose} />
         <DetailRow label={t("medications.frequency")} value={med.frequency} />
         {med.route && (
           <DetailRow label={t("medications.route")} value={med.route} />
@@ -168,10 +167,6 @@ function MedicationCard({
         <span className="shrink-0 text-[10px] uppercase tracking-wide text-gray-400">
           {formatDate(med.startDate, locale)}
         </span>
-      </div>
-
-      <div className="mt-2">
-        <ClinicTag clinic={med.clinic} org={med.organizationName} />
       </div>
     </article>
   );
