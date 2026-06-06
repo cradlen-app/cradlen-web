@@ -4,8 +4,6 @@ import {
   Pill,
   FlaskConical,
   Stethoscope,
-  CalendarDays,
-  FileUp,
   User,
   type LucideIcon,
 } from "lucide-react";
@@ -49,18 +47,6 @@ export const PATIENT_NAV: readonly PatientNavItem[] = [
     key: "patientPortal.nav.tests",
     icon: FlaskConical,
     primary: true,
-  },
-  {
-    path: "/appointments",
-    key: "patientPortal.nav.appointments",
-    icon: CalendarDays,
-    primary: false,
-  },
-  {
-    path: "/documents",
-    key: "patientPortal.nav.documents",
-    icon: FileUp,
-    primary: false,
   },
   {
     path: "/profile",
