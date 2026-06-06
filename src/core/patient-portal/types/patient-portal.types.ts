@@ -29,6 +29,8 @@ export interface PatientProfile {
   nationalId?: string;
   /** Emoji avatar placeholder for the prototype. */
   avatar?: string;
+  /** Short-lived presigned GET URL for the uploaded avatar, or null/absent. */
+  imageUrl?: string | null;
   /** Blood group, e.g. "AB+". */
   bloodType?: string;
   /** Height in centimetres. */
