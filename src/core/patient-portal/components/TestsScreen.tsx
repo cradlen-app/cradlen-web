@@ -64,7 +64,7 @@ export function TestsScreen() {
     useInvestigations({ status, type });
 
   return (
-    <div className="flex h-full w-full flex-col gap-4">
+    <div className="flex w-full flex-col gap-4 pb-24 lg:pb-0">
       <ScreenHeader title={t("tests.title")} />
 
       <div className="flex flex-wrap items-center gap-2.5">
