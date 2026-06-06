@@ -22,7 +22,7 @@ export function VisitsScreen() {
   const t = useTranslations("patientPortal");
 
   return (
-    <div className="flex h-full w-full flex-col gap-4">
+    <div className="flex w-full flex-col gap-4 pb-24 lg:pb-0">
       <ScreenHeader title={t("visits.title")} />
 
       <CollapsibleCard title={t("visits.upcomingTitle")} defaultOpen>

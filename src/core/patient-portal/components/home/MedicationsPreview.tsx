@@ -44,7 +44,7 @@ export function MedicationsPreview() {
                 {formatDate(m.startDate, locale)}
               </div>
               <p className="mt-1.5 truncate text-sm font-semibold text-brand-primary">
-                {m.name} {m.dose}
+                {m.name}
               </p>
               <div className="mt-1 flex items-center justify-between gap-2 text-xs text-gray-500">
                 <span>
