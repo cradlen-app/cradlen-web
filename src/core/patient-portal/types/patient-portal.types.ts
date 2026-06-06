@@ -99,6 +99,42 @@ export interface PortalUpcomingVisit {
   note?: string;
 }
 
+/** Marital status — mirrors the backend Prisma `MaritalStatus` enum. */
+export type MaritalStatus =
+  | "SINGLE"
+  | "MARRIED"
+  | "DIVORCED"
+  | "WIDOWED"
+  | "SEPARATED"
+  | "ENGAGED"
+  | "UNKNOWN";
+
+/**
+ * Editable demographics + avatar for the active patient, backing the Profile &
+ * account settings screen. Sourced from `GET /patient-portal/profile`.
+ */
+export interface PatientProfileDetails {
+  id: string;
+  fullName: string;
+  /** Read-only / immutable. */
+  nationalId: string;
+  dateOfBirth: string;
+  phoneNumber: string;
+  address: string;
+  maritalStatus: MaritalStatus;
+  /** Short-lived presigned GET URL for the avatar, or null when none. */
+  imageUrl: string | null;
+}
+
+/** Patient-editable profile fields (PATCH body, all optional). */
+export interface UpdatePatientProfileInput {
+  fullName?: string;
+  dateOfBirth?: string;
+  phoneNumber?: string;
+  address?: string;
+  maritalStatus?: MaritalStatus;
+}
+
 export type MedicationStatus = "active" | "past";
 
 /** Dosage form — drives the card icon and the per-dose unit label. */
