@@ -7,7 +7,8 @@
     "tests": "الفحوصات",
     "appointments": "المواعيد",
     "documents": "المستندات",
-    "profile": "الملف الشخصي"
+    "profile": "الملف الشخصي",
+    "more": "المزيد"
   },
   "shell": {
     "brand": "كرادلن",
@@ -15,7 +16,8 @@
     "switchProfile": "تبديل الملف",
     "you": "أنا",
     "dependent": "تابع",
-    "accountRole": "المريض"
+    "accountRole": "المريض",
+    "account": "الحساب"
   },
   "home": {
     "greeting": "مرحبًا، {name}",

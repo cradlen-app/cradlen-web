@@ -67,9 +67,9 @@ export function TestsScreen() {
     <div className="flex h-full w-full flex-col gap-4">
       <ScreenHeader title={t("tests.title")} />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-brand-primary">
-          <SlidersHorizontal className="size-5" />
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-brand-primary">
+          <SlidersHorizontal className="size-4" />
         </span>
         <FilterPill
           label={t("tests.fields.status")}
@@ -130,7 +130,7 @@ export function TestsScreen() {
 }
 
 /**
- * A large dropdown pill showing the selected filter value (e.g. "Status: All").
+ * A dropdown pill showing the selected filter value (e.g. "Status: All").
  * The "All" option (radio value `"all"`) clears the filter (`undefined`).
  */
 function FilterPill({
@@ -147,7 +147,7 @@ function FilterPill({
   const selected = options.find((o) => o.value === value) ?? options[0];
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex h-12 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-sm hover:bg-gray-50 data-[state=open]:border-brand-primary">
+      <DropdownMenuTrigger className="flex h-10 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm hover:bg-gray-50 data-[state=open]:border-brand-primary">
         <span className="text-gray-400">{label}:</span>
         <span className="font-semibold text-brand-black">{selected.label}</span>
         <ChevronDown className="size-4 text-gray-400" />

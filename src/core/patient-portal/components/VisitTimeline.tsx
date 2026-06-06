@@ -31,13 +31,16 @@ export function TimelineItem({
   const locale = useLocale();
   return (
     <li className="flex items-stretch gap-4">
-      <div className="flex w-20 flex-none flex-col items-center sm:w-24">
-        <span className="whitespace-nowrap text-xs font-medium text-gray-600">
+      <div className="relative flex w-20 flex-none items-center justify-center sm:w-24">
+        {!isLast && (
+          <span
+            className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-gray-200"
+            aria-hidden="true"
+          />
+        )}
+        <span className="relative whitespace-nowrap bg-white px-1 py-1 text-center text-xs font-medium text-gray-600">
           {formatDate(date, locale)}
         </span>
-        {!isLast && (
-          <span className="mt-2 w-px flex-1 bg-gray-200" aria-hidden="true" />
-        )}
       </div>
       <div className={isLast ? "flex-1" : "flex-1 pb-6"}>{children}</div>
     </li>
@@ -118,11 +121,14 @@ function VisitCard({ visit }: { visit: PortalVisit }) {
 export function TimelineSkeletonItem({ isLast }: { isLast: boolean }) {
   return (
     <li className="flex items-stretch gap-4">
-      <div className="flex w-20 flex-none flex-col items-center sm:w-24">
-        <span className="h-3.5 w-16 animate-pulse rounded bg-gray-200" />
+      <div className="relative flex w-20 flex-none items-center justify-center sm:w-24">
         {!isLast && (
-          <span className="mt-2 w-px flex-1 bg-gray-200" aria-hidden="true" />
+          <span
+            className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-gray-200"
+            aria-hidden="true"
+          />
         )}
+        <span className="relative h-3.5 w-16 animate-pulse rounded bg-gray-200" />
       </div>
       <div className={isLast ? "flex-1" : "flex-1 pb-6"}>
         <div className="space-y-3 rounded-xl border border-gray-100 p-4">
