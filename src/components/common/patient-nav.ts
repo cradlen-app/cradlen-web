@@ -3,6 +3,7 @@ import {
   ClipboardList,
   Pill,
   FlaskConical,
+  Stethoscope,
   CalendarDays,
   FileUp,
   User,
@@ -32,6 +33,12 @@ export const PATIENT_NAV: readonly PatientNavItem[] = [
     primary: true,
   },
   {
+    path: "/visits",
+    key: "patientPortal.nav.visits",
+    icon: Stethoscope,
+    primary: true,
+  },
+  {
     path: "/medications",
     key: "patientPortal.nav.medications",
     icon: Pill,
@@ -47,7 +54,7 @@ export const PATIENT_NAV: readonly PatientNavItem[] = [
     path: "/appointments",
     key: "patientPortal.nav.appointments",
     icon: CalendarDays,
-    primary: true,
+    primary: false,
   },
   {
     path: "/documents",

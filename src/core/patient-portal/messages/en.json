@@ -2,9 +2,10 @@
   "nav": {
     "home": "Home",
     "record": "Record",
+    "visits": "Visits",
     "medications": "Meds",
     "tests": "Tests",
-    "appointments": "Visits",
+    "appointments": "Appointments",
     "documents": "Documents",
     "profile": "Profile"
   },
@@ -172,6 +173,13 @@
     "past": "Past",
     "none": "No appointments",
     "bookingNote": "To book a new appointment, contact your clinic."
+  },
+  "visits": {
+    "title": "Visits",
+    "upcomingTitle": "Upcoming visits",
+    "lastTitle": "Last visits",
+    "noUpcoming": "No upcoming visits",
+    "followUp": "Follow-up"
   },
   "profile": {
     "title": "Profile",
