@@ -52,6 +52,7 @@
     "medications": "Medications",
     "daysLeft": "{count, plural, one {# day left} other {# days left}}",
     "years": "{count} years",
+    "nextVisit": "Next visit",
     "blood": "Blood",
     "height": "Height",
     "weight": "Weight",
