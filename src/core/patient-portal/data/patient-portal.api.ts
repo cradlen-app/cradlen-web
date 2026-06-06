@@ -85,6 +85,7 @@ type PatientMeResponse = {
       full_name: string;
       date_of_birth: string;
       relation: string; // "SELF" or a GuardianRelation value
+      profile_image_url: string | null;
     }[];
   };
 };
@@ -107,6 +108,7 @@ export async function fetchProfiles(): Promise<PatientProfile[]> {
       fullName: real.full_name,
       dateOfBirth: real.date_of_birth,
       relation: isSelf ? undefined : real.relation,
+      imageUrl: real.profile_image_url ?? null,
     };
   });
 }

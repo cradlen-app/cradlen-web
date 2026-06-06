@@ -11,6 +11,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { usePatientMe } from "@/features/auth/hooks/usePatientAuth";
 import { usePatientProfiles } from "@/core/patient-portal/api";
 import { PatientNotificationBell } from "@/core/patient-portal";
+import { PatientAvatar } from "./PatientAvatar";
 import { PatientProfileSwitcher } from "./PatientProfileSwitcher";
 
 function IconButton({
@@ -81,9 +82,11 @@ export function PatientNavbar() {
         <div className="hidden lg:flex items-center gap-1">
           <div className="w-px h-5 bg-gray-200 mx-1.5" />
           <div className="flex items-center gap-2.5 h-10 ps-1 pe-3.5 rounded-full">
-            <span className="flex size-8 items-center justify-center rounded-full bg-brand-secondary/30 text-base ring-2 ring-white shadow-sm">
-              {self?.avatar ?? "👤"}
-            </span>
+            <PatientAvatar
+              imageUrl={self?.imageUrl}
+              alt={self?.fullName ?? ""}
+              className="size-8 ring-2 ring-white shadow-sm"
+            />
             <div className="flex flex-col items-start leading-none gap-0.5">
               <span className="text-sm text-brand-black whitespace-nowrap">
                 {me?.display_name ?? self?.fullName ?? "—"}
