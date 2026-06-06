@@ -16,6 +16,7 @@ import { mapApiMedication } from "../lib/map-medication";
 import { mapApiVisit } from "../lib/map-visit";
 import { mapApiUpcomingVisit } from "../lib/map-upcoming-visit";
 import { mapApiInvestigation } from "../lib/map-investigation";
+import { mapApiProfile } from "../lib/map-profile";
 import type { ApiPatientMedicationsResponse } from "./patient-medications.api.types";
 import type {
   ApiPatientUpcomingVisitsResponse,
@@ -26,6 +27,10 @@ import type {
   ApiResultUploadUrl,
 } from "./patient-investigations.api.types";
 import type { ApiPatientNotificationsResponse } from "./patient-notifications.api.types";
+import type {
+  ApiPatientProfile,
+  ApiProfileImageUploadUrl,
+} from "./patient-profile.api.types";
 import type {
   ApiPortalHistoryGroup,
   ApiPortalHistoryResponse,
@@ -40,7 +45,9 @@ import type {
   PortalTest,
   PortalUpcomingVisit,
   PortalVisit,
+  PatientProfileDetails,
   Reminder,
+  UpdatePatientProfileInput,
   UploadDocumentInput,
 } from "../types/patient-portal.types";
 import {
@@ -281,6 +288,117 @@ export async function uploadInvestigationResult({
   for (const file of files) {
     await uploadOneResultFile(investigationId, file);
   }
+}
+
+/**
+ * Profile & account settings for the active patient. All calls accept an
+ * optional `patientId` so a guardian can manage a dependent (sent as the
+ * `patient_id` query param the backend validates for access). Responses are
+ * `{ data }`-wrapped and mapped to the `PatientProfileDetails` view model.
+ */
+function profileQuery(patientId?: string): string {
+  if (!patientId) return "";
+  const search = new URLSearchParams({ patient_id: patientId });
+  return `?${search.toString()}`;
+}
+
+export async function fetchPatientProfile(
+  patientId?: string,
+): Promise<PatientProfileDetails> {
+  const res = await apiFetch<{ data: ApiPatientProfile }>(
+    `/api/patient-portal/profile${profileQuery(patientId)}`,
+  );
+  return mapApiProfile(res.data);
+}
+
+export async function updatePatientProfile({
+  patientId,
+  input,
+}: {
+  patientId?: string;
+  input: UpdatePatientProfileInput;
+}): Promise<PatientProfileDetails> {
+  const res = await apiFetch<{ data: ApiPatientProfile }>(
+    `/api/patient-portal/profile${profileQuery(patientId)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        full_name: input.fullName,
+        date_of_birth: input.dateOfBirth,
+        phone_number: input.phoneNumber,
+        address: input.address,
+        marital_status: input.maritalStatus,
+      }),
+    },
+  );
+  return mapApiProfile(res.data);
+}
+
+/**
+ * Sets the active patient's avatar via the presigned R2 flow (mirrors
+ * `uploadOneResultFile`): request a presigned PUT, upload the bytes directly to
+ * R2, then confirm the object key. Returns the updated profile.
+ */
+export async function uploadProfileImage({
+  patientId,
+  file,
+}: {
+  patientId?: string;
+  file: File;
+}): Promise<PatientProfileDetails> {
+  const presign = await apiFetch<{ data: ApiProfileImageUploadUrl }>(
+    `/api/patient-portal/profile/image-upload-url${profileQuery(patientId)}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        content_type: file.type,
+        size_bytes: file.size,
+        file_name: file.name,
+      }),
+    },
+  );
+
+  const put = await fetch(presign.data.upload_url, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": presign.data.content_type },
+  });
+  if (!put.ok) {
+    throw new Error("Upload failed");
+  }
+
+  const res = await apiFetch<{ data: ApiPatientProfile }>(
+    `/api/patient-portal/profile/image${profileQuery(patientId)}`,
+    { method: "POST", body: JSON.stringify({ key: presign.data.key }) },
+  );
+  return mapApiProfile(res.data);
+}
+
+export async function removeProfileImage(
+  patientId?: string,
+): Promise<PatientProfileDetails> {
+  const res = await apiFetch<{ data: ApiPatientProfile }>(
+    `/api/patient-portal/profile/image${profileQuery(patientId)}`,
+    { method: "DELETE" },
+  );
+  return mapApiProfile(res.data);
+}
+
+/** Changes the account password. Returns nothing (backend replies 204). */
+export async function changePassword({
+  currentPassword,
+  newPassword,
+}: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> {
+  await apiFetch("/api/patient-auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  });
 }
 
 /** Removes a result file the patient uploaded (allowed before review). */
