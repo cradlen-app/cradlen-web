@@ -11,6 +11,8 @@ export const patientPortalQueryKeys = {
   /** The authenticated patient/guardian identity from /patient-auth/me. */
   me: () => ["patient-portal", "me"] as const,
   profiles: () => ["patient-portal", "profiles"] as const,
+  profileDetails: (patientId: string) =>
+    ["patient-portal", "profile-details", patientId] as const,
   healthRecord: (patientId: string) =>
     ["patient-portal", "health-record", patientId] as const,
   visitHistory: (patientId: string) =>
