@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { ChevronDown, Check, FileUp, LogOut, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import LogoIcon from "@/public/Logo-icon.png";
 import { cn } from "@/common/utils/utils";
 import { Link } from "@/i18n/navigation";
 import { usePatientLogout } from "@/features/auth/hooks/usePatientAuth";
@@ -14,6 +12,7 @@ import {
   usePatientProfiles,
   usePatientProfileStore,
 } from "@/core/patient-portal/api";
+import { PatientAvatar } from "./PatientAvatar";
 
 type Variant = "sidebar" | "navbar";
 
@@ -49,9 +48,11 @@ export function PatientProfileSwitcher({
   if (variant === "sidebar" && collapsed) {
     return (
       <div className="flex justify-center py-4">
-        <span className="size-9 overflow-hidden rounded-full">
-          <Image src={LogoIcon} alt="Cradlen" width={36} height={36} priority />
-        </span>
+        <PatientAvatar
+          imageUrl={active?.imageUrl}
+          alt={active?.fullName ?? ""}
+          className="size-9"
+        />
       </div>
     );
   }
@@ -66,9 +67,11 @@ export function PatientProfileSwitcher({
           aria-expanded={open}
           className="flex w-full items-center gap-2.5 px-3 py-4 text-start transition-opacity hover:opacity-70"
         >
-          <span className="size-9 shrink-0 overflow-hidden rounded-full">
-            <Image src={LogoIcon} alt="Cradlen" width={36} height={36} priority />
-          </span>
+          <PatientAvatar
+            imageUrl={active?.imageUrl}
+            alt={active?.fullName ?? ""}
+            className="size-9"
+          />
           <span className="flex min-w-0 flex-1 flex-col leading-tight">
             <span className="truncate text-sm text-brand-black">
               {active?.fullName}
@@ -92,9 +95,11 @@ export function PatientProfileSwitcher({
           aria-expanded={open}
           className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-semibold text-brand-black transition-colors hover:bg-gray-100"
         >
-          <span className="flex size-8 items-center justify-center rounded-full bg-brand-secondary/30 text-base">
-            {active?.avatar ?? "👤"}
-          </span>
+          <PatientAvatar
+            imageUrl={active?.imageUrl}
+            alt={active?.fullName ?? ""}
+            className="size-8"
+          />
           <span className="max-w-28 truncate">{activeLabel}</span>
           <ChevronDown className="size-4 opacity-70" />
         </button>
@@ -137,9 +142,11 @@ export function PatientProfileSwitcher({
                     isActive && "bg-brand-primary/5",
                   )}
                 >
-                  <span className="flex size-8 items-center justify-center rounded-full bg-brand-secondary/20 text-lg">
-                    {p.avatar ?? "👤"}
-                  </span>
+                  <PatientAvatar
+                    imageUrl={p.imageUrl}
+                    alt={p.fullName}
+                    className="size-8"
+                  />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium text-brand-black">
                       {p.fullName}
