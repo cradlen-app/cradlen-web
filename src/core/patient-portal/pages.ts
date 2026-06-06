@@ -9,3 +9,4 @@ export { MedicationsScreen } from "./components/MedicationsScreen";
 export { TestsScreen } from "./components/TestsScreen";
 export { VisitsScreen } from "./components/VisitsScreen";
 export { ProfileScreen } from "./components/ProfileScreen";
+export { NotificationsScreen } from "./components/NotificationsScreen";

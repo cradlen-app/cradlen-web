@@ -13,11 +13,19 @@ import { SectionCard } from "../portal-ui";
 
 type Translate = ReturnType<typeof useTranslations>;
 
+/** Mirrors the backend strong-password policy (upper, lower, digit, special). */
+const STRONG_PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/;
+
 function createSchema(t: Translate) {
   return z
     .object({
       currentPassword: z.string().min(1, t("profile.passwordRequired")),
-      newPassword: z.string().min(8, t("profile.passwordMinLength")),
+      newPassword: z
+        .string()
+        .min(8, t("profile.passwordMinLength"))
+        .max(128, t("profile.passwordMaxLength"))
+        .regex(STRONG_PASSWORD_REGEX, t("profile.passwordWeak")),
       confirmNewPassword: z.string().min(1, t("profile.passwordRequired")),
     })
     .refine((d) => d.newPassword === d.confirmNewPassword, {

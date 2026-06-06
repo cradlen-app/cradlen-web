@@ -5,7 +5,7 @@ import { Bell, FlaskConical, Pill } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { patientHref } from "@/components/common/patient-nav";
 import { formatRelative } from "../lib/format";
 import { usePatientNotifications } from "../hooks/usePatientNotifications";
@@ -86,8 +86,9 @@ export function PatientNotificationBell() {
         <Popover.Content
           align="end"
           sideOffset={8}
+          collisionPadding={12}
           className={cn(
-            "z-50 w-88 rounded-2xl border border-gray-100 bg-white outline-none",
+            "z-50 w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl border border-gray-100 bg-white outline-none",
             "shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]",
             "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
             "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
@@ -168,6 +169,18 @@ export function PatientNotificationBell() {
                 );
               })
             )}
+          </div>
+
+          {/* Footer */}
+          <div className="border-t border-gray-50 px-4 py-2.5 text-center">
+            <Popover.Close asChild>
+              <Link
+                href="/patient/notifications"
+                className="text-xs font-semibold text-brand-primary transition-colors hover:text-brand-primary/80"
+              >
+                {t("notifications.seeAll")}
+              </Link>
+            </Popover.Close>
           </div>
         </Popover.Content>
       </Popover.Portal>
