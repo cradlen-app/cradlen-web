@@ -32,23 +32,40 @@ const MARITAL_STATUSES: readonly MaritalStatus[] = [
   "UNKNOWN",
 ];
 
-const schema = z.object({
-  fullName: z.string().trim().min(1),
-  dateOfBirth: z.string().optional(),
-  phoneNumber: z.string().trim().optional(),
-  address: z.string().trim().optional(),
-  maritalStatus: z.enum([
-    "SINGLE",
-    "MARRIED",
-    "DIVORCED",
-    "WIDOWED",
-    "SEPARATED",
-    "ENGAGED",
-    "UNKNOWN",
-  ]),
-});
+type Translate = ReturnType<typeof useTranslations>;
 
-type FormData = z.infer<typeof schema>;
+/** Loose international phone: optional, but if present needs 7–15 digits. */
+function isValidPhone(value: string): boolean {
+  if (!/^\+?[\d\s()-]+$/.test(value)) return false;
+  const digits = value.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+function createSchema(t: Translate) {
+  return z.object({
+    fullName: z.string().trim().min(1),
+    dateOfBirth: z.string().optional(),
+    phoneNumber: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => !v || isValidPhone(v), {
+        message: t("profile.phoneInvalid"),
+      }),
+    address: z.string().trim().optional(),
+    maritalStatus: z.enum([
+      "SINGLE",
+      "MARRIED",
+      "DIVORCED",
+      "WIDOWED",
+      "SEPARATED",
+      "ENGAGED",
+      "UNKNOWN",
+    ]),
+  });
+}
+
+type FormData = z.infer<ReturnType<typeof createSchema>>;
 
 const inputClass = cn(
   "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -70,7 +87,7 @@ export function ProfileInfoForm({
     control,
     formState: { errors, isDirty },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(createSchema(t)),
     defaultValues: {
       fullName: profile.fullName,
       dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.slice(0, 10) : "",
@@ -114,12 +131,15 @@ export function ProfileInfoForm({
           <input type="date" {...register("dateOfBirth")} className={inputClass} />
         </Field>
 
-        <Field label={t("profile.phoneNumber")}>
+        <Field
+          label={t("profile.phoneNumber")}
+          error={errors.phoneNumber?.message}
+        >
           <input
             type="tel"
             inputMode="tel"
             {...register("phoneNumber")}
-            className={inputClass}
+            className={cn(inputClass, errors.phoneNumber && "border-red-400")}
           />
         </Field>
 
