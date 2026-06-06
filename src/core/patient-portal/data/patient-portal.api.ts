@@ -428,6 +428,23 @@ export function fetchPatientNotifications({
   );
 }
 
+/** A paginated page of notifications for the full "see all" list. */
+export function fetchPatientNotificationsPage({
+  page = 1,
+  limit = 20,
+}: {
+  page?: number;
+  limit?: number;
+} = {}): Promise<ApiPatientNotificationsResponse> {
+  const search = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  return apiFetch<ApiPatientNotificationsResponse>(
+    `/api/patient-portal/notifications?${search.toString()}`,
+  );
+}
+
 /** Marks one notification read. */
 export async function markPatientNotificationRead(id: string): Promise<void> {
   await apiFetch(`/api/patient-portal/notifications/${id}/read`, {
