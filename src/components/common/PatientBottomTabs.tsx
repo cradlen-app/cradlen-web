@@ -24,7 +24,7 @@ export function PatientBottomTabs() {
 
   return (
     <>
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t border-gray-100 bg-white px-1 py-1.5 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex items-stretch justify-around border-t border-gray-100 bg-white px-1 py-1.5 lg:hidden">
         {items.map((item) => {
           const href = patientHref(item.path);
           const active =
@@ -51,7 +51,7 @@ export function PatientBottomTabs() {
 
         <button
           type="button"
-          onClick={() => setMoreOpen(true)}
+          onClick={() => setMoreOpen((o) => !o)}
           aria-haspopup="dialog"
           aria-expanded={moreOpen}
           className={cn(

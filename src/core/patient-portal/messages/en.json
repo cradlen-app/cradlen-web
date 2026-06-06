@@ -17,7 +17,8 @@
     "you": "Me",
     "dependent": "Dependent",
     "accountRole": "Patient",
-    "account": "Account"
+    "account": "Account",
+    "language": "Language"
   },
   "home": {
     "greeting": "Hello, {name}",
@@ -202,7 +203,7 @@
     "addPhoto": "Add photo",
     "changePhoto": "Change photo",
     "removePhoto": "Remove",
-    "imageTypeError": "Please choose an image file.",
+    "imageTypeError": "Choose a PNG, JPG, or WEBP image.",
     "imageTooLarge": "Image must be 5 MB or smaller.",
     "imageUpdated": "Profile photo updated",
     "imageRemoved": "Profile photo removed",
@@ -213,7 +214,10 @@
     "passwordChanged": "Password changed",
     "passwordRequired": "Required",
     "passwordMinLength": "Password must be at least 8 characters.",
+    "passwordMaxLength": "Password must be at most 128 characters.",
+    "passwordWeak": "Password must include uppercase, lowercase, a number, and a special character.",
     "passwordMismatch": "Passwords don't match.",
+    "phoneInvalid": "Enter a valid phone number.",
     "save": "Save changes",
     "saving": "Saving…",
     "saved": "Changes saved",

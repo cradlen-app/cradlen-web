@@ -14,6 +14,8 @@ import type { PatientProfileDetails } from "../../types/patient-portal.types";
 import { SectionCard } from "../portal-ui";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+/** Mirror the backend storage allowlist for avatars (images only). */
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 function initials(name: string): string {
   return (
@@ -40,7 +42,7 @@ export function AvatarUploader({ profile }: { profile: PatientProfileDetails }) 
     event.target.value = ""; // allow re-picking the same file
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       toast.error(t("profile.imageTypeError"));
       return;
     }
@@ -123,7 +125,7 @@ export function AvatarUploader({ profile }: { profile: PatientProfileDetails }) 
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp"
           className="hidden"
           onChange={onPick}
         />

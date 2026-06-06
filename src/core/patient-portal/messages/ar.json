@@ -17,7 +17,8 @@
     "you": "أنا",
     "dependent": "تابع",
     "accountRole": "المريض",
-    "account": "الحساب"
+    "account": "الحساب",
+    "language": "اللغة"
   },
   "home": {
     "greeting": "مرحبًا، {name}",
@@ -202,7 +203,7 @@
     "addPhoto": "إضافة صورة",
     "changePhoto": "تغيير الصورة",
     "removePhoto": "إزالة",
-    "imageTypeError": "يرجى اختيار ملف صورة.",
+    "imageTypeError": "اختر صورة بصيغة PNG أو JPG أو WEBP.",
     "imageTooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
     "imageUpdated": "تم تحديث صورة الملف الشخصي",
     "imageRemoved": "تمت إزالة صورة الملف الشخصي",
@@ -213,7 +214,10 @@
     "passwordChanged": "تم تغيير كلمة المرور",
     "passwordRequired": "مطلوب",
     "passwordMinLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+    "passwordMaxLength": "يجب ألا تتجاوز كلمة المرور 128 حرفًا.",
+    "passwordWeak": "يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم ورمز خاص.",
     "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+    "phoneInvalid": "أدخل رقم هاتف صحيح.",
     "save": "حفظ التغييرات",
     "saving": "جارٍ الحفظ…",
     "saved": "تم حفظ التغييرات",
