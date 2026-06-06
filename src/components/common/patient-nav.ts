@@ -28,7 +28,7 @@ export const PATIENT_NAV: readonly PatientNavItem[] = [
     path: "/record",
     key: "patientPortal.nav.record",
     icon: ClipboardList,
-    primary: true,
+    primary: false,
   },
   {
     path: "/visits",

@@ -15,15 +15,21 @@ import { Link } from "@/i18n/navigation";
 import { formatDate } from "../../lib/format";
 import { useHealthRecord, useLabOrders, useMedications } from "../../hooks/usePortalData";
 
-type Tone = "pink" | "indigo" | "rose";
+type Tone = "primary" | "secondary" | "sage";
 
 const TONE: Record<Tone, { card: string; icon: string }> = {
-  pink: { card: "bg-pink-50/70 border-pink-100", icon: "bg-pink-100 text-pink-600" },
-  indigo: {
-    card: "bg-indigo-50/70 border-indigo-100",
-    icon: "bg-indigo-100 text-indigo-600",
+  primary: {
+    card: "bg-brand-primary/5 border-brand-primary/15",
+    icon: "bg-brand-primary/10 text-brand-primary",
   },
-  rose: { card: "bg-rose-50/70 border-rose-100", icon: "bg-rose-100 text-rose-600" },
+  secondary: {
+    card: "bg-brand-secondary/15 border-brand-secondary/30",
+    icon: "bg-brand-secondary/25 text-brand-primary",
+  },
+  sage: {
+    card: "bg-emerald-50 border-emerald-100",
+    icon: "bg-emerald-100 text-emerald-700",
+  },
 };
 
 function StatCard({
@@ -100,7 +106,7 @@ export function StatCards() {
       <StatCard
         href="/patient/record"
         icon={HeartPulse}
-        tone="pink"
+        tone="primary"
         title={t("home.consultations")}
         sub={t("home.lastConsultation", {
           date: formatDate(lastConsultation, locale),
@@ -110,7 +116,7 @@ export function StatCards() {
       <StatCard
         href="/patient/medications"
         icon={Pill}
-        tone="indigo"
+        tone="secondary"
         title={t("home.prescriptions")}
         sub={t("home.lastAdded", { date: formatDate(lastAdded, locale) })}
         bold={t("home.availablePrescriptions", { count: activeMeds.length })}
@@ -118,7 +124,7 @@ export function StatCards() {
       <StatCard
         href="/patient/tests"
         icon={FlaskConical}
-        tone="rose"
+        tone="sage"
         title={t("home.labScreenings")}
         sub={t("home.labTests", { count: (labs ?? []).length })}
         bold={labName}

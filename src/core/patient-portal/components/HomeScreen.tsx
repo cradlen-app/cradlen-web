@@ -1,28 +1,22 @@
 "use client";
 
 import { WelcomeHeader } from "./home/WelcomeHeader";
+import { NextVisitCard } from "./home/NextVisitCard";
 import { StatCards } from "./home/StatCards";
 import { MedicationsPreview } from "./home/MedicationsPreview";
-import { PatientProfileCard } from "./home/PatientProfileCard";
 
 /**
- * Patient Home — a two-column dashboard: welcome + stat cards + medications on
- * the left; a profile/vitals card with quick links in the right rail (stacks
- * below on mobile).
+ * Patient Home — a full-width, single-column stack ordered by what a patient
+ * cares about: a brand greeting hero, the next upcoming visit, summary stat
+ * cards, and active medications.
  */
 export function HomeScreen() {
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
+    <div className="w-full space-y-5 pb-24 lg:pb-0">
       <WelcomeHeader />
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-5">
-          <StatCards />
-          <MedicationsPreview />
-        </div>
-        <aside className="space-y-5">
-          <PatientProfileCard />
-        </aside>
-      </div>
+      <NextVisitCard />
+      <StatCards />
+      <MedicationsPreview />
     </div>
   );
 }
