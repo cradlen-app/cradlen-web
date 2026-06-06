@@ -1,9 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { MapPin } from "lucide-react";
+import { ChevronDown, MapPin } from "lucide-react";
 
 import { cn } from "@/common/utils/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import type {
   AppointmentStatus,
   Clinic,
@@ -42,6 +47,49 @@ export function SectionCard({
       )}
       {children}
     </section>
+  );
+}
+
+/**
+ * A {@link SectionCard} whose body collapses behind an uppercase title trigger
+ * with a chevron that rotates when open. Used to stack the Visits page's
+ * Upcoming / Last-visits timelines.
+ */
+export function CollapsibleCard({
+  title,
+  defaultOpen = false,
+  action,
+  className,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  action?: ReactNode;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <Collapsible
+      defaultOpen={defaultOpen}
+      className={cn(
+        "rounded-2xl border border-gray-100 bg-white p-4 shadow-sm",
+        className,
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <CollapsibleTrigger className="group flex flex-1 items-center justify-between gap-2 text-start">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-gray-400">
+            {title}
+          </h2>
+          <ChevronDown
+            className="size-4 text-gray-400 transition-transform group-data-[state=open]:rotate-180"
+            aria-hidden="true"
+          />
+        </CollapsibleTrigger>
+        {action}
+      </div>
+      <CollapsibleContent className="mt-3">{children}</CollapsibleContent>
+    </Collapsible>
   );
 }
 
