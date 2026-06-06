@@ -8,5 +8,6 @@ export { RecordScreen } from "./components/RecordScreen";
 export { MedicationsScreen } from "./components/MedicationsScreen";
 export { TestsScreen } from "./components/TestsScreen";
 export { AppointmentsScreen } from "./components/AppointmentsScreen";
+export { VisitsScreen } from "./components/VisitsScreen";
 export { DocumentsScreen } from "./components/DocumentsScreen";
 export { ProfileScreen } from "./components/ProfileScreen";

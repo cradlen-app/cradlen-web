@@ -11,6 +11,7 @@ import {
   fetchMedications,
   fetchObgynHistory,
   fetchReminders,
+  fetchUpcomingVisits,
   fetchVisitHistory,
 } from "../data/patient-portal.api";
 import { patientPortalQueryKeys } from "../queryKeys";
@@ -41,6 +42,41 @@ export function useVisitHistory() {
     queryKey: patientPortalQueryKeys.visitHistory(patientId ?? "none"),
     queryFn: ({ pageParam }) =>
       fetchVisitHistory({
+        patientId: patientId as string,
+        page: pageParam,
+        limit: 10,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.flatMap((p) => p.data).length;
+      return loaded < lastPage.meta.total ? allPages.length + 1 : undefined;
+    },
+    enabled: Boolean(patientId),
+  });
+
+  const entries = query.data?.pages.flatMap((p) => p.data) ?? [];
+
+  return {
+    entries,
+    isLoading: query.isLoading,
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore: query.hasNextPage,
+    loadMore: query.fetchNextPage,
+  };
+}
+
+/**
+ * Paginated upcoming recommended follow-ups for the patient currently in view
+ * (soonest first), as an infinite query against the live endpoint. Scoped by
+ * the real backend patient id (see `useResolvedPatientId`) and gated until that
+ * id resolves, mirroring `useVisitHistory`.
+ */
+export function useUpcomingVisits() {
+  const patientId = useResolvedPatientId();
+  const query = useInfiniteQuery({
+    queryKey: patientPortalQueryKeys.upcomingVisits(patientId ?? "none"),
+    queryFn: ({ pageParam }) =>
+      fetchUpcomingVisits({
         patientId: patientId as string,
         page: pageParam,
         limit: 10,
