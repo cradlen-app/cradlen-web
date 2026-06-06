@@ -61,13 +61,7 @@
   },
   "record": {
     "title": "السجل الصحي",
-    "tabsAria": "أقسام السجل الصحي",
-    "tabs": {
-      "overview": "نظرة عامة",
-      "history": "السجل"
-    },
     "historyComingSoon": "قريبًا",
-    "historyTitle": "سجل الزيارات",
     "diagnosis": "التشخيص",
     "medications": "الأدوية",
     "investigations": "الفحوصات",
