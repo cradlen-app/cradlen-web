@@ -14,9 +14,13 @@
 import { apiFetch } from "@/infrastructure/http/api";
 import { mapApiMedication } from "../lib/map-medication";
 import { mapApiVisit } from "../lib/map-visit";
+import { mapApiUpcomingVisit } from "../lib/map-upcoming-visit";
 import { mapApiInvestigation } from "../lib/map-investigation";
 import type { ApiPatientMedicationsResponse } from "./patient-medications.api.types";
-import type { ApiPatientVisitsResponse } from "./patient-visits.api.types";
+import type {
+  ApiPatientUpcomingVisitsResponse,
+  ApiPatientVisitsResponse,
+} from "./patient-visits.api.types";
 import type {
   ApiPatientInvestigationsResponse,
   ApiResultUploadUrl,
@@ -34,6 +38,7 @@ import type {
   PortalDocument,
   PortalMedication,
   PortalTest,
+  PortalUpcomingVisit,
   PortalVisit,
   Reminder,
   UploadDocumentInput,
@@ -141,6 +146,42 @@ export async function fetchVisitHistory({
 
   return {
     data: res.data.map(mapApiVisit),
+    meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
+  };
+}
+
+/** One page of upcoming follow-ups, mapped to `PortalUpcomingVisit`. */
+export type UpcomingVisitsPage = {
+  data: PortalUpcomingVisit[];
+  meta: { page: number; limit: number; total: number };
+};
+
+/**
+ * Paginated upcoming recommended follow-ups for a patient, soonest first, from
+ * the live `/patient-portal/visits/upcoming` endpoint. These are derived from
+ * completed visits' `follow_up_date`, not booked appointments. An empty
+ * `patientId` lets the backend resolve all patients the caller may access.
+ */
+export async function fetchUpcomingVisits({
+  patientId,
+  page = 1,
+  limit = 10,
+}: {
+  patientId: string;
+  page?: number;
+  limit?: number;
+}): Promise<UpcomingVisitsPage> {
+  const search = new URLSearchParams();
+  if (patientId) search.set("patient_id", patientId);
+  search.set("page", String(page));
+  search.set("limit", String(limit));
+
+  const res = await apiFetch<ApiPatientUpcomingVisitsResponse>(
+    `/api/patient-portal/visits/upcoming?${search.toString()}`,
+  );
+
+  return {
+    data: res.data.map(mapApiUpcomingVisit),
     meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
   };
 }

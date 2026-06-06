@@ -81,6 +81,24 @@ export interface PortalVisit {
   organizationName?: string;
 }
 
+/**
+ * A recommended upcoming follow-up, surfaced on the Visits page. Derived from a
+ * completed visit's `follow_up_date` (not a booked appointment), so it carries
+ * only the return date, the recommending doctor/clinic, and an optional note.
+ */
+export interface PortalUpcomingVisit {
+  id: string;
+  /** The recommended return date (ISO). */
+  date: string;
+  clinic: Clinic;
+  doctorName: string;
+  specialty: string;
+  /** Organization (clinic group) the recommending branch belongs to, for the tag. */
+  organizationName?: string;
+  /** Free-text follow-up instruction from the recommending visit. */
+  note?: string;
+}
+
 export type MedicationStatus = "active" | "past";
 
 /** Dosage form — drives the card icon and the per-dose unit label. */
