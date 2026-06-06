@@ -52,6 +52,7 @@
     "medications": "الأدوية",
     "daysLeft": "{count, plural, zero {# يوم متبقٍ} one {# يوم متبقٍ} two {يومان متبقيان} few {# أيام متبقية} many {# يومًا متبقيًا} other {# يوم متبقٍ}}",
     "years": "{count} سنة",
+    "nextVisit": "الزيارة القادمة",
     "blood": "الدم",
     "height": "الطول",
     "weight": "الوزن",
