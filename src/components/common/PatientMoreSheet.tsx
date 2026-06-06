@@ -1,0 +1,177 @@
+"use client";
+
+import { useEffect } from "react";
+import { Check, LogOut, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+
+import { cn } from "@/common/utils/utils";
+import type { Locale } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/navigation";
+import { usePatientLogout } from "@/features/auth/hooks/usePatientAuth";
+import {
+  useActivePatientId,
+  usePatientProfiles,
+  usePatientProfileStore,
+} from "@/core/patient-portal/api";
+import { PATIENT_NAV, patientHref } from "./patient-nav";
+import { PatientAvatar } from "./PatientAvatar";
+import LanguageSelect from "./LanguageSelect";
+
+/**
+ * Full-screen mobile "More" overlay opened from `PatientBottomTabs`. Hosts the
+ * affordances the mobile navbar no longer carries: the account bar + profile
+ * switcher, the secondary nav (items not in the bottom tab bar), and logout.
+ * Hidden on lg+ (where the sidebar owns these).
+ */
+export function PatientMoreSheet({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const t = useTranslations("patientPortal");
+  const tRoot = useTranslations();
+  const locale = useLocale();
+  const pathname = usePathname();
+  const { data: profiles } = usePatientProfiles();
+  const activeId = useActivePatientId();
+  const setActive = usePatientProfileStore((s) => s.setActiveProfile);
+  const logout = usePatientLogout();
+
+  const overflowItems = PATIENT_NAV.filter((i) => !i.primary);
+
+  // Tear the overlay down once navigation has actually changed the route.
+  useEffect(() => {
+    if (open) onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-white lg:hidden">
+      {/* Header */}
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-5">
+        <span className="text-base font-semibold text-brand-black">
+          {t("shell.account")}
+        </span>
+        <button
+          type="button"
+          aria-label="close"
+          onClick={onClose}
+          className="flex size-9 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-brand-primary"
+        >
+          <X className="size-5" />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto pb-6">
+        {/* Account + profile switcher */}
+        <div className="border-b border-gray-100 px-3 py-3">
+          <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+            {t("shell.switchProfile")}
+          </p>
+          {profiles?.map((p) => {
+            const isActive = p.id === activeId;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                role="menuitemradio"
+                aria-checked={isActive}
+                onClick={() => setActive(p.id)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors hover:bg-gray-50",
+                  isActive && "bg-brand-primary/5",
+                )}
+              >
+                <PatientAvatar
+                  imageUrl={p.imageUrl}
+                  alt={p.fullName}
+                  className="size-9"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-brand-black">
+                    {p.fullName}
+                  </span>
+                  <span className="block truncate text-xs text-gray-400">
+                    {p.kind === "self" ? t("shell.you") : t("shell.dependent")}
+                  </span>
+                </span>
+                {isActive && (
+                  <Check className="size-4 shrink-0 text-brand-primary" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Secondary nav */}
+        <nav className="px-3 py-3">
+          {overflowItems.map((item) => {
+            const href = patientHref(item.path);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                href={href as Parameters<typeof Link>[0]["href"]}
+                onClick={onClose}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+              >
+                <Icon className="size-5 shrink-0 text-gray-400" />
+                {tRoot(item.key as Parameters<typeof tRoot>[0])}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
+        <div className="border-t border-gray-100 px-3 pt-3">
+          <button
+            type="button"
+            disabled={logout.isPending}
+            onClick={() => {
+              onClose();
+              logout.mutate();
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-start text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+          >
+            <LogOut className="size-5 shrink-0" />
+            {t("shell.logout")}
+          </button>
+        </div>
+
+        {/* Footer chrome — folded in from the desktop-only Footer */}
+        <div className="mt-2 border-t border-gray-100 px-5 pt-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <a
+              href="#"
+              className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
+            >
+              {tRoot("auth.signUp.termsOfService")}
+            </a>
+            <a
+              href="#"
+              className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
+            >
+              {tRoot("auth.signUp.privacyPolicy")}
+            </a>
+            <a
+              href="#"
+              className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
+            >
+              {tRoot("auth.signUp.helpCenter")}
+            </a>
+            <span className="ms-auto">
+              <LanguageSelect currentLocale={locale as Locale} />
+            </span>
+          </div>
+          <p className="mt-3 text-xs text-gray-400">
+            © {tRoot("auth.signUp.copyright")}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

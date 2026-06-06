@@ -14,22 +14,14 @@ import {
 } from "@/core/patient-portal/api";
 import { PatientAvatar } from "./PatientAvatar";
 
-type Variant = "sidebar" | "navbar";
-
 /**
- * Switches the active patient profile (self + dependents). Two presentations:
- * - `sidebar` — mirrors the staff branch switcher in the sidebar header
- *   (logo + active profile name + chevron, dropdown below).
- * - `navbar` — compact trigger for the mobile top bar; its menu also carries
- *   Documents/Profile links (those screens aren't in the mobile tab bar).
+ * Navbar account control for the patient portal. The trigger shows the active
+ * profile (avatar + name + relation); the dropdown switches the active profile
+ * (self + dependents) and carries the Profile link and Logout. This is the
+ * single account/switcher/logout control on md+ — the sidebar no longer hosts
+ * one, and on phones the `PatientMoreSheet` owns these affordances.
  */
-export function PatientProfileSwitcher({
-  variant,
-  collapsed = false,
-}: {
-  variant: Variant;
-  collapsed?: boolean;
-}) {
+export function PatientProfileSwitcher() {
   const t = useTranslations("patientPortal");
   const [open, setOpen] = useState(false);
   const { data: profiles } = usePatientProfiles();
@@ -37,73 +29,37 @@ export function PatientProfileSwitcher({
   const setActive = usePatientProfileStore((s) => s.setActiveProfile);
   const logout = usePatientLogout();
 
-  // `profiles` already carries the real signed-in identity (sourced from
-  // /patient-auth/me); dependents use a generic label until per-relation
-  // labelling lands.
   const active = profiles?.find((p) => p.id === activeId);
-  const activeLabel =
-    active?.kind === "self" ? t("shell.you") : (active?.fullName ?? "");
-
-  // Collapsed sidebar: just the brand logo, no switching affordance.
-  if (variant === "sidebar" && collapsed) {
-    return (
-      <div className="flex justify-center py-4">
-        <PatientAvatar
-          imageUrl={active?.imageUrl}
-          alt={active?.fullName ?? ""}
-          className="size-9"
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="relative">
-      {variant === "sidebar" ? (
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-haspopup="menu"
-          aria-expanded={open}
-          className="flex w-full items-center gap-2.5 px-3 py-4 text-start transition-opacity hover:opacity-70"
-        >
-          <PatientAvatar
-            imageUrl={active?.imageUrl}
-            alt={active?.fullName ?? ""}
-            className="size-9"
-          />
-          <span className="flex min-w-0 flex-1 flex-col leading-tight">
-            <span className="truncate text-sm text-brand-black">
-              {active?.fullName}
-            </span>
-            <span className="truncate text-[11px] text-gray-400">
-              {active?.kind === "self" ? t("shell.you") : t("shell.dependent")}
-            </span>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center gap-2.5 h-10 ps-1 pe-2.5 rounded-full transition-colors hover:bg-gray-100"
+      >
+        <PatientAvatar
+          imageUrl={active?.imageUrl}
+          alt={active?.fullName ?? ""}
+          className="size-8 ring-2 ring-white shadow-sm"
+        />
+        <span className="flex flex-col items-start leading-none gap-0.5">
+          <span className="text-sm text-brand-black whitespace-nowrap">
+            {active?.fullName ?? "—"}
           </span>
-          <ChevronDown
-            className={cn(
-              "size-3.5 shrink-0 text-gray-400 transition-transform duration-150",
-              open && "rotate-180",
-            )}
-          />
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-haspopup="menu"
-          aria-expanded={open}
-          className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-semibold text-brand-black transition-colors hover:bg-gray-100"
-        >
-          <PatientAvatar
-            imageUrl={active?.imageUrl}
-            alt={active?.fullName ?? ""}
-            className="size-8"
-          />
-          <span className="max-w-28 truncate">{activeLabel}</span>
-          <ChevronDown className="size-4 opacity-70" />
-        </button>
-      )}
+          <span className="text-[11px] leading-none whitespace-nowrap text-brand-primary/70">
+            {active?.kind === "self" ? t("shell.you") : t("shell.dependent")}
+          </span>
+        </span>
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 text-gray-400 transition-transform duration-150",
+            open && "rotate-180",
+          )}
+        />
+      </button>
 
       {open && (
         <>
@@ -115,12 +71,7 @@ export function PatientProfileSwitcher({
           />
           <div
             role="menu"
-            className={cn(
-              "absolute z-50 w-60 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg",
-              variant === "sidebar"
-                ? "top-full mx-2 mt-1 inset-s-0"
-                : "mt-2 ltr:right-0 rtl:left-0",
-            )}
+            className="absolute z-50 mt-2 w-60 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg ltr:right-0 rtl:left-0"
           >
             <p className="px-3 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
               {t("shell.switchProfile")}
@@ -162,38 +113,32 @@ export function PatientProfileSwitcher({
               );
             })}
 
-            {variant === "navbar" && (
-              <div className="mt-1 border-t border-gray-100 pt-1">
-                <Link
-                  href="/patient/profile"
-                  onClick={() => setOpen(false)}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50"
-                >
-                  <User className="size-4 shrink-0" />
-                  {t("nav.profile")}
-                </Link>
-              </div>
-            )}
+            <div className="mt-1 border-t border-gray-100 pt-1">
+              <Link
+                href="/patient/profile"
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50"
+              >
+                <User className="size-4 shrink-0" />
+                {t("nav.profile")}
+              </Link>
+            </div>
 
-            {/* Logout only in the navbar (mobile) menu — on desktop the sidebar
-                footer owns logout; the sidebar is hidden on mobile. */}
-            {variant === "navbar" && (
-              <div className="mt-1 border-t border-gray-100 pt-1">
-                <button
-                  type="button"
-                  role="menuitem"
-                  disabled={logout.isPending}
-                  onClick={() => {
-                    setOpen(false);
-                    logout.mutate();
-                  }}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 text-start text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
-                >
-                  <LogOut className="size-4 shrink-0" />
-                  {t("shell.logout")}
-                </button>
-              </div>
-            )}
+            <div className="mt-1 border-t border-gray-100 pt-1">
+              <button
+                type="button"
+                role="menuitem"
+                disabled={logout.isPending}
+                onClick={() => {
+                  setOpen(false);
+                  logout.mutate();
+                }}
+                className="flex w-full items-center gap-3 px-3 py-2.5 text-start text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              >
+                <LogOut className="size-4 shrink-0" />
+                {t("shell.logout")}
+              </button>
+            </div>
           </div>
         </>
       )}

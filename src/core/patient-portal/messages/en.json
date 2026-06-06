@@ -7,7 +7,8 @@
     "tests": "Tests",
     "appointments": "Appointments",
     "documents": "Documents",
-    "profile": "Profile"
+    "profile": "Profile",
+    "more": "More"
   },
   "shell": {
     "brand": "Cradlen",
@@ -15,7 +16,8 @@
     "switchProfile": "Switch profile",
     "you": "Me",
     "dependent": "Dependent",
-    "accountRole": "Patient"
+    "accountRole": "Patient",
+    "account": "Account"
   },
   "home": {
     "greeting": "Hello, {name}",
