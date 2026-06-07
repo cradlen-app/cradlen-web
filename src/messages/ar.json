@@ -996,8 +996,6 @@
         "address": "العنوان",
         "addressPlaceholder": "المدينة، الحي",
         "married": "متزوج/ة",
-        "spouseFullName": "اسم الزوج",
-        "spouseFullNamePlaceholder": "الاسم الكامل للزوج",
         "notes": "الملاحظات (اختياري)",
         "notesPlaceholder": "ملاحظات اختيارية حول الزيارة"
       },
@@ -1008,7 +1006,6 @@
         "nationalIdRequired": "الرقم القومي مطلوب",
         "fullNameRequired": "الاسم مطلوب",
         "dobRequired": "تاريخ الميلاد مطلوب",
-        "spouseFullNameRequired": "اسم الزوج مطلوب",
         "patientRequired": "اختر مريضاً",
         "doctorRequired": "اختر طبيباً",
         "notesTooLong": "يجب ألا تتجاوز الملاحظات 500 حرف",
