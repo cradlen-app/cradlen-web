@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Mail, Menu } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
@@ -9,7 +9,6 @@ import {
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
 import { cn } from "@/common/utils/utils";
-import { useSidebar } from "@/components/layout/SidebarContext";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
 import { NotificationDropdown } from "@/features/notifications/components/NotificationDropdown";
@@ -75,9 +74,7 @@ function IconButton({
 }
 
 export function Navbar() {
-  const t = useTranslations("nav");
   const tRoles = useTranslations("settings.roles");
-  const { toggleMobile } = useSidebar();
   const { data: user } = useCurrentUser();
 
   const profile = getActiveProfile(user);
@@ -90,21 +87,11 @@ export function Navbar() {
 
   return (
     <header className="relative h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0 ">
-      {/* Hamburger — mobile only */}
-      <button
-        type="button"
-        onClick={toggleMobile}
-        aria-label={t("openMenu")}
-        className="size-9 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150 lg:hidden shrink-0"
-      >
-        <Menu className="size-5" />
-      </button>
-
-      {/* Logo */}
+      {/* Logo — right on mobile, left (start) on desktop */}
       <Link
         href="/"
         aria-label="Cradlen home"
-        className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 w-30 shrink-0 inline-flex"
+        className="static w-30 shrink-0 inline-flex order-last lg:order-first"
       >
         <Image src={Logo} alt="CRADLEN" className="w-auto" />
       </Link>
@@ -112,8 +99,9 @@ export function Navbar() {
       {/* Global doctor-side investigation review drawer (opened from notifications) */}
       <InvestigationReviewDrawer />
 
-      {/* Right section */}
-      <div className="flex items-center gap-1">
+      {/* Right section — controls on the right (desktop); on mobile only the
+          notification bell shows and sits on the left (start). */}
+      <div className="flex items-center gap-1 order-first lg:order-last">
         {/* Notification */}
         <NotificationDropdown />
 
