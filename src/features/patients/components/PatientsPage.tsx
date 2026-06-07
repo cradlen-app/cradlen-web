@@ -7,7 +7,7 @@ import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
-import { canOpenPatientWorkspace } from "@/features/auth/lib/permissions";
+import { canOpenPatientWorkspace, isOwner } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import type { ApiJourneyStatus } from "@/features/visits/types/visits.api.types";
 import type { PatientFilter } from "../types/patients.types";
@@ -53,14 +53,20 @@ export function PatientsPage() {
   const branchId = useAuthContextStore((state) => state.branchId);
   const organizationId = useAuthContextStore((state) => state.organizationId);
   const { data: currentUser } = useCurrentUser();
-  const canOpen = canOpenPatientWorkspace(getActiveProfile(currentUser));
+  const activeProfile = getActiveProfile(currentUser);
+  const canOpen = canOpenPatientWorkspace(activeProfile);
+  const owner = isOwner(activeProfile);
   const [filter, setFilter] = useState<PatientFilter>("all");
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
+  // OWNER may switch to an org-wide directory; everyone else is branch-scoped.
+  const [scope, setScope] = useState<"branch" | "org">("branch");
+  const orgWide = owner && scope === "org";
 
   const { data, isLoading, isError } = usePatients(branchId ?? undefined, {
     search: deferredSearch || undefined,
     journeyStatus: toJourneyStatusParam(filter),
+    orgWide,
   });
 
   const patients = data?.patients ?? [];
@@ -68,14 +74,14 @@ export function PatientsPage() {
 
   const { selectedId, setSelectedId } = usePatientsDirectory(patients);
 
-  const noBranch = !branchId;
+  const noBranch = !branchId && !orgWide;
 
   const [page, setPage] = useState(1);
   const pageCount = Math.max(1, Math.ceil(patients.length / PAGE_SIZE));
 
   useEffect(() => {
     setPage(1);
-  }, [filter, deferredSearch]);
+  }, [filter, deferredSearch, scope]);
 
   useEffect(() => {
     if (page > pageCount) setPage(pageCount);
@@ -96,6 +102,8 @@ export function PatientsPage() {
           search={search}
           onFilterChange={setFilter}
           onSearchChange={setSearch}
+          scope={owner ? scope : undefined}
+          onScopeChange={owner ? setScope : undefined}
         />
 
         <div className="min-h-0 flex-1 overflow-auto">
