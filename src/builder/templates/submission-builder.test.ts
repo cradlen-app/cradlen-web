@@ -59,16 +59,6 @@ function makeTemplate(): FormTemplateDto {
             binding: { namespace: "PATIENT", path: "full_name" },
             config: {},
           },
-          {
-            id: "f-spouse-full-name",
-            code: "spouse_full_name",
-            label: "Spouse full name",
-            type: "TEXT",
-            order: 1,
-            required: false,
-            binding: { namespace: "GUARDIAN", path: "full_name" },
-            config: {},
-          },
         ],
       },
       {
@@ -150,7 +140,7 @@ function makeTemplate(): FormTemplateDto {
 }
 
 describe("buildSubmission", () => {
-  it("places PATIENT/INTAKE/GUARDIAN bindings + SYSTEM discriminators; skips non-discriminator SYSTEM + COMPUTED", () => {
+  it("places PATIENT/INTAKE bindings + SYSTEM discriminators; skips non-discriminator SYSTEM + COMPUTED", () => {
     const snapshot: ExecutionSnapshot = {
       systemValues: {
         visitor_type: "PATIENT",
@@ -159,7 +149,6 @@ describe("buildSubmission", () => {
       },
       formValues: {
         full_name: "Aisha",
-        spouse_full_name: "Omar",
         systolic_bp: 120,
         bmi: 22.5,
       },
@@ -168,7 +157,6 @@ describe("buildSubmission", () => {
     const body = buildSubmission(makeTemplate(), snapshot);
     expect(body).toEqual({
       full_name: "Aisha",
-      spouse_full_name: "Omar",
       vitals: { systolic_bp: 120 },
       visitor_type: "PATIENT",
       specialty_code: "OBGYN",

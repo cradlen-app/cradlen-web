@@ -996,8 +996,6 @@
         "address": "Address",
         "addressPlaceholder": "City, district",
         "married": "Married",
-        "spouseFullName": "Spouse Name",
-        "spouseFullNamePlaceholder": "Spouse's full name",
         "notes": "Notes (optional)",
         "notesPlaceholder": "Optional notes about the visit"
       },
@@ -1008,7 +1006,6 @@
         "nationalIdRequired": "National ID is required",
         "fullNameRequired": "Name is required",
         "dobRequired": "Date of birth is required",
-        "spouseFullNameRequired": "Spouse name is required",
         "patientRequired": "Select a patient",
         "doctorRequired": "Select a doctor",
         "notesTooLong": "Notes must be 500 characters or fewer",
