@@ -130,7 +130,14 @@ export async function apiFetch<T>(
 
 export function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const { organizationId, branchId, profileId } = useAuthContextStore.getState();
+  // Forward the active UI locale so the backend can localize responses
+  // (e.g. form-template labels). The proxy copies request headers through.
+  const acceptLanguage =
+    typeof window !== "undefined"
+      ? getClientLocale(window.location.pathname)
+      : routing.defaultLocale;
   const headers = {
+    "Accept-Language": acceptLanguage,
     ...(organizationId ? { "X-Organization-Id": organizationId } : {}),
     ...(profileId ? { "X-Profile-Id": profileId } : {}),
     ...(branchId ? { "X-Branch-Id": branchId } : {}),
