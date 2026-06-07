@@ -9,15 +9,13 @@ import { staffQueryKeys } from "../queryKeys";
 type UseStaffOptions = {
   search?: string;
   roleId?: string;
-  branchId?: string;
   role?: string;
-  scope?: "org" | "mine";
 };
 
 export function useStaff(
   organizationId: string | undefined,
-  _legacyBranchId: string | undefined,
-  { search, roleId, branchId, role, scope }: UseStaffOptions = {},
+  branchId: string | undefined,
+  { search, roleId, role }: UseStaffOptions = {},
 ) {
   const locale = useLocale();
   return useQuery({
@@ -26,19 +24,16 @@ export function useStaff(
       roleId,
       branchId,
       role,
-      scope,
     }),
     queryFn: async () => {
-      const staff = await fetchAllStaff(organizationId!, {
+      const staff = await fetchAllStaff(organizationId!, branchId!, {
         search,
         roleId,
-        branchId,
         role,
-        scope,
       });
       return staff.map((member) => mapApiStaffToMember(member, locale));
     },
-    enabled: !!organizationId,
+    enabled: !!organizationId && !!branchId,
     staleTime: 2 * 60 * 1000,
   });
 }

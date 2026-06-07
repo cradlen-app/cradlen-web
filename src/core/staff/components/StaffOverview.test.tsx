@@ -5,6 +5,8 @@ import { renderWithIntl } from "@/test/render";
 import type { StaffMember } from "../types/staff.types";
 import { StaffOverview } from "./StaffOverview";
 
+const BRANCH = "branch-1";
+
 const member: StaffMember = {
   id: "staff-1",
   firstName: "Mona",
@@ -13,7 +15,7 @@ const member: StaffMember = {
   handle: "@mona",
   role: STAFF_API_ROLE.STAFF,
   roles: [{ id: "role-1", name: "STAFF", role: STAFF_API_ROLE.STAFF }],
-  branches: [],
+  branches: [{ id: BRANCH, name: "Main Branch", city: "Cairo", governorate: "Cairo" }],
   jobFunctions: [{ id: "j1", code: "OBGYN", name: "OB-GYN", is_clinical: true }],
   specialties: [{ id: "s1", code: "CARD", name: "Cardiology" }],
   executiveTitle: null,
@@ -29,46 +31,58 @@ describe("StaffOverview", () => {
     renderWithIntl(<StaffOverview member={null} />);
 
     expect(screen.queryByLabelText("Edit staff")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Delete from organization")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Remove from this branch")).not.toBeInTheDocument();
   });
 
-  it("renders edit + delete for an OWNER managing another staff", () => {
+  it("renders edit + remove for a manager handling another staff in the branch", () => {
     renderWithIntl(
-      <StaffOverview member={member} canManage canDelete currentUserStaffId="other" />,
+      <StaffOverview
+        member={member}
+        canManage
+        currentBranchId={BRANCH}
+        currentUserStaffId="other"
+        onRemoveFromBranch={vi.fn()}
+      />,
     );
 
     expect(screen.getByLabelText("Edit staff")).toBeInTheDocument();
-    expect(screen.getByLabelText("Delete from organization")).toBeInTheDocument();
+    expect(screen.getByLabelText("Remove from this branch")).toBeInTheDocument();
   });
 
-  it("hides delete on the user's own row even for OWNER", () => {
+  it("hides remove on the user's own row", () => {
     renderWithIntl(
-      <StaffOverview member={member} canManage canDelete currentUserStaffId="staff-1" />,
+      <StaffOverview
+        member={member}
+        canManage
+        currentBranchId={BRANCH}
+        currentUserStaffId="staff-1"
+        onRemoveFromBranch={vi.fn()}
+      />,
     );
 
     expect(screen.getByLabelText("Edit staff")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Delete from organization")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Remove from this branch")).not.toBeInTheDocument();
   });
 
   it("calls action handlers with the selected member", () => {
     const onEdit = vi.fn();
-    const onDeactivate = vi.fn();
+    const onRemoveFromBranch = vi.fn();
 
     renderWithIntl(
       <StaffOverview
         member={member}
         canManage
-        canDelete
+        currentBranchId={BRANCH}
         currentUserStaffId="other"
-        onDeactivate={onDeactivate}
+        onRemoveFromBranch={onRemoveFromBranch}
         onEdit={onEdit}
       />,
     );
 
     fireEvent.click(screen.getByLabelText("Edit staff"));
-    fireEvent.click(screen.getByLabelText("Delete from organization"));
+    fireEvent.click(screen.getByLabelText("Remove from this branch"));
 
     expect(onEdit).toHaveBeenCalledWith(member);
-    expect(onDeactivate).toHaveBeenCalledWith(member);
+    expect(onRemoveFromBranch).toHaveBeenCalledWith(member);
   });
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { LogOut, Pencil, ShieldCheck, UserX } from "lucide-react";
+import { Pencil, ShieldCheck, UserX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import {
@@ -33,28 +33,27 @@ function DetailRow({ label, value }: RowProps) {
 
 type Props = {
   canManage?: boolean;
-  /** Only OWNER may delete an entire staff profile. */
-  canDelete?: boolean;
-  /** When set, shows a "Remove from this branch" action. */
+  /** The branch in context — the staff member is removed from this branch. */
   currentBranchId?: string;
   currentUserStaffId?: string;
   member: StaffMember | null;
-  onDeactivate?: (member: StaffMember) => void;
   onEdit?: (member: StaffMember) => void;
-  onUnassignFromBranch?: (member: StaffMember) => void;
+  /**
+   * Remove the member from the current branch. If it's their last branch the
+   * backend soft-deletes the whole profile.
+   */
+  onRemoveFromBranch?: (member: StaffMember) => void;
   className?: string;
   emptyClassName?: string;
 };
 
 export function StaffOverview({
   canManage,
-  canDelete,
   currentBranchId,
   currentUserStaffId,
   member,
-  onDeactivate,
   onEdit,
-  onUnassignFromBranch,
+  onRemoveFromBranch,
   className,
   emptyClassName,
 }: Props) {
@@ -79,11 +78,10 @@ export function StaffOverview({
 
   const fullName = getStaffFullName(member);
   const isSelf = !!currentUserStaffId && member.id === currentUserStaffId;
-  const showDelete = canManage && canDelete && !isSelf;
   const memberAssignedToCurrentBranch =
     !!currentBranchId && member.branches.some((b) => b.id === currentBranchId);
-  const showUnassign =
-    canManage && !isSelf && !!onUnassignFromBranch && memberAssignedToCurrentBranch;
+  const showRemove =
+    canManage && !isSelf && !!onRemoveFromBranch && memberAssignedToCurrentBranch;
   const jobFunctionsLabel = getStaffJobFunctionsLabel(member);
   const specialtiesLabel = getStaffSpecialtiesLabel(member);
 
@@ -126,24 +124,13 @@ export function StaffOverview({
             >
               <Pencil className="size-4" aria-hidden="true" />
             </button>
-            {showUnassign && (
+            {showRemove && (
               <button
                 type="button"
-                onClick={() => onUnassignFromBranch?.(member)}
-                className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-amber-50 hover:text-amber-600"
-                aria-label={t("actions.unassign")}
-                title={t("actions.unassign")}
-              >
-                <LogOut className="size-4" aria-hidden="true" />
-              </button>
-            )}
-            {showDelete && (
-              <button
-                type="button"
-                onClick={() => onDeactivate?.(member)}
+                onClick={() => onRemoveFromBranch?.(member)}
                 className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                aria-label={t("actions.deactivate")}
-                title={t("actions.deactivate")}
+                aria-label={t("actions.remove")}
+                title={t("actions.remove")}
               >
                 <UserX className="size-4" aria-hidden="true" />
               </button>

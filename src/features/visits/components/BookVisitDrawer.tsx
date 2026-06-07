@@ -200,6 +200,7 @@ function DrawerBody({
   editingVisit,
 }: BodyProps) {
   const t = useTranslations("visits");
+  const tValidation = useTranslations("builder.validation");
   const router = useRouter();
   const { state } = useTemplateExecution();
   const bookVisit = useBookVisit();
@@ -230,7 +231,9 @@ function DrawerBody({
       searchState: state.searchState,
       systemValues: state.systemValues,
     };
-    const clientErrors = validateTemplate(template, snapshot);
+    const clientErrors = validateTemplate(template, snapshot, (key, params) =>
+      tValidation(key, params),
+    );
     if (Object.keys(clientErrors).length > 0) {
       setErrors(clientErrors);
       return;

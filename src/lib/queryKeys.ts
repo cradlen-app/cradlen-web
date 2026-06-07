@@ -103,8 +103,8 @@ export const queryKeys = {
 
   // ── Form templates ────────────────────────────────────────────────────────
   formTemplates: {
-    byCode: (code: string, extension?: string | null) =>
-      ["form-templates", code, extension ?? null] as const,
+    byCode: (code: string, extension?: string | null, locale?: string) =>
+      ["form-templates", code, extension ?? null, locale ?? null] as const,
   },
 
   // ── OB/GYN history summary ────────────────────────────────────────────────

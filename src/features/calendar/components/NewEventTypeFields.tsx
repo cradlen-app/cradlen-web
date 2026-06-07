@@ -270,9 +270,7 @@ function AssistantsField({
   const { organizationId, branchId, currentUserStaffId } =
     useUserProfileContext();
 
-  const { data: staffList = [] } = useStaff(organizationId, undefined, {
-    branchId: branchId ?? undefined,
-  });
+  const { data: staffList = [] } = useStaff(organizationId, branchId ?? undefined);
 
   // Doctors only, exclude self (the event owner / primary)
   const doctors = useMemo(
