@@ -8,27 +8,24 @@ import { staffQueryKeys } from "../queryKeys";
 
 type UseStaffOptions = {
   search?: string;
-  roleId?: string;
   role?: string;
 };
 
 export function useStaff(
   organizationId: string | undefined,
   branchId: string | undefined,
-  { search, roleId, role }: UseStaffOptions = {},
+  { search, role }: UseStaffOptions = {},
 ) {
   const locale = useLocale();
   return useQuery({
     queryKey: staffQueryKeys.list(organizationId ?? "", {
       search,
-      roleId,
       branchId,
       role,
     }),
     queryFn: async () => {
       const staff = await fetchAllStaff(organizationId!, branchId!, {
         search,
-        roleId,
         role,
       });
       return staff.map((member) => mapApiStaffToMember(member, locale));

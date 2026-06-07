@@ -32,11 +32,11 @@ describe("staff api helpers", () => {
       page: 2,
       limit: 25,
       search: "cardio",
-      roleId: "role-1",
+      role: "STAFF",
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/organizations/org-1/branches/branch-1/staff?page=2&limit=25&search=cardio&role_id=role-1",
+      "/organizations/org-1/branches/branch-1/staff?page=2&limit=25&search=cardio&role=STAFF",
     );
   });
 

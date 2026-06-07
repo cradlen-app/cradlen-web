@@ -106,7 +106,7 @@ function CurrentVisitRow({
 
 export function CurrentVisitCard({ branchId, organizationId }: Props) {
   const t = useTranslations("visits.currentVisit");
-  const { data: visit, isLoading } = useUnifiedMyCurrentVisit();
+  const { data: visit, isLoading } = useUnifiedMyCurrentVisit(branchId);
 
   return (
     <section
