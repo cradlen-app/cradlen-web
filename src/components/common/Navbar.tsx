@@ -87,11 +87,11 @@ export function Navbar() {
 
   return (
     <header className="relative h-16 flex items-center justify-between gap-3 px-6 border-b border-gray-100 shrink-0 ">
-      {/* Logo — right on mobile, left (start) on desktop */}
+      {/* Logo — start-aligned at every size (left in LTR, right in RTL) */}
       <Link
         href="/"
         aria-label="Cradlen home"
-        className="static w-30 shrink-0 inline-flex order-last lg:order-first"
+        className="static w-30 shrink-0 inline-flex"
       >
         <Image src={Logo} alt="CRADLEN" className="w-auto" />
       </Link>
@@ -99,9 +99,9 @@ export function Navbar() {
       {/* Global doctor-side investigation review drawer (opened from notifications) */}
       <InvestigationReviewDrawer />
 
-      {/* Right section — controls on the right (desktop); on mobile only the
-          notification bell shows and sits on the left (start). */}
-      <div className="flex items-center gap-1 order-first lg:order-last">
+      {/* Right section — notification bell + messages on the end; avatar/name
+          show on desktop only. */}
+      <div className="flex items-center gap-1">
         {/* Notification */}
         <NotificationDropdown />
 
