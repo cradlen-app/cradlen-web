@@ -9,12 +9,6 @@ export const profileFormSchema = z.object({
     .max(32)
     .optional()
     .or(z.literal("")),
-  /** "" → clear (sent as null). Server validates the code. */
-  executive_title: z.string().optional(),
-  /** Server validates the code. */
-  engagement_type: z.string().optional(),
-  job_function_codes: z.array(z.string()),
-  specialty_codes: z.array(z.string()),
 });
 export type ProfileFormData = z.infer<typeof profileFormSchema>;
 
