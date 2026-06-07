@@ -67,12 +67,6 @@ interface PlaceArgs {
 
 function placeValue({ body, namespace, path, value }: PlaceArgs): void {
   switch (namespace) {
-    case "GUARDIAN": {
-      // Spouse fields submit as flat `spouse_<path>` (e.g. `spouse_full_name`).
-      const flat = `spouse_${path}`;
-      body[flat] = value;
-      return;
-    }
     case "PATIENT":
     case "VISIT":
     case "INTAKE":
@@ -85,8 +79,8 @@ function placeValue({ body, namespace, path, value }: PlaceArgs): void {
       body[path] = value;
       return;
     }
-    case "SYSTEM":
-    case "COMPUTED":
+    default:
+      // SYSTEM / COMPUTED (and any unbound namespace) are not submitted here.
       return;
   }
 }
@@ -97,7 +91,6 @@ function placeValue({ body, namespace, path, value }: PlaceArgs): void {
  *
  * - Section + field `visible` predicates are evaluated; hidden values are skipped.
  * - LOOKUP submits the resolved entity id (or nothing).
- * - GUARDIAN flattens to `spouse_<path>`.
  * - SYSTEM fields with `logic.is_discriminator` are submitted at their
  *   `binding.path` (e.g. `visitor_type`, `specialty_code`) using the value
  *   from `systemValues`. Other SYSTEM and all COMPUTED fields are skipped.

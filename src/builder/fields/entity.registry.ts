@@ -6,7 +6,6 @@
 
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import { searchPatients } from "@/features/visits/lib/visits.api";
-import { searchGuardians } from "@/features/patients/lib/guardians.api";
 import { mapApiPatientToPatient } from "@/features/visits/lib/visits.utils";
 
 export interface EntityResult {
@@ -50,16 +49,6 @@ async function searchPatientsByQuery(query: string): Promise<EntityResult[]> {
       raw: row,
     };
   });
-}
-
-async function searchGuardiansByQuery(query: string): Promise<EntityResult[]> {
-  const res = await searchGuardians(query);
-  return res.data.map((g) => ({
-    id: g.id,
-    label: g.full_name,
-    subtitle: [g.national_id, g.phone_number].filter(Boolean).join(" · "),
-    raw: g,
-  }));
 }
 
 interface MedicationListItem {
@@ -148,7 +137,6 @@ async function searchLabTestsByQuery(query: string): Promise<EntityResult[]> {
 export const ENTITY_REGISTRY: Record<string, EntitySearchFn> = {
   patient: searchPatientsByQuery,
   medical_rep: searchMedicalReps,
-  guardian: searchGuardiansByQuery,
   medication: searchMedicationsByQuery,
   diagnosis: searchDiagnosesByQuery,
   lab_test: searchLabTestsByQuery,

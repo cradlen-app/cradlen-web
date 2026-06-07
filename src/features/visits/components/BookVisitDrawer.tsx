@@ -18,6 +18,7 @@ import { buildSubmission } from "@/builder/templates/submission-builder";
 import { buildInitialValues } from "@/builder/templates/initial-values-builder";
 import {
   mapServerFieldErrors,
+  mapServerMessageErrors,
   validateTemplate,
 } from "@/builder/validator/client-validator";
 import type { FormTemplateDto } from "@/builder/templates/template.types";
@@ -78,9 +79,9 @@ export function BookVisitDrawer({
 
   const initial = useMemo(() => {
     if (!isEdit || !editingVisit || !template) return undefined;
-    // For patient visits we wait for the full patient fetch so identity +
-    // spouse fields can be prefilled. For medical-rep we have everything on
-    // the visit row already.
+    // For patient visits we wait for the full patient fetch so identity
+    // fields can be prefilled. For medical-rep we have everything on the
+    // visit row already.
     if (editingVisit.kind !== "medical_rep" && !fullPatient) return undefined;
     return buildInitialValues(
       template,
@@ -298,7 +299,7 @@ function DrawerBody({
         const apiBody = error.body as
           | {
               error?: {
-                message?: string;
+                message?: string | string[];
                 details?: { fields?: Record<string, string[]> };
               };
             }
@@ -308,7 +309,19 @@ function DrawerBody({
           setErrors(mapServerFieldErrors(template, details));
           return;
         }
-        toast.error(apiBody?.error?.message ?? t("create.errorGeneric"));
+        // Template-validation failures arrive as a `message` array of
+        // "<fieldCode> <message>" strings (empty `details`). Map them to fields.
+        const message = apiBody?.error?.message;
+        if (Array.isArray(message)) {
+          const mapped = mapServerMessageErrors(template, message);
+          if (Object.keys(mapped).length > 0) {
+            setErrors(mapped);
+            return;
+          }
+          toast.error(message.join(", "));
+          return;
+        }
+        toast.error(message ?? t("create.errorGeneric"));
         return;
       }
       toast.error(t("create.errorGeneric"));

@@ -54,8 +54,8 @@ export function applyEffect(
 
 /**
  * Returns the first matching predicate's `message`, or undefined. Used for
- * surfacing rule-specific hints (e.g. "spouse_full_name is required when
- * marital_status is MARRIED").
+ * surfacing rule-specific hints (e.g. "field X is required when
+ * discriminator Y has value Z").
  */
 export function firstMatchingMessage(
   predicates: Predicate[] | undefined,

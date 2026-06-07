@@ -7,6 +7,7 @@ import type { FieldInputProps } from "../input-props";
 export function TextareaInput({ field, value, onChange, required, disabled, error, flagged }: FieldInputProps) {
   const placeholder = (field.config?.ui?.placeholder as string | undefined) ?? "";
   const maxLength = field.config?.validation?.maxLength as number | undefined;
+  const minLength = field.config?.validation?.minLength as number | undefined;
   return (
     <FieldShell label={field.label} required={required} error={error} flagged={flagged}>
       <textarea
@@ -14,6 +15,7 @@ export function TextareaInput({ field, value, onChange, required, disabled, erro
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         maxLength={maxLength}
+        minLength={minLength}
         disabled={disabled}
         rows={3}
         className={cn(fieldClass, "h-auto resize-y py-2")}
