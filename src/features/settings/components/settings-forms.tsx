@@ -23,11 +23,7 @@ import {
   type UpdateBranchRequest,
   type UpdateProfileRequest,
 } from "../lib/settings.api";
-import {
-  useJobFunctionsLookup,
-  useProfileLookups,
-  useSpecialtiesLookup,
-} from "../hooks/useSettingsLookups";
+import { useSpecialtiesLookup } from "../hooks/useSettingsLookups";
 import {
   branchFormSchema,
   organizationFormSchema,
@@ -52,14 +48,6 @@ type SettingsFormProps = {
   t: SettingsT;
   user: CurrentUser;
 };
-
-function getProfileSpecialtyCodes(profile?: UserProfile): string[] {
-  return profile?.specialties?.map((s) => s.code) ?? [];
-}
-
-function getProfileJobFunctionCodes(profile?: UserProfile): string[] {
-  return profile?.job_functions?.map((j) => j.code) ?? [];
-}
 
 function getOrganizationSpecialtyCodes(profile?: UserProfile): string[] {
   const list = profile?.organization?.specialties;
@@ -101,41 +89,23 @@ export function ProfileForm({
   t,
   user,
 }: SettingsFormProps) {
-  const profileLookups = useProfileLookups();
-  const specialtiesLookup = useSpecialtiesLookup();
-  const jobFunctionsLookup = useJobFunctionsLookup();
-  const profileEnums = profileLookups.data?.data;
-  const specialtyOptions =
-    specialtiesLookup.data?.data?.map((s) => ({ code: s.code, label: s.name })) ?? [];
-  const jobFunctionOptions =
-    jobFunctionsLookup.data?.data?.map((j) => ({ code: j.code, label: j.name })) ?? [];
-
   const initial = useMemo<ProfileFormData>(
     () => ({
       first_name: user.first_name ?? "",
       last_name: user.last_name ?? "",
       phone_number: user.phone_number ?? user.phone ?? "",
-      executive_title: profile?.executive_title ?? "",
-      engagement_type: profile?.engagement_type ?? "FULL_TIME",
-      job_function_codes: getProfileJobFunctionCodes(profile),
-      specialty_codes: getProfileSpecialtyCodes(profile),
     }),
-    [user, profile],
+    [user],
   );
 
   const {
     register,
     handleSubmit,
-    setValue,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: initial,
   });
-
-  const jobFunctionCodes = useWatch({ control, name: "job_function_codes" });
-  const specialtyCodes = useWatch({ control, name: "specialty_codes" });
 
   async function onSubmit(values: ProfileFormData) {
     if (!profile?.staff_id) {
@@ -154,21 +124,6 @@ export function ProfileForm({
     if ("last_name" in dirty) payload.last_name = dirty.last_name;
     if ("phone_number" in dirty) {
       payload.phone_number = dirty.phone_number ? dirty.phone_number : undefined;
-    }
-    if ("executive_title" in dirty) {
-      payload.executive_title = dirty.executive_title
-        ? (dirty.executive_title as UpdateProfileRequest["executive_title"])
-        : null;
-    }
-    if ("engagement_type" in dirty) {
-      payload.engagement_type =
-        dirty.engagement_type as UpdateProfileRequest["engagement_type"];
-    }
-    if ("job_function_codes" in dirty) {
-      payload.job_function_codes = dirty.job_function_codes;
-    }
-    if ("specialty_codes" in dirty) {
-      payload.specialty_codes = dirty.specialty_codes;
     }
 
     try {
@@ -228,79 +183,6 @@ export function ProfileForm({
           inputMode="tel"
           className={fieldClass(errors.phone_number)}
           {...register("phone_number")}
-        />
-      </div>
-
-      <div className="grid gap-1">
-        <FieldLabel htmlFor="settings-executive-title">
-          {t("fields.executiveTitle")}
-        </FieldLabel>
-        <select
-          id="settings-executive-title"
-          className={fieldClass(errors.executive_title)}
-          {...register("executive_title")}
-        >
-          <option value="">{t("executiveTitles.NONE")}</option>
-          {profileEnums?.executive_titles?.map((opt) => (
-            <option key={opt.code} value={opt.code}>
-              {opt.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="grid gap-1">
-        <FieldLabel htmlFor="settings-engagement-type" required>
-          {t("fields.engagementType")}
-        </FieldLabel>
-        <select
-          id="settings-engagement-type"
-          className={fieldClass(errors.engagement_type)}
-          {...register("engagement_type")}
-        >
-          {profileEnums?.engagement_types?.map((opt) => (
-            <option key={opt.code} value={opt.code}>
-              {opt.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="grid gap-1">
-        <FieldLabel htmlFor="settings-job-functions">
-          {t("fields.jobFunctions")}
-        </FieldLabel>
-        <CodeMultiSelect
-          value={jobFunctionCodes}
-          onChange={(next) =>
-            setValue("job_function_codes", next, { shouldDirty: true })
-          }
-          options={jobFunctionOptions}
-          placeholder={
-            jobFunctionsLookup.isLoading
-              ? t("loading")
-              : t("fields.jobFunctionsPlaceholder")
-          }
-          removeAriaLabel={(label) => t("fields.removeOption", { label })}
-        />
-      </div>
-
-      <div className="grid gap-1">
-        <FieldLabel htmlFor="settings-specialty-codes">
-          {t("fields.specialties")}
-        </FieldLabel>
-        <CodeMultiSelect
-          value={specialtyCodes}
-          onChange={(next) =>
-            setValue("specialty_codes", next, { shouldDirty: true })
-          }
-          options={specialtyOptions}
-          placeholder={
-            specialtiesLookup.isLoading
-              ? t("loading")
-              : t("fields.specialtiesPlaceholder")
-          }
-          removeAriaLabel={(label) => t("fields.removeOption", { label })}
         />
       </div>
 
