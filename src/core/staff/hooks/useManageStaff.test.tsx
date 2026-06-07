@@ -2,13 +2,12 @@ import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { deactivateStaff, updateStaff } from "../lib/staff.api";
-import { useDeactivateStaff, useUpdateStaff } from "./useManageStaff";
+import { removeStaffFromBranch, updateStaff } from "../lib/staff.api";
+import { useRemoveStaffFromBranch, useUpdateStaff } from "./useManageStaff";
 
 vi.mock("../lib/staff.api", () => ({
-  deactivateStaff: vi.fn(),
+  removeStaffFromBranch: vi.fn(),
   updateStaff: vi.fn(),
-  unassignStaffFromBranch: vi.fn(),
 }));
 
 function createWrapper(queryClient: QueryClient) {
@@ -23,10 +22,10 @@ describe("staff management hooks", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(updateStaff).mockResolvedValue({} as never);
-    vi.mocked(deactivateStaff).mockResolvedValue(undefined);
+    vi.mocked(removeStaffFromBranch).mockResolvedValue(undefined);
   });
 
-  it("updates staff and invalidates staff queries", async () => {
+  it("updates staff (branch-scoped) and invalidates staff queries", async () => {
     const queryClient = new QueryClient();
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
@@ -38,6 +37,7 @@ describe("staff management hooks", () => {
     await act(async () => {
       await result.current.mutateAsync({
         organizationId: "org-1",
+        branchId: "branch-1",
         staffId: "staff-1",
         data: {
           first_name: "Mona",
@@ -46,27 +46,33 @@ describe("staff management hooks", () => {
       });
     });
 
-    expect(updateStaff).toHaveBeenCalledWith("org-1", "staff-1", expect.any(Object));
+    expect(updateStaff).toHaveBeenCalledWith(
+      "org-1",
+      "branch-1",
+      "staff-1",
+      expect.any(Object),
+    );
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["staff", "org-1"] });
   });
 
-  it("deactivates staff and invalidates staff queries", async () => {
+  it("removes staff from a branch and invalidates staff queries", async () => {
     const queryClient = new QueryClient();
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue();
-    const { result } = renderHook(() => useDeactivateStaff(), {
+    const { result } = renderHook(() => useRemoveStaffFromBranch(), {
       wrapper: createWrapper(queryClient),
     });
 
     await act(async () => {
       await result.current.mutateAsync({
         organizationId: "org-1",
+        branchId: "branch-1",
         staffId: "staff-1",
       });
     });
 
-    expect(deactivateStaff).toHaveBeenCalledWith("org-1", "staff-1");
+    expect(removeStaffFromBranch).toHaveBeenCalledWith("org-1", "branch-1", "staff-1");
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["staff", "org-1"] });
   });
 });

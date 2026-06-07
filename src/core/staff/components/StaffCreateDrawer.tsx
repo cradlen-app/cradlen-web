@@ -259,6 +259,7 @@ export function StaffCreateDrawer({
 
           await updateStaff.mutateAsync({
             organizationId,
+            branchId,
             staffId: member.id,
             data: {
               first_name: firstName,
@@ -284,13 +285,15 @@ export function StaffCreateDrawer({
           const directValues = values as unknown as StaffCreateDirectFormValues;
           const result = await createDirect.mutateAsync({
             organizationId,
+            branchId,
             data: {
               first_name: firstName,
               last_name: lastName,
               phone_number: directValues.phone,
               password: directValues.password,
               role_ids: [directValues.roleId],
-              branch_ids: directValues.branchIds,
+              // Backend invariant: the path branchId must be in branch_ids.
+              branch_ids: Array.from(new Set([branchId, ...directValues.branchIds])),
               job_function_codes: directValues.jobFunctionCodes,
               specialty_codes: directValues.specialtyCodes,
               executive_title: directValues.executiveTitle ?? null,

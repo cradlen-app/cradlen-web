@@ -3,7 +3,6 @@ import { apiAuthFetch, apiFetch } from "@/infrastructure/http/api";
 import {
   acceptStaffInvite,
   bulkInviteStaff,
-  deactivateStaff,
   declineStaffInvite,
   deleteStaffInvitation,
   fetchStaff,
@@ -11,8 +10,8 @@ import {
   fetchStaffInvitations,
   getInvitationPreview,
   inviteStaff,
+  removeStaffFromBranch,
   resendStaffInvitation,
-  unassignStaffFromBranch,
   updateStaff,
 } from "./staff.api";
 
@@ -28,17 +27,16 @@ describe("staff api helpers", () => {
     vi.mocked(apiFetch).mockResolvedValue({ data: {} });
   });
 
-  it("sends authenticated staff list requests through organization-scoped paths", async () => {
-    await fetchStaff("org-1", {
+  it("sends authenticated staff list requests through branch-scoped paths", async () => {
+    await fetchStaff("org-1", "branch-1", {
       page: 2,
       limit: 25,
       search: "cardio",
       roleId: "role-1",
-      scope: "mine",
     });
 
     expect(apiAuthFetch).toHaveBeenCalledWith(
-      "/organizations/org-1/staff?page=2&limit=25&search=cardio&role_id=role-1&scope=mine",
+      "/organizations/org-1/branches/branch-1/staff?page=2&limit=25&search=cardio&role_id=role-1",
     );
   });
 
@@ -50,8 +48,8 @@ describe("staff api helpers", () => {
     );
   });
 
-  it("calls staff management endpoints with the new payload shape", async () => {
-    await updateStaff("org-1", "staff-1", {
+  it("calls branch-scoped staff management endpoints with the new payload shape", async () => {
+    await updateStaff("org-1", "branch-1", "staff-1", {
       first_name: "Mona",
       last_name: "Amin",
       phone_number: "+201000000000",
@@ -61,22 +59,16 @@ describe("staff api helpers", () => {
       engagement_type: "FULL_TIME",
       branch_ids: ["branch-1"],
     });
-    await deactivateStaff("org-1", "staff-1");
-    await unassignStaffFromBranch("org-1", "staff-1", "branch-2");
+    await removeStaffFromBranch("org-1", "branch-2", "staff-1");
 
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       1,
-      "/organizations/org-1/staff/staff-1",
+      "/organizations/org-1/branches/branch-1/staff/staff-1",
       expect.objectContaining({ method: "PATCH" }),
     );
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       2,
-      "/organizations/org-1/staff/staff-1",
-      expect.objectContaining({ method: "DELETE" }),
-    );
-    expect(apiAuthFetch).toHaveBeenNthCalledWith(
-      3,
-      "/organizations/org-1/staff/staff-1/branches/branch-2",
+      "/organizations/org-1/branches/branch-2/staff/staff-1",
       expect.objectContaining({ method: "DELETE" }),
     );
   });

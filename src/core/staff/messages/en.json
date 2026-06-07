@@ -29,10 +29,6 @@
     "ON_DEMAND": "On-demand",
     "EXTERNAL_CONSULTANT": "External Consultant"
   },
-  "scope": {
-    "org": "Whole org",
-    "mine": "My branches"
-  },
   "forbidden": "You don't have permission to view staff.",
   "columns": {
     "name": "Name",
@@ -304,23 +300,18 @@
     "workSchedule": "Work Schedule",
     "actions": {
       "edit": "Edit staff",
-      "deactivate": "Delete from organization",
-      "unassign": "Remove from this branch"
+      "remove": "Remove from this branch"
     },
-    "unassign": "Remove",
-    "unassigning": "Removing...",
-    "unassignTitle": "Remove from this branch?",
-    "unassignDescription": "Removes {name} from {branch} only. Other branches and the organization are unaffected.",
-    "unassignSuccess": "Staff member removed from this branch.",
-    "unassignError": "Failed to remove from branch. Please try again.",
-    "deactivate": "Delete",
-    "deactivating": "Deleting...",
-    "deactivateTitle": "Delete from organization?",
-    "deactivateDescription": "Permanently removes {name} from the organization. This cannot be undone.",
+    "remove": "Remove",
+    "removing": "Removing...",
+    "removeTitle": "Remove from this branch?",
+    "removeDescription": "Removes {name} from {branch}. They remain in their other branches.",
+    "removeLastTitle": "Remove from organization?",
+    "removeLastDescription": "{name} is only assigned to {branch}. Removing them here deletes their profile entirely. This cannot be undone.",
+    "removeSuccess": "Staff member removed from this branch.",
+    "removeError": "Failed to remove staff. Please try again.",
+    "removeSelfError": "You cannot remove your own account.",
     "typedConfirmHint": "Type {name} to confirm.",
-    "deactivateSuccess": "Staff member deactivated.",
-    "deactivateError": "Failed to deactivate staff. Please try again.",
-    "deactivateSelfError": "You cannot deactivate your own account.",
     "thisStaffMember": "this staff member",
     "cancel": "Cancel"
   },
