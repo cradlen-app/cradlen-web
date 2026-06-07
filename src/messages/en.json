@@ -41,7 +41,11 @@
     "switchBranchError": "Failed to switch branch",
     "branchLabel": "{city} branch",
     "openMenu": "Open navigation menu",
-    "closeMenu": "Close navigation menu"
+    "closeMenu": "Close navigation menu",
+    "more": "More",
+    "account": "Account",
+    "organization": "Organization",
+    "language": "Language"
   },
   "patients": {
     "title": "Patients",
