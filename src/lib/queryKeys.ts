@@ -27,9 +27,10 @@ export const queryKeys = {
     ) => ["visits", branchId, "waiting-list", opts] as const,
     branchInProgress: (branchId: string) =>
       ["visits", "v2", branchId, "in-progress"] as const,
-    myWaitingList: (opts: { page: number; limit: number }) =>
-      ["visits", "my-waiting-list", opts] as const,
-    myCurrent: () => ["visits", "my-current"] as const,
+    myWaitingList: (branchId: string, opts: { page: number; limit: number }) =>
+      ["visits", branchId, "my-waiting-list", opts] as const,
+    myCurrent: (branchId: string) =>
+      ["visits", branchId, "my-current"] as const,
     byId: (visitId: string) => ["visits", "detail", visitId] as const,
     patientHistory: (patientId: string, excludeVisitId: string) =>
       ["visits", "patient-history", patientId, excludeVisitId] as const,
@@ -49,9 +50,10 @@ export const queryKeys = {
     ) => ["medical-rep-visits", branchId, "waiting-list", opts] as const,
     branchInProgress: (branchId: string) =>
       ["medical-rep-visits", branchId, "in-progress"] as const,
-    myWaitingList: (opts: { page: number; limit: number }) =>
-      ["medical-rep-visits", "my-waiting-list", opts] as const,
-    myCurrent: () => ["medical-rep-visits", "my-current"] as const,
+    myWaitingList: (branchId: string, opts: { page: number; limit: number }) =>
+      ["medical-rep-visits", branchId, "my-waiting-list", opts] as const,
+    myCurrent: (branchId: string) =>
+      ["medical-rep-visits", branchId, "my-current"] as const,
     byId: (visitId: string) =>
       ["medical-rep-visits", "detail", visitId] as const,
   },

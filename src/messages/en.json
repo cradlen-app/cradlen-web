@@ -71,9 +71,14 @@
     "noBranch": "No branch selected. Please select a branch to view patients.",
     "noResults": "No patients match the current filter.",
     "showResults": "show {count} of {total} results",
+    "scope": {
+      "branch": "This branch",
+      "org": "All patients"
+    },
     "workspace": {
       "title": "Patient",
       "back": "Patients",
+      "edit": "Edit profile",
       "loadError": "Failed to load patient",
       "notAuthorized": "You don't have permission to view patient details.",
       "tabsAria": "Patient sections",
@@ -81,6 +86,22 @@
         "overview": "Overview",
         "history": "History"
       }
+    },
+    "profile": {
+      "title": "Edit patient",
+      "description": "Update the patient's identity and contact details.",
+      "fullName": "Full name",
+      "fullNameRequired": "Full name is required.",
+      "nationalId": "National ID",
+      "nationalIdReadonly": "National ID can't be changed.",
+      "dateOfBirth": "Date of birth",
+      "phoneNumber": "Phone number",
+      "address": "Address",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "success": "Patient updated.",
+      "error": "Failed to update patient."
     },
     "pagination": {
       "prev": "Previous page",

@@ -16,7 +16,6 @@ export const staffQueryKeys = {
     organizationId: string,
     opts: {
       search?: string;
-      roleId?: string;
       branchId?: string;
       role?: string;
     },
@@ -25,7 +24,6 @@ export const staffQueryKeys = {
       "staff",
       organizationId,
       opts.search,
-      opts.roleId,
       opts.branchId,
       opts.role,
     ] as const,
