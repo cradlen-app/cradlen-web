@@ -662,6 +662,7 @@
   "calendar": {
     "title": "التقويم",
     "newEvent": "+ حدث جديد",
+    "allBranches": "كل الفروع",
     "overview": "نظرة عامة",
     "close": "إغلاق",
     "todaysSchedule": "جدول اليوم",

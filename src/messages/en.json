@@ -662,6 +662,7 @@
   "calendar": {
     "title": "Calendar",
     "newEvent": "+ New Event",
+    "allBranches": "All branches",
     "overview": "Overview",
     "close": "Close",
     "todaysSchedule": "Today's Schedule",
