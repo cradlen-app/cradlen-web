@@ -1,4 +1,18 @@
 {
+  "builder": {
+    "validation": {
+      "required": "{label} مطلوب",
+      "forbidden": "{label} غير مسموح به هنا",
+      "minLength": "يجب ألا يقل {label} عن {min} حرفاً",
+      "maxLength": "يجب ألا يزيد {label} عن {max} حرفاً",
+      "invalidFormat": "صيغة {label} غير صحيحة",
+      "invalidDate": "{label} تاريخ غير صالح",
+      "futureDate": "لا يمكن أن يكون {label} في المستقبل",
+      "maxAge": "يتجاوز {label} الحد الأقصى للعمر وهو {maxAge} عاماً",
+      "min": "يجب ألا يقل {label} عن {min}",
+      "max": "يجب ألا يزيد {label} عن {max}"
+    }
+  },
   "common": {
     "loading": "جاري التحميل...",
     "error": "حدث خطأ",
