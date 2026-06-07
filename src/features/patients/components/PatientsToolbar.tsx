@@ -11,6 +11,9 @@ type PatientsToolbarProps = {
   search: string;
   onFilterChange: (filter: PatientFilter) => void;
   onSearchChange: (search: string) => void;
+  /** OWNER-only branch/org scope toggle. Hidden when undefined. */
+  scope?: "branch" | "org";
+  onScopeChange?: (scope: "branch" | "org") => void;
 };
 
 export function PatientsToolbar({
@@ -18,6 +21,8 @@ export function PatientsToolbar({
   search,
   onFilterChange,
   onSearchChange,
+  scope,
+  onScopeChange,
 }: PatientsToolbarProps) {
   const t = useTranslations("patients");
 
@@ -108,6 +113,28 @@ export function PatientsToolbar({
           </button>
         ))}
       </div>
+
+      {scope && onScopeChange && (
+        <div className="flex rounded-full bg-gray-50 p-1" role="tablist">
+          {(["branch", "org"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={scope === value}
+              onClick={() => onScopeChange(value)}
+              className={cn(
+                "rounded-full px-3 py-1 text-xs transition-colors",
+                scope === value
+                  ? "bg-brand-primary text-white shadow-sm"
+                  : "text-gray-500 hover:bg-white hover:text-brand-black",
+              )}
+            >
+              {t(`scope.${value}`)}
+            </button>
+          ))}
+        </div>
+      )}
 
       <label className="relative block min-w-0 flex-1 sm:w-64 sm:flex-none">
         <span className="sr-only">{t("search")}</span>
