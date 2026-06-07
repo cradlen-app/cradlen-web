@@ -32,7 +32,7 @@ export function StaffBottomTabs() {
 
   return (
     <>
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex items-stretch justify-around border-t border-gray-100 bg-white px-1 py-1.5 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t border-gray-100 bg-white px-1 lg:hidden">
         {primaryItems.map((item) => {
           const href = dashboardPath(item.path);
           const active =
@@ -45,7 +45,7 @@ export function StaffBottomTabs() {
               key={item.path}
               href={href as Parameters<typeof Link>[0]["href"]}
               className={cn(
-                "flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1 text-[10px] font-medium transition-colors",
+                "flex flex-1 flex-col items-center gap-0.5 rounded-lg text-[10px] font-medium transition-colors",
                 active ? "text-brand-primary" : "text-gray-400",
               )}
             >
@@ -63,7 +63,7 @@ export function StaffBottomTabs() {
           aria-haspopup="dialog"
           aria-expanded={moreOpen}
           className={cn(
-            "flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1 text-[10px] font-medium transition-colors",
+            "flex flex-1 flex-col items-center gap-0.5 rounded-lg text-[10px] font-medium transition-colors",
             moreOpen ? "text-brand-primary" : "text-gray-400",
           )}
         >

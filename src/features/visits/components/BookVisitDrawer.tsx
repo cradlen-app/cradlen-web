@@ -97,12 +97,13 @@ export function BookVisitDrawer({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/35" />
+        <Dialog.Overlay className="fixed inset-x-0 top-16 bottom-16 z-40 bg-black/35 lg:bottom-0" />
         <Dialog.Content
           className={cn(
-            "fixed inset-0 z-50 flex h-dvh w-full flex-col bg-white px-5 py-5 shadow-2xl outline-none",
-            "sm:inset-y-0 sm:start-auto sm:inset-e-0 sm:w-110 sm:max-w-[calc(100vw-2rem)]",
+            "fixed inset-x-0 top-16 bottom-16 z-50 flex w-full flex-col bg-white px-5 py-5 shadow-2xl outline-none",
+            "sm:start-auto sm:inset-e-0 sm:w-110 sm:max-w-[calc(100vw-2rem)]",
             "sm:ltr:rounded-l-2xl sm:rtl:rounded-r-2xl",
+            "lg:bottom-0",
           )}
         >
           <div className="flex items-center justify-between gap-4">
