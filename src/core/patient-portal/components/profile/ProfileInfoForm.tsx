@@ -34,22 +34,47 @@ const MARITAL_STATUSES: readonly MaritalStatus[] = [
 
 type Translate = ReturnType<typeof useTranslations>;
 
-/** Loose international phone: optional, but if present needs 7–15 digits. */
-function isValidPhone(value: string): boolean {
-  if (!/^\+?[\d\s()-]+$/.test(value)) return false;
-  const digits = value.replace(/\D/g, "");
-  return digits.length >= 7 && digits.length <= 15;
+const MAX_AGE_YEARS = 120;
+
+/** Mirror the `book_visit` template's phone rule: lenient international. */
+const PHONE_RE = /^\+?[0-9\s-]{7,20}$/;
+
+/** True when the YYYY-MM-DD value parses to a day after today. */
+function isFutureDate(value: string): boolean {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d.getTime() > today.getTime();
+}
+
+/** True when the value is older than the max supported age. */
+function isTooOld(value: string): boolean {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return false;
+  const min = new Date();
+  min.setHours(0, 0, 0, 0);
+  min.setFullYear(min.getFullYear() - MAX_AGE_YEARS);
+  return d.getTime() < min.getTime();
 }
 
 function createSchema(t: Translate) {
   return z.object({
-    fullName: z.string().trim().min(1),
-    dateOfBirth: z.string().optional(),
+    fullName: z.string().trim().min(2, { message: t("profile.fullNameInvalid") }),
+    dateOfBirth: z
+      .string()
+      .optional()
+      .refine((v) => !v || !isFutureDate(v), {
+        message: t("profile.dobFuture"),
+      })
+      .refine((v) => !v || !isTooOld(v), {
+        message: t("profile.dobTooOld"),
+      }),
     phoneNumber: z
       .string()
       .trim()
       .optional()
-      .refine((v) => !v || isValidPhone(v), {
+      .refine((v) => !v || PHONE_RE.test(v), {
         message: t("profile.phoneInvalid"),
       }),
     address: z.string().trim().optional(),
@@ -127,8 +152,15 @@ export function ProfileInfoForm({
           />
         </Field>
 
-        <Field label={t("profile.dateOfBirth")}>
-          <input type="date" {...register("dateOfBirth")} className={inputClass} />
+        <Field
+          label={t("profile.dateOfBirth")}
+          error={errors.dateOfBirth?.message}
+        >
+          <input
+            type="date"
+            {...register("dateOfBirth")}
+            className={cn(inputClass, errors.dateOfBirth && "border-red-400")}
+          />
         </Field>
 
         <Field
