@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
+import { isOwner } from "@/features/auth/lib/permissions";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useCreateCalendarEvent } from "../hooks/useCreateCalendarEvent";
@@ -175,6 +176,9 @@ export function NewEventDrawer({
   const t = useTranslations("calendar");
   const { activeProfile } = useUserProfileContext();
   const branches = activeProfile?.branches ?? [];
+  // Only OWNER may post an org-wide (no-branch) event; everyone else stays
+  // branch-scoped (defaulted to the active branch).
+  const canOrgWide = isOwner(activeProfile);
 
   const isEdit = !!event;
   const initialType: CalendarEventType = event?.type ?? "DAY_OFF";
@@ -354,8 +358,24 @@ export function NewEventDrawer({
                   {/* Branch */}
                   <div>
                     <label className={labelClass}>{t("form.branch")}</label>
-                    <select {...register("branch_id")} className={inputClass}>
-                      <option value="">{t("form.orgWide")}</option>
+                    <select
+                      {...register("branch_id", {
+                        onChange: (e) => {
+                          // Org-wide (no branch) only makes sense as an
+                          // ORGANIZATION broadcast — a PRIVATE null-branch event
+                          // would silently stay personal, so force visibility.
+                          if (e.target.value === "") {
+                            setValue("visibility", "ORGANIZATION", {
+                              shouldValidate: false,
+                            });
+                          }
+                        },
+                      })}
+                      className={inputClass}
+                    >
+                      {canOrgWide && (
+                        <option value="">{t("form.orgWide")}</option>
+                      )}
                       {branches.map((b) => (
                         <option
                           key={b.branch_id ?? b.id}
