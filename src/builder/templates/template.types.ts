@@ -78,8 +78,8 @@ export interface FieldConfig {
       allowCreate?: boolean;
       /**
        * Resolves a sibling ENTITY_SEARCH field from the picked raw payload.
-       * Keyed by the target search field's `code`. Used e.g. to pre-resolve
-       * the spouse guardian when a patient is selected.
+       * Keyed by the target search field's `code`. Used to pre-resolve a
+       * dependent entity-search picker when a parent entity is selected.
        */
       fillEntitySearches?: Record<
         string,
@@ -96,7 +96,14 @@ export interface FieldConfig {
     options?: FieldOption[];
     min?: number;
     max?: number;
+    minLength?: number;
     maxLength?: number;
+    /** Regex source string (anchored as authored) — enforced by client-validator + server. */
+    pattern?: string;
+    /** DATE/DATETIME: reject values after "now". */
+    notInFuture?: boolean;
+    /** DATE/DATETIME: reject values older than this many years before "now". */
+    maxAgeYears?: number;
     [key: string]: unknown;
   };
   logic?: {
