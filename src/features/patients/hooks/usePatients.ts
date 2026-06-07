@@ -3,32 +3,39 @@
 import { useQuery } from "@tanstack/react-query";
 import { mapApiPatientListItemToPatient } from "@/features/visits/lib/visits.utils";
 import type { ApiJourneyStatus } from "@/features/visits/types/visits.api.types";
-import { fetchBranchPatients } from "../lib/patients.api";
+import { fetchBranchPatients, fetchOrgPatients } from "../lib/patients.api";
 import { queryKeys } from "@/lib/queryKeys";
 
 type UsePatientsParams = {
   search?: string;
   journeyStatus?: ApiJourneyStatus;
+  /** OWNER-only: list across the whole org instead of the active branch. */
+  orgWide?: boolean;
 };
 
 export function usePatients(branchId: string | undefined, params: UsePatientsParams = {}) {
+  const orgWide = params.orgWide ?? false;
   return useQuery({
-    queryKey: queryKeys.patients.list(branchId ?? "", {
+    // Scope is part of cache identity: "org" vs the branch id.
+    queryKey: queryKeys.patients.list(orgWide ? "org" : branchId ?? "", {
       search: params.search,
       journeyStatus: params.journeyStatus,
     }),
     queryFn: async () => {
-      const res = await fetchBranchPatients(branchId!, {
+      const opts = {
         search: params.search || undefined,
         journey_status: params.journeyStatus,
         limit: 11,
-      });
+      };
+      const res = orgWide
+        ? await fetchOrgPatients(opts)
+        : await fetchBranchPatients(branchId!, opts);
       return {
         patients: res.data.map(mapApiPatientListItemToPatient),
         total: res.meta.total,
       };
     },
-    enabled: !!branchId,
+    enabled: orgWide || !!branchId,
     staleTime: 30_000,
   });
 }

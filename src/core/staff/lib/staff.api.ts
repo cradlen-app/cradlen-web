@@ -30,7 +30,6 @@ type FetchStaffOptions = {
   limit?: number;
   page?: number;
   search?: string;
-  roleId?: string;
   role?: string;
 };
 
@@ -67,12 +66,11 @@ export async function fetchSpecialties(): Promise<ApiStaffSpecialty[]> {
 export function fetchStaff(
   organizationId: string,
   branchId: string,
-  { page = 1, limit = 100, search, roleId, role }: FetchStaffOptions,
+  { page = 1, limit = 100, search, role }: FetchStaffOptions,
 ) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   const trimmedSearch = search?.trim();
   if (trimmedSearch) params.set("search", trimmedSearch);
-  if (roleId) params.set("role_id", roleId);
   if (role) params.set("role", role);
   return apiAuthFetch<ApiStaffListResponse>(
     `/organizations/${organizationId}/branches/${branchId}/staff?${params}`,

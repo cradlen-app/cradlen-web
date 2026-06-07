@@ -86,17 +86,23 @@ export function fetchBranchInProgress({
   );
 }
 
-export function fetchMyWaitingList({ page, limit }: PaginationParams = {}) {
+export function fetchMyWaitingList({
+  branchId,
+  page,
+  limit,
+}: { branchId: string } & PaginationParams) {
   const search = new URLSearchParams();
   appendPagination(search, { page, limit });
   const qs = search.toString();
   return apiAuthFetch<ApiVisitListResponse>(
-    `/visits/my-waiting-list${qs ? `?${qs}` : ""}`,
+    `/branches/${branchId}/visits/my-waiting-list${qs ? `?${qs}` : ""}`,
   );
 }
 
-export function fetchMyCurrentVisit() {
-  return apiAuthFetch<{ data: ApiVisit | null }>(`/visits/my-current`);
+export function fetchMyCurrentVisit(branchId: string) {
+  return apiAuthFetch<{ data: ApiVisit | null }>(
+    `/branches/${branchId}/visits/my-current`,
+  );
 }
 
 export function fetchVisit({ visitId }: { visitId: string }) {

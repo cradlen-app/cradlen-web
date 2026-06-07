@@ -22,9 +22,9 @@ export function useMedRepWaitingList({
   page,
   limit = 10,
 }: Params) {
-  const enabled = assignedToMe ? true : !!branchId;
+  const enabled = !!branchId;
   const queryKey = assignedToMe
-    ? queryKeys.medicalRepVisits.myWaitingList({ page, limit })
+    ? queryKeys.medicalRepVisits.myWaitingList(branchId ?? "", { page, limit })
     : queryKeys.medicalRepVisits.branchWaitingList(branchId ?? "", {
         page,
         limit,
@@ -34,7 +34,7 @@ export function useMedRepWaitingList({
     queryKey,
     queryFn: async (): Promise<WaitingListPage> => {
       const res = assignedToMe
-        ? await fetchMedRepMyWaitingList({ page, limit })
+        ? await fetchMedRepMyWaitingList({ branchId: branchId!, page, limit })
         : await fetchMedRepBranchWaitingList({
             branchId: branchId!,
             page,
