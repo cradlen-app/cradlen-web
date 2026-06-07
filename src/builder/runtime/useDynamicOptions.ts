@@ -56,7 +56,7 @@ interface Mapper {
  * endpoint is consumed; new endpoints register an entry here.
  */
 function pickMapper(url: string): Mapper {
-  if (/\/organizations\/[^/]+\/staff(\?|$)/.test(url)) {
+  if (/\/organizations\/[^/]+\/branches\/[^/]+\/staff(\?|$)/.test(url)) {
     return {
       finalizeUrl: (u) =>
         u.includes("page=") || u.includes("limit=")

@@ -6,6 +6,38 @@ import type {
   FormTemplateDto,
 } from "../templates/template.types";
 
+/**
+ * Translator for validation messages — shaped like next-intl's `t`. When the
+ * caller doesn't supply one, an English fallback is used (keeps the messages
+ * stable for tests and non-localized contexts).
+ */
+export type ValidationTranslate = (
+  key: string,
+  params?: Record<string, string | number>,
+) => string;
+
+const FALLBACK_MESSAGES: Record<
+  string,
+  (p: Record<string, string | number>) => string
+> = {
+  required: (p) => `${p.label} is required`,
+  forbidden: (p) => `${p.label} is not allowed here`,
+  minLength: (p) => `${p.label} must be at least ${p.min} characters`,
+  maxLength: (p) => `${p.label} must be at most ${p.max} characters`,
+  invalidFormat: (p) => `${p.label} has an invalid format`,
+  invalidDate: (p) => `${p.label} is not a valid date`,
+  futureDate: (p) => `${p.label} must not be in the future`,
+  maxAge: (p) =>
+    `${p.label} exceeds the maximum allowed age of ${p.maxAge} years`,
+  min: (p) => `${p.label} must be at least ${p.min}`,
+  max: (p) => `${p.label} must be at most ${p.max}`,
+};
+
+function resolveTranslate(translate?: ValidationTranslate): ValidationTranslate {
+  return (key, params = {}) =>
+    translate ? translate(key, params) : (FALLBACK_MESSAGES[key]?.(params) ?? key);
+}
+
 function isEmpty(value: unknown): boolean {
   if (value === undefined || value === null) return true;
   if (typeof value === "string") return value.trim() === "";
@@ -38,7 +70,9 @@ function readFieldValue(field: FormFieldDto, snapshot: ExecutionSnapshot): unkno
 export function validateTemplate(
   template: FormTemplateDto,
   snapshot: ExecutionSnapshot,
+  translate?: ValidationTranslate,
 ): Record<string, string> {
+  const t = resolveTranslate(translate);
   const ctx = { ...snapshot.systemValues, ...snapshot.formValues };
   const errors: Record<string, string> = {};
 
@@ -60,7 +94,7 @@ export function validateTemplate(
       if (required && isEmpty(value)) {
         const msg =
           firstMatchingMessage(field.config?.logic?.predicates, "required", ctx) ??
-          `${field.label} is required`;
+          t("required", { label: field.label });
         errors[field.code] = msg;
         continue;
       }
@@ -74,7 +108,7 @@ export function validateTemplate(
       if (forbidden && !isEmpty(value)) {
         const msg =
           firstMatchingMessage(field.config?.logic?.predicates, "forbidden", ctx) ??
-          `${field.label} is not allowed here`;
+          t("forbidden", { label: field.label });
         errors[field.code] = msg;
         continue;
       }
@@ -83,7 +117,7 @@ export function validateTemplate(
       // TemplateValidator.enforceValueConstraints. Only runs when a value is
       // present and no required/forbidden error already fired.
       if (!isEmpty(value)) {
-        const constraintError = checkValueConstraints(field, value);
+        const constraintError = checkValueConstraints(field, value, t);
         if (constraintError) errors[field.code] = constraintError;
       }
     }
@@ -98,17 +132,21 @@ export function validateTemplate(
  * check minLength/maxLength/pattern; DATE/DATETIME check notInFuture/maxAgeYears;
  * numerics check min/max.
  */
-function checkValueConstraints(field: FormFieldDto, value: unknown): string | null {
+function checkValueConstraints(
+  field: FormFieldDto,
+  value: unknown,
+  t: ValidationTranslate,
+): string | null {
   const v = field.config?.validation;
   if (!v) return null;
   const label = field.label;
 
   if (typeof value === "string") {
     if (typeof v.minLength === "number" && value.length < v.minLength) {
-      return `${label} must be at least ${v.minLength} characters`;
+      return t("minLength", { label, min: v.minLength });
     }
     if (typeof v.maxLength === "number" && value.length > v.maxLength) {
-      return `${label} must be at most ${v.maxLength} characters`;
+      return t("maxLength", { label, max: v.maxLength });
     }
     if (typeof v.pattern === "string") {
       let re: RegExp | null = null;
@@ -117,7 +155,7 @@ function checkValueConstraints(field: FormFieldDto, value: unknown): string | nu
       } catch {
         re = null;
       }
-      if (re && !re.test(value)) return `${label} has an invalid format`;
+      if (re && !re.test(value)) return t("invalidFormat", { label });
     }
   }
 
@@ -126,16 +164,16 @@ function checkValueConstraints(field: FormFieldDto, value: unknown): string | nu
     (v.notInFuture === true || typeof v.maxAgeYears === "number")
   ) {
     const date = new Date(value as string);
-    if (Number.isNaN(date.getTime())) return `${label} is not a valid date`;
+    if (Number.isNaN(date.getTime())) return t("invalidDate", { label });
     const now = new Date();
     if (v.notInFuture === true && date.getTime() > now.getTime()) {
-      return `${label} must not be in the future`;
+      return t("futureDate", { label });
     }
     if (typeof v.maxAgeYears === "number") {
       const earliest = new Date(now);
       earliest.setFullYear(earliest.getFullYear() - v.maxAgeYears);
       if (date.getTime() < earliest.getTime()) {
-        return `${label} exceeds the maximum allowed age of ${v.maxAgeYears} years`;
+        return t("maxAge", { label, maxAge: v.maxAgeYears });
       }
     }
   }
@@ -148,10 +186,10 @@ function checkValueConstraints(field: FormFieldDto, value: unknown): string | nu
         : null;
   if (numeric !== null && Number.isFinite(numeric)) {
     if (typeof v.min === "number" && numeric < v.min) {
-      return `${label} must be at least ${v.min}`;
+      return t("min", { label, min: v.min });
     }
     if (typeof v.max === "number" && numeric > v.max) {
-      return `${label} must be at most ${v.max}`;
+      return t("max", { label, max: v.max });
     }
   }
 

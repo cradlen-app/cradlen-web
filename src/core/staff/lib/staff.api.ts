@@ -31,9 +31,7 @@ type FetchStaffOptions = {
   page?: number;
   search?: string;
   roleId?: string;
-  branchId?: string;
   role?: string;
-  scope?: "org" | "mine";
 };
 
 export type FetchStaffInvitationsOptions = {
@@ -68,27 +66,29 @@ export async function fetchSpecialties(): Promise<ApiStaffSpecialty[]> {
 
 export function fetchStaff(
   organizationId: string,
-  { page = 1, limit = 100, search, roleId, branchId, role, scope }: FetchStaffOptions,
+  branchId: string,
+  { page = 1, limit = 100, search, roleId, role }: FetchStaffOptions,
 ) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   const trimmedSearch = search?.trim();
   if (trimmedSearch) params.set("search", trimmedSearch);
   if (roleId) params.set("role_id", roleId);
-  if (branchId) params.set("branch_id", branchId);
   if (role) params.set("role", role);
-  if (scope) params.set("scope", scope);
-  return apiAuthFetch<ApiStaffListResponse>(`/organizations/${organizationId}/staff?${params}`);
+  return apiAuthFetch<ApiStaffListResponse>(
+    `/organizations/${organizationId}/branches/${branchId}/staff?${params}`,
+  );
 }
 
 export async function fetchAllStaff(
   organizationId: string,
+  branchId: string,
   options: Omit<FetchStaffOptions, "page" | "limit"> = {},
   limit = 100,
 ): Promise<ApiStaffMember[]> {
-  const firstPage = await fetchStaff(organizationId, { page: 1, limit, ...options });
+  const firstPage = await fetchStaff(organizationId, branchId, { page: 1, limit, ...options });
   const all: ApiStaffMember[] = [...firstPage.data];
   for (let page = 2; page <= firstPage.meta.totalPages; page += 1) {
-    const res = await fetchStaff(organizationId, { page, limit, ...options });
+    const res = await fetchStaff(organizationId, branchId, { page, limit, ...options });
     all.push(...res.data);
   }
   return all;
@@ -122,39 +122,45 @@ export function bulkInviteStaff(
   );
 }
 
-export function createStaffDirect(organizationId: string, data: CreateStaffDirectRequest) {
-  return apiAuthFetch<CreateStaffDirectResponse>(`/organizations/${organizationId}/staff`, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export function createStaffDirect(
+  organizationId: string,
+  branchId: string,
+  data: CreateStaffDirectRequest,
+) {
+  return apiAuthFetch<CreateStaffDirectResponse>(
+    `/organizations/${organizationId}/branches/${branchId}/staff`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+  );
 }
 
 export async function updateStaff(
   organizationId: string,
+  branchId: string,
   staffId: string,
   data: UpdateStaffRequest,
 ): Promise<ApiStaffMember> {
   const response = await apiAuthFetch<UpdateStaffResponse>(
-    `/organizations/${organizationId}/staff/${staffId}`,
+    `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}`,
     { method: "PATCH", body: JSON.stringify(data) },
   );
   return unwrap<ApiStaffMember>(response as ApiStaffMemberResponse);
 }
 
-export function deactivateStaff(organizationId: string, staffId: string) {
-  return apiAuthFetch<void>(`/organizations/${organizationId}/staff/${staffId}`, {
-    method: "DELETE",
-  });
-}
-
-/** DELETE /v1/organizations/:orgId/staff/:staffId/branches/:branchId */
-export function unassignStaffFromBranch(
+/**
+ * DELETE /v1/organizations/:orgId/branches/:branchId/staff/:staffId
+ * Removes the staff member from this branch. If it was their last branch the
+ * backend soft-deletes the whole profile.
+ */
+export function removeStaffFromBranch(
   organizationId: string,
-  staffId: string,
   branchId: string,
+  staffId: string,
 ) {
   return apiAuthFetch<void>(
-    `/organizations/${organizationId}/staff/${staffId}/branches/${branchId}`,
+    `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}`,
     { method: "DELETE" },
   );
 }
