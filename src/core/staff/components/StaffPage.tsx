@@ -14,7 +14,6 @@ import { ApiError } from "@/infrastructure/http/api";
 import { useRemoveStaffFromBranch } from "../hooks/useManageStaff";
 import { useStaff, useStaffMember } from "../hooks/useStaff";
 import { useStaffDirectory } from "../hooks/useStaffDirectory";
-import { useStaffRoles } from "../hooks/useStaffRoles";
 import { getStaffFullName } from "../lib/staff.utils";
 import type { StaffFilter, StaffMember } from "../types/staff.types";
 import dynamic from "next/dynamic";
@@ -91,22 +90,13 @@ export function StaffPage() {
   const canView = usePermission("staff.read");
   const canManage = usePermission("staff.manage");
 
-  const { data: roleFilters = [] } = useStaffRoles(organizationId);
-  const selectedRoleId = useMemo(
-    () =>
-      filter === "all"
-        ? undefined
-        : roleFilters.find((roleFilter) => roleFilter.role === filter)?.id,
-    [filter, roleFilters],
-  );
-
   const {
     data: staff = [],
     isLoading: isStaffLoading,
     isError: isStaffError,
   } = useStaff(organizationId, branchId, {
     search: deferredSearch,
-    roleId: selectedRoleId,
+    role: filter === "all" ? undefined : filter,
   });
 
   const isLoading = isCurrentUserLoading || isStaffLoading;
