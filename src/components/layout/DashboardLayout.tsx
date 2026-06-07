@@ -8,13 +8,13 @@ import { useOrgStatusGuard } from "@/features/auth/hooks/useOrgStatusGuard";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { hasAnyStaffRole } from "@/features/auth/lib/permissions";
 import { buildDashboardUrl } from "@/infrastructure/http/routes";
-import { cn } from "@/common/utils/utils";
 import type { CurrentUser } from "@/common/types/user.types";
 import { Navbar } from "../common/Navbar";
 import { Sidebar } from "../common/Sidebar";
+import { StaffBottomTabs } from "../common/StaffBottomTabs";
 import Footer from "../common/Footer";
 import { canAccessRoute, getCanonicalDashboardPath } from "./dashboard-access";
-import { SidebarProvider, useSidebar } from "./SidebarContext";
+import { SidebarProvider } from "./SidebarContext";
 
 type Props = {
   children: React.ReactNode;
@@ -27,7 +27,6 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
   const { orgId, branchId } = useParams<{ orgId: string; branchId: string }>();
   const { data: user, isLoading } = useCurrentUser(initialUser ?? undefined);
   const profile = getActiveProfile(user);
-  const { mobileOpen, closeMobile } = useSidebar();
 
   useOrgStatusGuard(user);
 
@@ -58,28 +57,16 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
     <div className="flex flex-col h-screen bg-gray-50">
       <Navbar />
       <div className="flex flex-1 overflow-hidden lg:pb-3">
-        {mobileOpen && (
-          <div
-            className="fixed inset-0 top-16 z-30 bg-black/40 lg:hidden"
-            onClick={closeMobile}
-            aria-hidden="true"
-          />
-        )}
-        <div
-          className={cn(
-            "fixed top-16 bottom-0 inset-s-0 z-40 shrink-0",
-            "transition-transform duration-200 ease-in-out",
-            "lg:relative lg:top-auto lg:bottom-auto lg:start-auto lg:z-auto lg:translate-x-0",
-            mobileOpen
-              ? "translate-x-0"
-              : "-translate-x-full rtl:translate-x-full",
-          )}
-        >
+        {/* Sidebar — desktop only; mobile navigation uses the bottom tab bar. */}
+        <div className="hidden shrink-0 lg:relative lg:block">
           <Sidebar />
         </div>
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">{children}</main>
       </div>
-      <Footer />
+      <StaffBottomTabs />
+      <div className="hidden lg:block">
+        <Footer />
+      </div>
     </div>
   );
 }
