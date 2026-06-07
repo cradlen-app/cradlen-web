@@ -18,9 +18,6 @@ type StaffToolbarProps = {
   search: string;
   onFilterChange: (filter: StaffFilter) => void;
   onSearchChange: (search: string) => void;
-  /** OWNER-only scope toggle. Hidden when undefined. */
-  scope?: "org" | "mine";
-  onScopeChange?: (scope: "org" | "mine") => void;
 };
 
 export function StaffToolbar({
@@ -28,8 +25,6 @@ export function StaffToolbar({
   search,
   onFilterChange,
   onSearchChange,
-  scope,
-  onScopeChange,
 }: StaffToolbarProps) {
   const t = useTranslations("staff");
   const filters = STAFF_FILTERS.map((value) => ({
@@ -121,28 +116,6 @@ export function StaffToolbar({
       </div>
 
       <div className="flex flex-1 flex-wrap items-center gap-2 sm:w-auto sm:flex-none">
-        {scope && onScopeChange && (
-          <div className="flex rounded-full bg-gray-50 p-1" role="tablist">
-            {(["org", "mine"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                role="tab"
-                aria-selected={scope === value}
-                onClick={() => onScopeChange(value)}
-                className={cn(
-                  "rounded-full px-3 py-1 text-xs transition-colors",
-                  scope === value
-                    ? "bg-brand-primary text-white shadow-sm"
-                    : "text-gray-500 hover:bg-white hover:text-brand-black",
-                )}
-              >
-                {t(`scope.${value}`)}
-              </button>
-            ))}
-          </div>
-        )}
-
         <label className="relative block min-w-0 flex-1 sm:w-64 sm:flex-none">
           <span className="sr-only">{t("searchPlaceholder")}</span>
           <input

@@ -19,7 +19,6 @@ export const staffQueryKeys = {
       roleId?: string;
       branchId?: string;
       role?: string;
-      scope?: "org" | "mine";
     },
   ) =>
     [
@@ -29,7 +28,6 @@ export const staffQueryKeys = {
       opts.roleId,
       opts.branchId,
       opts.role,
-      opts.scope,
     ] as const,
   detail: (organizationId: string, branchId: string, staffId: string) =>
     ["staff", "detail", organizationId, branchId, staffId] as const,

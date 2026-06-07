@@ -29,10 +29,6 @@
     "ON_DEMAND": "حسب الطلب",
     "EXTERNAL_CONSULTANT": "مستشار خارجي"
   },
-  "scope": {
-    "org": "كل المؤسسة",
-    "mine": "فروعي"
-  },
   "forbidden": "ليس لديك صلاحية لعرض الموظفين.",
   "columns": {
     "name": "الاسم",
@@ -304,23 +300,18 @@
     "workSchedule": "جدول العمل",
     "actions": {
       "edit": "تعديل الموظف",
-      "deactivate": "حذف من المؤسسة",
-      "unassign": "إزالة من هذا الفرع"
+      "remove": "إزالة من هذا الفرع"
     },
-    "unassign": "إزالة",
-    "unassigning": "جاري الإزالة...",
-    "unassignTitle": "إزالة من هذا الفرع؟",
-    "unassignDescription": "سيتم إزالة {name} من {branch} فقط. لن تتأثر الفروع الأخرى ولا المؤسسة.",
-    "unassignSuccess": "تمت إزالة الموظف من هذا الفرع.",
-    "unassignError": "فشلت الإزالة. يرجى المحاولة مرة أخرى.",
-    "deactivate": "حذف",
-    "deactivating": "جاري الحذف...",
-    "deactivateTitle": "حذف من المؤسسة؟",
-    "deactivateDescription": "سيتم حذف {name} نهائيًا من المؤسسة. لا يمكن التراجع.",
+    "remove": "إزالة",
+    "removing": "جاري الإزالة...",
+    "removeTitle": "إزالة من هذا الفرع؟",
+    "removeDescription": "سيتم إزالة {name} من {branch}. سيبقى في فروعه الأخرى.",
+    "removeLastTitle": "إزالة من المؤسسة؟",
+    "removeLastDescription": "{name} معيَّن في {branch} فقط. إزالته من هنا تحذف ملفه نهائيًا. لا يمكن التراجع.",
+    "removeSuccess": "تمت إزالة الموظف من هذا الفرع.",
+    "removeError": "فشلت الإزالة. يرجى المحاولة مرة أخرى.",
+    "removeSelfError": "لا يمكنك إزالة حسابك الخاص.",
     "typedConfirmHint": "اكتب {name} للتأكيد.",
-    "deactivateSuccess": "تم إلغاء تفعيل الموظف.",
-    "deactivateError": "فشل إلغاء تفعيل الموظف. يرجى المحاولة مرة أخرى.",
-    "deactivateSelfError": "لا يمكنك إلغاء تفعيل حسابك الخاص.",
     "thisStaffMember": "هذا الموظف",
     "cancel": "إلغاء"
   },
