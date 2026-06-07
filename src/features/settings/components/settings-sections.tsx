@@ -93,11 +93,9 @@ export function ProfileSection({
               </>
             }
             title={displayName}
-            description={user.email}
           />
           <dl className="rounded-xl border border-gray-100 px-3">
             <DetailRow label={t("fields.name")} value={displayName} />
-            <DetailRow label={t("fields.email")} value={user.email} />
             <DetailRow
               label={t("fields.phone")}
               value={user.phone_number ?? user.phone ?? undefined}
@@ -108,25 +106,29 @@ export function ProfileSection({
             />
             <DetailRow
               label={t("fields.executiveTitle")}
-              value={formatExecutiveTitle(profile.executive_title, t)}
+              value={
+                profile.executive_title
+                  ? formatExecutiveTitle(profile.executive_title, t)
+                  : undefined
+              }
             />
             <DetailRow
               label={t("fields.engagementType")}
-              value={formatEngagementType(profile.engagement_type, t)}
+              value={
+                profile.engagement_type
+                  ? formatEngagementType(profile.engagement_type, t)
+                  : undefined
+              }
             />
             <DetailRow
               label={t("fields.jobFunctions")}
               value={
-                profile.job_functions?.map((j) => j.name).join(", ") ||
-                t("empty.missing")
+                profile.job_functions?.map((j) => j.name).join(", ") || undefined
               }
             />
             <DetailRow
               label={t("fields.specialties")}
-              value={
-                getProfileSpecialtyNames(profile).join(", ") ||
-                t("empty.missing")
-              }
+              value={getProfileSpecialtyNames(profile).join(", ") || undefined}
             />
             <DetailRow
               label={t("fields.verifiedAt")}
@@ -151,10 +153,6 @@ export function AccountSection({
     >
       <dl className="rounded-xl border border-gray-100 px-3">
         <DetailRow label={t("fields.email")} value={user.email} />
-        <DetailRow
-          label={t("fields.phone")}
-          value={user.phone_number ?? user.phone ?? undefined}
-        />
       </dl>
       <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/40 p-4">
         <h3 className="text-sm font-medium text-brand-black">
