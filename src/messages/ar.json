@@ -41,7 +41,11 @@
     "switchBranchError": "فشل تبديل الفرع",
     "branchLabel": "فرع {city}",
     "openMenu": "فتح قائمة التنقل",
-    "closeMenu": "إغلاق قائمة التنقل"
+    "closeMenu": "إغلاق قائمة التنقل",
+    "more": "المزيد",
+    "account": "الحساب",
+    "organization": "المؤسسة",
+    "language": "اللغة"
   },
   "patients": {
     "title": "المرضى",
