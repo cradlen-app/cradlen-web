@@ -39,6 +39,9 @@ import { StaffToolbar } from "./StaffToolbar";
 
 const PAGE_SIZE = 11;
 
+/** Height of the fixed mobile bottom tab bar; mobile sheets stop above it. */
+const BOTTOM_NAV_HEIGHT = 64;
+
 function StaffTableSkeleton() {
   return (
     <div className="overflow-x-auto bg-white px-4">
@@ -147,19 +150,6 @@ export function StaffPage() {
   const [mobileOverviewOpen, setMobileOverviewOpen] = useState(false);
   const isMobileOverviewOpen = !isDesktop && mobileOverviewOpen && !!selectedMember;
 
-  const [footerHeight, setFooterHeight] = useState(0);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const footer = document.querySelector("footer");
-    if (!footer) return;
-    const update = () =>
-      setFooterHeight(footer.getBoundingClientRect().height);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(footer);
-    return () => ro.disconnect();
-  }, []);
-
   const { data: editingMemberDetail } = useStaffMember(
     organizationId,
     branchId,
@@ -229,7 +219,7 @@ export function StaffPage() {
 
   return (
     <>
-      <div className="flex h-full flex-col gap-4 p-4 lg:flex-row lg:p-6">
+      <div className="flex h-full flex-col gap-4 p-4 pb-24 lg:flex-row lg:p-6 lg:pb-6">
         <section className="flex min-w-0 flex-1 flex-col gap-4">
           <StaffHeader
             canManage={canManage}
@@ -336,12 +326,12 @@ export function StaffPage() {
       >
         <Dialog.Portal>
           <Dialog.Overlay
-            style={{ top: "4rem", bottom: footerHeight }}
+            style={{ top: "4rem", bottom: BOTTOM_NAV_HEIGHT }}
             className="fixed inset-x-0 z-50 bg-black/40 lg:hidden"
           />
           <Dialog.Content
             aria-describedby={undefined}
-            style={{ top: "4rem", bottom: footerHeight }}
+            style={{ top: "4rem", bottom: BOTTOM_NAV_HEIGHT }}
             className="fixed inset-x-0 z-50 flex flex-col bg-white outline-none lg:hidden"
           >
             <Dialog.Title className="sr-only">{overviewT("title")}</Dialog.Title>
