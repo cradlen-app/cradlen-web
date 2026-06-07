@@ -22,16 +22,16 @@ export function useWaitingList({
   page,
   limit = 10,
 }: Params) {
-  const enabled = assignedToMe ? true : !!branchId;
+  const enabled = !!branchId;
   const queryKey = assignedToMe
-    ? queryKeys.visits.myWaitingList({ page, limit })
+    ? queryKeys.visits.myWaitingList(branchId ?? "", { page, limit })
     : queryKeys.visits.branchWaitingList(branchId ?? "", { page, limit });
 
   return useQuery({
     queryKey,
     queryFn: async (): Promise<WaitingListPage> => {
       const res = assignedToMe
-        ? await fetchMyWaitingList({ page, limit })
+        ? await fetchMyWaitingList({ branchId: branchId!, page, limit })
         : await fetchBranchWaitingList({
             branchId: branchId!,
             page,

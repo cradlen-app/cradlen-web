@@ -37,15 +37,18 @@ export function fetchMedRepBranchInProgress({
   );
 }
 
-export function fetchMedRepMyWaitingList(params: PaginationParams = {}) {
+export function fetchMedRepMyWaitingList({
+  branchId,
+  ...params
+}: { branchId: string } & PaginationParams) {
   return apiAuthFetch<ApiMedicalRepVisitListResponse>(
-    `/medical-rep-visits/my-waiting-list${withPagination(params)}`,
+    `/branches/${branchId}/medical-rep-visits/my-waiting-list${withPagination(params)}`,
   );
 }
 
-export function fetchMedRepMyCurrent() {
+export function fetchMedRepMyCurrent(branchId: string) {
   return apiAuthFetch<ApiMedicalRepVisitMaybeResponse>(
-    `/medical-rep-visits/my-current`,
+    `/branches/${branchId}/medical-rep-visits/my-current`,
   );
 }
 
