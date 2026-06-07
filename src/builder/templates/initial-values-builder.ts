@@ -1,14 +1,14 @@
 /**
  * Reverse of `buildSubmission` — given a template plus an existing visit (and,
- * for patient visits, the freshly-fetched full Patient with its SPOUSE
- * Guardian), produce the `ExecutionSnapshot` that should hydrate the form when
- * opening the drawer in edit mode.
+ * for patient visits, the freshly-fetched full Patient), produce the
+ * `ExecutionSnapshot` that should hydrate the form when opening the drawer in
+ * edit mode.
  *
- * The mapping for create-namespace fields (PATIENT/GUARDIAN/MEDICAL_REP/VISIT/
- * INTAKE) sets `formValues[code]`. Identity host fields (those carrying
- * `searchEntity` config) additionally seed `searchState[code].transientValue`
- * so the rendered input shows the existing name. LOOKUP/SYSTEM/COMPUTED are
- * intentionally not seeded.
+ * The mapping for create-namespace fields (PATIENT/MEDICAL_REP/VISIT/INTAKE)
+ * sets `formValues[code]`. Identity host fields (those carrying `searchEntity`
+ * config) additionally seed `searchState[code].transientValue` so the rendered
+ * input shows the existing name. LOOKUP/SYSTEM/COMPUTED are intentionally not
+ * seeded.
  */
 
 import type { ApiPatient } from "@/features/visits/types/visits.api.types";
@@ -22,22 +22,12 @@ interface InitialSnapshot {
   systemValues: Record<string, unknown>;
 }
 
-type SpouseGuardian =
-  | {
-      id?: string;
-      full_name?: string;
-      national_id?: string | null;
-      phone_number?: string | null;
-    }
-  | undefined;
-
 export function buildInitialValues(
   template: FormTemplateDto,
   visit: Visit,
   patient?: ApiPatient | null,
   specialtyCode?: string,
 ): InitialSnapshot {
-  const spouse = pickSpouseGuardian(patient);
   const formValues: Record<string, unknown> = {};
   const searchState: Record<string, SearchEntry> = {};
   const systemValues: Record<string, unknown> = {
@@ -50,7 +40,7 @@ export function buildInitialValues(
 
   for (const section of template.sections) {
     for (const field of section.fields) {
-      const value = readValue(field, visit, patient, spouse);
+      const value = readValue(field, visit, patient);
       if (value === undefined || value === null) continue;
       formValues[field.code] = value;
 
@@ -61,7 +51,7 @@ export function buildInitialValues(
         | { idTarget?: string; kind?: string }
         | undefined;
       if (searchEntity && typeof value === "string") {
-        const resolvedId = resolveEntityId(searchEntity.kind, visit, patient, spouse);
+        const resolvedId = resolveEntityId(searchEntity.kind, visit, patient);
         searchState[field.code] = {
           transientValue: value,
           suggestions: [],
@@ -81,13 +71,10 @@ function resolveEntityId(
   kind: string | undefined,
   visit: Visit,
   patient: ApiPatient | null | undefined,
-  spouse: SpouseGuardian,
 ): string | undefined {
   switch (kind) {
     case "patient":
       return patient?.id ?? visit.patient.id ?? undefined;
-    case "guardian":
-      return spouse?.id ?? undefined;
     case "medical_rep":
       return visit.patient.id ?? undefined;
     default:
@@ -95,37 +82,10 @@ function resolveEntityId(
   }
 }
 
-function pickSpouseGuardian(patient?: ApiPatient | null): SpouseGuardian {
-  if (!patient) return undefined;
-  // Prefer flat fields returned by GET /patients/:id (findOne).
-  if (patient.spouse_guardian_id) {
-    return {
-      id: patient.spouse_guardian_id,
-      full_name: patient.spouse_full_name,
-      national_id: patient.spouse_national_id ?? null,
-      phone_number: patient.spouse_phone_number ?? null,
-    };
-  }
-  // Fallback: guardian_links shape (list endpoints / older responses).
-  const link = patient.guardian_links?.find(
-    (l) => l.relation_to_patient === "SPOUSE",
-  );
-  if (link?.guardian) {
-    return {
-      id: link.guardian.id,
-      full_name: link.guardian.full_name,
-      national_id: link.guardian.national_id,
-      phone_number: link.guardian.phone_number,
-    };
-  }
-  return undefined;
-}
-
 function readValue(
   field: FormFieldDto,
   visit: Visit,
   patient: ApiPatient | null | undefined,
-  spouse: SpouseGuardian,
 ): unknown {
   const ns = field.binding?.namespace;
   const path = field.binding?.path;
@@ -134,17 +94,12 @@ function readValue(
   switch (ns) {
     case "PATIENT":
       return readPatientPath(path, visit, patient);
-    case "GUARDIAN":
-      return readGuardianPath(path, visit, spouse);
     case "MEDICAL_REP":
       return readMedRepPath(path, visit);
     case "VISIT":
       return readVisitPath(path, visit);
     case "INTAKE":
       return readIntakePath(path, visit);
-    case "LOOKUP":
-    case "SYSTEM":
-    case "COMPUTED":
     default:
       return undefined;
   }
@@ -174,23 +129,6 @@ function readPatientPath(
       return p?.address ?? vp.address;
     case "marital_status":
       return p?.marital_status ?? vp.maritalStatus;
-    default:
-      return undefined;
-  }
-}
-
-function readGuardianPath(
-  path: string,
-  visit: Visit,
-  spouse: SpouseGuardian,
-): unknown {
-  switch (path) {
-    case "full_name":
-      return spouse?.full_name;
-    case "national_id":
-      return spouse?.national_id ?? undefined;
-    case "phone_number":
-      return spouse?.phone_number ?? undefined;
     default:
       return undefined;
   }

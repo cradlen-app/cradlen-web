@@ -34,22 +34,6 @@ export type ApiPatient = {
   next_visit_date?: string;
   active_journey_name?: string;
   journey_status?: string;
-  guardian_links?: Array<{
-    id: string;
-    relation_to_patient: string;
-    is_primary: boolean;
-    guardian: {
-      id: string;
-      full_name: string;
-      national_id: string | null;
-      phone_number: string | null;
-    };
-  }>;
-  /** Flat spouse fields returned by GET /patients/:id (findOne). */
-  spouse_guardian_id?: string;
-  spouse_full_name?: string;
-  spouse_national_id?: string | null;
-  spouse_phone_number?: string | null;
 };
 
 export type VitalsInput = {
