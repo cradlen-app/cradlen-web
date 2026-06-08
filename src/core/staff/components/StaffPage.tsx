@@ -22,6 +22,11 @@ const StaffCreateDrawer = dynamic(
   () => import("./StaffCreateDrawer").then((m) => m.StaffCreateDrawer),
   { loading: () => null },
 );
+const StaffResetPasswordDialog = dynamic(
+  () =>
+    import("./StaffResetPasswordDialog").then((m) => m.StaffResetPasswordDialog),
+  { loading: () => null },
+);
 import { cn } from "@/common/utils/utils";
 import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
@@ -68,6 +73,7 @@ export function StaffPage() {
   const [createMethod, setCreateMethod] = useState<"invite" | "direct" | null>(null);
   const [editingMember, setEditingMember] = useState<StaffMember | null>(null);
   const [removingMember, setRemovingMember] = useState<StaffMember | null>(null);
+  const [resettingMember, setResettingMember] = useState<StaffMember | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const removeStaff = useRemoveStaffFromBranch();
 
@@ -76,6 +82,7 @@ export function StaffPage() {
     isCurrentUserLoading,
     isCurrentUserError,
     currentUserStaffId,
+    isOwner,
     organizationId,
     organizationName,
     branchId,
@@ -253,11 +260,13 @@ export function StaffPage() {
 
         <StaffOverview
           canManage={canManage}
+          isOwner={isOwner}
           currentBranchId={branchId}
           currentUserStaffId={currentUserStaffId}
           member={selectedMember}
           onEdit={setEditingMember}
           onRemoveFromBranch={setRemovingMember}
+          onResetPassword={canManage ? setResettingMember : undefined}
           className="hidden lg:flex lg:flex-col"
           emptyClassName="hidden lg:flex"
         />
@@ -290,11 +299,13 @@ export function StaffPage() {
             <div className="flex-1 overflow-y-auto">
               <StaffOverview
                 canManage={canManage}
+                isOwner={isOwner}
                 currentBranchId={branchId}
                 currentUserStaffId={currentUserStaffId}
                 member={selectedMember}
                 onEdit={setEditingMember}
                 onRemoveFromBranch={setRemovingMember}
+                onResetPassword={canManage ? setResettingMember : undefined}
                 className="rounded-none border-0 shadow-none"
               />
             </div>
@@ -325,6 +336,16 @@ export function StaffPage() {
         open={!!editingMember}
         organizationId={organizationId}
         organizationName={organizationName}
+      />
+
+      <StaffResetPasswordDialog
+        member={resettingMember}
+        organizationId={organizationId}
+        branchId={branchId}
+        open={!!resettingMember}
+        onOpenChange={(open) => {
+          if (!open) setResettingMember(null);
+        }}
       />
 
       <AlertDialog.Root
