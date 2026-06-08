@@ -8,11 +8,17 @@ import { Dialog } from "radix-ui";
 export type DirectCreationSuccessModalProps = {
   credentials: { email: string; password: string } | null;
   onClose: () => void;
+  /** Override the heading (defaults to the staff-created title). */
+  title?: string;
+  /** Override the hint line (defaults to the staff-created hint). */
+  hint?: string;
 };
 
 export default function DirectCreationSuccessModal({
   credentials,
   onClose,
+  title,
+  hint,
 }: DirectCreationSuccessModalProps) {
   const t = useTranslations("staff.create");
   const [copied, setCopied] = useState<"email" | "password" | "both" | null>(null);
@@ -52,10 +58,10 @@ export default function DirectCreationSuccessModal({
           </div>
 
           <Dialog.Title className="text-base font-semibold text-brand-black">
-            {t("directSuccess.title")}
+            {title ?? t("directSuccess.title")}
           </Dialog.Title>
           <Dialog.Description className="mt-1 text-xs text-gray-500">
-            {t("directSuccess.hint")}
+            {hint ?? t("directSuccess.hint")}
           </Dialog.Description>
 
           <div className="mt-4 space-y-3">

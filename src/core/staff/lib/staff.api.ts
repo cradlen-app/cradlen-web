@@ -17,6 +17,7 @@ import type {
   InvitationPreview,
   InviteStaffRequest,
   InviteStaffResponse,
+  ResetStaffPasswordRequest,
   StaffInvitationActionResponse,
   StaffInvitationResponse,
   StaffInvitationsResponse,
@@ -144,6 +145,23 @@ export function removeStaffFromBranch(
   return apiAuthFetch<void>(
     `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}`,
     { method: "DELETE" },
+  );
+}
+
+/**
+ * POST /v1/organizations/:orgId/branches/:branchId/staff/:staffId/reset-password
+ * Admin-initiated password reset for staff with a system-generated email who
+ * cannot use the email-OTP flow. Revokes the staff member's active sessions.
+ */
+export function resetStaffPassword(
+  organizationId: string,
+  branchId: string,
+  staffId: string,
+  data: ResetStaffPasswordRequest,
+) {
+  return apiAuthFetch<void>(
+    `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}/reset-password`,
+    { method: "POST", body: JSON.stringify(data) },
   );
 }
 
