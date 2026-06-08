@@ -136,6 +136,53 @@ export function removeProfileImage(profileId: string) {
   return apiAuthFetch(`/profiles/${profileId}/image`, { method: "DELETE" });
 }
 
+/** Response of `POST /organizations/:id/image-upload-url`. */
+export type ApiOrganizationImageUploadUrl = {
+  key: string;
+  upload_url: string;
+  expires_in: number;
+  content_type: string;
+};
+
+/**
+ * Presigned-R2 logo upload (mirrors {@link uploadProfileImage}): ask the backend
+ * for a presigned PUT, upload the bytes straight to R2, then confirm the key.
+ */
+export async function uploadOrganizationLogo(
+  organizationId: string,
+  file: File,
+) {
+  const presign = await apiAuthFetch<{ data: ApiOrganizationImageUploadUrl }>(
+    `/organizations/${organizationId}/image-upload-url`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        content_type: file.type,
+        size_bytes: file.size,
+        file_name: file.name,
+      }),
+    },
+  );
+
+  const put = await fetch(presign.data.upload_url, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": presign.data.content_type },
+  });
+  if (!put.ok) throw new Error("Upload failed");
+
+  return apiAuthFetch(`/organizations/${organizationId}/image`, {
+    method: "POST",
+    body: JSON.stringify({ key: presign.data.key }),
+  });
+}
+
+export function removeOrganizationLogo(organizationId: string) {
+  return apiAuthFetch(`/organizations/${organizationId}/image`, {
+    method: "DELETE",
+  });
+}
+
 export function createOrganization(data: CreateOrganizationRequest) {
   return apiAuthFetch("/organizations", {
     method: "POST",
