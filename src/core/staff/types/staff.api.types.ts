@@ -74,6 +74,8 @@ export type ApiStaffMember = {
   job_functions: ApiStaffJobFunction[];
   specialties: ApiStaffSpecialty[];
   schedule?: ApiStaffBranchSchedule[];
+  /** Short-lived presigned avatar URL, or null when none. */
+  profile_image_url?: string | null;
 };
 
 /** @deprecated kept temporarily for code that still imports the old name. */
