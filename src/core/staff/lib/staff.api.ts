@@ -12,8 +12,6 @@ import type {
   ApiStaffMemberResponse,
   ApiStaffRole,
   ApiStaffSpecialty,
-  BulkInviteResponse,
-  BulkInviteStaffRequest,
   CreateStaffDirectRequest,
   CreateStaffDirectResponse,
   InvitationPreview,
@@ -99,20 +97,6 @@ export function inviteStaff(
 ) {
   return apiAuthFetch<InviteStaffResponse>(
     `/organizations/${organizationId}/branches/${branchId}/invitations`,
-    {
-      method: "POST",
-      body: JSON.stringify(data),
-    },
-  );
-}
-
-export function bulkInviteStaff(
-  organizationId: string,
-  branchId: string,
-  data: BulkInviteStaffRequest,
-) {
-  return apiAuthFetch<BulkInviteResponse>(
-    `/organizations/${organizationId}/branches/${branchId}/invitations/bulk`,
     {
       method: "POST",
       body: JSON.stringify(data),
