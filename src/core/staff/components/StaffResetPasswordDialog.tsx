@@ -6,6 +6,7 @@ import { Eye, EyeOff, KeyRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { cn } from "@/common/utils/utils";
 import { getStaffFullName } from "../lib/staff.utils";
@@ -85,6 +86,7 @@ export function StaffResetPasswordDialog({
       // Hand the typed password to the copyable success modal so the admin
       // can relay it, then close the input dialog.
       setCredentials({ email: member.email ?? "", password });
+      toast.success(t("success", { name: fullName }));
       clearForm();
       onOpenChange(false);
     } catch {
