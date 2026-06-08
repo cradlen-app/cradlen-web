@@ -54,6 +54,7 @@ export type Patient = {
   journeyId?: string;
   journeyType?: string;
   journeyStatus?: string;
+  imageUrl?: string | null;
 };
 
 export type VisitKind = "patient" | "medical_rep";
