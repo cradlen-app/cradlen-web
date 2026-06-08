@@ -106,15 +106,26 @@ export function Sidebar() {
       <div ref={branchMenuRef} className="relative border-b border-gray-100">
         <div className="flex items-center gap-2.5 px-3 py-4 min-w-0">
           <div className="size-9 shrink-0 rounded-full overflow-hidden">
-            <Image
-              src={LogoIcon}
-              alt={clinicName}
-              width={36}
-              height={36}
-              loading="eager"
-              className="object-cover"
-              priority
-            />
+            {organization?.logo_image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={organization.logo_image_url}
+                alt={clinicName}
+                width={36}
+                height={36}
+                className="size-9 object-cover"
+              />
+            ) : (
+              <Image
+                src={LogoIcon}
+                alt={clinicName}
+                width={36}
+                height={36}
+                loading="eager"
+                className="object-cover"
+                priority
+              />
+            )}
           </div>
 
           {!effectiveCollapsed &&
