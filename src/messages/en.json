@@ -225,7 +225,14 @@
       "updateSuccess": "Profile updated.",
       "updateError": "Failed to update profile. Please try again.",
       "updateInvalid": "Some values were rejected by the server. Please review and try again.",
-      "sharedAcrossOrgs": "Your name and phone are shared across all your organizations."
+      "sharedAcrossOrgs": "Your name and phone are shared across all your organizations.",
+      "addPhoto": "Add photo",
+      "changePhoto": "Change photo",
+      "removePhoto": "Remove",
+      "imageTypeError": "Choose a PNG, JPG, or WEBP image.",
+      "imageTooLarge": "Image must be 5 MB or smaller.",
+      "imageUpdated": "Profile photo updated.",
+      "imageRemoved": "Profile photo removed."
     },
     "account": {
       "title": "Account",
