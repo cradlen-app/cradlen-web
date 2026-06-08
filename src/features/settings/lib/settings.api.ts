@@ -94,6 +94,48 @@ export function updateProfile(
   });
 }
 
+/** Response of `POST /profiles/:id/image-upload-url`. */
+export type ApiProfileImageUploadUrl = {
+  key: string;
+  upload_url: string;
+  expires_in: number;
+  content_type: string;
+};
+
+/**
+ * Presigned-R2 avatar upload (mirrors the patient portal): ask the backend for
+ * a presigned PUT, upload the bytes straight to R2, then confirm the object key.
+ */
+export async function uploadProfileImage(profileId: string, file: File) {
+  const presign = await apiAuthFetch<{ data: ApiProfileImageUploadUrl }>(
+    `/profiles/${profileId}/image-upload-url`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        content_type: file.type,
+        size_bytes: file.size,
+        file_name: file.name,
+      }),
+    },
+  );
+
+  const put = await fetch(presign.data.upload_url, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": presign.data.content_type },
+  });
+  if (!put.ok) throw new Error("Upload failed");
+
+  return apiAuthFetch(`/profiles/${profileId}/image`, {
+    method: "POST",
+    body: JSON.stringify({ key: presign.data.key }),
+  });
+}
+
+export function removeProfileImage(profileId: string) {
+  return apiAuthFetch(`/profiles/${profileId}/image`, { method: "DELETE" });
+}
+
 export function createOrganization(data: CreateOrganizationRequest) {
   return apiAuthFetch("/organizations", {
     method: "POST",

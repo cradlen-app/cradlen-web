@@ -118,11 +118,20 @@ export function StaffMoreSheet({
         {/* Account */}
         <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4">
           <div className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
-            <Image
-              src={LogoIcon}
-              alt={displayName}
-              className="h-full w-full object-cover"
-            />
+            {profile?.profile_image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.profile_image_url}
+                alt={displayName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <Image
+                src={LogoIcon}
+                alt={displayName}
+                className="h-full w-full object-cover"
+              />
+            )}
           </div>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium text-brand-black">

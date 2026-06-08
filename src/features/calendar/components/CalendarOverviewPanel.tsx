@@ -6,6 +6,7 @@ import {
   ChevronUp,
   Lock,
   Building2,
+  Globe,
   Trash2,
   Pencil,
   Loader2,
@@ -34,6 +35,9 @@ function OverviewEntry({ event, canManage, onEdit }: EntryProps) {
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : t("delete.error")),
   });
+
+  const isOrgWide =
+    event.visibility === "ORGANIZATION" && event.branchId === null;
 
   const hasDetails =
     !!event.description ||
@@ -73,6 +77,11 @@ function OverviewEntry({ event, canManage, onEdit }: EntryProps) {
                 className="size-3 shrink-0 text-gray-400"
                 aria-label={t("visibility.PRIVATE")}
               />
+            ) : isOrgWide ? (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-primary/8 px-1.5 py-0.5 text-[10px] font-medium text-brand-primary">
+                <Globe className="size-2.5" aria-hidden="true" />
+                {t("allBranches")}
+              </span>
             ) : (
               <Building2
                 className="size-3 shrink-0 text-gray-400"

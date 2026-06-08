@@ -33,6 +33,7 @@ import {
   EntitySummary,
   SectionPanel,
 } from "./settings-ui";
+import { StaffAvatarUploader } from "./StaffAvatarUploader";
 
 type SectionProps = {
   branches: OrganizationBranch[];
@@ -69,6 +70,7 @@ export function ProfileSection({
         />
       ) : (
         <>
+          <StaffAvatarUploader profile={profile} displayName={displayName} t={t} />
           <EntitySummary
             actions={
               <Button
