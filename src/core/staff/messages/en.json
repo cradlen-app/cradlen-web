@@ -314,6 +314,7 @@
       "hidePassword": "Hide",
       "submit": "Reset password",
       "submitting": "Resetting...",
+      "success": "Password reset for {name}.",
       "successTitle": "Password Reset",
       "successHint": "Share these credentials with the staff member — they cannot be retrieved later.",
       "validation": {
