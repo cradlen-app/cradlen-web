@@ -95,11 +95,6 @@ export type InviteStaffRequest = {
   engagement_type?: EngagementTypeCode;
 };
 
-/** POST /v1/organizations/:orgId/invitations/bulk */
-export type BulkInviteStaffRequest = {
-  invitations: InviteStaffRequest[];
-};
-
 /** POST /v1/organizations/:orgId/staff — direct creation. */
 export type CreateStaffDirectRequest = {
   first_name: string;
@@ -123,6 +118,11 @@ export type CreateStaffDirectResponse = {
     generated_email: string;
   };
   meta?: Record<string, unknown>;
+};
+
+/** POST /v1/organizations/:orgId/branches/:branchId/staff/:staffId/reset-password */
+export type ResetStaffPasswordRequest = {
+  password: string;
 };
 
 /** PATCH /v1/organizations/:orgId/staff/:staffProfileId — replace semantics on arrays. */
@@ -221,19 +221,6 @@ export type StaffInvitationActionResponse = ApiResponseEnvelope<ApiStaffInvitati
 };
 
 export type InviteStaffResponse = ApiResponseEnvelope<ApiStaffInvitation>;
-
-export type BulkInviteResultRow = {
-  id: string;
-  email: string;
-  email_sent: boolean;
-};
-
-export type BulkInviteResponse = {
-  data: {
-    created: number;
-    results: BulkInviteResultRow[];
-  };
-};
 
 export type InvitationPreview = {
   id: string;

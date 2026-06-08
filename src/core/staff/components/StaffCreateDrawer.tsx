@@ -203,8 +203,9 @@ export function StaffCreateDrawer({
   // Roles a non-OWNER may not assign.
   const assignableRoles = useMemo<Set<StaffApiRole>>(() => {
     if (ownerCanEditRoles) {
-      // OWNER can assign anything except OWNER itself (backend rejects 400).
+      // OWNER may grant any role, including OWNER (co-owners allowed).
       return new Set([
+        STAFF_API_ROLE.OWNER,
         STAFF_API_ROLE.BRANCH_MANAGER,
         STAFF_API_ROLE.STAFF,
         STAFF_API_ROLE.EXTERNAL,

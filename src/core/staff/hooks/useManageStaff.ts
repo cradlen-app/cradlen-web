@@ -4,7 +4,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/common/errors/error";
 import { staffQueryKeys } from "../queryKeys";
-import { removeStaffFromBranch, updateStaff } from "../lib/staff.api";
+import {
+  removeStaffFromBranch,
+  resetStaffPassword,
+  updateStaff,
+} from "../lib/staff.api";
 import type { UpdateStaffRequest } from "../types/staff.api.types";
 
 type UpdateStaffVariables = {
@@ -18,6 +22,13 @@ type RemoveStaffVariables = {
   organizationId: string;
   branchId: string;
   staffId: string;
+};
+
+type ResetStaffPasswordVariables = {
+  organizationId: string;
+  branchId: string;
+  staffId: string;
+  password: string;
 };
 
 export function useUpdateStaff() {
@@ -54,6 +65,27 @@ export function useRemoveStaffFromBranch() {
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, "Failed to remove staff from branch"));
+    },
+  });
+}
+
+/**
+ * Admin-initiated password reset for a staff member (OWNER + scoped
+ * BRANCH_MANAGER). Backend revokes the target's active sessions.
+ */
+export function useResetStaffPassword() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ organizationId, branchId, staffId, password }: ResetStaffPasswordVariables) =>
+      resetStaffPassword(organizationId, branchId, staffId, { password }),
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: staffQueryKeys.byOrg(variables.organizationId),
+      });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Failed to reset staff password"));
     },
   });
 }

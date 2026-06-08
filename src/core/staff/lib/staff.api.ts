@@ -12,13 +12,12 @@ import type {
   ApiStaffMemberResponse,
   ApiStaffRole,
   ApiStaffSpecialty,
-  BulkInviteResponse,
-  BulkInviteStaffRequest,
   CreateStaffDirectRequest,
   CreateStaffDirectResponse,
   InvitationPreview,
   InviteStaffRequest,
   InviteStaffResponse,
+  ResetStaffPasswordRequest,
   StaffInvitationActionResponse,
   StaffInvitationResponse,
   StaffInvitationsResponse,
@@ -106,20 +105,6 @@ export function inviteStaff(
   );
 }
 
-export function bulkInviteStaff(
-  organizationId: string,
-  branchId: string,
-  data: BulkInviteStaffRequest,
-) {
-  return apiAuthFetch<BulkInviteResponse>(
-    `/organizations/${organizationId}/branches/${branchId}/invitations/bulk`,
-    {
-      method: "POST",
-      body: JSON.stringify(data),
-    },
-  );
-}
-
 export function createStaffDirect(
   organizationId: string,
   branchId: string,
@@ -160,6 +145,23 @@ export function removeStaffFromBranch(
   return apiAuthFetch<void>(
     `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}`,
     { method: "DELETE" },
+  );
+}
+
+/**
+ * POST /v1/organizations/:orgId/branches/:branchId/staff/:staffId/reset-password
+ * Admin-initiated password reset for staff with a system-generated email who
+ * cannot use the email-OTP flow. Revokes the staff member's active sessions.
+ */
+export function resetStaffPassword(
+  organizationId: string,
+  branchId: string,
+  staffId: string,
+  data: ResetStaffPasswordRequest,
+) {
+  return apiAuthFetch<void>(
+    `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}/reset-password`,
+    { method: "POST", body: JSON.stringify(data) },
   );
 }
 
