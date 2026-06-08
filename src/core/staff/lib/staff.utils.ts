@@ -134,6 +134,7 @@ export function mapApiStaffToMember(api: ApiStaffMember, locale: string): StaffM
     schedule: api.schedule,
     workSchedule: formatBranchSchedule(api.schedule, locale),
     isClinical: (api.job_functions ?? []).some((fn) => fn.is_clinical),
+    imageUrl: api.profile_image_url ?? null,
   };
 }
 
