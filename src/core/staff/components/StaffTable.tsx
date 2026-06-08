@@ -74,7 +74,7 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
               >
                 <td className="py-3 pe-4">
                   <div className="flex items-center gap-2.5">
-                    <StaffAvatar name={fullName} />
+                    <StaffAvatar name={fullName} imageUrl={member.imageUrl} />
                     <div className="flex min-w-0 flex-col leading-tight">
                       <span className="truncate text-brand-black">
                         {fullName}
