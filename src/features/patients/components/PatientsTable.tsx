@@ -20,10 +20,21 @@ const COLUMNS = [
   { key: "journeyStatus", className: "hidden sm:table-cell" },
 ] as const;
 
-function PatientAvatar({ name }: { name: string }) {
+function PatientAvatar({
+  name,
+  imageUrl,
+}: {
+  name: string;
+  imageUrl?: string | null;
+}) {
   return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-xs font-medium text-brand-primary">
-      {name.charAt(0).toUpperCase()}
+    <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-primary/10 text-xs font-medium text-brand-primary">
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- presigned R2 URL (dynamic host); next/image not practical
+        <img src={imageUrl} alt={name} className="size-full object-cover" />
+      ) : (
+        name.charAt(0).toUpperCase()
+      )}
     </span>
   );
 }
@@ -78,7 +89,10 @@ export function PatientsTable({
             >
               <td className="py-3 pe-4">
                 <div className="flex items-center gap-2.5">
-                  <PatientAvatar name={patient.fullName} />
+                  <PatientAvatar
+                    name={patient.fullName}
+                    imageUrl={patient.imageUrl}
+                  />
                   <span className="truncate font-medium text-brand-black">
                     {patient.fullName}
                   </span>
