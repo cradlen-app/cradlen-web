@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { DEFAULT_ENGAGEMENT_TYPE } from "@/features/auth/lib/auth.constants";
 import { ApiError } from "@/infrastructure/http/api";
 import { cn } from "@/common/utils/utils";
+import { usePermission } from "@/kernel";
 import { useBulkInviteStaff } from "../hooks/useBulkInviteStaff";
 import { useResendStaffInvitation } from "../hooks/useStaffInvitations";
 import { useStaffRoles } from "../hooks/useStaffRoles";
@@ -79,6 +80,8 @@ export function StaffBulkInviteDrawer({
   const bulkMutation = useBulkInviteStaff();
   const resendMutation = useResendStaffInvitation();
   const { data: roleFilters = [] } = useStaffRoles(organizationId, open);
+  // Only an OWNER may grant the OWNER role (mirrors the single staff drawer).
+  const canAssignOwner = usePermission("staff.editRoles");
   const defaultRoleId =
     roleFilters.find((r) => r.role === "STAFF")?.id ?? roleFilters[0]?.id ?? "";
 
@@ -198,7 +201,11 @@ export function StaffBulkInviteDrawer({
                     className="mt-1 h-9 w-full border-0 border-b border-gray-200 bg-transparent text-xs outline-none focus:border-brand-primary"
                   >
                     {roleFilters
-                      .filter((r) => r.role !== "UNKNOWN" && r.role !== "OWNER")
+                      .filter(
+                        (r) =>
+                          r.role !== "UNKNOWN" &&
+                          (canAssignOwner || r.role !== "OWNER"),
+                      )
                       .map((r) => (
                         <option key={r.id} value={r.id}>
                           {r.name}
