@@ -157,6 +157,7 @@ export type ApiPatientListItem = {
   created_at: string;
   updated_at: string;
   journey: { id: string; type: ApiJourneyType; status: ApiJourneyStatus } | null;
+  profile_image_url?: string | null;
 };
 
 export type ApiPatientListResponse = {

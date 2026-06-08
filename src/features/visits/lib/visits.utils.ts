@@ -169,6 +169,7 @@ export function mapApiPatientListItemToPatient(api: ApiPatientListItem): Patient
     journeyId: api.journey?.id,
     journeyType: api.journey?.type,
     journeyStatus: api.journey?.status,
+    imageUrl: api.profile_image_url ?? null,
   };
 }
 
