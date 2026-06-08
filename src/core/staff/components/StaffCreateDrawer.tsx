@@ -119,6 +119,16 @@ export function StaffCreateDrawer({
   organizationName,
 }: StaffCreateDrawerProps) {
   const t = useTranslations("staff.create");
+
+  // Map known backend error strings onto localized copy; otherwise fall back
+  // to the raw backend message (already locale-aware via Accept-Language).
+  const resolveServerMessage = (raw: string): string => {
+    if (raw.toLowerCase().includes("phone number already exists")) {
+      return t("errors.phoneInUse");
+    }
+    return raw;
+  };
+
   const inviteStaff = useInviteStaff();
   const createDirect = useCreateStaffDirect();
   const updateStaff = useUpdateStaff();
@@ -337,9 +347,14 @@ export function StaffCreateDrawer({
         onOpenChange(false);
         inviteForm.reset(getDefaultStaffInviteValues(initialBranchIds));
       } catch (error) {
+        const defaultError = isEditMode ? t("edit.error") : t("error");
+
         if (error instanceof ApiError) {
+          // Invite-only conflict: a pending invitation already exists for this
+          // email. Keyed on the message (not a bare 409) so other conflicts —
+          // e.g. a duplicate phone number — surface their own real reason.
           if (
-            error.status === 409 ||
+            !isEditMode &&
             error.messages.some((m) =>
               m.toLowerCase().includes("pending invitation already exists"),
             )
@@ -350,29 +365,29 @@ export function StaffCreateDrawer({
             return;
           }
 
-          if (error.status === 400) {
-            let didSet = false;
-            error.messages.forEach((m) => {
-              const field = getInviteErrorField(m);
-              if (!field) return;
-              didSet = true;
-              setError(field as never, { type: "server", message: m });
-            });
-            if (didSet) {
-              setFormError(t("errors.reviewFields"));
-              toast.error(t("errors.reviewFields"));
-              return;
+          // Highlight the offending input inline when the backend names a
+          // field. Match on the raw message, but display the resolved one.
+          error.messages.forEach((m) => {
+            const field = getInviteErrorField(m);
+            if (field) {
+              setError(field as never, {
+                type: "server",
+                message: resolveServerMessage(m),
+              });
             }
-          }
+          });
 
-          const message = error.messages[0] || t("error");
+          // Always surface the actual reason in the banner + toast.
+          const message = error.messages[0]
+            ? resolveServerMessage(error.messages[0])
+            : defaultError;
           setFormError(message);
           toast.error(message);
           return;
         }
 
-        setFormError(t("error"));
-        toast.error(t("error"));
+        setFormError(defaultError);
+        toast.error(defaultError);
       }
     },
     () => {

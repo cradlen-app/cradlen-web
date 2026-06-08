@@ -98,8 +98,9 @@ export function NotificationDropdown() {
         <Popover.Content
           align="end"
           sideOffset={8}
+          collisionPadding={12}
           className={cn(
-            "z-50 w-88 rounded-2xl bg-white border border-gray-100",
+            "z-50 w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl bg-white border border-gray-100",
             "shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]",
             "outline-none",
             "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
