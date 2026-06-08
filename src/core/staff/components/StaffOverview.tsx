@@ -11,6 +11,7 @@ import {
   getStaffSpecialtiesLabel,
 } from "../lib/staff.utils";
 import type { StaffMember } from "../types/staff.types";
+import { StaffAvatar } from "./StaffAvatar";
 import { StaffStatusBadge } from "./StaffStatusBadge";
 
 type RowProps = {
@@ -99,6 +100,12 @@ export function StaffOverview({
       <div className="relative bg-brand-primary px-4 py-6 flex flex-col items-center gap-3 overflow-hidden rounded-b-2xl">
         <span className="pointer-events-none absolute -top-6 -right-6 size-28 rounded-full bg-white/5" />
         <span className="pointer-events-none absolute -bottom-10 -left-8 size-36 rounded-full bg-white/5" />
+
+        <StaffAvatar
+          name={fullName}
+          imageUrl={member.imageUrl}
+          className="z-10 size-16 bg-white/20 text-xl ring-2 ring-white/30"
+        />
 
         <div className="text-center z-10">
           <p className="text-sm font-semibold text-white leading-tight">{fullName}</p>
