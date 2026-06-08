@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, ChevronDown, ChevronRight, LogOut, X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  Globe,
+  LifeBuoy,
+  LogOut,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
@@ -32,6 +42,7 @@ export function PatientMoreSheet({
 }) {
   const t = useTranslations("patientPortal");
   const tRoot = useTranslations();
+  const tFooter = useTranslations("auth.signUp");
   const locale = useLocale();
   const pathname = usePathname();
   const { data: profiles } = usePatientProfiles();
@@ -171,12 +182,37 @@ export function PatientMoreSheet({
           })}
         </nav>
 
-        {/* Language */}
+        {/* Legal / Help / Language */}
         <div className="border-t border-gray-100 px-3 py-3">
-          <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">
-            {t("shell.language")}
-          </p>
-          <div className="px-2">
+          <a
+            href="#"
+            className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          >
+            <FileText className="size-5 shrink-0 text-gray-400" />
+            <span className="flex-1 truncate">{tFooter("termsOfService")}</span>
+            <ChevronRight className="size-4 shrink-0 text-gray-300 rtl:scale-x-[-1]" />
+          </a>
+          <a
+            href="#"
+            className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          >
+            <ShieldCheck className="size-5 shrink-0 text-gray-400" />
+            <span className="flex-1 truncate">{tFooter("privacyPolicy")}</span>
+            <ChevronRight className="size-4 shrink-0 text-gray-300 rtl:scale-x-[-1]" />
+          </a>
+          <a
+            href="#"
+            className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          >
+            <LifeBuoy className="size-5 shrink-0 text-gray-400" />
+            <span className="flex-1 truncate">{tFooter("helpCenter")}</span>
+            <ChevronRight className="size-4 shrink-0 text-gray-300 rtl:scale-x-[-1]" />
+          </a>
+          <div className="flex items-center gap-3 px-3 py-3">
+            <Globe className="size-5 shrink-0 text-gray-400" />
+            <span className="flex-1 truncate text-sm font-medium text-gray-600">
+              {t("shell.language")}
+            </span>
             <LanguageSelect currentLocale={locale as Locale} />
           </div>
         </div>
@@ -196,6 +232,11 @@ export function PatientMoreSheet({
             {t("shell.logout")}
           </button>
         </div>
+
+        {/* Copyright */}
+        <p className="border-t border-gray-100 px-5 py-4 text-center text-xs text-gray-400">
+          © {tFooter("copyright")}
+        </p>
       </div>
     </div>
   );
