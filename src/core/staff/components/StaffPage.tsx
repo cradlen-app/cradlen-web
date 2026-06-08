@@ -192,7 +192,7 @@ export function StaffPage() {
               onSearchChange={setSearch}
             />
 
-            <div className="min-h-0 flex-1 overflow-auto">
+            <div className="min-h-0 flex-1 overflow-auto pb-20 lg:pb-0">
               {isLoading ? (
                 <StaffTableSkeleton />
               ) : isError ? (

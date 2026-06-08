@@ -66,7 +66,7 @@ export function MedicalRepPage() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-x-auto">
+      <div className="flex-1 overflow-x-auto pb-20 lg:pb-0">
         <MedicalRepTable
           reps={data?.data ?? []}
           isLoading={isLoading}
