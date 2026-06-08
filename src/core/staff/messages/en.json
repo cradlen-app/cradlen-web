@@ -302,7 +302,24 @@
     "workSchedule": "Work Schedule",
     "actions": {
       "edit": "Edit staff",
-      "remove": "Remove from this branch"
+      "remove": "Remove from this branch",
+      "resetPassword": "Reset password"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "description": "Set a new login password for {name} ({email}). Share it with them — their active sessions will be signed out.",
+      "passwordLabel": "New password",
+      "passwordHint": "At least 8 characters. Share this with the staff member.",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "successTitle": "Password Reset",
+      "successHint": "Share these credentials with the staff member — they cannot be retrieved later.",
+      "validation": {
+        "min": "Password must be at least 8 characters.",
+        "max": "Password must be at most 72 characters."
+      }
     },
     "remove": "Remove",
     "removing": "Removing...",
