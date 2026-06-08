@@ -162,7 +162,7 @@ export function MedicationsPage() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-x-auto">
+      <div className="flex-1 overflow-x-auto pb-20 lg:pb-0">
         <MedicationsTable
           medications={data?.data ?? []}
           isLoading={isLoading}
