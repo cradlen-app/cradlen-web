@@ -41,6 +41,8 @@ export type StaffMember = {
   workSchedule?: string;
   /** Convenience: any of the staff's job_functions has is_clinical=true. */
   isClinical: boolean;
+  /** Short-lived presigned avatar URL, or null when none. */
+  imageUrl?: string | null;
 };
 
 /** Filter selection for the staff list toolbar. */
