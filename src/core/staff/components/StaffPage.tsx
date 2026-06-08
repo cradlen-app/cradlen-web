@@ -22,10 +22,6 @@ const StaffCreateDrawer = dynamic(
   () => import("./StaffCreateDrawer").then((m) => m.StaffCreateDrawer),
   { loading: () => null },
 );
-const StaffBulkInviteDrawer = dynamic(
-  () => import("./StaffBulkInviteDrawer").then((m) => m.StaffBulkInviteDrawer),
-  { loading: () => null },
-);
 import { cn } from "@/common/utils/utils";
 import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
@@ -70,7 +66,6 @@ export function StaffPage() {
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const [createMethod, setCreateMethod] = useState<"invite" | "direct" | null>(null);
-  const [bulkOpen, setBulkOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<StaffMember | null>(null);
   const [removingMember, setRemovingMember] = useState<StaffMember | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -181,7 +176,6 @@ export function StaffPage() {
             canManage={canManage}
             onInviteStaff={() => setCreateMethod("invite")}
             onCreateDirectStaff={() => setCreateMethod("direct")}
-            onBulkInvite={() => setBulkOpen(true)}
           />
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
@@ -318,15 +312,6 @@ export function StaffPage() {
         open={!!createMethod}
         organizationId={organizationId}
         organizationName={organizationName}
-      />
-
-      <StaffBulkInviteDrawer
-        branchId={branchId}
-        branchName={branchName}
-        organizationId={organizationId}
-        organizationName={organizationName}
-        open={bulkOpen}
-        onOpenChange={setBulkOpen}
       />
 
       <StaffCreateDrawer

@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiAuthFetch, apiFetch } from "@/infrastructure/http/api";
 import {
   acceptStaffInvite,
-  bulkInviteStaff,
   declineStaffInvite,
   deleteStaffInvitation,
   fetchStaff,
@@ -107,7 +106,7 @@ describe("staff api helpers", () => {
     );
   });
 
-  it("posts inviteStaff and bulkInviteStaff to branch-scoped endpoints", async () => {
+  it("posts inviteStaff to the branch-scoped endpoint", async () => {
     await inviteStaff("org-1", "branch-1", {
       email: "x@y.com",
       first_name: "X",
@@ -115,16 +114,10 @@ describe("staff api helpers", () => {
       role_ids: ["role-1"],
       branch_ids: ["branch-1"],
     });
-    await bulkInviteStaff("org-1", "branch-1", { invitations: [] });
 
     expect(apiAuthFetch).toHaveBeenNthCalledWith(
       1,
       "/organizations/org-1/branches/branch-1/invitations",
-      expect.objectContaining({ method: "POST" }),
-    );
-    expect(apiAuthFetch).toHaveBeenNthCalledWith(
-      2,
-      "/organizations/org-1/branches/branch-1/invitations/bulk",
       expect.objectContaining({ method: "POST" }),
     );
   });
