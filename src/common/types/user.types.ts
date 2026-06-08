@@ -58,6 +58,8 @@ export type UserProfile = {
     /** @deprecated misspelling — backend field is `specialties`; kept for back-compat */
     specialities?: string[];
     status: string;
+    /** Short-lived presigned logo URL from /auth/me, or null when none. */
+    logo_image_url?: string | null;
   };
   branches: UserBranch[];
   /** Profile-level specialties (subset of org specialties) */
