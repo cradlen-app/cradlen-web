@@ -255,7 +255,13 @@
       "updateError": "Failed to update organization. Please try again.",
       "deleteSuccess": "Organization deleted.",
       "deleteError": "Failed to delete organization. Please try again.",
-      "deleteForbidden": "Only the organization owner can delete the organization."
+      "deleteForbidden": "Only the organization owner can delete the organization.",
+      "logo": "Organization logo",
+      "addLogo": "Add logo",
+      "changeLogo": "Change logo",
+      "removeLogo": "Remove logo",
+      "logoUpdated": "Organization logo updated.",
+      "logoRemoved": "Organization logo removed."
     },
     "branches": {
       "title": "Branches",

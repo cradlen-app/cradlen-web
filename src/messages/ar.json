@@ -255,7 +255,13 @@
       "updateError": "فشل تحديث المنظمة. حاول مرة أخرى.",
       "deleteSuccess": "تم حذف المنظمة.",
       "deleteError": "فشل حذف المنظمة. حاول مرة أخرى.",
-      "deleteForbidden": "يمكن للمالك فقط حذف المنظمة."
+      "deleteForbidden": "يمكن للمالك فقط حذف المنظمة.",
+      "logo": "شعار المنظمة",
+      "addLogo": "إضافة شعار",
+      "changeLogo": "تغيير الشعار",
+      "removeLogo": "إزالة الشعار",
+      "logoUpdated": "تم تحديث شعار المنظمة.",
+      "logoRemoved": "تمت إزالة شعار المنظمة."
     },
     "branches": {
       "title": "الفروع",

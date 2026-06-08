@@ -161,13 +161,24 @@ export function StaffMoreSheet({
               className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors hover:bg-gray-50"
             >
               <div className="size-9 shrink-0 overflow-hidden rounded-full">
-                <Image
-                  src={LogoIcon}
-                  alt={clinicName}
-                  width={36}
-                  height={36}
-                  className="object-cover"
-                />
+                {organization?.logo_image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={organization.logo_image_url}
+                    alt={clinicName}
+                    width={36}
+                    height={36}
+                    className="size-9 object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={LogoIcon}
+                    alt={clinicName}
+                    width={36}
+                    height={36}
+                    className="object-cover"
+                  />
+                )}
               </div>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-brand-black">
@@ -191,13 +202,24 @@ export function StaffMoreSheet({
           ) : (
             <div className="flex w-full items-center gap-3 px-3 py-2.5">
               <div className="size-9 shrink-0 overflow-hidden rounded-full">
-                <Image
-                  src={LogoIcon}
-                  alt={clinicName}
-                  width={36}
-                  height={36}
-                  className="object-cover"
-                />
+                {organization?.logo_image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={organization.logo_image_url}
+                    alt={clinicName}
+                    width={36}
+                    height={36}
+                    className="size-9 object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={LogoIcon}
+                    alt={clinicName}
+                    width={36}
+                    height={36}
+                    className="object-cover"
+                  />
+                )}
               </div>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-brand-black">

@@ -34,6 +34,7 @@ import {
   SectionPanel,
 } from "./settings-ui";
 import { StaffAvatarUploader } from "./StaffAvatarUploader";
+import { OrganizationLogoUploader } from "./OrganizationLogoUploader";
 
 type SectionProps = {
   branches: OrganizationBranch[];
@@ -202,6 +203,8 @@ export function OrganizationSection({
           title={t("empty.organizationTitle")}
         />
       ) : (
+        <>
+        <OrganizationLogoUploader organization={profile.organization} t={t} />
         <EntitySummary
           actions={
             <Button
@@ -222,6 +225,7 @@ export function OrganizationSection({
           }
           title={profile.organization.name}
         />
+        </>
       )}
     </SectionPanel>
   );
