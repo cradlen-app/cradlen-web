@@ -153,10 +153,12 @@
       "save": "Save",
       "saving": "Saving...",
       "success": "Staff member updated.",
-      "missingStaff": "Select a staff member to edit."
+      "missingStaff": "Select a staff member to edit.",
+      "error": "Failed to update the staff member. Please try again."
     },
     "errors": {
       "pendingInvitation": "A pending invitation already exists for this email.",
+      "phoneInUse": "This phone number is already in use.",
       "reviewFields": "Please review the highlighted fields.",
       "atLeastOneBranch": "Select at least one branch."
     },
