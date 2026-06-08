@@ -46,6 +46,8 @@ export type UserProfile = {
   engagement_type?: EngagementType | null;
   phone_number?: string | null;
   phone?: string | null;
+  /** Short-lived presigned avatar URL from /auth/me, or null when none. */
+  profile_image_url?: string | null;
   /** /auth/me returns role objects; login/signup returns role name strings */
   roles: (UserProfileRole | string)[];
   organization: {

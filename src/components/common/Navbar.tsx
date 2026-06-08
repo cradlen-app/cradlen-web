@@ -115,7 +115,7 @@ export function Navbar() {
         <div className="hidden lg:flex items-center gap-2.5 h-10 ps-1 pe-3.5 rounded-full border border-transparent">
           <UserAvatar
             name={displayName}
-            avatarUrl={undefined}
+            avatarUrl={profile?.profile_image_url ?? undefined}
             className="size-8"
           />
           <div className="hidden sm:flex flex-col items-start leading-none gap-0.5">
