@@ -22,8 +22,9 @@ const StaffCreateDrawer = dynamic(
   () => import("./StaffCreateDrawer").then((m) => m.StaffCreateDrawer),
   { loading: () => null },
 );
-const StaffBulkInviteDrawer = dynamic(
-  () => import("./StaffBulkInviteDrawer").then((m) => m.StaffBulkInviteDrawer),
+const StaffResetPasswordDialog = dynamic(
+  () =>
+    import("./StaffResetPasswordDialog").then((m) => m.StaffResetPasswordDialog),
   { loading: () => null },
 );
 import { cn } from "@/common/utils/utils";
@@ -70,9 +71,9 @@ export function StaffPage() {
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const [createMethod, setCreateMethod] = useState<"invite" | "direct" | null>(null);
-  const [bulkOpen, setBulkOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<StaffMember | null>(null);
   const [removingMember, setRemovingMember] = useState<StaffMember | null>(null);
+  const [resettingMember, setResettingMember] = useState<StaffMember | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const removeStaff = useRemoveStaffFromBranch();
 
@@ -81,6 +82,7 @@ export function StaffPage() {
     isCurrentUserLoading,
     isCurrentUserError,
     currentUserStaffId,
+    isOwner,
     organizationId,
     organizationName,
     branchId,
@@ -181,7 +183,6 @@ export function StaffPage() {
             canManage={canManage}
             onInviteStaff={() => setCreateMethod("invite")}
             onCreateDirectStaff={() => setCreateMethod("direct")}
-            onBulkInvite={() => setBulkOpen(true)}
           />
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
@@ -259,11 +260,13 @@ export function StaffPage() {
 
         <StaffOverview
           canManage={canManage}
+          isOwner={isOwner}
           currentBranchId={branchId}
           currentUserStaffId={currentUserStaffId}
           member={selectedMember}
           onEdit={setEditingMember}
           onRemoveFromBranch={setRemovingMember}
+          onResetPassword={canManage ? setResettingMember : undefined}
           className="hidden lg:flex lg:flex-col"
           emptyClassName="hidden lg:flex"
         />
@@ -296,11 +299,13 @@ export function StaffPage() {
             <div className="flex-1 overflow-y-auto">
               <StaffOverview
                 canManage={canManage}
+                isOwner={isOwner}
                 currentBranchId={branchId}
                 currentUserStaffId={currentUserStaffId}
                 member={selectedMember}
                 onEdit={setEditingMember}
                 onRemoveFromBranch={setRemovingMember}
+                onResetPassword={canManage ? setResettingMember : undefined}
                 className="rounded-none border-0 shadow-none"
               />
             </div>
@@ -320,15 +325,6 @@ export function StaffPage() {
         organizationName={organizationName}
       />
 
-      <StaffBulkInviteDrawer
-        branchId={branchId}
-        branchName={branchName}
-        organizationId={organizationId}
-        organizationName={organizationName}
-        open={bulkOpen}
-        onOpenChange={setBulkOpen}
-      />
-
       <StaffCreateDrawer
         branchId={branchId}
         branchName={branchName}
@@ -340,6 +336,16 @@ export function StaffPage() {
         open={!!editingMember}
         organizationId={organizationId}
         organizationName={organizationName}
+      />
+
+      <StaffResetPasswordDialog
+        member={resettingMember}
+        organizationId={organizationId}
+        branchId={branchId}
+        open={!!resettingMember}
+        onOpenChange={(open) => {
+          if (!open) setResettingMember(null);
+        }}
       />
 
       <AlertDialog.Root

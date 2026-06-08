@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Pencil, ShieldCheck, UserX } from "lucide-react";
+import { KeyRound, Pencil, ShieldCheck, UserX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import {
@@ -34,6 +34,8 @@ function DetailRow({ label, value }: RowProps) {
 
 type Props = {
   canManage?: boolean;
+  /** Whether the current user is an OWNER — gates resetting privileged targets. */
+  isOwner?: boolean;
   /** The branch in context — the staff member is removed from this branch. */
   currentBranchId?: string;
   currentUserStaffId?: string;
@@ -44,17 +46,21 @@ type Props = {
    * backend soft-deletes the whole profile.
    */
   onRemoveFromBranch?: (member: StaffMember) => void;
+  /** Admin-initiated password reset for this staff member. */
+  onResetPassword?: (member: StaffMember) => void;
   className?: string;
   emptyClassName?: string;
 };
 
 export function StaffOverview({
   canManage,
+  isOwner,
   currentBranchId,
   currentUserStaffId,
   member,
   onEdit,
   onRemoveFromBranch,
+  onResetPassword,
   className,
   emptyClassName,
 }: Props) {
@@ -83,6 +89,12 @@ export function StaffOverview({
     !!currentBranchId && member.branches.some((b) => b.id === currentBranchId);
   const showRemove =
     canManage && !isSelf && !!onRemoveFromBranch && memberAssignedToCurrentBranch;
+  // Mirror the backend privileged-target guard: a BRANCH_MANAGER cannot reset
+  // an OWNER/BRANCH_MANAGER, so don't show a button that would 403.
+  const targetPrivileged =
+    member.role === "OWNER" || member.role === "BRANCH_MANAGER";
+  const showReset =
+    canManage && !!onResetPassword && (isOwner || !targetPrivileged);
   const jobFunctionsLabel = getStaffJobFunctionsLabel(member);
   const specialtiesLabel = getStaffSpecialtiesLabel(member);
 
@@ -131,6 +143,17 @@ export function StaffOverview({
             >
               <Pencil className="size-4" aria-hidden="true" />
             </button>
+            {showReset && (
+              <button
+                type="button"
+                onClick={() => onResetPassword?.(member)}
+                className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-brand-primary/8 hover:text-brand-primary"
+                aria-label={t("actions.resetPassword")}
+                title={t("actions.resetPassword")}
+              >
+                <KeyRound className="size-4" aria-hidden="true" />
+              </button>
+            )}
             {showRemove && (
               <button
                 type="button"
