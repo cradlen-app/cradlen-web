@@ -16,6 +16,7 @@ export function useCreateService() {
     mutationFn: (payload: CreateServicePayload) => createService(orgId!, payload),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: financialQueryKeys.services.all() });
+      toast.success("Service created");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to create service"));

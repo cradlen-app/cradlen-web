@@ -17,6 +17,7 @@ export function useDeleteProviderOverride(profileId: string) {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.pricing.providerOverrides(orgId ?? "", profileId),
       });
+      toast.success("Price override deleted");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to delete price override"));

@@ -48,6 +48,7 @@ export function useCreateCategory() {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.categories.all(),
       });
+      toast.success("Category created");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to create category"));
@@ -66,6 +67,7 @@ export function useUpdateCategory() {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.categories.all(),
       });
+      toast.success("Category updated");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to update category"));
@@ -83,6 +85,7 @@ export function useDeleteCategory() {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.categories.all(),
       });
+      toast.success("Category deleted");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to delete category"));

@@ -24,6 +24,7 @@ export function useUpdateProviderOverride(profileId: string) {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.pricing.providerOverrides(orgId ?? "", profileId),
       });
+      toast.success("Price override updated");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to update price override"));
