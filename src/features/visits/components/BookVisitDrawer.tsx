@@ -24,6 +24,7 @@ import {
 import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { usePatient } from "@/features/patients/hooks/usePatient";
+import { AddChargeDrawer } from "@/core/financial/pages";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { useBookMedicalRepVisit } from "../hooks/useBookMedicalRepVisit";
 import { useUpdateVisit, type UpdateVisitRequest } from "../hooks/useUpdateVisit";
@@ -208,6 +209,15 @@ function DrawerBody({
   const updateVisit = useUpdateVisit();
   const updateMedRepVisit = useUpdateMedRepVisit();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // After a patient booking, capture a PENDING charge for the new visit: the
+  // assigned doctor is the provider, so reception sees that doctor's resolved
+  // price and adds the service charge in one step.
+  const [chargeCtx, setChargeCtx] = useState<{
+    visitId: string;
+    patientId: string;
+    profileId: string;
+    branchId: string;
+  } | null>(null);
 
   const isEdit = !!editingVisit;
   const isMedicalRep = state.systemValues.visitor_type === "MEDICAL_REP";
@@ -294,9 +304,26 @@ function DrawerBody({
         }
         return;
       }
-      await bookVisit.mutateAsync(body as unknown as BookVisitRequest);
+      const res = await bookVisit.mutateAsync(body as unknown as BookVisitRequest);
       toast.success(t("create.successMessage"));
-      onClose();
+      // Move into the charge step: capture a PENDING charge for the new visit,
+      // priced for the assigned doctor. Fall back to closing if the response is
+      // missing any id needed to resolve a price.
+      const visit = res?.data?.visit;
+      const visitId = visit?.id;
+      const patientId = visit?.episode?.journey.patient.id;
+      const doctorId = visit?.assigned_doctor?.id;
+      const chargeBranch = branchId ?? visit?.branch_id;
+      if (visitId && patientId && doctorId && chargeBranch) {
+        setChargeCtx({
+          visitId,
+          patientId,
+          profileId: doctorId,
+          branchId: chargeBranch,
+        });
+      } else {
+        onClose();
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         const apiBody = error.body as
@@ -332,6 +359,7 @@ function DrawerBody({
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="mt-5 flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pe-1">
         <TemplateRenderer template={template} errors={errors} />
@@ -367,5 +395,24 @@ function DrawerBody({
         </button>
       </div>
     </form>
+
+      {/* Post-booking charge step — reception picks the service and sees the
+          assigned doctor's resolved price, then captures a PENDING charge. */}
+      {chargeCtx && (
+        <AddChargeDrawer
+          open
+          onOpenChange={(next) => {
+            if (!next) {
+              setChargeCtx(null);
+              onClose();
+            }
+          }}
+          branchId={chargeCtx.branchId}
+          patientId={chargeCtx.patientId}
+          profileId={chargeCtx.profileId}
+          visitId={chargeCtx.visitId}
+        />
+      )}
+    </>
   );
 }
