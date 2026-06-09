@@ -5,10 +5,13 @@ import { Dialog } from "radix-ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useQuery } from "@tanstack/react-query";
 import { X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { listBranches } from "@/features/settings/lib/settings.api";
 import { useCreatePriceList } from "../../hooks/useCreatePriceList";
 import { useUpdatePriceList } from "../../hooks/useUpdatePriceList";
 import type { PriceList } from "../../types/financial.types";
@@ -58,6 +61,14 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
   const createMutation = useCreatePriceList();
   const updateMutation = useUpdatePriceList();
   const isSaving = createMutation.isPending || updateMutation.isPending;
+  const orgId = useAuthContextStore((s) => s.organizationId);
+  const branchesQuery = useQuery({
+    queryKey: ["financial", "price-lists", "branches", orgId ?? ""],
+    queryFn: () => listBranches(orgId!),
+    enabled: !!orgId && open,
+    staleTime: 5 * 60 * 1000,
+  });
+  const branches = branchesQuery.data?.data ?? [];
 
   const form = useForm<PriceListFormValues>({
     resolver: zodResolver(priceListFormSchema),
@@ -117,6 +128,7 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
           id: priceList.id,
           payload: {
             name: data.name,
+            branch_id: data.branch_id || null,
             currency: data.currency || undefined,
             is_default: data.is_default,
             valid_from: data.valid_from || undefined,
@@ -193,24 +205,21 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
                 />
               </div>
 
-              {/* Branch ID — text input (TODO: replace with useBranches select) */}
-              {mode === "create" && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                    {t("fields.branchId")}{" "}
-                    <span className="text-gray-400">
-                      {t("fields.branchIdHint")}
-                    </span>
-                  </label>
-                  {/* TODO: replace with branch select using useBranches when available */}
-                  <input
-                    {...form.register("branch_id")}
-                    type="text"
-                    placeholder={t("fields.branchIdPlaceholder")}
-                    className={inputClass}
-                  />
-                </div>
-              )}
+              {/* Branch — dropdown of branch names ("" = org-wide) */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                  {t("fields.branch")}{" "}
+                  <span className="text-gray-400">{tCommon("optional")}</span>
+                </label>
+                <select {...form.register("branch_id")} className={inputClass}>
+                  <option value="">{t("fields.branchAll")}</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Valid from / Valid to */}
               <div className="grid grid-cols-2 gap-3">

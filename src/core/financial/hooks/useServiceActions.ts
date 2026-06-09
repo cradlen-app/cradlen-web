@@ -17,8 +17,11 @@ export function useToggleServiceActive() {
   return useMutation({
     mutationFn: ({ id, active }: { id: string; active: boolean }) =>
       active ? activateService(orgId!, id) : deactivateService(orgId!, id),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void qc.invalidateQueries({ queryKey: financialQueryKeys.services.all() });
+      toast.success(
+        variables.active ? "Service activated" : "Service deactivated",
+      );
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to update service"));

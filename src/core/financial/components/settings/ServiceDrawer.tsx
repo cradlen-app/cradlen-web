@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Dialog } from "radix-ui";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,8 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
+import { useCategories } from "../../hooks/useCategories";
 import { useCreateService } from "../../hooks/useCreateService";
 import { useUpdateService } from "../../hooks/useUpdateService";
 import type { Service } from "../../types/financial.types";
@@ -30,6 +32,8 @@ const serviceFormSchema = z.object({
   ]),
   // Backend expects an array of specialty UUIDs (`specialty_ids`).
   specialty_ids: z.array(z.string()).optional(),
+  // Optional org category linkage (`category_id`).
+  category_id: z.string().optional(),
 });
 
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
@@ -76,6 +80,12 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
   const updateMutation = useUpdateService();
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const organizationId = useAuthContextStore((s) => s.organizationId);
+  const { data: orgSpecialties = [] } = useOrgSpecialties(organizationId);
+  const allOrgSpecialtyIds = useMemo(
+    () => orgSpecialties.map((s) => s.id),
+    [orgSpecialties],
+  );
+  const { categories } = useCategories();
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceFormSchema),
@@ -84,6 +94,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
       description: "",
       service_type: "CONSULTATION",
       specialty_ids: [],
+      category_id: "",
     },
   });
 
@@ -94,6 +105,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
         description: service.description ?? "",
         service_type: service.service_type,
         specialty_ids: service.specialty_ids ?? [],
+        category_id: service.category_id ?? "",
       });
     } else if (open && mode === "create") {
       form.reset({
@@ -101,9 +113,24 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
         description: "",
         service_type: "CONSULTATION",
         specialty_ids: [],
+        category_id: "",
       });
     }
   }, [open, mode, service, form]);
+
+  // New services default to all org specialties selected (operator can deselect).
+  // Org specialties load async, so fill once they arrive — but never override a
+  // manual edit (dirty field), keeping this idempotent across re-renders.
+  useEffect(() => {
+    if (
+      open &&
+      mode === "create" &&
+      allOrgSpecialtyIds.length > 0 &&
+      !form.formState.dirtyFields.specialty_ids
+    ) {
+      form.setValue("specialty_ids", allOrgSpecialtyIds);
+    }
+  }, [open, mode, allOrgSpecialtyIds, form]);
 
   function handleClose() {
     form.reset();
@@ -123,6 +150,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
           description: data.description || undefined,
           service_type: data.service_type,
           specialty_ids,
+          category_id: data.category_id || undefined,
         },
         { onSuccess: handleClose },
       );
@@ -135,6 +163,7 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
             description: data.description || undefined,
             service_type: data.service_type,
             specialty_ids,
+            category_id: data.category_id || undefined,
           },
         },
         { onSuccess: handleClose },
@@ -238,6 +267,25 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
                   <option value="IMAGING">{t("type.IMAGING")}</option>
                   <option value="ADMINISTRATIVE">{t("type.ADMINISTRATIVE")}</option>
                   <option value="OTHER">{t("type.OTHER")}</option>
+                </select>
+              </div>
+
+              {/* Category — optional org grouping */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                  {t("fields.category")}{" "}
+                  <span className="text-gray-400">{tCommon("optional")}</span>
+                </label>
+                <select
+                  {...form.register("category_id")}
+                  className={inputClass}
+                >
+                  <option value="">{t("fields.categoryNone")}</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

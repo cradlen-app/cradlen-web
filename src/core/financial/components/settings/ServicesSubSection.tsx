@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertDialog } from "radix-ui";
 import { Plus, Pencil, Trash2, Loader2, Power } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { useServices } from "../../hooks/useServices";
 import { useDeleteService } from "../../hooks/useDeleteService";
 import { useToggleServiceActive } from "../../hooks/useServiceActions";
@@ -95,6 +97,13 @@ export function ServicesSubSection() {
   const deleteMutation = useDeleteService();
   const toggleActive = useToggleServiceActive();
 
+  const organizationId = useAuthContextStore((s) => s.organizationId);
+  const { data: orgSpecialties = [] } = useOrgSpecialties(organizationId);
+  const specialtyNameById = useMemo(
+    () => new Map(orgSpecialties.map((s) => [s.id, s.name])),
+    [orgSpecialties],
+  );
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<"create" | "edit">("create");
   const [selectedService, setSelectedService] = useState<Service | undefined>();
@@ -156,6 +165,7 @@ export function ServicesSubSection() {
                 <th className="px-4 py-2.5 text-left font-medium">{t("fields.code")}</th>
                 <th className="px-4 py-2.5 text-left font-medium">{t("fields.name")}</th>
                 <th className="px-4 py-2.5 text-left font-medium">{t("fields.type")}</th>
+                <th className="px-4 py-2.5 text-left font-medium">{t("fields.category")}</th>
                 <th className="px-4 py-2.5 text-left font-medium">{t("fields.specialties")}</th>
                 <th className="px-4 py-2.5 text-right font-medium">{t("actions")}</th>
               </tr>
@@ -194,15 +204,24 @@ export function ServicesSubSection() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
+                    {service.category?.name ? (
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                        {service.category.name}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
                     {service.specialty_ids && service.specialty_ids.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {service.specialty_ids.map((id) => (
                           <span
                             key={id}
-                            className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 font-mono text-[10px] text-gray-600"
-                            title={id}
+                            className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                            title={specialtyNameById.get(id) ?? id}
                           >
-                            {id.slice(0, 8)}
+                            {specialtyNameById.get(id) ?? id.slice(0, 8)}
                           </span>
                         ))}
                       </div>

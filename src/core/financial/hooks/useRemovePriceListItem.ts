@@ -17,6 +17,7 @@ export function useRemovePriceListItem(priceListId: string) {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.pricing.priceListItems(priceListId),
       });
+      toast.success("Item removed");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to remove price list item"));
