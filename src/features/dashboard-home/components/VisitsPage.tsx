@@ -16,7 +16,7 @@ import {
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { InvoicePanel, InvoicePanelButton } from "@/core/financial/pages";
-import { useInvoices } from "@/core/financial/api";
+import { useBillingQueue } from "@/core/financial/api";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
@@ -41,10 +41,9 @@ export function VisitsPage() {
   // Compute permissions before hooks that depend on them (hooks must not be
   // called after a conditional return, so showBilling is derived here).
   const showBilling = canAccessBilling(profile);
-  const today = new Date().toISOString().split("T")[0]!;
-  const { invoices } = useInvoices(
-    showBilling ? { branch_id: branchId ?? undefined, date_from: today, date_to: today } : undefined,
-  );
+  // Counts today's booked visits that still need invoicing (no invoice or a
+  // DRAFT) — same set the InvoicePanel lists, so the badge and panel agree.
+  const { pending } = useBillingQueue(branchId);
 
   if (!hasAnyStaffRole(profile)) return null;
 
@@ -53,9 +52,7 @@ export function VisitsPage() {
   // Anyone with a staff role and access to this page can manage visit status.
   const canManageStatus = hasAnyStaffRole(profile);
 
-  const pendingCount = showBilling
-    ? (invoices ?? []).filter((i) => i.status === "DRAFT").length
-    : 0;
+  const pendingCount = showBilling ? pending.length : 0;
 
   return (
     <main className="space-y-6 p-6">

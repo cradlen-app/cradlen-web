@@ -76,12 +76,16 @@ type InvoiceDrawerProps = {
   invoiceId?: string;
   prefill?: {
     patientId?: string;
+    /** Display name for the patient, shown read-only instead of the raw UUID. */
+    patientName?: string;
     visitId?: string;
     /**
      * Doctor for the visit. Used only for price-resolution context inside the
      * line-items editor; NOT sent to the backend create/update endpoints.
      */
     doctorId?: string;
+    /** Display name for the assigned doctor, shown read-only. */
+    doctorName?: string;
   };
 };
 
@@ -161,6 +165,24 @@ export function InvoiceDrawer({
       });
     }
   }, [invoice?.id, editMode, form, invoice, prefill?.doctorId]);
+
+  // Create mode: `defaultValues` are captured once at mount, but this drawer is
+  // mounted before any row is clicked, so the prefill arrives later. Re-apply it
+  // whenever the drawer opens for a new invoice.
+  useEffect(() => {
+    if (open && isCreate) {
+      form.reset({
+        patient_id: prefill?.patientId ?? "",
+        visit_id: prefill?.visitId ?? "",
+        doctor_id: prefill?.doctorId ?? "",
+        invoice_type: "STANDARD",
+        due_date: "",
+        notes: "",
+        items: [],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isCreate, prefill?.patientId, prefill?.visitId, prefill?.doctorId]);
 
   const watchedItems = useWatch({ control: form.control, name: "items" });
   const watchedDoctorId = useWatch({ control: form.control, name: "doctor_id" });
@@ -449,27 +471,50 @@ export function InvoiceDrawer({
                   {/* Left column */}
                   <div className="flex flex-col gap-5 overflow-y-auto px-6 py-5">
                     {/* Patient */}
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        {t("fields.patientId")} <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...form.register("patient_id")}
-                        type="text"
-                        placeholder={t("fields.patientIdPlaceholder")}
-                        className={cn(
-                          inputClass,
-                          form.formState.errors.patient_id && "border-red-400",
+                    {prefill?.patientName ? (
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                          {t("fields.patient")}
+                        </label>
+                        <div className={cn(inputClass, "bg-gray-50 text-gray-700")}>
+                          {prefill.patientName}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                          {t("fields.patientId")} <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          {...form.register("patient_id")}
+                          type="text"
+                          placeholder={t("fields.patientIdPlaceholder")}
+                          className={cn(
+                            inputClass,
+                            form.formState.errors.patient_id && "border-red-400",
+                          )}
+                        />
+                        {form.formState.errors.patient_id && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {form.formState.errors.patient_id.message}
+                          </p>
                         )}
-                      />
-                      {form.formState.errors.patient_id && (
-                        <p className="mt-1 text-xs text-red-500">
-                          {form.formState.errors.patient_id.message}
-                        </p>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
-                    {/* Visit ID */}
+                    {/* Doctor — read-only display when known from the visit */}
+                    {prefill?.doctorName && (
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                          {t("fields.doctor")}
+                        </label>
+                        <div className={cn(inputClass, "bg-gray-50 text-gray-700")}>
+                          {prefill.doctorName}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Visit ID — read-only when pinned by the visit */}
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-700">
                         {t("fields.visitId")} <span className="text-gray-400">{tCommon("optional")}</span>
@@ -478,7 +523,11 @@ export function InvoiceDrawer({
                         {...form.register("visit_id")}
                         type="text"
                         placeholder={t("fields.visitIdPlaceholder")}
-                        className={inputClass}
+                        readOnly={!!prefill?.visitId}
+                        className={cn(
+                          inputClass,
+                          prefill?.visitId && "bg-gray-50 text-gray-500",
+                        )}
                       />
                     </div>
 

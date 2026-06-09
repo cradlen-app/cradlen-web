@@ -1,33 +1,30 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Dialog } from "radix-ui";
 import { X, Loader2, ReceiptText, FilePlus2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { useUnifiedWaitingList } from "@/features/visits/hooks/useUnifiedWaitingList";
-import { useInvoices } from "../hooks/useInvoices";
+import { useBillingQueue, type BillingQueueItem } from "../hooks/useBillingQueue";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 import { InvoiceDrawer } from "./InvoiceDrawer";
 import { CollectChargesDrawer } from "./CollectChargesDrawer";
 import type { Visit } from "@/features/visits/types/visits.types";
-import type { Invoice } from "../types/financial.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type PanelItem = {
-  visit: Visit;
-  invoice: Invoice | undefined;
-};
+type PanelItem = BillingQueueItem;
 
 type DrawerState = {
   open: boolean;
   invoiceId?: string;
   prefill?: {
     patientId?: string;
+    patientName?: string;
     visitId?: string;
     doctorId?: string;
+    doctorName?: string;
   };
 };
 
@@ -119,55 +116,11 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
   const t = useTranslations("financial.invoice.panel");
   const branchId = useAuthContextStore((s) => s.branchId);
 
-  const today = new Date().toISOString().split("T")[0]!;
-
-  const waitingList = useUnifiedWaitingList({
-    branchId,
-    assignedToMe: false,
-    page: 1,
-    limit: 100,
-  });
-
-  const { invoices, isLoading: invoicesLoading } = useInvoices({
-    branch_id: branchId ?? undefined,
-    date_from: today,
-    date_to: today,
-    limit: 200,
-  });
+  const { pending, invoiced, isLoading } = useBillingQueue(branchId);
+  const totalCount = pending.length + invoiced.length;
 
   const [drawerState, setDrawerState] = useState<DrawerState>({ open: false });
   const [collectVisit, setCollectVisit] = useState<Visit | null>(null);
-
-  // Build invoice lookup keyed by visit_id
-  const invoiceByVisitId = useMemo<Map<string, Invoice>>(() => {
-    const map = new Map<string, Invoice>();
-    for (const inv of invoices ?? []) {
-      if (inv.visit_id) map.set(inv.visit_id, inv);
-    }
-    return map;
-  }, [invoices]);
-
-  const waitingRows = waitingList.data?.rows;
-
-  const { visits, pending, invoiced } = useMemo<{
-    visits: Visit[];
-    pending: PanelItem[];
-    invoiced: PanelItem[];
-  }>(() => {
-    const rows: Visit[] = waitingRows ?? [];
-    const p: PanelItem[] = [];
-    const i: PanelItem[] = [];
-    for (const visit of rows) {
-      const inv = invoiceByVisitId.get(visit.id);
-      const item: PanelItem = { visit, invoice: inv };
-      if (!inv || inv.status === "DRAFT") {
-        p.push(item);
-      } else {
-        i.push(item);
-      }
-    }
-    return { visits: rows, pending: p, invoiced: i };
-  }, [waitingRows, invoiceByVisitId]);
 
   function openDrawerForItem(item: PanelItem) {
     const { visit, invoice } = item;
@@ -176,13 +129,13 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
       invoiceId: invoice?.id,
       prefill: {
         patientId: visit.patient.id,
+        patientName: visit.patient.fullName,
         visitId: visit.id,
         doctorId: visit.assignedDoctorId,
+        doctorName: visit.assignedDoctorName,
       },
     });
   }
-
-  const isLoading = waitingList.isLoading || invoicesLoading;
 
   return (
     <>
@@ -221,7 +174,7 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
                 <div className="flex items-center justify-center py-12 text-gray-400">
                   <Loader2 className="size-5 animate-spin" aria-hidden="true" />
                 </div>
-              ) : visits.length === 0 ? (
+              ) : totalCount === 0 ? (
                 <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
                   <ReceiptText className="size-8 text-gray-200" aria-hidden="true" />
                   <p className="text-xs text-gray-400">{t("noVisits")}</p>
@@ -271,7 +224,7 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
             </div>
 
             {/* Footer summary */}
-            {visits.length > 0 && !isLoading && (
+            {totalCount > 0 && !isLoading && (
               <div className="border-t border-gray-100 px-4 py-2.5">
                 <p className="text-[11px] text-gray-400">
                   {t.rich("summary", {

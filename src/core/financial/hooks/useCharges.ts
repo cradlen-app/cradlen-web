@@ -35,7 +35,8 @@ export function useVisitCharges(visitId: string | undefined) {
   });
 
   return {
-    charges: query.data ?? [],
+    charges: query.data?.charges ?? [],
+    summary: query.data?.summary,
     isLoading: query.isLoading,
     error: query.error,
   };
