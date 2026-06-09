@@ -18,6 +18,7 @@ export { financialCan } from "./permissions";
 
 // ── Data hooks (read) ───────────────────────────────────────────────────────
 export { useInvoices } from "./hooks/useInvoices";
+export { useBillingQueue, type BillingQueueItem } from "./hooks/useBillingQueue";
 export { useInvoice } from "./hooks/useInvoice";
 export { usePayments } from "./hooks/usePayments";
 export { useServices } from "./hooks/useServices";
