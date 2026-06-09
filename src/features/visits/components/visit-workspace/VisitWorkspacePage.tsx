@@ -13,7 +13,8 @@ import {
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUpdateVisitStatus } from "../../hooks/useUpdateVisitStatus";
 import { useVisit } from "../../hooks/useVisit";
-import { InvoiceDrawer } from "@/features/financial/components/InvoiceDrawer";
+import { InvoiceDrawer, AddChargeDrawer } from "@/core/financial/pages";
+import { financialCan } from "@/core/financial/api";
 import { CompleteVisitDialog } from "../CompleteVisitDialog";
 import { VisitWorkspaceHeader } from "./VisitWorkspaceHeader";
 import { VisitContextRail } from "./overview/VisitContextRail";
@@ -37,12 +38,14 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const profile = getActiveProfile(user);
   const branchId = useAuthContextStore((s) => s.branchId);
   const organizationId = useAuthContextStore((s) => s.organizationId);
+  const activeProfileId = useAuthContextStore((s) => s.profileId);
 
   const { data: visit, isLoading, isError } = useVisit(visitId);
   const { data: journey } = useVisitJourney(visitId);
   const updateStatus = useUpdateVisitStatus();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
+  const [addChargeOpen, setAddChargeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
 
   const handleNavigateToHistory = useCallback((sectionCode: string) => {
@@ -57,6 +60,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
 
   const canComplete = isClinical(profile) && visit?.status === "IN_PROGRESS";
   const showInvoiceBtn = canAccessBilling(profile);
+  // Rendering provider the charge is attributed to: the visit's assigned
+  // doctor, falling back to the acting clinician's own profile.
+  const chargeProviderId = visit?.assignedDoctorId ?? activeProfileId ?? "";
+  const showAddServiceBtn =
+    financialCan.captureCharge(profile) && !!chargeProviderId;
 
   // At most one dynamic tab — the active journey's clinical surface, when its
   // care path declares one. Absent → only the three base tabs render.
@@ -101,6 +109,8 @@ export function VisitWorkspacePage({ visitId }: Props) {
         onComplete={handleComplete}
         showInvoice={showInvoiceBtn}
         onInvoice={() => setInvoiceDrawerOpen(true)}
+        showAddService={showAddServiceBtn}
+        onAddService={() => setAddChargeOpen(true)}
       />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
@@ -176,6 +186,17 @@ export function VisitWorkspacePage({ visitId }: Props) {
           doctorId: visit.assignedDoctorId,
         }}
       />
+
+      {showAddServiceBtn && (
+        <AddChargeDrawer
+          open={addChargeOpen}
+          onOpenChange={setAddChargeOpen}
+          branchId={branchId}
+          patientId={visit.patient.id}
+          profileId={chargeProviderId}
+          visitId={visit.id}
+        />
+      )}
     </main>
   );
 }

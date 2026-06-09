@@ -37,7 +37,7 @@ import {
   OrganizationSection,
   ProfileSection,
 } from "./settings-sections";
-import { BillingSection } from "@/features/financial/components/settings/BillingSection";
+import { BillingSection } from "@/core/financial/pages";
 import {
   getVisibleSections,
   type DrawerKey,

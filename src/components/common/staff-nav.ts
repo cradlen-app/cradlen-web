@@ -65,11 +65,25 @@ function buildLegacyNav(profile: UserProfile | undefined): OrderedNavItem[] {
 }
 
 function pluginToSidebarItem(item: NavItem): OrderedNavItem {
+  const group = item.group;
+  // Grouped items cluster at their group's order and stay internally ordered,
+  // e.g. group.order 45 + child order 1..4 → 45.01..45.04 (between Patients=40
+  // and Staff=50). Ungrouped items keep their own integer order.
+  const order = group
+    ? (group.order ?? 999) + (item.order ?? 0) / 100
+    : (item.order ?? 999);
   return {
     path: item.path,
     key: item.labelKey,
     icon: item.icon as LucideIcon,
-    order: item.order ?? 999,
+    order,
+    group: group
+      ? {
+          id: group.id,
+          labelKey: group.labelKey,
+          icon: group.icon as LucideIcon,
+        }
+      : undefined,
   };
 }
 
@@ -82,7 +96,12 @@ function mergeNav(
     ...pluginNav.map(pluginToSidebarItem),
   ];
   combined.sort((a, b) => a.order - b.order);
-  return combined.map(({ path, key, icon }) => ({ path, key, icon }));
+  return combined.map(({ path, key, icon, group }) => ({
+    path,
+    key,
+    icon,
+    group,
+  }));
 }
 
 /**
