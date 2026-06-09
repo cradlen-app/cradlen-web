@@ -1,0 +1,541 @@
+{
+  "common": {
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "saving": "جاري الحفظ…",
+    "delete": "حذف",
+    "deleting": "جاري الحذف…",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "loading": "جاري التحميل…",
+    "optional": "(اختياري)",
+    "saveChanges": "حفظ التغييرات",
+    "required": "مطلوب",
+    "comingSoon": "قريباً",
+    "confirm": "تأكيد"
+  },
+  "invoice": {
+    "title": "فاتورة",
+    "newInvoice": "فاتورة جديدة",
+    "invoiceNumberPrefix": "فاتورة",
+    "status": {
+      "DRAFT": "مسودة",
+      "ISSUED": "صادرة",
+      "PARTIALLY_PAID": "مدفوعة جزئياً",
+      "PAID": "مدفوعة",
+      "VOID": "ملغاة",
+      "REFUNDED": "مستردة"
+    },
+    "pricingSource": {
+      "PROVIDER_OVERRIDE": "سعر الطبيب",
+      "BRANCH_OVERRIDE": "سعر الفرع",
+      "ORG_PRICE_LIST": "قائمة أسعار المنظمة",
+      "CUSTOM": "مخصص"
+    },
+    "types": {
+      "STANDARD": "عادية",
+      "FOLLOWUP": "متابعة",
+      "PROFORMA": "أولية",
+      "INSURANCE": "تأمين",
+      "REFUND": "استرداد"
+    },
+    "actions": {
+      "issue": "إصدار الفاتورة",
+      "void": "إلغاء الفاتورة",
+      "voidShort": "إلغاء",
+      "voiding": "جاري الإلغاء…",
+      "recordPayment": "تسجيل دفعة",
+      "edit": "تعديل",
+      "saveAsDraft": "حفظ كمسودة"
+    },
+    "void": {
+      "title": "إلغاء الفاتورة؟",
+      "description": "لا يمكن التراجع عن هذا الإجراء. سيتم إلغاء الفاتورة بشكل دائم.",
+      "confirm": "إلغاء الفاتورة"
+    },
+    "panel": {
+      "title": "الفواتير",
+      "todaysBilling": "فواتير اليوم",
+      "pendingBilling": "بانتظار الفوترة ({count})",
+      "invoiced": "تمت الفوترة ({count})",
+      "noVisits": "لا توجد زيارات اليوم",
+      "noInvoice": "بدون فاتورة",
+      "summary": "{pending} بانتظار · {invoiced} تمت الفوترة",
+      "closeAria": "إغلاق لوحة الفوترة"
+    },
+    "totals": {
+      "subtotal": "المجموع الفرعي",
+      "discount": "الخصم",
+      "total": "الإجمالي"
+    },
+    "fields": {
+      "patient": "المريض",
+      "patientId": "معرّف المريض",
+      "patientIdPlaceholder": "معرّف المريض",
+      "visit": "الزيارة",
+      "visitId": "معرّف الزيارة",
+      "visitIdPlaceholder": "معرّف الزيارة",
+      "doctor": "الطبيب",
+      "type": "النوع",
+      "invoiceType": "نوع الفاتورة",
+      "issued": "تاريخ الإصدار",
+      "dueDate": "تاريخ الاستحقاق",
+      "notes": "ملاحظات",
+      "notesPlaceholder": "ملاحظات إضافية…",
+      "remainingBalance": "الرصيد المتبقي"
+    },
+    "view": {
+      "loadError": "تعذّر تحميل الفاتورة. ربما تم حذفها أو ليس لديك صلاحية الوصول.",
+      "notFound": "الفاتورة غير موجودة.",
+      "createdOn": "أُنشئت في {date}",
+      "balanceDue": "الرصيد المستحق: {amount}",
+      "viewVisit": "عرض الزيارة",
+      "breadcrumbBilling": "الفوترة",
+      "invoiceDetails": "تفاصيل الفاتورة",
+      "lineItems": "بنود الفاتورة",
+      "paymentHistory": "سجل المدفوعات",
+      "summary": "ملخص",
+      "noPayments": "لا توجد مدفوعات مسجلة بعد"
+    },
+    "lineItems": {
+      "header": "الخدمة / الوصف",
+      "qty": "الكمية",
+      "unitPrice": "سعر الوحدة",
+      "discount": "الخصم",
+      "total": "الإجمالي",
+      "description": "الوصف",
+      "service": "الخدمة",
+      "pricingSource": "مصدر السعر",
+      "searchService": "ابحث عن خدمة…",
+      "descriptionPlaceholder": "الوصف",
+      "qtyPlaceholder": "الكمية",
+      "unitPricePlaceholder": "سعر الوحدة",
+      "discountPlaceholder": "الخصم",
+      "removeItemAria": "إزالة البند",
+      "noItems": "لا توجد بنود بعد. أضف خدمة أو بنداً مخصصاً أدناه.",
+      "addService": "إضافة خدمة",
+      "addCustomLine": "إضافة بند مخصص",
+      "noPriceConfigured": "لم يتم تكوين سعر"
+    },
+    "payments": {
+      "date": "التاريخ",
+      "amount": "المبلغ",
+      "method": "الطريقة",
+      "reference": "المرجع",
+      "recordedBy": "سجّل بواسطة"
+    },
+    "panelButton": {
+      "openAria": "فتح لوحة الفوترة",
+      "openWithCountAria": "فتح لوحة الفوترة — {count, plural, one {# زيارة} other {# زيارات}} بانتظار"
+    }
+  },
+  "payments": {
+    "title": "المدفوعات",
+    "newPayment": "دفعة جديدة",
+    "recordTitle": "تسجيل دفعة",
+    "recording": "جاري التسجيل…",
+    "method": {
+      "CASH": "نقدي",
+      "CARD": "بطاقة",
+      "BANK_TRANSFER": "تحويل بنكي",
+      "INSURANCE": "تأمين",
+      "OTHER": "أخرى"
+    },
+    "fields": {
+      "amount": "المبلغ",
+      "amountWithCurrency": "المبلغ ({currency})",
+      "paymentMethod": "طريقة الدفع",
+      "paymentDate": "تاريخ الدفع",
+      "referenceNumber": "رقم المرجع",
+      "referenceNumberPlaceholder": "مثال: TXN-12345",
+      "notes": "ملاحظات",
+      "notesPlaceholder": "أي ملاحظات إضافية…"
+    },
+    "actions": {
+      "record": "تسجيل الدفعة"
+    },
+    "actionsColumn": "إجراءات",
+    "voidAction": "إلغاء",
+    "voidTitle": "إلغاء الدفعة؟",
+    "voidDescription": "سيؤدي هذا إلى عكس الدفعة وتحديث رصيد الفاتورة."
+  },
+  "services": {
+    "title": "الخدمات",
+    "description": "إدارة الخدمات السريرية التي تقدمها منظمتك.",
+    "newService": "خدمة جديدة",
+    "newServiceDescription": "إضافة خدمة سريرية جديدة إلى كتالوجك.",
+    "editService": "تعديل الخدمة",
+    "editServiceDescription": "تحديث تفاصيل الخدمة.",
+    "createService": "إنشاء الخدمة",
+    "loadingServices": "جاري تحميل الخدمات…",
+    "noServicesYet": "لا توجد خدمات بعد",
+    "clickNewService": "اضغط على \"+ خدمة جديدة\" لإضافة واحدة.",
+    "editServiceAria": "تعديل الخدمة",
+    "deleteServiceAria": "حذف الخدمة",
+    "actions": "إجراءات",
+    "type": {
+      "CONSULTATION": "كشف",
+      "PROCEDURE": "إجراء",
+      "LAB_TEST": "تحليل مخبري",
+      "IMAGING": "أشعة",
+      "ADMINISTRATIVE": "إداري",
+      "OTHER": "أخرى"
+    },
+    "fields": {
+      "code": "الرمز",
+      "codePlaceholder": "مثال: CONSULT_OB",
+      "name": "الاسم",
+      "namePlaceholder": "اسم الخدمة",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف موجز…",
+      "type": "النوع",
+      "specialties": "التخصصات",
+      "specialtyIds": "معرّفات التخصصات",
+      "specialtyIdsHint": "(اختياري، معرفات UUID مفصولة بفواصل)",
+      "specialtyIdsPlaceholder": "مثال: 11111111-1111-1111-1111-111111111111, 22222222-…",
+      "specialtyIdsHelp": "أدخل معرّفات UUID للتخصصات مفصولة بفواصل.",
+      "active": "نشط"
+    },
+    "deleteConfirm": {
+      "title": "حذف الخدمة؟",
+      "description": "هل أنت متأكد من حذف <strong>{name}</strong>؟ لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف"
+    },
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "inactiveBadge": "غير نشطة",
+    "toggleActiveAria": "تبديل التفعيل"
+  },
+  "priceLists": {
+    "title": "قوائم الأسعار",
+    "description": "إدارة فئات الأسعار لمنظمتك أو لفروع محددة.",
+    "newList": "قائمة أسعار جديدة",
+    "newListDescription": "أنشئ قائمة أسعار جديدة لمنظمتك أو لفرع محدد.",
+    "editList": "تعديل قائمة الأسعار",
+    "editListDescription": "تحديث تفاصيل قائمة الأسعار.",
+    "createList": "إنشاء قائمة الأسعار",
+    "loadingPriceLists": "جاري تحميل قوائم الأسعار…",
+    "noPriceListsYet": "لا توجد قوائم أسعار بعد",
+    "clickNewPriceList": "اضغط على \"+ قائمة أسعار جديدة\" لإضافة واحدة.",
+    "editAria": "تعديل قائمة الأسعار",
+    "deleteAria": "حذف قائمة الأسعار",
+    "expandAria": "توسيع",
+    "collapseAria": "طي",
+    "actions": "إجراءات",
+    "scope": {
+      "org": "المنظمة",
+      "branch": "الفرع"
+    },
+    "default": "افتراضي",
+    "inactive": "غير نشط",
+    "fields": {
+      "name": "الاسم",
+      "namePlaceholder": "مثال: الأسعار القياسية 2024",
+      "currency": "العملة",
+      "currencyPlaceholder": "EGP",
+      "branchId": "معرّف الفرع",
+      "branchIdHint": "(اختياري — اتركه فارغاً للمنظمة بالكامل)",
+      "branchIdPlaceholder": "معرّف الفرع (اتركه فارغاً للمنظمة بالكامل)",
+      "validFrom": "ساري من",
+      "validTo": "ساري حتى",
+      "setAsDefault": "تعيين كقائمة أسعار افتراضية"
+    },
+    "items": {
+      "service": "الخدمة",
+      "addService": "إضافة خدمة",
+      "add": "إضافة",
+      "unitPrice": "سعر الوحدة",
+      "pricePlaceholder": "السعر",
+      "searchService": "ابحث عن خدمة…",
+      "noItems": "لا توجد بنود بعد — أضف واحداً أدناه.",
+      "removeItemAria": "إزالة البند",
+      "loading": "جاري التحميل…"
+    },
+    "deleteConfirm": {
+      "title": "حذف قائمة الأسعار؟",
+      "description": "سيتم حذف قائمة الأسعار نهائياً وقد يؤثر ذلك على الفوترة. لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف"
+    },
+    "setDefault": "تعيين كافتراضي",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "bulkEdit": "تعديل جماعي",
+    "bulk": {
+      "title": "تعديل جماعي للأسعار",
+      "description": "طبّق تغييراً بنسبة مئوية على كل سعر في هذه القائمة.",
+      "percentLabel": "نسبة التعديل %",
+      "percentHint": "مثال: 10 = +10%، -5 = -5%",
+      "apply": "تطبيق",
+      "applying": "جاري التطبيق…",
+      "noItems": "لا توجد بنود في هذه القائمة للتعديل."
+    }
+  },
+  "myPrices": {
+    "title": "أسعاري المخصصة",
+    "description": "حدد أسعاراً شخصية للخدمات التي تقدمها. تأخذ هذه الأسعار الأولوية على قائمة أسعار المنظمة.",
+    "addOverride": "إضافة سعر مخصص",
+    "addOverrideTitle": "إضافة سعر مخصص",
+    "addOverrideDescription": "تعيين سعر شخصي لخدمة معينة.",
+    "editOverride": "تعديل السعر المخصص",
+    "editOverrideDescription": "تحديث سعرك المخصص.",
+    "loading": "جاري التحميل…",
+    "noOverridesYet": "لا توجد أسعار مخصصة بعد",
+    "clickAddOverride": "اضغط على \"+ إضافة سعر مخصص\" لإضافة واحد.",
+    "profileNotAvailable": "الملف الشخصي غير متاح.",
+    "editAria": "تعديل السعر المخصص",
+    "deleteAria": "حذف السعر المخصص",
+    "actions": "إجراءات",
+    "valid": "السريان",
+    "fields": {
+      "service": "الخدمة",
+      "searchService": "ابحث عن خدمة…",
+      "price": "السعر",
+      "priceWithCurrency": "السعر ({currency})",
+      "pricePlaceholder": "0.00",
+      "currency": "العملة",
+      "currencyPlaceholder": "EGP",
+      "validFrom": "ساري من",
+      "validTo": "ساري حتى"
+    },
+    "deleteConfirm": {
+      "title": "حذف السعر المخصص؟",
+      "description": "هل أنت متأكد من إزالة السعر المخصص لـ <strong>{name}</strong>؟ سيتم تطبيق سعر قائمة المنظمة بدلاً منه.",
+      "fallbackName": "هذه الخدمة",
+      "confirm": "حذف"
+    }
+  },
+  "billingSection": {
+    "title": "الفوترة",
+    "description": "إدارة الخدمات والأسعار وعمليات تخصيص أسعارك الشخصية.",
+    "subNavAria": "أقسام الفوترة الفرعية"
+  },
+  "nav": {
+    "group": "المالية",
+    "services": "الخدمات",
+    "invoices": "بحث الفواتير",
+    "cashSessions": "جلسات الصندوق",
+    "reports": "التقارير"
+  },
+  "servicesPage": {
+    "title": "الخدمات والتسعير",
+    "subtitle": "إدارة كتالوج الخدمات والفئات وقوائم الأسعار وتسعير مقدمي الخدمة.",
+    "tabs": {
+      "services": "الخدمات",
+      "categories": "الفئات",
+      "priceLists": "قوائم الأسعار",
+      "providerPricing": "تسعير مقدمي الخدمة"
+    }
+  },
+  "invoices": {
+    "title": "بحث الفواتير",
+    "subtitle": "ابحث وأدر الفواتير على مستوى المؤسسة.",
+    "searchPlaceholder": "ابحث برقم الفاتورة…",
+    "filterStatus": "الحالة",
+    "statusAll": "كل الحالات",
+    "empty": "لا توجد فواتير.",
+    "loading": "جاري تحميل الفواتير…",
+    "resultsCount": "{count, plural, one {فاتورة #} other {# فواتير}}",
+    "columns": {
+      "number": "رقم الفاتورة",
+      "patient": "المريض",
+      "status": "الحالة",
+      "total": "الإجمالي",
+      "paid": "المدفوع",
+      "balance": "المتبقي",
+      "date": "التاريخ"
+    }
+  },
+  "cashSessions": {
+    "title": "جلسات الصندوق",
+    "subtitle": "فتح وإغلاق وتسوية درج النقد.",
+    "open": "فتح جلسة",
+    "openTitle": "فتح جلسة صندوق",
+    "openingFloat": "الرصيد الافتتاحي",
+    "openConfirm": "فتح",
+    "noOpenSession": "لا توجد جلسة صندوق مفتوحة",
+    "noOpenSessionHint": "افتح جلسة لبدء تحصيل المدفوعات النقدية.",
+    "currentSession": "الجلسة الحالية",
+    "collected": "المحصّل",
+    "expectedSoFar": "المتوقع في الدرج",
+    "paymentCount": "{count} مدفوعات",
+    "openedAt": "فُتحت {time}",
+    "close": "إغلاق",
+    "closeTitle": "إغلاق جلسة الصندوق",
+    "countedAmount": "المبلغ المعدود",
+    "closeNotes": "ملاحظات",
+    "closeConfirm": "إغلاق الجلسة",
+    "reconcile": "تسوية",
+    "reconcileConfirm": "تسوية هذه الجلسة؟",
+    "history": "السجل",
+    "empty": "لا توجد جلسات صندوق بعد.",
+    "loading": "جاري تحميل جلسات الصندوق…",
+    "columns": {
+      "opened": "فُتحت",
+      "openingFloat": "الرصيد",
+      "counted": "المعدود",
+      "variance": "الفرق",
+      "status": "الحالة",
+      "closed": "أُغلقت"
+    },
+    "status": {
+      "OPEN": "مفتوحة",
+      "CLOSED": "مغلقة",
+      "RECONCILED": "مسوّاة"
+    }
+  },
+  "reports": {
+    "title": "التقارير المالية",
+    "subtitle": "الإيرادات والتحصيلات والذمم المدينة والمزيد.",
+    "tabs": {
+      "revenue": "الإيرادات",
+      "daily": "يومي",
+      "byService": "حسب الخدمة",
+      "byDoctor": "حسب الطبيب",
+      "byMethod": "حسب الطريقة",
+      "arAging": "أعمار الذمم",
+      "collections": "التحصيلات",
+      "writeOffs": "المشطوبات",
+      "outstanding": "المستحقة"
+    },
+    "filters": {
+      "from": "من",
+      "to": "إلى",
+      "apply": "تطبيق"
+    },
+    "loading": "جاري تحميل التقرير…",
+    "noData": "لا توجد بيانات لهذه الفترة.",
+    "labels": {
+      "invoiced": "المفوتر",
+      "collected": "المحصّل",
+      "total": "الإجمالي",
+      "count": "العدد",
+      "service": "الخدمة",
+      "doctor": "الطبيب",
+      "method": "الطريقة",
+      "balance": "الرصيد المستحق",
+      "patient": "المريض",
+      "invoice": "الفاتورة",
+      "status": "الحالة",
+      "age": "العمر (أيام)",
+      "date": "التاريخ",
+      "lineCount": "البنود",
+      "invoiceCount": "الفواتير",
+      "grandTotal": "الإجمالي الكلي"
+    }
+  },
+  "categories": {
+    "title": "الفئات",
+    "description": "تنظيم الخدمات في فئات.",
+    "newCategory": "فئة جديدة",
+    "editCategory": "تعديل الفئة",
+    "createCategory": "إنشاء الفئة",
+    "loading": "جاري تحميل الفئات…",
+    "empty": "لا توجد فئات بعد",
+    "emptyHint": "أنشئ واحدة لتجميع خدماتك.",
+    "editAria": "تعديل الفئة",
+    "deleteAria": "حذف الفئة",
+    "inactive": "غير نشطة",
+    "fields": {
+      "code": "الرمز",
+      "codePlaceholder": "مثال: LAB",
+      "name": "الاسم",
+      "namePlaceholder": "اسم الفئة",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف موجز…",
+      "active": "نشطة"
+    },
+    "deleteConfirm": {
+      "title": "حذف الفئة؟",
+      "description": "هل أنت متأكد من حذف هذه الفئة؟ لا يمكن التراجع.",
+      "confirm": "حذف"
+    }
+  },
+  "charges": {
+    "title": "إضافة خدمة",
+    "subtitle": "أضف رسم خدمة إلى هذه الزيارة.",
+    "addButton": "إضافة خدمة",
+    "serviceLabel": "الخدمة",
+    "selectService": "اختر خدمة…",
+    "qtyLabel": "الكمية",
+    "customPriceLabel": "سعر وحدة مخصص",
+    "customPriceHint": "اتركه فارغاً لاستخدام السعر المحسوب",
+    "resolvedPrice": "السعر المحسوب",
+    "noPrice": "لم يتم تكوين سعر",
+    "add": "إضافة الرسم",
+    "adding": "جاري الإضافة…",
+    "currentCharges": "رسوم هذه الزيارة",
+    "noCharges": "لا توجد رسوم بعد.",
+    "cancelAria": "إلغاء الرسم",
+    "lineTotal": "الإجمالي",
+    "status": {
+      "PENDING": "معلّق",
+      "INVOICED": "تمت الفوترة",
+      "VOID": "ملغى",
+      "WRITTEN_OFF": "مشطوب"
+    },
+    "editAria": "تعديل الرسم",
+    "voidAria": "إلغاء الرسم",
+    "writeOffAria": "شطب الرسم",
+    "saveAria": "حفظ"
+  },
+  "refund": {
+    "action": "استرداد",
+    "title": "استرداد دفعة",
+    "subtitle": "استرد جزءاً أو كل هذه الدفعة المكتملة.",
+    "amountLabel": "مبلغ الاسترداد",
+    "reasonLabel": "السبب",
+    "reasonPlaceholder": "سبب الاسترداد (4 أحرف على الأقل)…",
+    "max": "الحد الأقصى {amount}",
+    "confirm": "تنفيذ الاسترداد",
+    "refunding": "جاري الاسترداد…",
+    "header": "المستردات",
+    "refundedBadge": "مسترد",
+    "voidAction": "إلغاء الاسترداد",
+    "reasonTooShort": "الرجاء إدخال 4 أحرف على الأقل.",
+    "empty": "لا توجد مستردات.",
+    "voidTitle": "إلغاء الاسترداد؟",
+    "voidDescription": "سيؤدي هذا إلى عكس الاسترداد.",
+    "status": {
+      "PENDING": "معلّق",
+      "COMPLETED": "مكتمل",
+      "FAILED": "فشل",
+      "VOID": "ملغى"
+    },
+    "amount": "المبلغ"
+  },
+  "receipt": {
+    "action": "إيصال",
+    "title": "إيصال",
+    "print": "طباعة",
+    "close": "إغلاق",
+    "loading": "جاري تحميل الإيصال…",
+    "receiptNumber": "رقم الإيصال",
+    "issuedAt": "صدر",
+    "issuedBy": "صدر بواسطة",
+    "paymentMethod": "الطريقة",
+    "amount": "المبلغ",
+    "balanceAfter": "الرصيد بعد",
+    "patient": "المريض",
+    "invoice": "الفاتورة"
+  },
+  "providerPricing": {
+    "title": "تسعير مقدّمي الخدمة",
+    "description": "حدّد أسعاراً خاصة لكل طبيب تَسبق قوائم الأسعار.",
+    "selectProvider": "مقدّم الخدمة",
+    "selectPrompt": "اختر مقدّم خدمة…",
+    "pickPrompt": "اختر مقدّم خدمة لإدارة أسعاره الخاصة.",
+    "noProviders": "لا يوجد مقدّمو خدمة.",
+    "loadingProviders": "جاري تحميل مقدّمي الخدمة…"
+  },
+  "collect": {
+    "title": "التحصيل — الرسوم",
+    "subtitle": "أنشئ فاتورة من رسوم هذه الزيارة المفتوحة.",
+    "pendingCharges": "الرسوم المفتوحة",
+    "noCharges": "لا توجد رسوم مفتوحة لهذه الزيارة.",
+    "total": "الإجمالي",
+    "build": "إنشاء فاتورة",
+    "building": "جاري الإنشاء…",
+    "collectAria": "التحصيل من الرسوم",
+    "loading": "جاري تحميل الرسوم…"
+  }
+}

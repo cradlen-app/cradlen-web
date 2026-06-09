@@ -20,8 +20,25 @@ export interface NavItem {
   readonly icon?: NavIcon;
   readonly requiresPermission?: PermissionId;
   readonly order?: number;
+  /**
+   * Optional grouping. Items sharing the same `group.id` are clustered under a
+   * single collapsible parent in the sidebar (e.g. "Financial" → Services,
+   * Invoice Search, Cash Sessions, Reports). Items without a group render flat.
+   */
+  readonly group?: NavGroup;
   /** Populated by the registry on registration. */
   readonly ownerModuleId?: string;
+}
+
+/**
+ * A collapsible sidebar section that owns one or more {@link NavItem}s.
+ */
+export interface NavGroup {
+  readonly id: string;
+  readonly labelKey: string;
+  readonly icon?: NavIcon;
+  /** Sort order of the group relative to ungrouped items. */
+  readonly order?: number;
 }
 
 /**
