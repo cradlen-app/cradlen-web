@@ -19,6 +19,7 @@ export function useCreateProviderOverride(profileId: string) {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.pricing.providerOverrides(orgId ?? "", profileId),
       });
+      toast.success("Price override created");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to create price override"));

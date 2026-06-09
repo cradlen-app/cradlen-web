@@ -19,6 +19,7 @@ export function useUpdatePriceListItem(priceListId: string) {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.pricing.priceListItems(priceListId),
       });
+      toast.success("Price updated");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to update price list item"));

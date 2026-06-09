@@ -15,6 +15,7 @@ export function useDeleteService() {
     mutationFn: (id: string) => deleteService(orgId!, id),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: financialQueryKeys.services.all() });
+      toast.success("Service deleted");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to delete service"));

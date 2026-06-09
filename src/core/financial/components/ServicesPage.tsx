@@ -10,10 +10,22 @@ import { ServicesSubSection } from "./settings/ServicesSubSection";
 import { CategoriesSubSection } from "./settings/CategoriesSubSection";
 import { PriceListsSubSection } from "./settings/PriceListsSubSection";
 import { ProviderPricingSubSection } from "./settings/ProviderPricingSubSection";
+import { AuthorizationsSubSection } from "./settings/AuthorizationsSubSection";
 
-type Tab = "services" | "categories" | "priceLists" | "providerPricing";
+type Tab =
+  | "services"
+  | "categories"
+  | "priceLists"
+  | "providerPricing"
+  | "authorizations";
 
-const TABS: Tab[] = ["services", "categories", "priceLists", "providerPricing"];
+const TABS: Tab[] = [
+  "categories",
+  "services",
+  "priceLists",
+  "authorizations",
+  "providerPricing",
+];
 
 /**
  * Services & Pricing page — the canonical home for the service catalog,
@@ -54,6 +66,7 @@ export function ServicesPage() {
         {tab === "categories" && <CategoriesSubSection />}
         {tab === "priceLists" && <PriceListsSubSection />}
         {tab === "providerPricing" && <ProviderPricingSubSection />}
+        {tab === "authorizations" && <AuthorizationsSubSection />}
       </div>
     </FinancialPageShell>
   );

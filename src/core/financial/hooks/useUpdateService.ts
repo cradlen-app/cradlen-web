@@ -17,6 +17,7 @@ export function useUpdateService() {
       updateService(orgId!, id, payload),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: financialQueryKeys.services.all() });
+      toast.success("Service updated");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to update service"));

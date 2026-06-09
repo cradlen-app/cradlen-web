@@ -189,6 +189,8 @@
       "description": "الوصف",
       "descriptionPlaceholder": "وصف موجز…",
       "type": "النوع",
+      "category": "الفئة",
+      "categoryNone": "بدون فئة",
       "specialties": "التخصصات",
       "specialtyIds": "معرّفات التخصصات",
       "specialtyIdsHint": "(اختياري، معرفات UUID مفصولة بفواصل)",
@@ -233,6 +235,8 @@
       "namePlaceholder": "مثال: الأسعار القياسية 2024",
       "currency": "العملة",
       "currencyPlaceholder": "EGP",
+      "branch": "الفرع",
+      "branchAll": "على مستوى المنظمة (كل الفروع)",
       "branchId": "معرّف الفرع",
       "branchIdHint": "(اختياري — اتركه فارغاً للمنظمة بالكامل)",
       "branchIdPlaceholder": "معرّف الفرع (اتركه فارغاً للمنظمة بالكامل)",
@@ -323,7 +327,8 @@
       "services": "الخدمات",
       "categories": "الفئات",
       "priceLists": "قوائم الأسعار",
-      "providerPricing": "تسعير مقدمي الخدمة"
+      "providerPricing": "تسعير مقدمي الخدمة",
+      "authorizations": "التفويضات"
     }
   },
   "invoices": {
@@ -526,6 +531,44 @@
     "pickPrompt": "اختر مقدّم خدمة لإدارة أسعاره الخاصة.",
     "noProviders": "لا يوجد مقدّمو خدمة.",
     "loadingProviders": "جاري تحميل مقدّمي الخدمة…"
+  },
+  "authorizations": {
+    "title": "تفويضات الخدمات",
+    "description": "حدّد الخدمات التي يمكن لكل مقدّم خدمة تقديمها، مع إمكانية التخصيص حسب الفرع.",
+    "selectProvider": "مقدّم الخدمة",
+    "selectPrompt": "اختر مقدّم خدمة…",
+    "pickPrompt": "اختر مقدّم خدمة لإدارة الخدمات المفوّضة له.",
+    "loadingProviders": "جاري تحميل مقدّمي الخدمة…",
+    "authorizeService": "تفويض خدمة",
+    "authorizeTitle": "تفويض خدمة",
+    "authorizeDescription": "اسمح لمقدّم الخدمة هذا بتقديم الخدمة المحددة.",
+    "selectService": "اختر خدمة…",
+    "allBranches": "كل الفروع",
+    "durationPlaceholder": "مثال: 30",
+    "durationMinutes": "{minutes} دقيقة",
+    "noneYet": "لا توجد خدمات مفوّضة بعد.",
+    "clickAuthorize": "اضغط \"تفويض خدمة\" لإضافة واحدة.",
+    "actions": "إجراءات",
+    "fields": {
+      "service": "الخدمة",
+      "branch": "الفرع",
+      "duration": "المدة",
+      "status": "الحالة"
+    },
+    "status": {
+      "active": "مُفعّل",
+      "inactive": "غير مُفعّل",
+      "activate": "تفعيل",
+      "deactivate": "إلغاء التفعيل"
+    },
+    "revokeAria": "إلغاء التفويض",
+    "toggleAria": "تبديل الحالة",
+    "revokeConfirm": {
+      "title": "إلغاء التفويض؟",
+      "description": "هل تريد إلغاء <strong>{name}</strong> لمقدّم الخدمة هذا؟ لن يعود مفوّضاً بتقديمها.",
+      "fallbackName": "هذه الخدمة",
+      "confirm": "إلغاء التفويض"
+    }
   },
   "collect": {
     "title": "التحصيل — الرسوم",

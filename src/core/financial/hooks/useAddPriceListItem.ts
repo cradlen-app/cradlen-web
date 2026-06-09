@@ -19,6 +19,7 @@ export function useAddPriceListItem(priceListId: string) {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.pricing.priceListItems(priceListId),
       });
+      toast.success("Item added");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to add price list item"));
