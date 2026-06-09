@@ -2,21 +2,22 @@
 
 import { useEffect } from "react";
 import { Dialog } from "radix-ui";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useCreateService } from "../../hooks/useCreateService";
 import { useUpdateService } from "../../hooks/useUpdateService";
 import type { Service } from "../../types/financial.types";
+import { OrgSpecialtiesSelect } from "./OrgSpecialtiesSelect";
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 
 const serviceFormSchema = z.object({
-  code: z.string().min(1, "Code is required"),
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
   service_type: z.enum([
@@ -27,15 +28,29 @@ const serviceFormSchema = z.object({
     "ADMINISTRATIVE",
     "OTHER",
   ]),
-  // TODO: replace with proper Specialty picker. Backend expects an array of
-  // specialty UUIDs (`specialty_ids`), not codes. The raw input below is a
-  // comma-separated list of UUIDs entered by the operator.
-  specialty_ids_raw: z.string().optional(),
+  // Backend expects an array of specialty UUIDs (`specialty_ids`).
+  specialty_ids: z.array(z.string()).optional(),
 });
 
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Auto-generates a unique service code from the name. Slugifies the name to
+ * uppercase alphanumerics and appends a short random suffix so concurrent
+ * services with the same name don't collide on the backend's unique code.
+ */
+function generateServiceCode(name: string): string {
+  const slug = name
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 24);
+  const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return slug ? `${slug}-${suffix}` : `SVC-${suffix}`;
+}
 
 const inputClass = cn(
   "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900",
@@ -60,34 +75,32 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
   const createMutation = useCreateService();
   const updateMutation = useUpdateService();
   const isSaving = createMutation.isPending || updateMutation.isPending;
+  const organizationId = useAuthContextStore((s) => s.organizationId);
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceFormSchema),
     defaultValues: {
-      code: "",
       name: "",
       description: "",
       service_type: "CONSULTATION",
-      specialty_ids_raw: "",
+      specialty_ids: [],
     },
   });
 
   useEffect(() => {
     if (open && mode === "edit" && service) {
       form.reset({
-        code: service.code,
         name: service.name,
         description: service.description ?? "",
         service_type: service.service_type,
-        specialty_ids_raw: service.specialty_ids?.join(", ") ?? "",
+        specialty_ids: service.specialty_ids ?? [],
       });
     } else if (open && mode === "create") {
       form.reset({
-        code: "",
         name: "",
         description: "",
         service_type: "CONSULTATION",
-        specialty_ids_raw: "",
+        specialty_ids: [],
       });
     }
   }, [open, mode, service, form]);
@@ -98,17 +111,14 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
   }
 
   const onSubmit = form.handleSubmit((data) => {
-    const specialty_ids = data.specialty_ids_raw
-      ? data.specialty_ids_raw
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
+    const specialty_ids = data.specialty_ids?.length
+      ? data.specialty_ids
       : undefined;
 
     if (mode === "create") {
       createMutation.mutate(
         {
-          code: data.code,
+          code: generateServiceCode(data.name),
           name: data.name,
           description: data.description || undefined,
           service_type: data.service_type,
@@ -163,28 +173,20 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
             className="flex flex-1 flex-col overflow-hidden"
           >
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
-              {/* Code — read-only in edit mode */}
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  {t("fields.code")} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...form.register("code")}
-                  type="text"
-                  placeholder={t("fields.codePlaceholder")}
-                  readOnly={mode === "edit"}
-                  className={cn(
-                    inputClass,
-                    mode === "edit" && "bg-gray-50 text-gray-500",
-                    form.formState.errors.code && "border-red-400",
-                  )}
-                />
-                {form.formState.errors.code && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {form.formState.errors.code.message}
-                  </p>
-                )}
-              </div>
+              {/* Code — auto-generated; shown read-only when editing */}
+              {mode === "edit" && service && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                    {t("fields.code")}
+                  </label>
+                  <input
+                    type="text"
+                    value={service.code}
+                    readOnly
+                    className={cn(inputClass, "bg-gray-50 text-gray-500")}
+                  />
+                </div>
+              )}
 
               {/* Name */}
               <div>
@@ -239,24 +241,24 @@ export function ServiceDrawer({ open, onOpenChange, mode, service }: Props) {
                 </select>
               </div>
 
-              {/* Specialties — comma-separated UUIDs */}
-              {/* TODO: replace with proper Specialty picker when available */}
+              {/* Specialties — org specialty multi-select (stores UUIDs) */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  {t("fields.specialtyIds")}{" "}
-                  <span className="text-gray-400">
-                    {t("fields.specialtyIdsHint")}
-                  </span>
+                  {t("fields.specialties")}{" "}
+                  <span className="text-gray-400">{tCommon("optional")}</span>
                 </label>
-                <input
-                  {...form.register("specialty_ids_raw")}
-                  type="text"
-                  placeholder={t("fields.specialtyIdsPlaceholder")}
-                  className={inputClass}
+                <Controller
+                  control={form.control}
+                  name="specialty_ids"
+                  render={({ field }) => (
+                    <OrgSpecialtiesSelect
+                      organizationId={organizationId}
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      placeholder={t("fields.specialtyIdsPlaceholder")}
+                    />
+                  )}
                 />
-                <p className="mt-1 text-xs text-gray-400">
-                  {t("fields.specialtyIdsHelp")}
-                </p>
               </div>
             </div>
 
