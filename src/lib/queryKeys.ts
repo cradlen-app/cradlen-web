@@ -1,5 +1,3 @@
-import type { InvoiceFilters, ServiceFilters } from "@/features/financial/types/financial.types";
-
 /**
  * Centralized TanStack Query key factory.
  *
@@ -123,34 +121,7 @@ export const queryKeys = {
     profile: () => ["lookups", "profile"] as const,
   },
 
-  // ── Financial ─────────────────────────────────────────────────────────────
-  financial: {
-    invoices: {
-      all: () => ["financial", "invoices"] as const,
-      list: (orgId: string, filters: InvoiceFilters) =>
-        ["financial", "invoices", "list", orgId, filters] as const,
-      byId: (id: string) =>
-        ["financial", "invoices", "detail", id] as const,
-      payments: (id: string) =>
-        ["financial", "invoices", "payments", id] as const,
-      forVisit: (visitId: string) =>
-        ["financial", "invoices", "visit", visitId] as const,
-    },
-    services: {
-      all: () => ["financial", "services"] as const,
-      list: (orgId: string, filters?: ServiceFilters) =>
-        ["financial", "services", "list", orgId, filters ?? null] as const,
-      byId: (id: string) => ["financial", "services", "detail", id] as const,
-    },
-    pricing: {
-      priceLists: (orgId: string, branchId?: string) =>
-        ["financial", "price-lists", orgId, branchId ?? null] as const,
-      priceListItems: (priceListId: string) =>
-        ["financial", "price-list-items", priceListId] as const,
-      resolvedPrice: (orgId: string, serviceId: string, branchId: string, profileId?: string) =>
-        ["financial", "resolved-price", orgId, serviceId, branchId, profileId ?? null] as const,
-      providerOverrides: (orgId: string, profileId: string) =>
-        ["financial", "provider-overrides", orgId, profileId] as const,
-    },
-  },
+  // Financial namespace moved to its owning module — see
+  // `@/core/financial/api` (`financialQueryKeys`). The kernel's
+  // QueryKeyRegistry enforces uniqueness of the `financial` root key.
 } as const;
