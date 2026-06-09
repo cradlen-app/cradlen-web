@@ -21,13 +21,13 @@ export function fetchServices(
   if (filters?.limit != null) params.set("limit", String(filters.limit));
   const qs = params.toString();
   return apiAuthFetch<ApiResponse<Service[]>>(
-    `/organizations/${orgId}/financial/services${qs ? `?${qs}` : ""}`,
+    `/organizations/${orgId}/financial/catalog/services${qs ? `?${qs}` : ""}`,
   );
 }
 
 export async function fetchService(orgId: string, id: string): Promise<ApiResponse<Service>> {
   return apiAuthFetch<ApiResponse<Service>>(
-    `/organizations/${orgId}/financial/services/${id}`,
+    `/organizations/${orgId}/financial/catalog/services/${id}`,
   );
 }
 
@@ -38,7 +38,7 @@ export function createService(
   payload: CreateServicePayload,
 ): Promise<ApiResponse<Service>> {
   return apiAuthFetch<ApiResponse<Service>>(
-    `/organizations/${orgId}/financial/services`,
+    `/organizations/${orgId}/financial/catalog/services`,
     {
       method: "POST",
       body: JSON.stringify(payload),
@@ -52,7 +52,7 @@ export function updateService(
   payload: UpdateServicePayload,
 ): Promise<ApiResponse<Service>> {
   return apiAuthFetch<ApiResponse<Service>>(
-    `/organizations/${orgId}/financial/services/${id}`,
+    `/organizations/${orgId}/financial/catalog/services/${id}`,
     {
       method: "PATCH",
       body: JSON.stringify(payload),
@@ -61,7 +61,7 @@ export function updateService(
 }
 
 export function deleteService(orgId: string, id: string): Promise<void> {
-  return apiAuthFetch<void>(`/organizations/${orgId}/financial/services/${id}`, {
+  return apiAuthFetch<void>(`/organizations/${orgId}/financial/catalog/services/${id}`, {
     method: "DELETE",
   });
 }
@@ -71,7 +71,7 @@ export function activateService(
   id: string,
 ): Promise<ApiResponse<Service>> {
   return apiAuthFetch<ApiResponse<Service>>(
-    `/organizations/${orgId}/financial/services/${id}/activate`,
+    `/organizations/${orgId}/financial/catalog/services/${id}/activate`,
     { method: "POST" },
   );
 }
@@ -81,7 +81,7 @@ export function deactivateService(
   id: string,
 ): Promise<ApiResponse<Service>> {
   return apiAuthFetch<ApiResponse<Service>>(
-    `/organizations/${orgId}/financial/services/${id}/deactivate`,
+    `/organizations/${orgId}/financial/catalog/services/${id}/deactivate`,
     { method: "POST" },
   );
 }
