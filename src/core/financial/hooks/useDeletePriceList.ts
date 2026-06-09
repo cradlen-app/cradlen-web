@@ -17,6 +17,7 @@ export function useDeletePriceList() {
       void qc.invalidateQueries({
         queryKey: financialQueryKeys.pricing.priceLists(orgId ?? ""),
       });
+      toast.success("Price list deleted");
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to delete price list"));

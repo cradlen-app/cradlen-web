@@ -29,7 +29,10 @@ export function useSetDefaultPriceList() {
   const invalidate = usePriceListInvalidate();
   return useMutation({
     mutationFn: (id: string) => setDefaultPriceList(orgId!, id),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast.success("Default price list updated");
+    },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to set default price list"));
     },
@@ -42,7 +45,12 @@ export function useTogglePriceListActive() {
   return useMutation({
     mutationFn: ({ id, active }: { id: string; active: boolean }) =>
       active ? activatePriceList(orgId!, id) : deactivatePriceList(orgId!, id),
-    onSuccess: invalidate,
+    onSuccess: (_data, variables) => {
+      invalidate();
+      toast.success(
+        variables.active ? "Price list activated" : "Price list deactivated",
+      );
+    },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to update price list"));
     },

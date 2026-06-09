@@ -189,6 +189,8 @@
       "description": "Description",
       "descriptionPlaceholder": "Brief description…",
       "type": "Type",
+      "category": "Category",
+      "categoryNone": "No category",
       "specialties": "Specialties",
       "specialtyIds": "Specialty IDs",
       "specialtyIdsHint": "(optional, comma-separated UUIDs)",
@@ -233,6 +235,8 @@
       "namePlaceholder": "e.g. Standard Prices 2024",
       "currency": "Currency",
       "currencyPlaceholder": "EGP",
+      "branch": "Branch",
+      "branchAll": "Org-wide (all branches)",
       "branchId": "Branch ID",
       "branchIdHint": "(optional — leave blank for org-wide)",
       "branchIdPlaceholder": "Branch ID (leave blank for org-wide)",
@@ -323,7 +327,8 @@
       "services": "Services",
       "categories": "Categories",
       "priceLists": "Price Lists",
-      "providerPricing": "Provider Pricing"
+      "providerPricing": "Provider Pricing",
+      "authorizations": "Authorizations"
     }
   },
   "invoices": {
@@ -526,6 +531,44 @@
     "pickPrompt": "Choose a provider to manage their price overrides.",
     "noProviders": "No providers found.",
     "loadingProviders": "Loading providers…"
+  },
+  "authorizations": {
+    "title": "Service Authorizations",
+    "description": "Authorize which services each provider can deliver, optionally per branch.",
+    "selectProvider": "Provider",
+    "selectPrompt": "Select a provider…",
+    "pickPrompt": "Choose a provider to manage their authorized services.",
+    "loadingProviders": "Loading providers…",
+    "authorizeService": "Authorize service",
+    "authorizeTitle": "Authorize a service",
+    "authorizeDescription": "Allow this provider to deliver the selected service.",
+    "selectService": "Select a service…",
+    "allBranches": "All branches",
+    "durationPlaceholder": "e.g. 30",
+    "durationMinutes": "{minutes} min",
+    "noneYet": "No authorized services yet.",
+    "clickAuthorize": "Click \"Authorize service\" to add one.",
+    "actions": "Actions",
+    "fields": {
+      "service": "Service",
+      "branch": "Branch",
+      "duration": "Duration",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "revokeAria": "Revoke authorization",
+    "toggleAria": "Toggle active",
+    "revokeConfirm": {
+      "title": "Revoke authorization?",
+      "description": "Revoke <strong>{name}</strong> for this provider? They will no longer be authorized to deliver it.",
+      "fallbackName": "this service",
+      "confirm": "Revoke"
+    }
   },
   "collect": {
     "title": "Collect — Charges",
