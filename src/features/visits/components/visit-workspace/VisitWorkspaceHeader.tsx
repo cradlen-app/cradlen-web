@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, ChevronLeft, Loader2, Receipt } from "lucide-react";
+import { CheckCircle2, ChevronLeft, Loader2, Plus, Receipt } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
@@ -16,6 +16,8 @@ type Props = {
   onComplete: () => void;
   showInvoice: boolean;
   onInvoice: () => void;
+  showAddService: boolean;
+  onAddService: () => void;
 };
 
 export function VisitWorkspaceHeader({
@@ -27,6 +29,8 @@ export function VisitWorkspaceHeader({
   onComplete,
   showInvoice,
   onInvoice,
+  showAddService,
+  onAddService,
 }: Props) {
   const t = useTranslations("visits.workspace.header");
   const visitsHref = `/${organizationId}/${branchId}/dashboard/visits` as const;
@@ -62,6 +66,20 @@ export function VisitWorkspaceHeader({
       </div>
 
       <div className="flex items-center gap-2">
+        {showAddService && (
+          <button
+            type="button"
+            onClick={onAddService}
+            disabled={isMutating}
+            className={cn(
+              "inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-300 bg-white px-4 text-xs font-semibold text-gray-700",
+              "hover:bg-gray-50 disabled:opacity-60",
+            )}
+          >
+            <Plus className="size-3.5" aria-hidden="true" />
+            {t("addService")}
+          </button>
+        )}
         {showInvoice && (
           <button
             type="button"

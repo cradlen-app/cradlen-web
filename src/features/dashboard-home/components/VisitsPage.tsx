@@ -15,9 +15,8 @@ import {
   showsAssignedVisits,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { InvoicePanel } from "@/features/financial/components/InvoicePanel";
-import { InvoicePanelButton } from "@/features/financial/components/InvoicePanelButton";
-import { useInvoices } from "@/features/financial/hooks/useInvoices";
+import { InvoicePanel, InvoicePanelButton } from "@/core/financial/pages";
+import { useInvoices } from "@/core/financial/api";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";

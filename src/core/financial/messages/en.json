@@ -1,0 +1,541 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading…",
+    "optional": "(optional)",
+    "saveChanges": "Save Changes",
+    "required": "Required",
+    "comingSoon": "Coming soon",
+    "confirm": "Confirm"
+  },
+  "invoice": {
+    "title": "Invoice",
+    "newInvoice": "New Invoice",
+    "invoiceNumberPrefix": "Invoice",
+    "status": {
+      "DRAFT": "Draft",
+      "ISSUED": "Issued",
+      "PARTIALLY_PAID": "Partially Paid",
+      "PAID": "Paid",
+      "VOID": "Void",
+      "REFUNDED": "Refunded"
+    },
+    "pricingSource": {
+      "PROVIDER_OVERRIDE": "Provider Price",
+      "BRANCH_OVERRIDE": "Branch Price",
+      "ORG_PRICE_LIST": "Org Price List",
+      "CUSTOM": "Custom"
+    },
+    "types": {
+      "STANDARD": "Standard",
+      "FOLLOWUP": "Follow-up",
+      "PROFORMA": "Proforma",
+      "INSURANCE": "Insurance",
+      "REFUND": "Refund"
+    },
+    "actions": {
+      "issue": "Issue Invoice",
+      "void": "Void Invoice",
+      "voidShort": "Void",
+      "voiding": "Voiding…",
+      "recordPayment": "Record Payment",
+      "edit": "Edit",
+      "saveAsDraft": "Save as Draft"
+    },
+    "void": {
+      "title": "Void Invoice?",
+      "description": "This action cannot be undone. The invoice will be permanently voided.",
+      "confirm": "Void Invoice"
+    },
+    "panel": {
+      "title": "Invoices",
+      "todaysBilling": "Today's Billing",
+      "pendingBilling": "Pending Billing ({count})",
+      "invoiced": "Invoiced ({count})",
+      "noVisits": "No visits today",
+      "noInvoice": "No invoice",
+      "summary": "{pending} pending · {invoiced} invoiced",
+      "closeAria": "Close billing panel"
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "fields": {
+      "patient": "Patient",
+      "patientId": "Patient ID",
+      "patientIdPlaceholder": "Patient ID",
+      "visit": "Visit",
+      "visitId": "Visit ID",
+      "visitIdPlaceholder": "Visit ID",
+      "doctor": "Doctor",
+      "type": "Type",
+      "invoiceType": "Invoice Type",
+      "issued": "Issued",
+      "dueDate": "Due Date",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional notes…",
+      "remainingBalance": "Remaining Balance"
+    },
+    "view": {
+      "loadError": "Failed to load invoice. It may have been deleted or you don't have access.",
+      "notFound": "Invoice not found.",
+      "createdOn": "Created on {date}",
+      "balanceDue": "Balance due: {amount}",
+      "viewVisit": "View Visit",
+      "breadcrumbBilling": "Billing",
+      "invoiceDetails": "Invoice Details",
+      "lineItems": "Line Items",
+      "paymentHistory": "Payment History",
+      "summary": "Summary",
+      "noPayments": "No payments recorded yet"
+    },
+    "lineItems": {
+      "header": "Service / Description",
+      "qty": "Qty",
+      "unitPrice": "Unit Price",
+      "discount": "Discount",
+      "total": "Total",
+      "description": "Description",
+      "service": "Service",
+      "pricingSource": "Pricing Source",
+      "searchService": "Search service…",
+      "descriptionPlaceholder": "Description",
+      "qtyPlaceholder": "Qty",
+      "unitPricePlaceholder": "Unit price",
+      "discountPlaceholder": "Discount",
+      "removeItemAria": "Remove item",
+      "noItems": "No line items yet. Add a service or custom line below.",
+      "addService": "Add Service",
+      "addCustomLine": "Add Custom Line",
+      "noPriceConfigured": "No price configured"
+    },
+    "payments": {
+      "date": "Date",
+      "amount": "Amount",
+      "method": "Method",
+      "reference": "Reference",
+      "recordedBy": "Recorded by"
+    },
+    "panelButton": {
+      "openAria": "Open billing panel",
+      "openWithCountAria": "Open billing panel — {count, plural, one {# visit} other {# visits}} pending"
+    }
+  },
+  "payments": {
+    "title": "Payments",
+    "newPayment": "New Payment",
+    "recordTitle": "Record Payment",
+    "recording": "Recording…",
+    "method": {
+      "CASH": "Cash",
+      "CARD": "Card",
+      "BANK_TRANSFER": "Bank Transfer",
+      "INSURANCE": "Insurance",
+      "OTHER": "Other"
+    },
+    "fields": {
+      "amount": "Amount",
+      "amountWithCurrency": "Amount ({currency})",
+      "paymentMethod": "Payment Method",
+      "paymentDate": "Payment Date",
+      "referenceNumber": "Reference Number",
+      "referenceNumberPlaceholder": "e.g. TXN-12345",
+      "notes": "Notes",
+      "notesPlaceholder": "Any additional notes…"
+    },
+    "actions": {
+      "record": "Record Payment"
+    },
+    "actionsColumn": "Actions",
+    "voidAction": "Void",
+    "voidTitle": "Void Payment?",
+    "voidDescription": "This reverses the payment and updates the invoice balance."
+  },
+  "services": {
+    "title": "Services",
+    "description": "Manage the clinical services offered by your organization.",
+    "newService": "New Service",
+    "newServiceDescription": "Add a new clinical service to your catalogue.",
+    "editService": "Edit Service",
+    "editServiceDescription": "Update service details.",
+    "createService": "Create Service",
+    "loadingServices": "Loading services…",
+    "noServicesYet": "No services yet",
+    "clickNewService": "Click \"+ New Service\" to add one.",
+    "editServiceAria": "Edit service",
+    "deleteServiceAria": "Delete service",
+    "actions": "Actions",
+    "type": {
+      "CONSULTATION": "Consultation",
+      "PROCEDURE": "Procedure",
+      "LAB_TEST": "Lab Test",
+      "IMAGING": "Imaging",
+      "ADMINISTRATIVE": "Administrative",
+      "OTHER": "Other"
+    },
+    "fields": {
+      "code": "Code",
+      "codePlaceholder": "e.g. CONSULT_OB",
+      "name": "Name",
+      "namePlaceholder": "Service name",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description…",
+      "type": "Type",
+      "specialties": "Specialties",
+      "specialtyIds": "Specialty IDs",
+      "specialtyIdsHint": "(optional, comma-separated UUIDs)",
+      "specialtyIdsPlaceholder": "e.g. 11111111-1111-1111-1111-111111111111, 22222222-…",
+      "specialtyIdsHelp": "Enter specialty UUIDs separated by commas.",
+      "active": "Active"
+    },
+    "deleteConfirm": {
+      "title": "Delete Service?",
+      "description": "Are you sure you want to delete <strong>{name}</strong>? This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "inactiveBadge": "Inactive",
+    "toggleActiveAria": "Toggle active"
+  },
+  "priceLists": {
+    "title": "Price Lists",
+    "description": "Manage pricing tiers for your organization or specific branches.",
+    "newList": "New Price List",
+    "newListDescription": "Create a new price list for your organization or a specific branch.",
+    "editList": "Edit Price List",
+    "editListDescription": "Update price list details.",
+    "createList": "Create Price List",
+    "loadingPriceLists": "Loading price lists…",
+    "noPriceListsYet": "No price lists yet",
+    "clickNewPriceList": "Click \"+ New Price List\" to add one.",
+    "editAria": "Edit price list",
+    "deleteAria": "Delete price list",
+    "expandAria": "Expand",
+    "collapseAria": "Collapse",
+    "actions": "Actions",
+    "scope": {
+      "org": "Org",
+      "branch": "Branch"
+    },
+    "default": "Default",
+    "inactive": "Inactive",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Standard Prices 2024",
+      "currency": "Currency",
+      "currencyPlaceholder": "EGP",
+      "branchId": "Branch ID",
+      "branchIdHint": "(optional — leave blank for org-wide)",
+      "branchIdPlaceholder": "Branch ID (leave blank for org-wide)",
+      "validFrom": "Valid From",
+      "validTo": "Valid To",
+      "setAsDefault": "Set as default price list"
+    },
+    "items": {
+      "service": "Service",
+      "addService": "Add Service",
+      "add": "Add",
+      "unitPrice": "Unit Price",
+      "pricePlaceholder": "Price",
+      "searchService": "Search service…",
+      "noItems": "No items yet — add one below.",
+      "removeItemAria": "Remove item",
+      "loading": "Loading…"
+    },
+    "deleteConfirm": {
+      "title": "Delete Price List?",
+      "description": "This will permanently delete the price list and may affect invoicing. This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "setDefault": "Set default",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "bulkEdit": "Bulk adjust",
+    "bulk": {
+      "title": "Bulk price adjustment",
+      "description": "Apply a percentage change to every price in this list.",
+      "percentLabel": "Adjustment %",
+      "percentHint": "e.g. 10 = +10%, -5 = -5%",
+      "apply": "Apply",
+      "applying": "Applying…",
+      "noItems": "This price list has no items to adjust."
+    }
+  },
+  "myPrices": {
+    "title": "My Price Overrides",
+    "description": "Set personal price overrides for services you provide. These take priority over the org price list.",
+    "addOverride": "Add Override",
+    "addOverrideTitle": "Add Price Override",
+    "addOverrideDescription": "Set a personal price override for a service.",
+    "editOverride": "Edit Price Override",
+    "editOverrideDescription": "Update your price override.",
+    "loading": "Loading…",
+    "noOverridesYet": "No price overrides yet",
+    "clickAddOverride": "Click \"+ Add Override\" to add one.",
+    "profileNotAvailable": "Profile not available.",
+    "editAria": "Edit override",
+    "deleteAria": "Delete override",
+    "actions": "Actions",
+    "valid": "Valid",
+    "fields": {
+      "service": "Service",
+      "searchService": "Search service…",
+      "price": "Price",
+      "priceWithCurrency": "Price ({currency})",
+      "pricePlaceholder": "0.00",
+      "currency": "Currency",
+      "currencyPlaceholder": "EGP",
+      "validFrom": "Valid From",
+      "validTo": "Valid To"
+    },
+    "deleteConfirm": {
+      "title": "Delete Price Override?",
+      "description": "Are you sure you want to remove the override for <strong>{name}</strong>? The org price list rate will apply instead.",
+      "fallbackName": "this service",
+      "confirm": "Delete"
+    }
+  },
+  "billingSection": {
+    "title": "Billing",
+    "description": "Manage services, pricing, and your personal rate overrides.",
+    "subNavAria": "Billing sub-sections"
+  },
+  "nav": {
+    "group": "Financial",
+    "services": "Services",
+    "invoices": "Invoice Search",
+    "cashSessions": "Cash Sessions",
+    "reports": "Reports"
+  },
+  "servicesPage": {
+    "title": "Services & Pricing",
+    "subtitle": "Manage the service catalog, categories, price lists, and provider pricing.",
+    "tabs": {
+      "services": "Services",
+      "categories": "Categories",
+      "priceLists": "Price Lists",
+      "providerPricing": "Provider Pricing"
+    }
+  },
+  "invoices": {
+    "title": "Invoice Search",
+    "subtitle": "Search and manage invoices across the organization.",
+    "searchPlaceholder": "Search by invoice number…",
+    "filterStatus": "Status",
+    "statusAll": "All statuses",
+    "empty": "No invoices found.",
+    "loading": "Loading invoices…",
+    "resultsCount": "{count, plural, one {# invoice} other {# invoices}}",
+    "columns": {
+      "number": "Invoice #",
+      "patient": "Patient",
+      "status": "Status",
+      "total": "Total",
+      "paid": "Paid",
+      "balance": "Balance",
+      "date": "Date"
+    }
+  },
+  "cashSessions": {
+    "title": "Cash Sessions",
+    "subtitle": "Open, close, and reconcile the cash drawer.",
+    "open": "Open Session",
+    "openTitle": "Open Cash Session",
+    "openingFloat": "Opening float",
+    "openConfirm": "Open",
+    "noOpenSession": "No open cash session",
+    "noOpenSessionHint": "Open a session to start collecting cash payments.",
+    "currentSession": "Current Session",
+    "collected": "Collected",
+    "expectedSoFar": "Expected in drawer",
+    "paymentCount": "{count} payments",
+    "openedAt": "Opened {time}",
+    "close": "Close",
+    "closeTitle": "Close Cash Session",
+    "countedAmount": "Counted amount",
+    "closeNotes": "Notes",
+    "closeConfirm": "Close Session",
+    "reconcile": "Reconcile",
+    "reconcileConfirm": "Reconcile this session?",
+    "history": "History",
+    "empty": "No cash sessions yet.",
+    "loading": "Loading cash sessions…",
+    "columns": {
+      "opened": "Opened",
+      "openingFloat": "Float",
+      "counted": "Counted",
+      "variance": "Variance",
+      "status": "Status",
+      "closed": "Closed"
+    },
+    "status": {
+      "OPEN": "Open",
+      "CLOSED": "Closed",
+      "RECONCILED": "Reconciled"
+    }
+  },
+  "reports": {
+    "title": "Financial Reports",
+    "subtitle": "Revenue, collections, accounts receivable, and more.",
+    "tabs": {
+      "revenue": "Revenue",
+      "daily": "Daily",
+      "byService": "By Service",
+      "byDoctor": "By Doctor",
+      "byMethod": "By Method",
+      "arAging": "AR Aging",
+      "collections": "Collections",
+      "writeOffs": "Write-offs",
+      "outstanding": "Outstanding"
+    },
+    "filters": {
+      "from": "From",
+      "to": "To",
+      "apply": "Apply"
+    },
+    "loading": "Loading report…",
+    "noData": "No data for this period.",
+    "labels": {
+      "invoiced": "Invoiced",
+      "collected": "Collected",
+      "total": "Total",
+      "count": "Count",
+      "service": "Service",
+      "doctor": "Doctor",
+      "method": "Method",
+      "balance": "Balance due",
+      "patient": "Patient",
+      "invoice": "Invoice",
+      "status": "Status",
+      "age": "Age (days)",
+      "date": "Date",
+      "lineCount": "Lines",
+      "invoiceCount": "Invoices",
+      "grandTotal": "Grand total"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "description": "Organize services into categories.",
+    "newCategory": "New Category",
+    "editCategory": "Edit Category",
+    "createCategory": "Create Category",
+    "loading": "Loading categories…",
+    "empty": "No categories yet",
+    "emptyHint": "Create one to group your services.",
+    "editAria": "Edit category",
+    "deleteAria": "Delete category",
+    "inactive": "Inactive",
+    "fields": {
+      "code": "Code",
+      "codePlaceholder": "e.g. LAB",
+      "name": "Name",
+      "namePlaceholder": "Category name",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description…",
+      "active": "Active"
+    },
+    "deleteConfirm": {
+      "title": "Delete Category?",
+      "description": "Are you sure you want to delete this category? This cannot be undone.",
+      "confirm": "Delete"
+    }
+  },
+  "charges": {
+    "title": "Add Service",
+    "subtitle": "Add a service charge to this visit.",
+    "addButton": "Add Service",
+    "serviceLabel": "Service",
+    "selectService": "Select a service…",
+    "qtyLabel": "Quantity",
+    "customPriceLabel": "Custom unit price",
+    "customPriceHint": "Leave blank to use the resolved price",
+    "resolvedPrice": "Resolved price",
+    "noPrice": "No price configured",
+    "add": "Add Charge",
+    "adding": "Adding…",
+    "currentCharges": "Charges on this visit",
+    "noCharges": "No charges yet.",
+    "cancelAria": "Cancel charge",
+    "lineTotal": "Total",
+    "status": {
+      "PENDING": "Pending",
+      "INVOICED": "Invoiced",
+      "VOID": "Void",
+      "WRITTEN_OFF": "Written off"
+    },
+    "editAria": "Edit charge",
+    "voidAria": "Void charge",
+    "writeOffAria": "Write off charge",
+    "saveAria": "Save"
+  },
+  "refund": {
+    "action": "Refund",
+    "title": "Refund Payment",
+    "subtitle": "Refund part or all of this completed payment.",
+    "amountLabel": "Refund amount",
+    "reasonLabel": "Reason",
+    "reasonPlaceholder": "Reason for the refund (min 4 chars)…",
+    "max": "Max {amount}",
+    "confirm": "Issue Refund",
+    "refunding": "Refunding…",
+    "header": "Refunds",
+    "refundedBadge": "Refunded",
+    "voidAction": "Void refund",
+    "reasonTooShort": "Please enter at least 4 characters.",
+    "empty": "No refunds.",
+    "voidTitle": "Void Refund?",
+    "voidDescription": "This reverses the refund.",
+    "status": {
+      "PENDING": "Pending",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed",
+      "VOID": "Void"
+    },
+    "amount": "Amount"
+  },
+  "receipt": {
+    "action": "Receipt",
+    "title": "Receipt",
+    "print": "Print",
+    "close": "Close",
+    "loading": "Loading receipt…",
+    "receiptNumber": "Receipt #",
+    "issuedAt": "Issued",
+    "issuedBy": "Issued by",
+    "paymentMethod": "Method",
+    "amount": "Amount",
+    "balanceAfter": "Balance after",
+    "patient": "Patient",
+    "invoice": "Invoice"
+  },
+  "providerPricing": {
+    "title": "Provider Pricing",
+    "description": "Set per-doctor price overrides that take precedence over price lists.",
+    "selectProvider": "Provider",
+    "selectPrompt": "Select a provider…",
+    "pickPrompt": "Choose a provider to manage their price overrides.",
+    "noProviders": "No providers found.",
+    "loadingProviders": "Loading providers…"
+  },
+  "collect": {
+    "title": "Collect — Charges",
+    "subtitle": "Build an invoice from this visit’s open charges.",
+    "pendingCharges": "Open charges",
+    "noCharges": "No open charges for this visit.",
+    "total": "Total",
+    "build": "Build invoice",
+    "building": "Building…",
+    "collectAria": "Collect from charges",
+    "loading": "Loading charges…"
+  }
+}
