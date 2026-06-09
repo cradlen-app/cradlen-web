@@ -118,6 +118,22 @@ function pickMapper(url: string): Mapper {
     };
   }
 
+  if (/\/financial\/catalog\/services(\?|$)/.test(url)) {
+    return {
+      finalizeUrl: (u) =>
+        u.includes("limit=")
+          ? u
+          : `${u}${u.includes("?") ? "&" : "?"}limit=100`,
+      mapResponse: (payload) => {
+        const list =
+          (payload as { data?: Array<{ id: string; name: string }> })?.data ??
+          [];
+        // The submitted value is the service id (not the service `code`).
+        return list.map((s) => ({ code: s.id, label: s.name, raw: s }));
+      },
+    };
+  }
+
   // Generic fallback: assume `{ data: FieldOption[] }` or `FieldOption[]`.
   return {
     finalizeUrl: (u) => u,
@@ -140,7 +156,8 @@ export function useDynamicOptions(field: FormFieldDto): DynamicOptionsResult {
   // referenced in the template so we only depend on the values that matter.
   const formVarKeys = useMemo(() => {
     if (!optionsSource) return [] as string[];
-    const matches = optionsSource.matchAll(/\{(\w+)\}/g);
+    // Match both required `{key}` and optional `{key?}` placeholders.
+    const matches = optionsSource.matchAll(/\{(\w+)\??\}/g);
     const keys: string[] = [];
     for (const m of matches) {
       const k = m[1];
