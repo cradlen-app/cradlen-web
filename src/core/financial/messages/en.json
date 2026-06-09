@@ -192,7 +192,7 @@
       "specialties": "Specialties",
       "specialtyIds": "Specialty IDs",
       "specialtyIdsHint": "(optional, comma-separated UUIDs)",
-      "specialtyIdsPlaceholder": "e.g. 11111111-1111-1111-1111-111111111111, 22222222-…",
+      "specialtyIdsPlaceholder": "Select specialties",
       "specialtyIdsHelp": "Enter specialty UUIDs separated by commas.",
       "active": "Active"
     },
