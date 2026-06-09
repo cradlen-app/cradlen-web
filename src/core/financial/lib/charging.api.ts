@@ -33,11 +33,23 @@ export function fetchCharges(
   return apiAuthFetch<ApiResponse<Charge[]>>(`${base(orgId)}${qs ? `?${qs}` : ""}`);
 }
 
+/** Backend `getByVisit` returns `{ charges, summary }`, not a flat array. */
+export type VisitChargesResult = {
+  charges: Charge[];
+  summary: {
+    currency: string;
+    pending_total: string;
+    charge_count: number;
+  };
+};
+
 export function fetchVisitCharges(
   orgId: string,
   visitId: string,
-): Promise<ApiResponse<Charge[]>> {
-  return apiAuthFetch<ApiResponse<Charge[]>>(`${base(orgId)}/visit/${visitId}`);
+): Promise<ApiResponse<VisitChargesResult>> {
+  return apiAuthFetch<ApiResponse<VisitChargesResult>>(
+    `${base(orgId)}/visit/${visitId}`,
+  );
 }
 
 // ── writes ────────────────────────────────────────────────────────────────────
