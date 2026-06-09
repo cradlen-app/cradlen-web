@@ -183,7 +183,9 @@ export function VisitWorkspacePage({ visitId }: Props) {
         prefill={{
           visitId: visit.id,
           patientId: visit.patient.id,
+          patientName: visit.patient.fullName,
           doctorId: visit.assignedDoctorId,
+          doctorName: visit.assignedDoctorName,
         }}
       />
 
