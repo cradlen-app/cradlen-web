@@ -157,8 +157,35 @@ export type Service = {
   specialty_ids: string[];
   /** Optional category linkage (backend catalog categories). */
   category_id?: string | null;
+  /** Embedded category from `ServiceResponseDto` (or null). */
+  category?: { id: string; code: string; name: string } | null;
   created_at: string;
   updated_at: string;
+};
+
+/** A provider (Profile) authorized to deliver a service (optionally branch-scoped). */
+export type ProviderServiceAuthorization = {
+  id: string;
+  profile_id: string;
+  service_id: string;
+  organization_id: string;
+  branch_id: string | null;
+  duration_minutes: number | null;
+  is_active: boolean;
+  service?: {
+    id: string;
+    name: string;
+    code: string;
+    service_type: ServiceType;
+  } | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AuthorizeServicePayload = {
+  service_id: string;
+  branch_id?: string;
+  duration_minutes?: number;
 };
 
 export type ServiceCategory = {
@@ -531,6 +558,8 @@ export type CreatePriceListPayload = {
 
 export type UpdatePriceListPayload = {
   name?: string;
+  /** Branch scope; null = org-wide. */
+  branch_id?: string | null;
   currency?: string;
   is_default?: boolean;
   valid_from?: string;

@@ -1,6 +1,7 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import type { ApiResponse } from "@/common/types/api.types";
 import type {
+  AuthorizeServicePayload,
   BulkPriceListItemsPayload,
   CreatePriceListItemPayload,
   CreatePriceListPayload,
@@ -8,6 +9,7 @@ import type {
   PriceList,
   PriceListItem,
   ProviderOverride,
+  ProviderServiceAuthorization,
   ResolvedPrice,
   UpdatePriceListItemPayload,
   UpdatePriceListPayload,
@@ -219,6 +221,61 @@ export function deleteProviderOverride(
 ): Promise<void> {
   return apiAuthFetch<void>(
     `/organizations/${orgId}/providers/${profileId}/price-overrides/${id}`,
+    { method: "DELETE" },
+  );
+}
+
+// ── Provider services (authorizations) ────────────────────────────────────────
+
+export function fetchProviderServices(
+  orgId: string,
+  profileId: string,
+): Promise<ApiResponse<ProviderServiceAuthorization[]>> {
+  return apiAuthFetch<ApiResponse<ProviderServiceAuthorization[]>>(
+    `/organizations/${orgId}/providers/${profileId}/services`,
+  );
+}
+
+export function authorizeProviderService(
+  orgId: string,
+  profileId: string,
+  payload: AuthorizeServicePayload,
+): Promise<ApiResponse<ProviderServiceAuthorization>> {
+  return apiAuthFetch<ApiResponse<ProviderServiceAuthorization>>(
+    `/organizations/${orgId}/providers/${profileId}/services`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export function activateProviderService(
+  orgId: string,
+  profileId: string,
+  serviceId: string,
+): Promise<ApiResponse<ProviderServiceAuthorization>> {
+  return apiAuthFetch<ApiResponse<ProviderServiceAuthorization>>(
+    `/organizations/${orgId}/providers/${profileId}/services/${serviceId}/activate`,
+    { method: "POST" },
+  );
+}
+
+export function deactivateProviderService(
+  orgId: string,
+  profileId: string,
+  serviceId: string,
+): Promise<ApiResponse<ProviderServiceAuthorization>> {
+  return apiAuthFetch<ApiResponse<ProviderServiceAuthorization>>(
+    `/organizations/${orgId}/providers/${profileId}/services/${serviceId}/deactivate`,
+    { method: "POST" },
+  );
+}
+
+export function revokeProviderService(
+  orgId: string,
+  profileId: string,
+  serviceId: string,
+): Promise<void> {
+  return apiAuthFetch<void>(
+    `/organizations/${orgId}/providers/${profileId}/services/${serviceId}`,
     { method: "DELETE" },
   );
 }

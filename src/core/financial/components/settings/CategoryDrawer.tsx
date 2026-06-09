@@ -13,12 +13,27 @@ import { useCreateCategory, useUpdateCategory } from "../../hooks/useCategories"
 import type { ServiceCategory } from "../../types/financial.types";
 
 const categoryFormSchema = z.object({
-  code: z.string().min(1, "Code is required"),
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
+
+/**
+ * Auto-generates a unique category code from the name (mirrors the service
+ * drawer): slugifies to uppercase alphanumerics and appends a short random
+ * suffix so same-named categories don't collide on the backend's unique code.
+ */
+function generateCategoryCode(name: string): string {
+  const slug = name
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 24);
+  const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return slug ? `${slug}-${suffix}` : `CAT-${suffix}`;
+}
 
 const inputClass = cn(
   "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900",
@@ -42,18 +57,17 @@ export function CategoryDrawer({ open, onOpenChange, mode, category }: Props) {
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
-    defaultValues: { code: "", name: "", description: "" },
+    defaultValues: { name: "", description: "" },
   });
 
   useEffect(() => {
     if (open && mode === "edit" && category) {
       form.reset({
-        code: category.code,
         name: category.name,
         description: category.description ?? "",
       });
     } else if (open && mode === "create") {
-      form.reset({ code: "", name: "", description: "" });
+      form.reset({ name: "", description: "" });
     }
   }, [open, mode, category, form]);
 
@@ -66,7 +80,7 @@ export function CategoryDrawer({ open, onOpenChange, mode, category }: Props) {
     if (mode === "create") {
       createMutation.mutate(
         {
-          code: data.code,
+          code: generateCategoryCode(data.name),
           name: data.name,
           description: data.description || undefined,
         },
@@ -110,27 +124,20 @@ export function CategoryDrawer({ open, onOpenChange, mode, category }: Props) {
 
           <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                  {t("fields.code")} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...form.register("code")}
-                  type="text"
-                  placeholder={t("fields.codePlaceholder")}
-                  readOnly={mode === "edit"}
-                  className={cn(
-                    inputClass,
-                    mode === "edit" && "bg-gray-50 text-gray-500",
-                    form.formState.errors.code && "border-red-400",
-                  )}
-                />
-                {form.formState.errors.code && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {form.formState.errors.code.message}
-                  </p>
-                )}
-              </div>
+              {/* Code — auto-generated; shown read-only when editing */}
+              {mode === "edit" && category && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                    {t("fields.code")}
+                  </label>
+                  <input
+                    type="text"
+                    value={category.code}
+                    readOnly
+                    className={cn(inputClass, "bg-gray-50 text-gray-500")}
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
