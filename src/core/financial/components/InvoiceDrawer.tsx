@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { Dialog } from "radix-ui";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X, Loader2, FileText, CreditCard, Ban, Send, Pencil } from "lucide-react";
+import { X, Loader2, FileText, CreditCard, Ban, Send, Pencil, FilePlus2, Printer } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useVisitCharges } from "../hooks/useCharges";
 import { useInvoice } from "../hooks/useInvoice";
 import { useCreateInvoice } from "../hooks/useCreateInvoice";
 import { useUpdateInvoice } from "../hooks/useUpdateInvoice";
@@ -17,6 +18,8 @@ import { useIssueInvoice } from "../hooks/useIssueInvoice";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 import { InvoiceTotalsPanel } from "./InvoiceTotalsPanel";
 import { InvoiceLineItemsEditor } from "./InvoiceLineItemsEditor";
+import { InvoicePaymentsPanel } from "./InvoicePaymentsPanel";
+import { InvoicePrintModal } from "./InvoicePrintModal";
 import { RecordPaymentDrawer } from "./RecordPaymentDrawer";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
 import { formatMoney } from "../lib/format";
@@ -54,6 +57,9 @@ export const invoiceFormSchema = z.object({
   invoice_type: z.enum(["STANDARD", "FOLLOWUP", "PROFORMA", "INSURANCE", "REFUND"]),
   due_date: z.string().optional(),
   notes: z.string().optional(),
+  /** Invoice-level discount. "NONE" submits no discount. */
+  discount_type: z.enum(["NONE", "PERCENTAGE", "FIXED"]),
+  discount_value: z.number().nonnegative(),
   items: z.array(
     z.object({
       service_id: z.string().optional(),
@@ -115,6 +121,7 @@ export function InvoiceDrawer({
   const [editMode, setEditMode] = useState(!invoiceId);
   const [recordPaymentOpen, setRecordPaymentOpen] = useState(false);
   const [voidDialogOpen, setVoidDialogOpen] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
 
   // Data
   const { invoice, isLoading } = useInvoice(invoiceId);
@@ -141,6 +148,8 @@ export function InvoiceDrawer({
       invoice_type: "STANDARD",
       due_date: "",
       notes: "",
+      discount_type: "NONE",
+      discount_value: 0,
       items: [],
     },
   });
@@ -154,6 +163,8 @@ export function InvoiceDrawer({
         invoice_type: invoice.invoice_type,
         due_date: invoice.due_date ?? "",
         notes: invoice.notes ?? "",
+        discount_type: invoice.discount_type ?? "NONE",
+        discount_value: invoice.discount_value ?? 0,
         items: invoice.items.map((i) => ({
           service_id: i.service_id ?? undefined,
           description: i.description,
@@ -178,14 +189,52 @@ export function InvoiceDrawer({
         invoice_type: "STANDARD",
         due_date: "",
         notes: "",
+        discount_type: "NONE",
+        discount_value: 0,
         items: [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isCreate, prefill?.patientId, prefill?.visitId, prefill?.doctorId]);
 
+  const { append } = useFieldArray({ control: form.control, name: "items" });
+
+  // Import the visit's open charges as line items (create mode only).
+  const { charges: visitCharges } = useVisitCharges(
+    isCreate && prefill?.visitId ? prefill.visitId : undefined,
+  );
+  const pendingCharges = visitCharges.filter((c) => c.status === "PENDING");
+
+  function importVisitCharges() {
+    const existing = form.getValues("items");
+    const seen = new Set(
+      existing.map((it) => `${it.service_id ?? ""}|${it.description}`),
+    );
+    for (const c of pendingCharges) {
+      const key = `${c.service_id ?? ""}|${c.description}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      append({
+        service_id: c.service_id ?? undefined,
+        description: c.description,
+        quantity: c.quantity,
+        unit_price: Number(c.unit_price),
+        discount_amount: undefined,
+        pricing_source: c.pricing_source,
+      });
+    }
+  }
+
   const watchedItems = useWatch({ control: form.control, name: "items" });
   const watchedDoctorId = useWatch({ control: form.control, name: "doctor_id" });
+  const watchedDiscountType = useWatch({
+    control: form.control,
+    name: "discount_type",
+  });
+  const watchedDiscountValue = useWatch({
+    control: form.control,
+    name: "discount_value",
+  });
   // Prefer the visit's assigned doctor; fall back to current user for price
   // resolution when no doctor is associated with the draft yet.
   const priceResolutionProfileId =
@@ -200,6 +249,13 @@ export function InvoiceDrawer({
   }
 
   const onSubmit = form.handleSubmit((data) => {
+    const discountFields =
+      data.discount_type === "NONE"
+        ? {}
+        : {
+            discount_type: data.discount_type,
+            discount_value: data.discount_value,
+          };
     if (isCreate) {
       createMutation.mutate(
         {
@@ -209,6 +265,7 @@ export function InvoiceDrawer({
           invoice_type: data.invoice_type,
           due_date: data.due_date || undefined,
           notes: data.notes || undefined,
+          ...discountFields,
           items: data.items.map((item) => ({
             service_id: item.service_id || undefined,
             description: item.description,
@@ -232,6 +289,7 @@ export function InvoiceDrawer({
             // Backend UpdateInvoiceDto does NOT accept invoice_type — drop it.
             due_date: data.due_date || undefined,
             notes: data.notes || undefined,
+            ...discountFields,
             items: data.items.map((item) => ({
               service_id: item.service_id || undefined,
               description: item.description,
@@ -402,13 +460,35 @@ export function InvoiceDrawer({
                     <InvoiceTotalsPanel
                       items={invoice.items}
                       currency={invoice.currency}
+                      discountType={invoice.discount_type ?? "NONE"}
+                      discountValue={invoice.discount_value ?? 0}
+                      invoice={invoice}
                       className="w-72"
                     />
                   </div>
+
+                  {/* Payments */}
+                  {invoice.status !== "DRAFT" && (
+                    <div className="mt-6">
+                      <InvoicePaymentsPanel
+                        invoiceId={invoice.id}
+                        currency={invoice.currency}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Action footer */}
                 <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-6 py-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPrintOpen(true)}
+                  >
+                    <Printer className="size-3.5" aria-hidden="true" />
+                    {t("actions.printInvoice")}
+                  </Button>
                   {canVoid && (
                     <Button
                       type="button"
@@ -575,9 +655,24 @@ export function InvoiceDrawer({
 
                     {/* Line items */}
                     <div>
-                      <h3 className="mb-3 text-sm font-semibold text-gray-700">
-                        {t("view.lineItems")}
-                      </h3>
+                      <div className="mb-3 flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-700">
+                          {t("view.lineItems")}
+                        </h3>
+                        {isCreate && pendingCharges.length > 0 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={importVisitCharges}
+                          >
+                            <FilePlus2 className="size-3.5" aria-hidden="true" />
+                            {t("actions.importCharges", {
+                              count: pendingCharges.length,
+                            })}
+                          </Button>
+                        )}
+                      </div>
                       <InvoiceLineItemsEditor
                         control={form.control}
                         setValue={form.setValue}
@@ -592,9 +687,42 @@ export function InvoiceDrawer({
                   {/* Right column — sticky totals */}
                   <div className="flex flex-col gap-4 border-l border-gray-100 bg-gray-50/50 px-5 py-5">
                     <h3 className="text-sm font-semibold text-gray-700">{t("view.summary")}</h3>
+
+                    {/* Invoice-level discount */}
+                    <div className="rounded-xl border border-gray-200 bg-white p-3">
+                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                        {t("discount.label")}
+                      </label>
+                      <div className="flex gap-2">
+                        <select
+                          {...form.register("discount_type")}
+                          className={cn(inputClass, "flex-1")}
+                        >
+                          <option value="NONE">{t("discount.none")}</option>
+                          <option value="PERCENTAGE">{t("discount.percentage")}</option>
+                          <option value="FIXED">{t("discount.fixed")}</option>
+                        </select>
+                        {watchedDiscountType !== "NONE" && (
+                          <input
+                            {...form.register("discount_value", {
+                              valueAsNumber: true,
+                            })}
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            placeholder={t("discount.valuePlaceholder")}
+                            className={cn(inputClass, "w-28")}
+                          />
+                        )}
+                      </div>
+                    </div>
+
                     <InvoiceTotalsPanel
                       items={watchedItems}
                       currency={invoice?.currency}
+                      discountType={watchedDiscountType}
+                      discountValue={watchedDiscountValue}
+                      invoice={invoice ?? null}
                     />
                   </div>
                 </div>
@@ -647,6 +775,17 @@ export function InvoiceDrawer({
           onSuccess={() => {
             setVoidDialogOpen(false);
           }}
+        />
+      )}
+
+      {/* Print invoice */}
+      {invoice && (
+        <InvoicePrintModal
+          open={printOpen}
+          onOpenChange={setPrintOpen}
+          invoice={invoice}
+          patientName={prefill?.patientName}
+          doctorName={prefill?.doctorName}
         />
       )}
     </>
