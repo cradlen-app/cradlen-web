@@ -117,7 +117,6 @@ export function InvoiceDrawer({
 }: InvoiceDrawerProps) {
   const t = useTranslations("financial.invoice");
   const tCommon = useTranslations("financial.common");
-  const orgId = useAuthContextStore((s) => s.organizationId) ?? "";
   const branchId = useAuthContextStore((s) => s.branchId) ?? "";
   const currentProfileId =
     useAuthContextStore((s) => s.profileId) ?? undefined;
@@ -209,7 +208,12 @@ export function InvoiceDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isCreate, prefill?.patientId, prefill?.visitId, prefill?.doctorId]);
 
-  const { append } = useFieldArray({ control: form.control, name: "items" });
+  // Single field array owned here so imports/auto-stage and the editor share
+  // one instance (two useFieldArray on the same name don't re-render in sync).
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
 
   // The visit's open charges — staged into a new invoice (create mode) or
   // appended to the case's existing invoice (view mode).
@@ -325,7 +329,6 @@ export function InvoiceDrawer({
               description: item.description,
               quantity: item.quantity,
               unit_price: item.unit_price,
-              discount_amount: item.discount_amount,
             })),
           });
       const newId = created?.data?.id;
@@ -364,7 +367,6 @@ export function InvoiceDrawer({
             description: item.description,
             quantity: item.quantity,
             unit_price: item.unit_price,
-            discount_amount: item.discount_amount,
           })),
         },
       },
@@ -766,7 +768,9 @@ export function InvoiceDrawer({
                       <InvoiceLineItemsEditor
                         control={form.control}
                         setValue={form.setValue}
-                        orgId={orgId}
+                        fields={fields}
+                        append={append}
+                        remove={remove}
                         branchId={branchId}
                         profileId={priceResolutionProfileId}
                         currency={invoice?.currency}

@@ -144,7 +144,9 @@
       "noItems": "No line items yet. Add a service or custom line below.",
       "addService": "Add Service",
       "addCustomLine": "Add Custom Line",
-      "noPriceConfigured": "No price configured"
+      "noPriceConfigured": "No price configured",
+      "selectService": "Select service…",
+      "noAuthorizedServices": "No authorized services for this doctor"
     },
     "payments": {
       "title": "Payments",

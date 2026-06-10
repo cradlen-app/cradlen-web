@@ -144,7 +144,9 @@
       "noItems": "لا توجد بنود بعد. أضف خدمة أو بنداً مخصصاً أدناه.",
       "addService": "إضافة خدمة",
       "addCustomLine": "إضافة بند مخصص",
-      "noPriceConfigured": "لم يتم تكوين سعر"
+      "noPriceConfigured": "لم يتم تكوين سعر",
+      "selectService": "اختر خدمة…",
+      "noAuthorizedServices": "لا توجد خدمات مصرّح بها لهذا الطبيب"
     },
     "payments": {
       "title": "المدفوعات",
