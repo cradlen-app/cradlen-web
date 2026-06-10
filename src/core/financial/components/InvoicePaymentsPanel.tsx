@@ -26,7 +26,7 @@ type Props = {
  */
 export function InvoicePaymentsPanel({ invoiceId, currency }: Props) {
   const t = useTranslations("financial.invoice");
-  const tPay = useTranslations("financial.payment");
+  const tPay = useTranslations("financial.payments");
   const { payments, isLoading } = usePayments(invoiceId);
   const { receipts } = useReceipts(invoiceId);
   const voidPaymentMutation = useVoidPayment(invoiceId);

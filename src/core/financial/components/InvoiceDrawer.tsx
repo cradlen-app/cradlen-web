@@ -452,18 +452,20 @@ export function InvoiceDrawer({
                       <>
                         <dt className="text-gray-500">{t("fields.patient")}</dt>
                         <dd className="font-medium text-gray-900">
-                          {personName(invoice.patient, invoice.patient_id)}
+                          {prefill?.patientName ??
+                            personName(invoice.patient, invoice.patient_id)}
                         </dd>
                       </>
                     )}
-                    {invoice.assigned_doctor_id && (
+                    {(prefill?.doctorName || invoice.assigned_doctor_id) && (
                       <>
                         <dt className="text-gray-500">{t("fields.doctor")}</dt>
                         <dd className="font-medium text-gray-900">
-                          {personName(
-                            invoice.doctor,
-                            invoice.assigned_doctor_id,
-                          )}
+                          {prefill?.doctorName ??
+                            personName(
+                              invoice.doctor,
+                              invoice.assigned_doctor_id ?? "",
+                            )}
                         </dd>
                       </>
                     )}
