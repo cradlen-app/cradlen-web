@@ -19,9 +19,24 @@ const VISIT_EVENTS = [
   "medical_rep_visit.updated",
 ] as const;
 
+/** Payload the server emits when a doctor adds a billable service mid-visit. */
+export type BillingChargeAddedPayload = {
+  branch_id: string;
+  patient_id: string;
+  visit_id: string | null;
+  service_id: string | null;
+  amount: string;
+};
+
 export function useVisitSocket(
   profileId?: string | null,
   branchId?: string | null,
+  /**
+   * Called when the branch receives a `billing.charge_added` push (a doctor
+   * added a chargeable service). Provided by billing-aware surfaces (reception)
+   * to surface a toast; omitted elsewhere.
+   */
+  onBillingChargeAdded?: (payload: BillingChargeAddedPayload) => void,
 ) {
   const queryClient = useQueryClient();
 
@@ -61,8 +76,14 @@ export function useVisitSocket(
       socket.on(event, invalidate);
     }
 
+    if (onBillingChargeAdded) {
+      socket.on("billing.charge_added", (payload: BillingChargeAddedPayload) => {
+        onBillingChargeAdded(payload);
+      });
+    }
+
     return () => {
       socket.disconnect();
     };
-  }, [profileId, branchId, queryClient]);
+  }, [profileId, branchId, queryClient, onBillingChargeAdded]);
 }

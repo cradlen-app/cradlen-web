@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
@@ -16,7 +18,7 @@ import {
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { InvoicePanel, InvoicePanelButton } from "@/core/financial/pages";
-import { useBillingQueue } from "@/core/financial/api";
+import { useBillingQueue, financialQueryKeys } from "@/core/financial/api";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
 import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
@@ -33,14 +35,26 @@ export function VisitsPage() {
   const branch = getDefaultBranch(profile, branchId ?? undefined);
 
   const profileId = useAuthContextStore((s) => s.profileId);
+  const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
   const [invoicePanelOpen, setInvoicePanelOpen] = useState(false);
-
-  useVisitSocket(profileId, branchId);
 
   // Compute permissions before hooks that depend on them (hooks must not be
   // called after a conditional return, so showBilling is derived here).
   const showBilling = canAccessBilling(profile);
+
+  // Reception gets a live nudge when a doctor adds a billable service mid-visit,
+  // so they can collect for it; the billing queue/badge then refresh. Plain
+  // function — the React Compiler memoizes it so the socket effect stays stable.
+  const handleBillingChargeAdded = () => {
+    if (!showBilling) return;
+    toast.info(t("billing.chargeAddedToast"));
+    void queryClient.invalidateQueries({
+      queryKey: financialQueryKeys.all(),
+    });
+  };
+
+  useVisitSocket(profileId, branchId, handleBillingChargeAdded);
   // Counts today's booked visits that still need invoicing (no invoice or a
   // DRAFT) — same set the InvoicePanel lists, so the badge and panel agree.
   const { pending } = useBillingQueue(branchId);
