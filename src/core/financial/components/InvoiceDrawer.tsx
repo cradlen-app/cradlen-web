@@ -117,7 +117,6 @@ export function InvoiceDrawer({
 }: InvoiceDrawerProps) {
   const t = useTranslations("financial.invoice");
   const tCommon = useTranslations("financial.common");
-  const orgId = useAuthContextStore((s) => s.organizationId) ?? "";
   const branchId = useAuthContextStore((s) => s.branchId) ?? "";
   const currentProfileId =
     useAuthContextStore((s) => s.profileId) ?? undefined;
@@ -209,7 +208,12 @@ export function InvoiceDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isCreate, prefill?.patientId, prefill?.visitId, prefill?.doctorId]);
 
-  const { append } = useFieldArray({ control: form.control, name: "items" });
+  // Single field array owned here so imports/auto-stage and the editor share
+  // one instance (two useFieldArray on the same name don't re-render in sync).
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
 
   // The visit's open charges — staged into a new invoice (create mode) or
   // appended to the case's existing invoice (view mode).
@@ -325,7 +329,6 @@ export function InvoiceDrawer({
               description: item.description,
               quantity: item.quantity,
               unit_price: item.unit_price,
-              discount_amount: item.discount_amount,
             })),
           });
       const newId = created?.data?.id;
@@ -364,7 +367,6 @@ export function InvoiceDrawer({
             description: item.description,
             quantity: item.quantity,
             unit_price: item.unit_price,
-            discount_amount: item.discount_amount,
           })),
         },
       },
@@ -423,17 +425,7 @@ export function InvoiceDrawer({
             </div>
 
             {/* Loading skeleton */}
-            {isLoading && (
-              <div className="flex flex-1 flex-col gap-4 p-6">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-10 animate-pulse rounded-lg bg-gray-100"
-                    style={{ width: `${70 + (i % 3) * 10}%` }}
-                  />
-                ))}
-              </div>
-            )}
+            {isLoading && <InvoiceViewSkeleton />}
 
             {/* Error state */}
             {!isCreate && !isLoading && !invoice && (
@@ -776,7 +768,9 @@ export function InvoiceDrawer({
                       <InvoiceLineItemsEditor
                         control={form.control}
                         setValue={form.setValue}
-                        orgId={orgId}
+                        fields={fields}
+                        append={append}
+                        remove={remove}
                         branchId={branchId}
                         profileId={priceResolutionProfileId}
                         currency={invoice?.currency}
@@ -917,5 +911,71 @@ export function InvoiceDrawer({
         />
       )}
     </>
+  );
+}
+
+const bar = "animate-pulse rounded bg-gray-100";
+
+/** View-mode loading placeholder mirroring the info grid / line items / totals / payments. */
+function InvoiceViewSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-5">
+      {/* Info grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <div className={cn(bar, "h-4 w-20")} />
+            <div className={cn(bar, "h-4 w-32")} />
+          </div>
+        ))}
+      </div>
+
+      {/* Line items */}
+      <div className="mt-6">
+        <div className={cn(bar, "mb-3 h-4 w-24")} />
+        <div className="overflow-hidden rounded-xl border border-gray-100">
+          <div className="border-b border-gray-100 bg-gray-50 px-4 py-2.5">
+            <div className={cn(bar, "h-3 w-full max-w-md")} />
+          </div>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between border-b border-gray-50 px-4 py-3 last:border-0"
+            >
+              <div className={cn(bar, "h-4 w-40")} />
+              <div className={cn(bar, "h-4 w-16")} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Totals card */}
+      <div className="mt-4 flex justify-end">
+        <div className="w-72 rounded-xl border border-gray-200 p-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between py-1.5">
+              <div className={cn(bar, "h-4 w-16")} />
+              <div className={cn(bar, "h-4 w-20")} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Payments */}
+      <div className="mt-6 rounded-xl border border-gray-200">
+        <div className="border-b border-gray-100 px-4 py-2.5">
+          <div className={cn(bar, "h-4 w-24")} />
+        </div>
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="flex items-center justify-between px-4 py-2.5">
+            <div className="space-y-1.5">
+              <div className={cn(bar, "h-4 w-24")} />
+              <div className={cn(bar, "h-3 w-32")} />
+            </div>
+            <div className={cn(bar, "h-7 w-7 rounded-lg")} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
