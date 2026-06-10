@@ -30,12 +30,17 @@ export function useBillingQueue(branchId: string | null | undefined) {
   // `limit` must stay within the backend cap (Max 100) or the whole request
   // 400s and the panel shows "No invoice" for everyone. No `date_to`: the
   // `gte` lower bound alone returns today's invoices on any backend version
-  // (the upper-bound handling isn't relied upon here).
-  const { invoices, isLoading: invoicesLoading } = useInvoices({
-    branch_id: branchId ?? undefined,
-    date_from: today,
-    limit: 100,
-  });
+  // (the upper-bound handling isn't relied upon here). Poll so a charge the
+  // doctor adds mid-visit (auto-appended to the invoice) surfaces without a
+  // manual reload — the visits Socket.IO can't authenticate cross-origin.
+  const { invoices, isLoading: invoicesLoading } = useInvoices(
+    {
+      branch_id: branchId ?? undefined,
+      date_from: today,
+      limit: 100,
+    },
+    { refetchInterval: 15000 },
+  );
 
   const { invoiceByVisitId, invoiceByEpisodeId } = useMemo(() => {
     const byVisit = new Map<string, Invoice>();
