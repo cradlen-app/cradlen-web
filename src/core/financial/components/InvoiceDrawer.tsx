@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog } from "radix-ui";
 import { useForm, useWatch, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,8 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useVisitCharges } from "../hooks/useCharges";
 import { useInvoice } from "../hooks/useInvoice";
 import { useCreateInvoice } from "../hooks/useCreateInvoice";
+import { useBuildInvoiceFromCharges } from "../hooks/useBuildInvoiceFromCharges";
+import { useAppendChargesToInvoice } from "../hooks/useAppendChargesToInvoice";
 import { useUpdateInvoice } from "../hooks/useUpdateInvoice";
 import { useIssueInvoice } from "../hooks/useIssueInvoice";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
@@ -85,6 +87,8 @@ type InvoiceDrawerProps = {
     /** Display name for the patient, shown read-only instead of the raw UUID. */
     patientName?: string;
     visitId?: string;
+    /** Clinical case (episode) the invoice bills; links the case so later sessions reuse it. */
+    episodeId?: string;
     /**
      * Doctor for the visit. Used only for price-resolution context inside the
      * line-items editor; NOT sent to the backend create/update endpoints.
@@ -128,6 +132,8 @@ export function InvoiceDrawer({
 
   // Mutations
   const createMutation = useCreateInvoice();
+  const buildMutation = useBuildInvoiceFromCharges();
+  const appendMutation = useAppendChargesToInvoice();
   const updateMutation = useUpdateInvoice();
   const issueMutation = useIssueInvoice();
 
@@ -138,6 +144,12 @@ export function InvoiceDrawer({
   const canRecordPayment =
     invoice?.status === "ISSUED" || invoice?.status === "PARTIALLY_PAID";
   const canVoid = invoice?.status === "DRAFT";
+  // A later charge (e.g. a service the doctor just added) can be appended to the
+  // case's open invoice, reopening it for the new balance.
+  const canAppendCharges =
+    invoice?.status === "ISSUED" ||
+    invoice?.status === "PARTIALLY_PAID" ||
+    invoice?.status === "PAID";
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceFormSchema),
@@ -199,10 +211,9 @@ export function InvoiceDrawer({
 
   const { append } = useFieldArray({ control: form.control, name: "items" });
 
-  // Import the visit's open charges as line items (create mode only).
-  const { charges: visitCharges } = useVisitCharges(
-    isCreate && prefill?.visitId ? prefill.visitId : undefined,
-  );
+  // The visit's open charges — staged into a new invoice (create mode) or
+  // appended to the case's existing invoice (view mode).
+  const { charges: visitCharges } = useVisitCharges(prefill?.visitId);
   const pendingCharges = visitCharges.filter((c) => c.status === "PENDING");
 
   function importVisitCharges() {
@@ -224,6 +235,26 @@ export function InvoiceDrawer({
       });
     }
   }
+
+  // Auto-stage the visit's pending charges on open so the bill is pre-filled and
+  // reception can settle in one action. Guarded so manual edits aren't clobbered.
+  const autoStagedRef = useRef(false);
+  useEffect(() => {
+    if (!open) {
+      autoStagedRef.current = false;
+      return;
+    }
+    if (
+      isCreate &&
+      !autoStagedRef.current &&
+      pendingCharges.length > 0 &&
+      form.getValues("items").length === 0
+    ) {
+      autoStagedRef.current = true;
+      importVisitCharges();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isCreate, pendingCharges]);
 
   const watchedItems = useWatch({ control: form.control, name: "items" });
   const watchedDoctorId = useWatch({ control: form.control, name: "doctor_id" });
@@ -248,7 +279,18 @@ export function InvoiceDrawer({
     onOpenChange(false);
   }
 
-  const onSubmit = form.handleSubmit((data) => {
+  // A visit invoice is charge-backed: its lines come from PENDING charges, which
+  // must be consumed (flipped INVOICED) so the case has a single source of truth
+  // and later charges can be appended without double-billing. A purely manual
+  // invoice (no visit charges) keeps the free-form line-items path.
+  const isChargeBacked = !!prefill?.visitId && pendingCharges.length > 0;
+
+  async function runCreate(issue: boolean) {
+    const data = form.getValues();
+    if (!data.patient_id) {
+      void form.trigger("patient_id");
+      return;
+    }
     const discountFields =
       data.discount_type === "NONE"
         ? {}
@@ -256,13 +298,64 @@ export function InvoiceDrawer({
             discount_type: data.discount_type,
             discount_value: data.discount_value,
           };
+    try {
+      const created = isChargeBacked
+        ? await buildMutation.mutateAsync({
+            branch_id: branchId,
+            patient_id: data.patient_id,
+            visit_id: prefill?.visitId,
+            episode_id: prefill?.episodeId,
+            charge_ids: pendingCharges.map((c) => c.id),
+            invoice_type: data.invoice_type,
+            due_date: data.due_date || undefined,
+            notes: data.notes || undefined,
+            ...discountFields,
+          })
+        : await createMutation.mutateAsync({
+            branch_id: branchId,
+            patient_id: data.patient_id,
+            visit_id: data.visit_id || undefined,
+            episode_id: prefill?.episodeId,
+            invoice_type: data.invoice_type,
+            due_date: data.due_date || undefined,
+            notes: data.notes || undefined,
+            ...discountFields,
+            items: data.items.map((item) => ({
+              service_id: item.service_id || undefined,
+              description: item.description,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              discount_amount: item.discount_amount,
+            })),
+          });
+      const newId = created?.data?.id;
+      if (issue && newId) {
+        await issueMutation.mutateAsync(newId);
+      }
+      form.reset();
+      onOpenChange(false);
+    } catch {
+      // The mutation hooks surface an error toast; keep the drawer open.
+    }
+  }
+
+  const onSubmit = form.handleSubmit((data) => {
     if (isCreate) {
-      createMutation.mutate(
-        {
-          branch_id: branchId,
-          patient_id: data.patient_id,
-          visit_id: data.visit_id || undefined,
-          invoice_type: data.invoice_type,
+      void runCreate(false);
+      return;
+    }
+    const discountFields =
+      data.discount_type === "NONE"
+        ? {}
+        : {
+            discount_type: data.discount_type,
+            discount_value: data.discount_value,
+          };
+    updateMutation.mutate(
+      {
+        id: invoiceId!,
+        payload: {
+          // Backend UpdateInvoiceDto does NOT accept invoice_type — drop it.
           due_date: data.due_date || undefined,
           notes: data.notes || undefined,
           ...discountFields,
@@ -274,39 +367,26 @@ export function InvoiceDrawer({
             discount_amount: item.discount_amount,
           })),
         },
-        {
-          onSuccess: () => {
-            form.reset();
-            onOpenChange(false);
-          },
-        },
-      );
-    } else {
-      updateMutation.mutate(
-        {
-          id: invoiceId!,
-          payload: {
-            // Backend UpdateInvoiceDto does NOT accept invoice_type — drop it.
-            due_date: data.due_date || undefined,
-            notes: data.notes || undefined,
-            ...discountFields,
-            items: data.items.map((item) => ({
-              service_id: item.service_id || undefined,
-              description: item.description,
-              quantity: item.quantity,
-              unit_price: item.unit_price,
-              discount_amount: item.discount_amount,
-            })),
-          },
-        },
-        {
-          onSuccess: () => setEditMode(false),
-        },
-      );
-    }
+      },
+      {
+        onSuccess: () => setEditMode(false),
+      },
+    );
   });
 
-  const isSaving = createMutation.isPending || updateMutation.isPending;
+  function handleAppendCharges() {
+    if (!invoiceId || pendingCharges.length === 0) return;
+    appendMutation.mutate({
+      invoiceId,
+      payload: { charge_ids: pendingCharges.map((c) => c.id) },
+    });
+  }
+
+  const isSaving =
+    createMutation.isPending ||
+    buildMutation.isPending ||
+    issueMutation.isPending ||
+    updateMutation.isPending;
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -530,6 +610,24 @@ export function InvoiceDrawer({
                       {t("actions.issue")}
                     </Button>
                   )}
+                  {canAppendCharges && pendingCharges.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAppendCharges}
+                      disabled={appendMutation.isPending}
+                    >
+                      {appendMutation.isPending ? (
+                        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <FilePlus2 className="size-3.5" aria-hidden="true" />
+                      )}
+                      {t("actions.addChargesToInvoice", {
+                        count: pendingCharges.length,
+                      })}
+                    </Button>
+                  )}
                   {canRecordPayment && (
                     <Button
                       type="button"
@@ -737,16 +835,44 @@ export function InvoiceDrawer({
                   >
                     {tCommon("cancel")}
                   </Button>
-                  <Button type="submit" disabled={isSaving}>
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                        {tCommon("saving")}
-                      </>
-                    ) : (
-                      t("actions.saveAsDraft")
-                    )}
-                  </Button>
+                  {isCreate ? (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => void runCreate(false)}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? (
+                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                        ) : null}
+                        {t("actions.saveAsDraft")}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => void runCreate(true)}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? (
+                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <Send className="size-3.5" aria-hidden="true" />
+                        )}
+                        {t("actions.createAndIssue")}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button type="submit" disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                          {tCommon("saving")}
+                        </>
+                      ) : (
+                        tCommon("save")
+                      )}
+                    </Button>
+                  )}
                 </div>
               </form>
             )}

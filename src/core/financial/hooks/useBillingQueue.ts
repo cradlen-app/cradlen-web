@@ -34,12 +34,18 @@ export function useBillingQueue(branchId: string | null | undefined) {
     limit: 200,
   });
 
-  const invoiceByVisitId = useMemo<Map<string, Invoice>>(() => {
-    const map = new Map<string, Invoice>();
+  const { invoiceByVisitId, invoiceByEpisodeId } = useMemo(() => {
+    const byVisit = new Map<string, Invoice>();
+    const byEpisode = new Map<string, Invoice>();
     for (const inv of invoices ?? []) {
-      if (inv.visit_id) map.set(inv.visit_id, inv);
+      if (inv.visit_id) byVisit.set(inv.visit_id, inv);
+      // One open invoice per case — key by episode so a later visit in the same
+      // episode resolves the case invoice even though its visit_id differs.
+      if (inv.episode_id && inv.status !== "VOID") {
+        byEpisode.set(inv.episode_id, inv);
+      }
     }
-    return map;
+    return { invoiceByVisitId: byVisit, invoiceByEpisodeId: byEpisode };
   }, [invoices]);
 
   const { pending, invoiced } = useMemo<{
@@ -50,7 +56,9 @@ export function useBillingQueue(branchId: string | null | undefined) {
     const p: BillingQueueItem[] = [];
     const i: BillingQueueItem[] = [];
     for (const visit of rows) {
-      const inv = invoiceByVisitId.get(visit.id);
+      const inv =
+        invoiceByVisitId.get(visit.id) ??
+        (visit.episodeId ? invoiceByEpisodeId.get(visit.episodeId) : undefined);
       const item: BillingQueueItem = { visit, invoice: inv };
       if (!inv || inv.status === "DRAFT") {
         p.push(item);
@@ -59,7 +67,7 @@ export function useBillingQueue(branchId: string | null | undefined) {
       }
     }
     return { pending: p, invoiced: i };
-  }, [waitingList.data, invoiceByVisitId]);
+  }, [waitingList.data, invoiceByVisitId, invoiceByEpisodeId]);
 
   return {
     pending,

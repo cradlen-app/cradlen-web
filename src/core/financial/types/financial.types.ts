@@ -104,6 +104,8 @@ export type Invoice = {
   branch_id: string;
   patient_id: string;
   visit_id: string | null;
+  /** Clinical case (episode) this invoice bills; groups multi-visit procedures. */
+  episode_id: string | null;
   assigned_doctor_id: string | null;
   invoice_number: string;
   invoice_type: InvoiceType;
@@ -465,6 +467,8 @@ export type InvoiceFilters = {
   status?: InvoiceStatus;
   patient_id?: string;
   branch_id?: string;
+  /** Filter invoices by clinical case (episode). */
+  episode_id?: string;
   /** Backend `type` query param (maps to `InvoiceType`). */
   type?: InvoiceType;
   date_from?: string;
@@ -487,6 +491,7 @@ export type CreateInvoicePayload = {
   branch_id: string;
   patient_id: string;
   visit_id?: string;
+  episode_id?: string;
   assigned_doctor_id?: string;
   invoice_type?: InvoiceType;
   currency?: string;
@@ -632,12 +637,23 @@ export type BuildInvoiceFromChargesPayload = {
   /** Omit to pull in every open charge for the patient at the branch. */
   charge_ids?: string[];
   visit_id?: string;
+  /** Clinical case (episode) this invoice bills; derived from the visit when omitted. */
+  episode_id?: string;
   invoice_type?: InvoiceType;
   currency?: string;
   notes?: string;
   due_date?: string;
   discount_type?: "PERCENTAGE" | "FIXED";
   discount_value?: number;
+};
+
+/**
+ * Append a patient's open (PENDING) charges to an existing issued invoice — the
+ * post-issue accrual path. Omit charge_ids to pull in every open charge for the
+ * invoice's patient at its branch.
+ */
+export type AppendChargesPayload = {
+  charge_ids?: string[];
 };
 
 export type CreateRefundPayload = {
