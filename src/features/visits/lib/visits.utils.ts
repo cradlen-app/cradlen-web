@@ -98,6 +98,7 @@ export function mapApiVisitToVisit(api: ApiVisit): Visit {
     type: api.appointment_type,
     status: api.status,
     priority: api.priority,
+    episodeId: api.episode?.id,
     assignedDoctorId: api.assigned_doctor?.id,
     assignedDoctorName: doctorUser
       ? `${doctorUser.first_name} ${doctorUser.last_name}`.trim()

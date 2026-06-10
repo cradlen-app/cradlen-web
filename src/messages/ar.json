@@ -737,6 +737,9 @@
   "visits": {
     "pageTitle": "الزيارات",
     "breadcrumb": "لوحة التحكم / الزيارات",
+    "billing": {
+      "chargeAddedToast": "أضاف الطبيب خدمة — حصِّل الرصيد المستحق لهذا المريض."
+    },
     "overviewTitle": "نظرة عامة",
     "currentVisit": {
       "title": "الزيارة الحالية",

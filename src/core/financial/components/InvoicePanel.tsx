@@ -10,6 +10,7 @@ import { useBillingQueue, type BillingQueueItem } from "../hooks/useBillingQueue
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 import { InvoiceDrawer } from "./InvoiceDrawer";
 import { CollectChargesDrawer } from "./CollectChargesDrawer";
+import { formatMoney } from "../lib/format";
 import type { Visit } from "@/features/visits/types/visits.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -72,12 +73,19 @@ function VisitRow({
             </p>
           )}
         </div>
-        <div className="shrink-0 mt-0.5">
+        <div className="flex shrink-0 flex-col items-end gap-0.5 mt-0.5">
           {invoice ? (
             <InvoiceStatusBadge status={invoice.status} />
           ) : (
             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium text-gray-400">
               {t("noInvoice")}
+            </span>
+          )}
+          {invoice && invoice.balance_due > 0 && invoice.status !== "DRAFT" && (
+            <span className="text-[11px] font-semibold tabular-nums text-amber-600">
+              {t("balanceDue", {
+                amount: formatMoney(invoice.balance_due, invoice.currency),
+              })}
             </span>
           )}
         </div>

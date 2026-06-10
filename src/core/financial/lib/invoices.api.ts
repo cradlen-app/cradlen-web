@@ -1,6 +1,7 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import type { ApiResponse } from "@/common/types/api.types";
 import type {
+  AppendChargesPayload,
   BuildInvoiceFromChargesPayload,
   CreateInvoicePayload,
   Invoice,
@@ -19,6 +20,7 @@ export function fetchInvoices(
   const params = new URLSearchParams();
   if (filters?.branch_id) params.set("branch_id", filters.branch_id);
   if (filters?.patient_id) params.set("patient_id", filters.patient_id);
+  if (filters?.episode_id) params.set("episode_id", filters.episode_id);
   if (filters?.status) params.set("status", filters.status);
   if (filters?.type) params.set("type", filters.type);
   if (filters?.date_from) params.set("date_from", filters.date_from);
@@ -59,6 +61,20 @@ export function buildInvoiceFromCharges(
 ): Promise<ApiResponse<Invoice>> {
   return apiAuthFetch<ApiResponse<Invoice>>(
     `/organizations/${orgId}/invoices/from-charges`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function appendChargesToInvoice(
+  orgId: string,
+  id: string,
+  payload: AppendChargesPayload,
+): Promise<ApiResponse<Invoice>> {
+  return apiAuthFetch<ApiResponse<Invoice>>(
+    `/organizations/${orgId}/invoices/${id}/append-charges`,
     {
       method: "POST",
       body: JSON.stringify(payload),
