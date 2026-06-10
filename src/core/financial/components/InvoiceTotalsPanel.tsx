@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { formatMoney } from "../lib/format";
+import type { DiscountType, Invoice } from "../types/financial.types";
 
 type TotalsItem = {
   unit_price: number;
@@ -15,26 +16,52 @@ type Props = {
   items: TotalsItem[];
   /** ISO currency code (e.g. "EGP"). Falls back to "EGP" when unspecified. */
   currency?: string | null;
+  /** Invoice-level discount being edited (live preview). */
+  discountType?: DiscountType | "NONE";
+  discountValue?: number;
+  /**
+   * Server snapshot of the saved invoice. When present, tax / paid / balance
+   * come from the backend (authoritative) and the Paid + Balance rows show.
+   */
+  invoice?: Invoice | null;
   className?: string;
 };
 
-export function InvoiceTotalsPanel({ items, currency, className }: Props) {
+export function InvoiceTotalsPanel({
+  items,
+  currency,
+  discountType = "NONE",
+  discountValue = 0,
+  invoice,
+  className,
+}: Props) {
   const t = useTranslations("financial.invoice.totals");
-  const { subtotal, totalDiscount, total } = useMemo(() => {
-    const sub = items.reduce(
-      (sum, item) => sum + item.unit_price * item.quantity,
+
+  const calc = useMemo(() => {
+    const subtotal = items.reduce(
+      (sum, it) => sum + (it.unit_price || 0) * (it.quantity || 0),
       0,
     );
-    const disc = items.reduce(
-      (sum, item) => sum + (item.discount_amount ?? 0),
+    const lineDiscounts = items.reduce(
+      (sum, it) => sum + (it.discount_amount ?? 0),
       0,
     );
-    return {
-      subtotal: sub,
-      totalDiscount: disc,
-      total: sub - disc,
-    };
-  }, [items]);
+    const afterLine = Math.max(subtotal - lineDiscounts, 0);
+
+    let invoiceDiscount = 0;
+    if (discountType === "PERCENTAGE") {
+      invoiceDiscount = (afterLine * (discountValue || 0)) / 100;
+    } else if (discountType === "FIXED") {
+      invoiceDiscount = Math.min(discountValue || 0, afterLine);
+    }
+
+    const tax = invoice?.tax_amount ?? 0;
+    const total = Math.max(afterLine - invoiceDiscount + tax, 0);
+    const paid = invoice?.paid_amount ?? 0;
+    const balance = invoice ? invoice.balance_due : total;
+
+    return { subtotal, lineDiscounts, invoiceDiscount, tax, total, paid, balance };
+  }, [items, discountType, discountValue, invoice]);
 
   return (
     <div
@@ -43,28 +70,78 @@ export function InvoiceTotalsPanel({ items, currency, className }: Props) {
         className,
       )}
     >
-      <div className="flex items-center justify-between py-1.5">
-        <span className="text-gray-500">{t("subtotal")}</span>
-        <span className="font-medium text-gray-900">
-          {formatMoney(subtotal, currency)}
-        </span>
-      </div>
+      <Row label={t("subtotal")} value={formatMoney(calc.subtotal, currency)} />
 
-      <div className="flex items-center justify-between py-1.5">
-        <span className="text-gray-500">{t("discount")}</span>
-        <span className="font-medium text-red-600">
-          -{formatMoney(totalDiscount, currency)}
-        </span>
-      </div>
+      {calc.lineDiscounts > 0 && (
+        <Row
+          label={t("lineDiscounts")}
+          value={`-${formatMoney(calc.lineDiscounts, currency)}`}
+          valueClass="text-red-600"
+        />
+      )}
+
+      {calc.invoiceDiscount > 0 && (
+        <Row
+          label={t("invoiceDiscount")}
+          value={`-${formatMoney(calc.invoiceDiscount, currency)}`}
+          valueClass="text-red-600"
+        />
+      )}
+
+      {calc.tax > 0 && (
+        <Row label={t("tax")} value={formatMoney(calc.tax, currency)} />
+      )}
 
       <div className="my-2 border-t border-gray-200" />
 
       <div className="flex items-center justify-between py-1.5">
         <span className="font-semibold text-gray-900">{t("total")}</span>
         <span className="text-base font-semibold text-gray-900">
-          {formatMoney(total, currency)}
+          {formatMoney(calc.total, currency)}
         </span>
       </div>
+
+      {invoice && (
+        <>
+          <Row
+            label={t("paid")}
+            value={formatMoney(calc.paid, currency)}
+            valueClass="text-emerald-600"
+          />
+          <div className="flex items-center justify-between py-1.5">
+            <span className="font-semibold text-gray-900">
+              {t("balanceDue")}
+            </span>
+            <span
+              className={cn(
+                "text-base font-semibold",
+                calc.balance > 0 ? "text-amber-600" : "text-emerald-600",
+              )}
+            >
+              {formatMoney(calc.balance, currency)}
+            </span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+  valueClass,
+}: {
+  label: string;
+  value: string;
+  valueClass?: string;
+}) {
+  return (
+    <div className="flex items-center justify-between py-1.5">
+      <span className="text-gray-500">{label}</span>
+      <span className={cn("font-medium text-gray-900", valueClass)}>
+        {value}
+      </span>
     </div>
   );
 }
