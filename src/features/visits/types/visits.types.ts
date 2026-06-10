@@ -69,6 +69,8 @@ export type Visit = {
   type: VisitType;
   status: VisitStatus;
   priority: VisitPriority;
+  /** Clinical case this visit belongs to; the billing unit (one invoice per episode). */
+  episodeId?: string;
   assignedDoctorId?: string;
   assignedDoctorName?: string;
   carePathCode?: string;

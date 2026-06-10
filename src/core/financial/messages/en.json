@@ -47,7 +47,9 @@
       "recordPayment": "Record Payment",
       "edit": "Edit",
       "saveAsDraft": "Save as Draft",
+      "createAndIssue": "Create & Issue",
       "importCharges": "Import charges ({count})",
+      "addChargesToInvoice": "Add new charges ({count})",
       "refund": "Refund",
       "printInvoice": "Print",
       "printReceipt": "Receipt"
@@ -65,6 +67,7 @@
       "noVisits": "No visits today",
       "noInvoice": "No invoice",
       "summary": "{pending} pending · {invoiced} invoiced",
+      "balanceDue": "Balance due {amount}",
       "closeAria": "Close billing panel"
     },
     "totals": {

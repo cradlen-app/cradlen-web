@@ -737,6 +737,9 @@
   "visits": {
     "pageTitle": "Visits",
     "breadcrumb": "Dashboard / Visits",
+    "billing": {
+      "chargeAddedToast": "A doctor added a service — collect the balance for this patient."
+    },
     "overviewTitle": "Overview",
     "currentVisit": {
       "title": "Current Visit",
