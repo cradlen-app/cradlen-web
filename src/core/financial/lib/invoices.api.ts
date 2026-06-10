@@ -6,14 +6,51 @@ import type {
   CreateInvoicePayload,
   Invoice,
   InvoiceFilters,
+  InvoiceItem,
   Payment,
   RecordPaymentPayload,
   UpdateInvoicePayload,
 } from "../types/financial.types";
 
+// ── Decimal normalization ───────────────────────────────────────────────────
+// The backend serializes Prisma Decimal columns as strings (see
+// invoice-response.dto.ts), but our types declare them as `number`. Coerce at
+// the boundary so arithmetic (e.g. `a + tax`) doesn't silently string-concat.
+
+const toNum = (v: unknown): number =>
+  typeof v === "number" ? v : Number(v ?? 0) || 0;
+
+function normalizeItem(item: InvoiceItem): InvoiceItem {
+  return {
+    ...item,
+    unit_price: toNum(item.unit_price),
+    discount_amount: toNum(item.discount_amount),
+    total_amount: toNum(item.total_amount),
+  };
+}
+
+function normalizePayment(payment: Payment): Payment {
+  return { ...payment, amount: toNum(payment.amount) };
+}
+
+function normalizeInvoice(inv: Invoice): Invoice {
+  return {
+    ...inv,
+    subtotal: toNum(inv.subtotal),
+    discount_value: inv.discount_value == null ? null : toNum(inv.discount_value),
+    discount_amount: toNum(inv.discount_amount),
+    tax_amount: toNum(inv.tax_amount),
+    total_amount: toNum(inv.total_amount),
+    paid_amount: toNum(inv.paid_amount),
+    balance_due: toNum(inv.balance_due),
+    items: (inv.items ?? []).map(normalizeItem),
+    payments: inv.payments?.map(normalizePayment),
+  };
+}
+
 // ── reads ─────────────────────────────────────────────────────────────────────
 
-export function fetchInvoices(
+export async function fetchInvoices(
   orgId: string,
   filters?: InvoiceFilters,
 ): Promise<ApiResponse<Invoice[]>> {
@@ -28,19 +65,30 @@ export function fetchInvoices(
   if (filters?.page != null) params.set("page", String(filters.page));
   if (filters?.limit != null) params.set("limit", String(filters.limit));
   const qs = params.toString();
-  return apiAuthFetch<ApiResponse<Invoice[]>>(
+  const res = await apiAuthFetch<ApiResponse<Invoice[]>>(
     `/organizations/${orgId}/invoices${qs ? `?${qs}` : ""}`,
   );
+  return { ...res, data: res.data.map(normalizeInvoice) };
 }
 
-export function fetchInvoice(orgId: string, id: string): Promise<ApiResponse<Invoice>> {
-  return apiAuthFetch<ApiResponse<Invoice>>(`/organizations/${orgId}/invoices/${id}`);
+export async function fetchInvoice(
+  orgId: string,
+  id: string,
+): Promise<ApiResponse<Invoice>> {
+  const res = await apiAuthFetch<ApiResponse<Invoice>>(
+    `/organizations/${orgId}/invoices/${id}`,
+  );
+  return { ...res, data: normalizeInvoice(res.data) };
 }
 
-export function fetchPayments(orgId: string, id: string): Promise<ApiResponse<Payment[]>> {
-  return apiAuthFetch<ApiResponse<Payment[]>>(
+export async function fetchPayments(
+  orgId: string,
+  id: string,
+): Promise<ApiResponse<Payment[]>> {
+  const res = await apiAuthFetch<ApiResponse<Payment[]>>(
     `/organizations/${orgId}/invoices/${id}/payments`,
   );
+  return { ...res, data: res.data.map(normalizePayment) };
 }
 
 // ── writes ────────────────────────────────────────────────────────────────────
