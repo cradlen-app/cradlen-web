@@ -46,7 +46,11 @@
       "voiding": "Voiding…",
       "recordPayment": "Record Payment",
       "edit": "Edit",
-      "saveAsDraft": "Save as Draft"
+      "saveAsDraft": "Save as Draft",
+      "importCharges": "Import charges ({count})",
+      "refund": "Refund",
+      "printInvoice": "Print",
+      "printReceipt": "Receipt"
     },
     "void": {
       "title": "Void Invoice?",
@@ -66,7 +70,29 @@
     "totals": {
       "subtotal": "Subtotal",
       "discount": "Discount",
-      "total": "Total"
+      "lineDiscounts": "Line discounts",
+      "invoiceDiscount": "Invoice discount",
+      "tax": "Tax",
+      "total": "Total",
+      "paid": "Paid",
+      "balanceDue": "Balance due"
+    },
+    "discount": {
+      "label": "Invoice discount",
+      "none": "No discount",
+      "percentage": "Percentage (%)",
+      "fixed": "Fixed amount",
+      "valuePlaceholder": "Value"
+    },
+    "print": {
+      "title": "Invoice",
+      "billedTo": "Billed to",
+      "provider": "Provider",
+      "issued": "Issued",
+      "due": "Due",
+      "created": "Created",
+      "notes": "Notes",
+      "print": "Print"
     },
     "fields": {
       "patient": "Patient",
@@ -118,6 +144,8 @@
       "noPriceConfigured": "No price configured"
     },
     "payments": {
+      "title": "Payments",
+      "none": "No payments yet.",
       "date": "Date",
       "amount": "Amount",
       "method": "Method",
@@ -134,6 +162,7 @@
     "newPayment": "New Payment",
     "recordTitle": "Record Payment",
     "recording": "Recording…",
+    "loading": "Loading payments…",
     "method": {
       "CASH": "Cash",
       "CARD": "Card",

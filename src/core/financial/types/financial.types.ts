@@ -43,6 +43,8 @@ export type InvoiceType =
   | "INSURANCE"
   | "REFUND";
 
+export type DiscountType = "PERCENTAGE" | "FIXED";
+
 export type ChargeStatus = "PENDING" | "INVOICED" | "VOID" | "WRITTEN_OFF";
 
 export type ChargeSource = "DOCTOR" | "RECEPTION" | "SYSTEM";
@@ -107,10 +109,13 @@ export type Invoice = {
   invoice_type: InvoiceType;
   status: InvoiceStatus;
   subtotal: number;
+  discount_type: DiscountType | null;
+  discount_value: number | null;
   discount_amount: number;
   tax_amount: number;
   total_amount: number;
   paid_amount: number;
+  balance_due: number;
   currency: string;
   notes: string | null;
   issued_at: string | null;
@@ -487,6 +492,8 @@ export type CreateInvoicePayload = {
   currency?: string;
   notes?: string;
   due_date?: string;
+  discount_type?: DiscountType;
+  discount_value?: number;
   items?: CreateInvoiceItemPayload[];
 };
 
@@ -502,7 +509,8 @@ export type UpdateInvoicePayload = {
   assigned_doctor_id?: string;
   notes?: string;
   due_date?: string;
-  discount_amount?: number;
+  discount_type?: DiscountType;
+  discount_value?: number;
   items?: UpdateInvoiceItemPayload[];
 };
 
