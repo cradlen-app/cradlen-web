@@ -423,17 +423,7 @@ export function InvoiceDrawer({
             </div>
 
             {/* Loading skeleton */}
-            {isLoading && (
-              <div className="flex flex-1 flex-col gap-4 p-6">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-10 animate-pulse rounded-lg bg-gray-100"
-                    style={{ width: `${70 + (i % 3) * 10}%` }}
-                  />
-                ))}
-              </div>
-            )}
+            {isLoading && <InvoiceViewSkeleton />}
 
             {/* Error state */}
             {!isCreate && !isLoading && !invoice && (
@@ -917,5 +907,71 @@ export function InvoiceDrawer({
         />
       )}
     </>
+  );
+}
+
+const bar = "animate-pulse rounded bg-gray-100";
+
+/** View-mode loading placeholder mirroring the info grid / line items / totals / payments. */
+function InvoiceViewSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-5">
+      {/* Info grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <div className={cn(bar, "h-4 w-20")} />
+            <div className={cn(bar, "h-4 w-32")} />
+          </div>
+        ))}
+      </div>
+
+      {/* Line items */}
+      <div className="mt-6">
+        <div className={cn(bar, "mb-3 h-4 w-24")} />
+        <div className="overflow-hidden rounded-xl border border-gray-100">
+          <div className="border-b border-gray-100 bg-gray-50 px-4 py-2.5">
+            <div className={cn(bar, "h-3 w-full max-w-md")} />
+          </div>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between border-b border-gray-50 px-4 py-3 last:border-0"
+            >
+              <div className={cn(bar, "h-4 w-40")} />
+              <div className={cn(bar, "h-4 w-16")} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Totals card */}
+      <div className="mt-4 flex justify-end">
+        <div className="w-72 rounded-xl border border-gray-200 p-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between py-1.5">
+              <div className={cn(bar, "h-4 w-16")} />
+              <div className={cn(bar, "h-4 w-20")} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Payments */}
+      <div className="mt-6 rounded-xl border border-gray-200">
+        <div className="border-b border-gray-100 px-4 py-2.5">
+          <div className={cn(bar, "h-4 w-24")} />
+        </div>
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="flex items-center justify-between px-4 py-2.5">
+            <div className="space-y-1.5">
+              <div className={cn(bar, "h-4 w-24")} />
+              <div className={cn(bar, "h-3 w-32")} />
+            </div>
+            <div className={cn(bar, "h-7 w-7 rounded-lg")} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

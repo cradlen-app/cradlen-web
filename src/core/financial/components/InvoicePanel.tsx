@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Dialog } from "radix-ui";
-import { X, Loader2, ReceiptText, FilePlus2 } from "lucide-react";
+import { X, ReceiptText, FilePlus2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
@@ -113,6 +113,26 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
+/** Loading placeholder mirroring the visit rows (name + time, status badge). */
+function BillingQueueSkeleton() {
+  return (
+    <div>
+      <div className="mb-1 px-3">
+        <div className="h-2.5 w-24 animate-pulse rounded bg-gray-100" />
+      </div>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-start gap-2.5 px-3 py-2.5">
+          <div className="flex-1 space-y-1.5">
+            <div className="h-3.5 w-32 animate-pulse rounded bg-gray-100" />
+            <div className="h-2.5 w-16 animate-pulse rounded bg-gray-100" />
+          </div>
+          <div className="mt-0.5 h-5 w-16 animate-pulse rounded-full bg-gray-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export type InvoicePanelProps = {
@@ -179,9 +199,7 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
             {/* Body */}
             <div className="flex-1 overflow-y-auto py-3">
               {isLoading ? (
-                <div className="flex items-center justify-center py-12 text-gray-400">
-                  <Loader2 className="size-5 animate-spin" aria-hidden="true" />
-                </div>
+                <BillingQueueSkeleton />
               ) : totalCount === 0 ? (
                 <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
                   <ReceiptText className="size-8 text-gray-200" aria-hidden="true" />
