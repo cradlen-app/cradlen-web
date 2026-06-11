@@ -5,6 +5,12 @@ import { ChevronDown, Loader2, Pencil, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { useRouter } from "@/i18n/navigation";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import {
+  canDriveClinicalVisit,
+  canDriveReceptionVisit,
+} from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
@@ -37,10 +43,17 @@ const NEXT_STATUSES: Partial<Record<VisitStatus, VisitStatus[]>> = {
   IN_PROGRESS: ["COMPLETED"],
 };
 
+// Clinical transitions the backend restricts to the assigned doctor (or an
+// owner / branch-manager override); everything else is a front-desk action.
+const CLINICAL_TRANSITIONS: VisitStatus[] = ["IN_PROGRESS", "COMPLETED"];
+
 function StatusSelect({ visit }: { visit: Visit }) {
   const t = useTranslations("visits");
   const updatePatientStatus = useUpdateVisitStatus();
   const updateMedRepStatus = useUpdateMedRepVisitStatus();
+  const { data: user } = useCurrentUser();
+  const profile = getActiveProfile(user);
+  const activeProfileId = useAuthContextStore((s) => s.profileId);
   const [pendingCancel, setPendingCancel] = useState(false);
 
   const isMedRep = visit.kind === "medical_rep";
@@ -49,7 +62,21 @@ function StatusSelect({ visit }: { visit: Visit }) {
     : updatePatientStatus.isPending;
 
   const isTerminal = TERMINAL_STATUSES.includes(visit.status);
-  const nextOptions = NEXT_STATUSES[visit.status] ?? [];
+  // Patient visits follow the backend's role split: clinical steps need the
+  // assigned doctor, front-desk steps need reception. Medical-rep visits have
+  // no assigned-doctor guard, so keep offering every valid transition.
+  const rawNext = NEXT_STATUSES[visit.status] ?? [];
+  const nextOptions = isMedRep
+    ? rawNext
+    : rawNext.filter((s) =>
+        CLINICAL_TRANSITIONS.includes(s)
+          ? canDriveClinicalVisit(
+              profile,
+              visit.assignedDoctorId,
+              activeProfileId,
+            )
+          : canDriveReceptionVisit(profile),
+      );
 
   async function commit(status: VisitStatus) {
     if (isMedRep) {
@@ -74,7 +101,10 @@ function StatusSelect({ visit }: { visit: Visit }) {
     void commit(next);
   }
 
-  if (isTerminal) {
+  // No actionable transitions for this user (terminal visit, or a reception user
+  // looking at an in-progress visit whose only next step is clinical) — show the
+  // status read-only rather than an inert dropdown.
+  if (isTerminal || nextOptions.length === 0) {
     return <VisitStatusBadge status={visit.status} />;
   }
 
