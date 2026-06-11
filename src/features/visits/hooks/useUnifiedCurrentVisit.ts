@@ -17,7 +17,7 @@ export function useUnifiedMyCurrentVisit(
 
   const data = useMemo<Visit[]>(() => {
     if (patient.isLoading || medRep.isLoading) return [];
-    return [patient.data, medRep.data].filter((v): v is Visit => v != null);
+    return [...(patient.data ?? []), ...(medRep.data ?? [])];
   }, [patient.data, medRep.data, patient.isLoading, medRep.isLoading]);
 
   return {
