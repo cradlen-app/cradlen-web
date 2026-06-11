@@ -1020,6 +1020,7 @@
       "errorNoBranch": "No branch is linked to this session.",
       "successMessage": "Visit booked successfully.",
       "errorDuplicatePatient": "Patient already registered with this national ID.",
+      "errorPatientHasOpenVisit": "This patient already has an open visit in today's waiting list. Check them in or cancel the existing visit first.",
       "errorGeneric": "Failed to book the visit.",
       "errorNoSpecialty": "This organization has no specialty configured. Please contact your administrator.",
       "cancelButton": "Cancel",
