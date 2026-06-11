@@ -128,6 +128,25 @@ export function canCreateVisit(profile?: UserProfile): boolean {
   return isReceptionist(profile);
 }
 
+/**
+ * Who may drive a clinical visit step (start / complete): the doctor the visit
+ * was booked for, or an owner / branch manager as an administrative override.
+ * Mirrors the backend's assigned-doctor guard so the UI never offers an action
+ * the API will reject. `activeProfileId` is the caller's active profile id.
+ */
+export function canDriveClinicalVisit(
+  profile: UserProfile | undefined,
+  assignedDoctorId: string | null | undefined,
+  activeProfileId: string | null | undefined,
+): boolean {
+  if (isOwner(profile) || isBranchManager(profile)) return true;
+  return (
+    isClinical(profile) &&
+    !!assignedDoctorId &&
+    assignedDoctorId === activeProfileId
+  );
+}
+
 /** Most staff members can search the patient directory. */
 export function canSearchPatients(profile?: UserProfile): boolean {
   return (
