@@ -471,7 +471,19 @@
       "date": "التاريخ",
       "lineCount": "البنود",
       "invoiceCount": "الفواتير",
-      "grandTotal": "الإجمالي الكلي"
+      "grandTotal": "الإجمالي الكلي",
+      "outstanding": "المستحق",
+      "collectionRate": "معدل التحصيل",
+      "share": "النسبة",
+      "staff": "الموظف",
+      "lastPayment": "آخر دفعة"
+    },
+    "buckets": {
+      "current": "حالي",
+      "d1_30": "1–30 يوم",
+      "d31_60": "31–60 يوم",
+      "d61_90": "61–90 يوم",
+      "d90_plus": "أكثر من 90 يوم"
     }
   },
   "categories": {
