@@ -373,11 +373,12 @@
   },
   "invoices": {
     "title": "Invoice Search",
-    "subtitle": "Search and manage invoices across the organization.",
+    "subtitle": "Search and manage invoices for this branch.",
     "searchPlaceholder": "Search by invoice number or patient name…",
     "filterStatus": "Status",
     "statusAll": "All statuses",
     "empty": "No invoices found.",
+    "error": "Couldn't load invoices. Please try again.",
     "loading": "Loading invoices…",
     "resultsCount": "{count, plural, one {# invoice} other {# invoices}}",
     "columns": {
