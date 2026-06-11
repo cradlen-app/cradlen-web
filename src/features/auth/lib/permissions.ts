@@ -147,6 +147,16 @@ export function canDriveClinicalVisit(
   );
 }
 
+/**
+ * Front-desk visit transitions (check-in / cancel / no-show): receptionists,
+ * or an owner / branch manager as an administrative override. Mirrors the
+ * backend's `assertReceptionAction` guard so the UI never offers an action the
+ * API will reject. Complements `canDriveClinicalVisit` (start / complete).
+ */
+export function canDriveReceptionVisit(profile?: UserProfile): boolean {
+  return isOwner(profile) || isBranchManager(profile) || isReceptionist(profile);
+}
+
 /** Most staff members can search the patient directory. */
 export function canSearchPatients(profile?: UserProfile): boolean {
   return (
