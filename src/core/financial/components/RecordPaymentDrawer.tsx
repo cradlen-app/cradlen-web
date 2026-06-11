@@ -5,9 +5,11 @@ import { Dialog } from "radix-ui";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Banknote } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
+import { Link } from "@/i18n/navigation";
+import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { Button } from "@/components/ui/button";
 import { useRecordPayment } from "../hooks/useRecordPayment";
 import { useCurrentCashSession } from "../hooks/useCashSessions";
@@ -50,8 +52,12 @@ export function RecordPaymentDrawer({
   const t = useTranslations("financial.payments");
   const tCommon = useTranslations("financial.common");
   const recordPayment = useRecordPayment();
-  // Cash payments are linked to the open cash session so the drawer reconciles.
-  const { session: cashSession } = useCurrentCashSession();
+  // Payments require an open cash session so the drawer reconciles; cash
+  // payments are additionally attributed to that session.
+  const { session: cashSession, isLoading: sessionLoading } =
+    useCurrentCashSession();
+  const sessionOpen = cashSession?.status === "OPEN";
+  const cashSessionsHref = useDashboardPath()("/financial/cash-sessions");
 
   const {
     register,
@@ -81,6 +87,7 @@ export function RecordPaymentDrawer({
   }
 
   const onSubmit = handleSubmit((data) => {
+    if (!sessionOpen) return;
     recordPayment.mutate(
       {
         invoiceId,
@@ -139,6 +146,33 @@ export function RecordPaymentDrawer({
           {/* Body */}
           <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-y-auto">
             <div className="flex flex-1 flex-col gap-4 px-5 py-4">
+              {/* No open cash session — block recording */}
+              {!sessionLoading && !sessionOpen && (
+                <div className="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                  <div className="flex items-start gap-2">
+                    <Banknote
+                      className="mt-0.5 size-4 shrink-0 text-amber-600"
+                      aria-hidden="true"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800">
+                        {t("noSession.title")}
+                      </p>
+                      <p className="mt-0.5 text-xs text-amber-700">
+                        {t("noSession.body")}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href={cashSessionsHref}
+                    onClick={() => onOpenChange(false)}
+                    className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700"
+                  >
+                    {t("noSession.action")}
+                  </Link>
+                </div>
+              )}
+
               {/* Amount */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
@@ -238,7 +272,7 @@ export function RecordPaymentDrawer({
               >
                 {tCommon("cancel")}
               </Button>
-              <Button type="submit" disabled={recordPayment.isPending}>
+              <Button type="submit" disabled={recordPayment.isPending || !sessionOpen}>
                 {recordPayment.isPending ? (
                   <>
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
