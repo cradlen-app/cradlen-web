@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertDialog, Dialog } from "radix-ui";
 import { Banknote, Loader2, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -60,6 +60,24 @@ export function CashSessionsPage() {
   const [closeNotes, setCloseNotes] = useState("");
   const [reconcileTarget, setReconcileTarget] = useState<CashSession | null>(null);
 
+  // Cash carried from the most recent closed/reconciled session's counted amount.
+  const lastCountedFloat = useMemo<string | null>(() => {
+    const closed = sessions.filter(
+      (s) =>
+        s.counted_amount != null &&
+        (s.status === "CLOSED" || s.status === "RECONCILED"),
+    );
+    if (closed.length === 0) return null;
+    const sortKey = (s: CashSession) => s.closed_at ?? s.opened_at ?? "";
+    const latest = closed.reduce((a, b) => (sortKey(b) > sortKey(a) ? b : a));
+    return latest.counted_amount;
+  }, [sessions]);
+
+  function openOpenDialog() {
+    setOpeningFloat(lastCountedFloat ?? "0");
+    setOpenDialog(true);
+  }
+
   function handleOpen() {
     if (!branchId) return;
     openMutation.mutate(
@@ -102,7 +120,7 @@ export function CashSessionsPage() {
           <Button
             type="button"
             size="sm"
-            onClick={() => setOpenDialog(true)}
+            onClick={openOpenDialog}
             disabled={!branchId}
           >
             <Plus className="size-3.5" aria-hidden="true" />
@@ -289,6 +307,11 @@ export function CashSessionsPage() {
               onChange={(e) => setOpeningFloat(e.target.value)}
               className={inputClass}
             />
+            {lastCountedFloat != null && (
+              <p className="mt-1.5 text-xs text-gray-400">
+                {t("carriedFromLastSession", { amount: money(lastCountedFloat) })}
+              </p>
+            )}
             <div className="mt-5 flex justify-end gap-2">
               <Button
                 type="button"
