@@ -1025,6 +1025,15 @@
       "errorNoSpecialty": "This organization has no specialty configured. Please contact your administrator.",
       "cancelButton": "Cancel",
       "submitButton": "Add to waiting list",
+      "service": {
+        "label": "Service",
+        "placeholder": "Select a service",
+        "pickDoctorFirst": "Select a doctor first",
+        "required": "Please select a service",
+        "noneAuthorized": "This doctor has no billable services configured.",
+        "priceLabel": "Price",
+        "noPrice": "No price configured"
+      },
       "fields": {
         "doctor": "Doctor",
         "selectDoctor": "Select doctor",
