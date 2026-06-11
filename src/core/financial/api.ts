@@ -23,7 +23,6 @@ export { useBillingQueue, type BillingQueueItem } from "./hooks/useBillingQueue"
 export { useInvoice } from "./hooks/useInvoice";
 export { usePayments } from "./hooks/usePayments";
 export { useServices } from "./hooks/useServices";
-export { useProviderServices } from "./hooks/useAuthorizations";
 export { usePriceLists } from "./hooks/usePriceLists";
 export { useResolvePrice } from "./hooks/useResolvePrice";
 
