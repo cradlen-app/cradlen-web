@@ -390,6 +390,7 @@
     "open": "Open Session",
     "openTitle": "Open Cash Session",
     "openingFloat": "Opening float",
+    "carriedFromLastSession": "Carried from last session ({amount})",
     "openConfirm": "Open",
     "noOpenSession": "No open cash session",
     "noOpenSessionHint": "Open a session to start collecting cash payments.",
