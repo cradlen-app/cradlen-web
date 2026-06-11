@@ -528,7 +528,6 @@ export type RecordPaymentPayload = {
   payment_date?: string;
   reference_number?: string;
   notes?: string;
-  cash_session_id?: string;
 };
 
 export type CreateServicePayload = {

@@ -97,10 +97,6 @@ export function RecordPaymentDrawer({
           reference_number: data.reference_number || undefined,
           notes: data.notes || undefined,
           payment_date: new Date(data.payment_date + "T00:00:00").toISOString(),
-          cash_session_id:
-            data.payment_method === "CASH" && cashSession?.status === "OPEN"
-              ? cashSession.id
-              : undefined,
         },
       },
       {
