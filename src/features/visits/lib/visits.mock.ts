@@ -224,7 +224,7 @@ export const mockInProgressByDoctor: DoctorGroup[] = [
           lastName: "Mahmoud",
           fullName: "Sara Mahmoud",
         },
-        status: "IN_PROGRESS",
+        status: "IN_CONSULTATION",
         assignedDoctorId: "doc-1",
         assignedDoctorName: "Dr. Hala Younis",
         startedAt: minutesAgo(8),

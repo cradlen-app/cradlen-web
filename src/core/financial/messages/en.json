@@ -156,7 +156,8 @@
       "amount": "Amount",
       "method": "Method",
       "reference": "Reference",
-      "recordedBy": "Recorded by"
+      "recordedBy": "Recorded by",
+      "actionsColumn": "Actions"
     },
     "panelButton": {
       "openAria": "Open billing panel",

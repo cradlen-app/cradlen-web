@@ -10,7 +10,6 @@ import {
   Pencil,
   Send,
   CreditCard,
-  ExternalLink,
   FileText,
   Receipt,
   Undo2,
@@ -306,22 +305,6 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                             invoice.assigned_doctor_id,
                           )}
                         </span>
-                      </dd>
-                    </div>
-                  )}
-
-                  {/* Visit link */}
-                  {invoice.visit_id && (
-                    <div className="flex items-start justify-between gap-2">
-                      <dt className="shrink-0 text-gray-500">{t("fields.visit")}</dt>
-                      <dd className="text-right">
-                        <Link
-                          href={`${dashboardBase}/visits/${invoice.visit_id}`}
-                          className="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800 hover:underline"
-                        >
-                          {t("view.viewVisit")}
-                          <ExternalLink className="size-3.5" aria-hidden="true" />
-                        </Link>
                       </dd>
                     </div>
                   )}

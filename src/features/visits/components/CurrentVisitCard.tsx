@@ -42,11 +42,14 @@ function CurrentVisitRow({
   const profile = getActiveProfile(user);
   const activeProfileId = useAuthContextStore((s) => s.profileId);
 
-  const isInProgress = visit.status === "IN_PROGRESS";
-  // Defense-in-depth: the my-current feed is already assigned-doctor scoped, but
-  // only offer Start to the doctor (or owner/manager) the backend will accept.
+  // The patient is actively in consultation — offer Open (jump into the workspace).
+  const isInConsultation = visit.status === "IN_CONSULTATION";
+  // Reception has queued the patient (IN_PROGRESS); the doctor's Start button
+  // begins the consultation (IN_CONSULTATION). Defense-in-depth: the my-current
+  // feed is already assigned-doctor scoped, but only offer Start to the doctor
+  // (or owner/manager) the backend will accept.
   const canStart =
-    (visit.status === "CHECKED_IN" || visit.status === "SCHEDULED") &&
+    visit.status === "IN_PROGRESS" &&
     canDriveClinicalVisit(profile, visit.assignedDoctorId, activeProfileId);
 
   async function handleStart() {
@@ -80,7 +83,7 @@ function CurrentVisitRow({
       <VisitPriorityBadge priority={visit.priority} />
       <div className="flex items-center justify-end gap-2">
         <VisitStatusBadge status={visit.status} />
-        {isInProgress ? (
+        {isInConsultation ? (
           <Button
             type="button"
             size="sm"

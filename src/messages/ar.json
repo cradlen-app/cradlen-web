@@ -965,7 +965,8 @@
     "status": {
       "pending": "قيد الانتظار",
       "waiting": "في الانتظار",
-      "inProgress": "قيد التنفيذ",
+      "inProgress": "في الطابور",
+      "inConsultation": "قيد الكشف",
       "completed": "مكتملة",
       "cancelled": "ملغاة",
       "scheduled": "مجدولة",
@@ -973,7 +974,8 @@
       "noShow": "لم يحضر",
       "SCHEDULED": "مجدولة",
       "CHECKED_IN": "تم التسجيل",
-      "IN_PROGRESS": "قيد التنفيذ",
+      "IN_PROGRESS": "في الطابور",
+      "IN_CONSULTATION": "قيد الكشف",
       "COMPLETED": "مكتملة",
       "CANCELLED": "ملغاة",
       "NO_SHOW": "لم يحضر"
