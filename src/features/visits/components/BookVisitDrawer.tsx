@@ -302,11 +302,16 @@ function DrawerBody({
         const apiBody = error.body as
           | {
               error?: {
+                code?: string;
                 message?: string | string[];
                 details?: { fields?: Record<string, string[]> };
               };
             }
           | undefined;
+        if (apiBody?.error?.code === "PATIENT_HAS_OPEN_VISIT") {
+          toast.error(t("create.errorPatientHasOpenVisit"));
+          return;
+        }
         const details = apiBody?.error?.details?.fields;
         if (details) {
           setErrors(mapServerFieldErrors(template, details));
