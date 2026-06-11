@@ -438,7 +438,7 @@
     "title": "التقارير المالية",
     "subtitle": "الإيرادات والتحصيلات والذمم المدينة والمزيد.",
     "tabs": {
-      "revenue": "الإيرادات",
+      "overview": "نظرة عامة",
       "daily": "يومي",
       "byService": "حسب الخدمة",
       "byDoctor": "حسب الطبيب",
@@ -455,9 +455,17 @@
     },
     "loading": "جاري تحميل التقرير…",
     "noData": "لا توجد بيانات لهذه الفترة.",
+    "sections": {
+      "revenueTrend": "الإيرادات مقابل التحصيلات",
+      "topDoctors": "أعلى الأطباء",
+      "topServices": "أعلى الخدمات",
+      "arSnapshot": "لمحة أعمار الذمم"
+    },
     "labels": {
       "invoiced": "المفوتر",
       "collected": "المحصّل",
+      "totalInvoiced": "إجمالي المفوتر",
+      "totalCollected": "إجمالي المحصّل",
       "total": "الإجمالي",
       "count": "العدد",
       "service": "الخدمة",
