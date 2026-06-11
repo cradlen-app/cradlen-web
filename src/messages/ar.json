@@ -1025,15 +1025,6 @@
       "errorNoSpecialty": "لا توجد تخصصات مُعدَّة لهذه المؤسسة. يرجى التواصل مع المسؤول.",
       "cancelButton": "إلغاء",
       "submitButton": "إضافة إلى قائمة الانتظار",
-      "service": {
-        "label": "الخدمة",
-        "placeholder": "اختر خدمة",
-        "pickDoctorFirst": "اختر الطبيب أولاً",
-        "required": "يرجى اختيار خدمة",
-        "noneAuthorized": "لا توجد خدمات قابلة للفوترة مُعدّة لهذا الطبيب.",
-        "priceLabel": "السعر",
-        "noPrice": "لم يتم تحديد سعر"
-      },
       "fields": {
         "doctor": "الطبيب",
         "selectDoctor": "اختر طبيباً",
