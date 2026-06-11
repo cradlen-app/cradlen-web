@@ -4,6 +4,7 @@ export type ApiVisitStatus =
   | "SCHEDULED"
   | "CHECKED_IN"
   | "IN_PROGRESS"
+  | "IN_CONSULTATION"
   | "COMPLETED"
   | "CANCELLED"
   | "NO_SHOW";

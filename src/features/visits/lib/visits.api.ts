@@ -183,6 +183,9 @@ export function bookMedicalRepVisit(body: BookMedicalRepVisitRequest) {
   });
 }
 
+// "Start visit" = the doctor begins the consultation. Reception has already
+// moved the patient into the queue (IN_PROGRESS); this advances to
+// IN_CONSULTATION, which the backend restricts to the assigned doctor.
 export function startVisit({
   visitId,
 }: {
@@ -191,7 +194,7 @@ export function startVisit({
 }) {
   return apiAuthFetch<ApiVisitResponse>(`/visits/${visitId}/status`, {
     method: "PATCH",
-    body: JSON.stringify({ status: "IN_PROGRESS" } satisfies UpdateVisitStatusRequest),
+    body: JSON.stringify({ status: "IN_CONSULTATION" } satisfies UpdateVisitStatusRequest),
   });
 }
 
