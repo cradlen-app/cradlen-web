@@ -120,6 +120,7 @@
       "balanceDue": "Balance due: {amount}",
       "viewVisit": "View Visit",
       "breadcrumbBilling": "Billing",
+      "breadcrumbInvoices": "Invoices",
       "invoiceDetails": "Invoice Details",
       "lineItems": "Line Items",
       "paymentHistory": "Payment History",
@@ -373,7 +374,7 @@
   "invoices": {
     "title": "Invoice Search",
     "subtitle": "Search and manage invoices across the organization.",
-    "searchPlaceholder": "Search by invoice number…",
+    "searchPlaceholder": "Search by invoice number or patient name…",
     "filterStatus": "Status",
     "statusAll": "All statuses",
     "empty": "No invoices found.",
@@ -387,6 +388,11 @@
       "paid": "Paid",
       "balance": "Balance",
       "date": "Date"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {totalPages}"
     }
   },
   "cashSessions": {

@@ -60,6 +60,7 @@ export async function fetchInvoices(
   if (filters?.episode_id) params.set("episode_id", filters.episode_id);
   if (filters?.status) params.set("status", filters.status);
   if (filters?.type) params.set("type", filters.type);
+  if (filters?.search) params.set("search", filters.search);
   if (filters?.date_from) params.set("date_from", filters.date_from);
   if (filters?.date_to) params.set("date_to", filters.date_to);
   if (filters?.page != null) params.set("page", String(filters.page));
