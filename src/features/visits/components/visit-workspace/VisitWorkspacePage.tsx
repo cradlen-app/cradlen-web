@@ -8,7 +8,7 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import {
   canAccessBilling,
-  isClinical,
+  canDriveClinicalVisit,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUpdateVisitStatus } from "../../hooks/useUpdateVisitStatus";
@@ -60,7 +60,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
     });
   }, [setActiveTab]);
 
-  const canComplete = isClinical(profile) && visit?.status === "IN_PROGRESS";
+  // Only the assigned doctor (or an owner/manager) may complete — mirrors the
+  // backend guard so we never show an action the API will reject with 403.
+  const canComplete =
+    visit?.status === "IN_PROGRESS" &&
+    canDriveClinicalVisit(profile, visit?.assignedDoctorId, activeProfileId);
   const showInvoiceBtn = canAccessBilling(profile);
   // Rendering provider the charge is attributed to: the visit's assigned
   // doctor, falling back to the acting clinician's own profile.

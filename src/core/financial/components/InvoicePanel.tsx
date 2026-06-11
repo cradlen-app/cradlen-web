@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog } from "radix-ui";
 import { X, ReceiptText, FilePlus2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -138,9 +138,18 @@ function BillingQueueSkeleton() {
 export type InvoicePanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * When set (e.g. from a "service added" notification deep-link), auto-open the
+   * invoice drawer for the matching visit once the billing queue has loaded.
+   */
+  autoOpenVisitId?: string;
 };
 
-export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
+export function InvoicePanel({
+  open,
+  onOpenChange,
+  autoOpenVisitId,
+}: InvoicePanelProps) {
   const t = useTranslations("financial.invoice.panel");
   const branchId = useAuthContextStore((s) => s.branchId);
 
@@ -164,6 +173,23 @@ export function InvoicePanel({ open, onOpenChange }: InvoicePanelProps) {
       },
     });
   }
+
+  // Deep-link: open the drawer for the notified visit once it appears in the
+  // queue. The ref guards against reopening after the user closes the drawer.
+  const consumedAutoOpenRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!autoOpenVisitId || consumedAutoOpenRef.current === autoOpenVisitId) {
+      return;
+    }
+    const item = [...pending, ...invoiced].find(
+      (i) => i.visit.id === autoOpenVisitId,
+    );
+    if (item) {
+      consumedAutoOpenRef.current = autoOpenVisitId;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- opening the drawer is a one-shot sync from the async billing queue, guarded by the consumed ref
+      openDrawerForItem(item);
+    }
+  }, [autoOpenVisitId, pending, invoiced]);
 
   return (
     <>

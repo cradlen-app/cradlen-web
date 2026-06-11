@@ -169,6 +169,8 @@ export type ApiPatientListResponse = {
 export type BookVisitExistingPatientRequest = VisitIntake & {
   patient_id: string;
   assigned_doctor_id: string;
+  /** Billable service chosen at booking; the backend captures its charge. */
+  service_id: string;
   appointment_type: ApiVisitType;
   priority: ApiVisitPriority;
   scheduled_at: string;
@@ -183,6 +185,8 @@ export type BookVisitNewPatientRequest = VisitIntake & {
   phone_number: string;
   address?: string;
   assigned_doctor_id: string;
+  /** Billable service chosen at booking; the backend captures its charge. */
+  service_id: string;
   appointment_type: ApiVisitType;
   priority: ApiVisitPriority;
   scheduled_at: string;

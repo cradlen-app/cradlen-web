@@ -22,8 +22,15 @@ import {
   validateTemplate,
 } from "@/builder/validator/client-validator";
 import type { FormTemplateDto } from "@/builder/templates/template.types";
+import {
+  useServices,
+  useProviderServices,
+  useResolvePrice,
+  formatMoney,
+} from "@/core/financial/api";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { usePatient } from "@/features/patients/hooks/usePatient";
+import { filterAuthorizedServices } from "../lib/authorized-services";
 import { useBookVisit } from "../hooks/useBookVisit";
 import { useBookMedicalRepVisit } from "../hooks/useBookMedicalRepVisit";
 import { useUpdateVisit, type UpdateVisitRequest } from "../hooks/useUpdateVisit";
@@ -212,6 +219,53 @@ function DrawerBody({
   const isEdit = !!editingVisit;
   const isMedicalRep = state.systemValues.visitor_type === "MEDICAL_REP";
 
+  // A billable service is picked at booking (patient visits only); the backend
+  // captures its charge and auto-issues the case invoice. Skipped when editing
+  // or for medical-rep visits, which aren't billed.
+  const showServicePicker = !isEdit && !isMedicalRep;
+
+  const [serviceId, setServiceId] = useState("");
+  const [serviceError, setServiceError] = useState<string | null>(null);
+
+  // The doctor picker is a LOOKUP field inside the DSL form; derive its resolved
+  // id the same way the submission does, so services + price scope to it.
+  const assignedDoctorId = useMemo(() => {
+    if (!showServicePicker) return "";
+    const body = buildSubmission(template, {
+      formValues: state.formValues,
+      searchState: state.searchState,
+      systemValues: state.systemValues,
+    });
+    return typeof body.assigned_doctor_id === "string"
+      ? body.assigned_doctor_id
+      : "";
+  }, [showServicePicker, template, state]);
+
+  const { services } = useServices(
+    showServicePicker ? { active: true } : undefined,
+  );
+  const { authorizations } = useProviderServices(
+    showServicePicker && assignedDoctorId ? assignedDoctorId : undefined,
+  );
+
+  // Services the assigned doctor may deliver at this branch.
+  const authorizedServices = useMemo(
+    () => filterAuthorizedServices(authorizations, services, branchId),
+    [authorizations, services, branchId],
+  );
+
+  // A picked service the (newly) selected doctor isn't authorized for is
+  // treated as unselected — derived during render to avoid a cascading effect.
+  const effectiveServiceId = authorizedServices.some((s) => s.id === serviceId)
+    ? serviceId
+    : "";
+
+  const { resolvedPrice } = useResolvePrice(
+    effectiveServiceId || null,
+    branchId,
+    assignedDoctorId || null,
+  );
+
   const submitPending = isEdit
     ? isMedicalRep
       ? updateMedRepVisit.isPending
@@ -242,6 +296,14 @@ function DrawerBody({
     const body = buildSubmission(template, snapshot);
 
     if (!isEdit) body.branch_id = branchId;
+
+    if (showServicePicker) {
+      if (!effectiveServiceId) {
+        setServiceError(t("create.service.required"));
+        return;
+      }
+      body.service_id = effectiveServiceId;
+    }
 
     // Normalize scheduled_at to a full ISO timestamp (the DATETIME input
     // emits `YYYY-MM-DDTHH:mm` from datetime-local).
@@ -340,6 +402,57 @@ function DrawerBody({
     <form onSubmit={handleSubmit} className="mt-5 flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pe-1">
         <TemplateRenderer template={template} errors={errors} />
+
+        {showServicePicker ? (
+          <div className="space-y-1.5">
+            <label
+              htmlFor="book-visit-service"
+              className="block text-xs font-medium text-gray-700"
+            >
+              {t("create.service.label")}
+            </label>
+            <select
+              id="book-visit-service"
+              value={effectiveServiceId}
+              disabled={!assignedDoctorId}
+              onChange={(e) => {
+                setServiceId(e.target.value);
+                setServiceError(null);
+              }}
+              className={cn(
+                "w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors",
+                "focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
+                "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
+                serviceError ? "border-red-400" : "border-gray-200",
+              )}
+            >
+              <option value="">
+                {assignedDoctorId
+                  ? t("create.service.placeholder")
+                  : t("create.service.pickDoctorFirst")}
+              </option>
+              {authorizedServices.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            {assignedDoctorId && authorizedServices.length === 0 ? (
+              <p className="text-xs text-amber-600">
+                {t("create.service.noneAuthorized")}
+              </p>
+            ) : effectiveServiceId ? (
+              <p className="text-xs text-gray-500">
+                {resolvedPrice?.price != null
+                  ? `${t("create.service.priceLabel")}: ${formatMoney(Number(resolvedPrice.price))}`
+                  : t("create.service.noPrice")}
+              </p>
+            ) : null}
+            {serviceError ? (
+              <p className="text-xs text-red-500">{serviceError}</p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2 border-t border-gray-100 pt-4">

@@ -7,6 +7,10 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/infrastructure/http/api";
 import { cn } from "@/common/utils/utils";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { canDriveClinicalVisit } from "@/features/auth/lib/permissions";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUnifiedMyCurrentVisit } from "../hooks/useUnifiedCurrentVisit";
 import { useStartVisit } from "../hooks/useStartVisit";
 import { visitWorkspacePath } from "../lib/visits.utils";
@@ -34,10 +38,16 @@ function CurrentVisitRow({
   const t = useTranslations("visits.currentVisit");
   const startVisit = useStartVisit();
   const router = useRouter();
+  const { data: user } = useCurrentUser();
+  const profile = getActiveProfile(user);
+  const activeProfileId = useAuthContextStore((s) => s.profileId);
 
   const isInProgress = visit.status === "IN_PROGRESS";
+  // Defense-in-depth: the my-current feed is already assigned-doctor scoped, but
+  // only offer Start to the doctor (or owner/manager) the backend will accept.
   const canStart =
-    visit.status === "CHECKED_IN" || visit.status === "SCHEDULED";
+    (visit.status === "CHECKED_IN" || visit.status === "SCHEDULED") &&
+    canDriveClinicalVisit(profile, visit.assignedDoctorId, activeProfileId);
 
   async function handleStart() {
     try {
