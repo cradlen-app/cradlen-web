@@ -16,15 +16,23 @@ export function useInvoices(
     queryKey: financialQueryKeys.invoices.list(orgId ?? "", filters ?? {}),
     queryFn: async () => {
       const res = await fetchInvoices(orgId!, filters);
-      return res.data;
+      return { data: res.data, meta: res.meta };
     },
     enabled: !!orgId,
+    placeholderData: (prev) => prev,
     refetchInterval: options?.refetchInterval,
   });
 
+  const meta = query.data?.meta;
+
   return {
-    invoices: query.data ?? [],
+    invoices: query.data?.data ?? [],
+    total: meta?.total,
+    page: meta?.page,
+    limit: meta?.limit,
+    totalPages: meta?.totalPages,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     error: query.error,
   };
 }
