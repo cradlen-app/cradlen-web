@@ -965,7 +965,8 @@
     "status": {
       "pending": "Pending",
       "waiting": "Waiting",
-      "inProgress": "In-progress",
+      "inProgress": "In Queue",
+      "inConsultation": "In Consultation",
       "completed": "Completed",
       "cancelled": "Cancelled",
       "scheduled": "Scheduled",
@@ -973,7 +974,8 @@
       "noShow": "No Show",
       "SCHEDULED": "Scheduled",
       "CHECKED_IN": "Checked In",
-      "IN_PROGRESS": "In Progress",
+      "IN_PROGRESS": "In Queue",
+      "IN_CONSULTATION": "In Consultation",
       "COMPLETED": "Completed",
       "CANCELLED": "Cancelled",
       "NO_SHOW": "No Show"

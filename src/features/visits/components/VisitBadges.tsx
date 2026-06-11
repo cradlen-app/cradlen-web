@@ -11,7 +11,8 @@ import type {
 const STATUS_STYLES: Record<VisitStatus, string> = {
   SCHEDULED: "bg-blue-50 text-blue-700",
   CHECKED_IN: "bg-amber-50 text-amber-700",
-  IN_PROGRESS: "bg-brand-primary/10 text-brand-primary",
+  IN_PROGRESS: "bg-indigo-50 text-indigo-700",
+  IN_CONSULTATION: "bg-brand-primary/10 text-brand-primary",
   COMPLETED: "bg-emerald-50 text-emerald-700",
   CANCELLED: "bg-red-50 text-red-600",
   NO_SHOW: "bg-gray-100 text-gray-500",
@@ -42,6 +43,7 @@ export function VisitStatusBadge({ status }: { status: VisitStatus }) {
     SCHEDULED: t("status.scheduled"),
     CHECKED_IN: t("status.checkedIn"),
     IN_PROGRESS: t("status.inProgress"),
+    IN_CONSULTATION: t("status.inConsultation"),
     COMPLETED: t("status.completed"),
     CANCELLED: t("status.cancelled"),
     NO_SHOW: t("status.noShow"),
