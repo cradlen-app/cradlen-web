@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Link } from "@/i18n/navigation";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
+import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 
 import { useInvoices } from "../hooks/useInvoices";
 import { formatMoney } from "../lib/format";
@@ -33,6 +34,7 @@ function formatDate(value: string): string {
 export function InvoiceSearchPage() {
   const t = useTranslations("financial");
   const dashboardPath = useDashboardPath();
+  const branchId = useAuthContextStore((s) => s.branchId);
 
   const [status, setStatus] = useState<InvoiceStatus | "">("");
   const [search, setSearch] = useState("");
@@ -49,12 +51,17 @@ export function InvoiceSearchPage() {
     return () => clearTimeout(id);
   }, [search]);
 
-  const { invoices, total, totalPages, isLoading, isFetching } = useInvoices({
-    ...(status ? { status } : {}),
-    ...(debouncedSearch ? { search: debouncedSearch } : {}),
-    page,
-    limit: PAGE_SIZE,
-  });
+  const { invoices, total, totalPages, isLoading, isFetching, error } =
+    useInvoices({
+      // Scope to the active branch so branch-level staff (reception, accountant)
+      // hit the backend's branch-access check instead of the owner-only
+      // org-management check. Consistent with cash sessions + the billing queue.
+      ...(branchId ? { branch_id: branchId } : {}),
+      ...(status ? { status } : {}),
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      page,
+      limit: PAGE_SIZE,
+    });
 
   const resolvedTotalPages = totalPages ?? 1;
   const canPrev = page > 1;
@@ -104,6 +111,10 @@ export function InvoiceSearchPage() {
         {isLoading ? (
           <p className="py-10 text-center text-sm text-gray-400">
             {t("invoices.loading")}
+          </p>
+        ) : error ? (
+          <p className="py-10 text-center text-sm text-red-500">
+            {t("invoices.error")}
           </p>
         ) : invoices.length === 0 ? (
           <p className="py-10 text-center text-sm text-gray-400">
