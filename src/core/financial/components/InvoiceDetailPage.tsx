@@ -153,7 +153,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
 
   // Base dashboard path
   const dashboardBase = `/${locale}/${orgId}/${branchId}/dashboard`;
-  const visitsHref = `${dashboardBase}/visits`;
+  const invoicesHref = `${dashboardBase}/financial/invoices`;
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -163,14 +163,14 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-gray-500">
           <Link
-            href={visitsHref}
+            href={invoicesHref}
             className="transition-colors hover:text-gray-900"
           >
-            {t("view.breadcrumbBilling")}
+            {t("view.breadcrumbInvoices")}
           </Link>
           <ChevronRight className="size-4 shrink-0 text-gray-400" aria-hidden="true" />
           <span className="font-medium text-gray-900">
-            {invoice ? `INV-${invoice.invoice_number}` : tCommon("loading")}
+            {invoice ? invoice.invoice_number : tCommon("loading")}
           </span>
         </nav>
 
@@ -196,7 +196,7 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
                     <div className="flex items-center gap-2">
                       <FileText className="size-5 text-gray-400" aria-hidden="true" />
                       <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                        INV-{invoice.invoice_number}
+                        {invoice.invoice_number}
                       </h1>
                     </div>
                     <InvoiceStatusBadge status={invoice.status} />

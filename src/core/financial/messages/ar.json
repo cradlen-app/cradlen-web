@@ -120,6 +120,7 @@
       "balanceDue": "الرصيد المستحق: {amount}",
       "viewVisit": "عرض الزيارة",
       "breadcrumbBilling": "الفوترة",
+      "breadcrumbInvoices": "الفواتير",
       "invoiceDetails": "تفاصيل الفاتورة",
       "lineItems": "بنود الفاتورة",
       "paymentHistory": "سجل المدفوعات",
@@ -373,7 +374,7 @@
   "invoices": {
     "title": "بحث الفواتير",
     "subtitle": "ابحث وأدر الفواتير على مستوى المؤسسة.",
-    "searchPlaceholder": "ابحث برقم الفاتورة…",
+    "searchPlaceholder": "ابحث برقم الفاتورة أو اسم المريض…",
     "filterStatus": "الحالة",
     "statusAll": "كل الحالات",
     "empty": "لا توجد فواتير.",
@@ -387,6 +388,11 @@
       "paid": "المدفوع",
       "balance": "المتبقي",
       "date": "التاريخ"
+    },
+    "pagination": {
+      "prev": "السابق",
+      "next": "التالي",
+      "pageOf": "صفحة {page} من {totalPages}"
     }
   },
   "cashSessions": {
