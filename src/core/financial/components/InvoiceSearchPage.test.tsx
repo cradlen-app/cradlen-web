@@ -17,6 +17,15 @@ vi.mock("@/hooks/useDashboardPath", () => ({
       `/org-1/branch-1/dashboard${path}`,
 }));
 
+vi.mock("@/features/auth/store/authContextStore", () => ({
+  useAuthContextStore: (selector: (state: unknown) => unknown) =>
+    selector({
+      organizationId: "org-1",
+      branchId: "branch-1",
+      profileId: "p1",
+    }),
+}));
+
 vi.mock("@/i18n/navigation", () => ({
   Link: ({
     href,
@@ -173,5 +182,25 @@ describe("InvoiceSearchPage", () => {
 
     // resultsCount renders "25 invoices" even though one row is present.
     expect(screen.getByText(/25/)).toBeInTheDocument();
+  });
+
+  it("scopes the query to the active branch so branch staff aren't denied", () => {
+    renderWithIntl(<InvoiceSearchPage />);
+
+    expect(lastFilters()).toMatchObject({ branch_id: "branch-1" });
+  });
+
+  it("surfaces a load failure instead of masking it as an empty list", () => {
+    useInvoicesMock.mockReturnValue({
+      ...BASE_RETURN,
+      error: new Error("Request failed with status 403"),
+    });
+
+    renderWithIntl(<InvoiceSearchPage />);
+
+    expect(
+      screen.getByText("Couldn't load invoices. Please try again."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("No invoices found.")).not.toBeInTheDocument();
   });
 });
