@@ -16,6 +16,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import {
+  AlertCircle,
+  FileText,
+  Percent,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
@@ -38,7 +45,7 @@ import { FinancialPageShell } from "./FinancialPageShell";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 
 type Tab =
-  | "revenue"
+  | "overview"
   | "daily"
   | "byService"
   | "byDoctor"
@@ -49,7 +56,7 @@ type Tab =
   | "outstanding";
 
 const TABS: Tab[] = [
-  "revenue",
+  "overview",
   "daily",
   "byService",
   "byDoctor",
@@ -76,7 +83,7 @@ function num(value: unknown): number {
 
 export function ReportsPage() {
   const t = useTranslations("financial.reports");
-  const [tab, setTab] = useState<Tab>("revenue");
+  const [tab, setTab] = useState<Tab>("overview");
   const [fromInput, setFromInput] = useState("");
   const [toInput, setToInput] = useState("");
   const [params, setParams] = useState<ReportParams>({});
@@ -137,7 +144,7 @@ export function ReportsPage() {
 
         {/* Active panel */}
         <div className="min-h-[320px]">
-          {tab === "revenue" && <RevenuePanel params={params} />}
+          {tab === "overview" && <OverviewPanel params={params} />}
           {tab === "daily" && <DailyPanel params={params} />}
           {tab === "byService" && <ByServicePanel params={params} />}
           {tab === "byDoctor" && <ByDoctorPanel params={params} />}
@@ -239,30 +246,253 @@ function SimpleTable({
   );
 }
 
-/** Revenue summary cards, including the derived collection rate. */
-function RevenuePanel({ params }: { params: ReportParams }) {
+/** Polished KPI card: icon chip + label + value (mirrors the visits StatCards). */
+function KpiCard({
+  icon: Icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
+        <span
+          className={cn(
+            "inline-flex size-6 items-center justify-center rounded-full",
+            accent
+              ? "bg-brand-primary/10 text-brand-primary"
+              : "bg-gray-50 text-gray-400",
+          )}
+        >
+          <Icon className="size-3.5" aria-hidden="true" />
+        </span>
+        <span className="truncate">{label}</span>
+      </div>
+      <div className="text-2xl font-semibold tabular-nums text-brand-black">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+/** Titled bordered card wrapper for an overview widget. */
+function SectionCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-gray-100 p-4">
+      <h3 className="mb-3 text-sm font-medium text-gray-700">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+/** Ranked rows with a proportional bar (longest = highest amount). */
+function RankedBars({ rows }: { rows: { label: string; amount: number }[] }) {
+  if (rows.length === 0) return <Empty />;
+  const max = Math.max(...rows.map((r) => r.amount), 1);
+  return (
+    <ul className="space-y-3">
+      {rows.map((r, i) => (
+        <li key={i} className="space-y-1">
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="truncate text-gray-700">{r.label}</span>
+            <span className="shrink-0 font-semibold tabular-nums text-gray-900">
+              {formatMoney(r.amount)}
+            </span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+            <div
+              className="h-full rounded-full bg-brand-primary"
+              style={{ width: `${(r.amount / max) * 100}%` }}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function KpiSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      {[0, 1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm"
+        >
+          <div className="flex items-center gap-2">
+            <div className="size-6 animate-pulse rounded-full bg-gray-100" />
+            <div className="h-3 w-20 animate-pulse rounded bg-gray-100" />
+          </div>
+          <div className="h-7 w-24 animate-pulse rounded bg-gray-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Compose the financial reports into an at-a-glance overview dashboard. */
+function OverviewPanel({ params }: { params: ReportParams }) {
   const t = useTranslations("financial.reports.labels");
-  const { data, isLoading } = useFinancialReport<RevenueSummaryReport>(
-    "revenue",
+  const tSection = useTranslations("financial.reports.sections");
+  const tBucket = useTranslations("financial.reports.buckets");
+
+  const revenue = useFinancialReport<RevenueSummaryReport>("revenue", params);
+  const daily = useFinancialReport<DailyRevenueReport>("daily-revenue", params);
+  const byDoctor = useFinancialReport<RevenueByDoctorReport>(
+    "revenue-by-doctor",
     params,
   );
-  if (isLoading) return <Loading />;
-  if (!data) return <Empty />;
+  const byService = useFinancialReport<RevenueByServiceReport>(
+    "revenue-by-service",
+    params,
+  );
+  const arAging = useFinancialReport<ArAgingReport>("ar-aging", params);
 
-  const invoiced = num(data.total_invoiced);
-  const collected = num(data.total_collected);
+  const invoiced = num(revenue.data?.total_invoiced);
+  const collected = num(revenue.data?.total_collected);
   const rate = invoiced > 0 ? (collected / invoiced) * 100 : 0;
 
+  const trend = (daily.data?.rows ?? []).map((r) => ({
+    date: r.date,
+    invoiced: num(r.invoiced),
+    collected: num(r.collected),
+  }));
+
+  const topDoctors = [...(byDoctor.data?.by_doctor ?? [])]
+    .map((r) => ({ label: r.doctor_name, amount: num(r.total) }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+
+  const topServices = [...(byService.data?.by_service ?? [])]
+    .map((r) => ({ label: r.service_name, amount: num(r.total) }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+
+  const buckets = arAging.data
+    ? ([
+        ["current", arAging.data.buckets.current],
+        ["d1_30", arAging.data.buckets.d1_30],
+        ["d31_60", arAging.data.buckets.d31_60],
+        ["d61_90", arAging.data.buckets.d61_90],
+        ["d90_plus", arAging.data.buckets.d90_plus],
+      ] as const)
+    : [];
+
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <StatCard label={t("invoiced")} value={formatMoney(invoiced)} />
-      <StatCard label={t("collected")} value={formatMoney(collected)} />
-      <StatCard
-        label={t("outstanding")}
-        value={formatMoney(num(data.outstanding))}
-      />
-      <StatCard label={t("invoiceCount")} value={String(data.invoice_count)} />
-      <StatCard label={t("collectionRate")} value={formatPercent(rate)} />
+    <div className="flex flex-col gap-5">
+      {/* KPI row */}
+      {revenue.isLoading ? (
+        <KpiSkeleton />
+      ) : (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <KpiCard
+            icon={FileText}
+            label={t("totalInvoiced")}
+            value={formatMoney(invoiced)}
+            accent
+          />
+          <KpiCard
+            icon={Wallet}
+            label={t("totalCollected")}
+            value={formatMoney(collected)}
+          />
+          <KpiCard
+            icon={AlertCircle}
+            label={t("outstanding")}
+            value={formatMoney(num(revenue.data?.outstanding))}
+          />
+          <KpiCard
+            icon={Percent}
+            label={t("collectionRate")}
+            value={formatPercent(rate)}
+          />
+        </div>
+      )}
+
+      {/* Revenue vs collections trend */}
+      <SectionCard title={tSection("revenueTrend")}>
+        {daily.isLoading ? (
+          <Loading />
+        ) : trend.length === 0 ? (
+          <Empty />
+        ) : (
+          <ChartCard>
+            <LineChart
+              data={trend}
+              margin={{ top: 8, right: 16, bottom: 8, left: 8 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} width={56} />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="invoiced"
+                name={t("invoiced")}
+                stroke={CHART_COLORS[0]}
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="collected"
+                name={t("collected")}
+                stroke={CHART_COLORS[1]}
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ChartCard>
+        )}
+      </SectionCard>
+
+      {/* Top doctors / Top services */}
+      <div className="grid gap-5 lg:grid-cols-2">
+        <SectionCard title={tSection("topDoctors")}>
+          {byDoctor.isLoading ? <Loading /> : <RankedBars rows={topDoctors} />}
+        </SectionCard>
+        <SectionCard title={tSection("topServices")}>
+          {byService.isLoading ? <Loading /> : <RankedBars rows={topServices} />}
+        </SectionCard>
+      </div>
+
+      {/* AR aging snapshot */}
+      <SectionCard title={tSection("arSnapshot")}>
+        {arAging.isLoading ? (
+          <Loading />
+        ) : !arAging.data ? (
+          <Empty />
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {buckets.map(([key, amount]) => (
+                <StatCard
+                  key={key}
+                  label={tBucket(key)}
+                  value={formatMoney(num(amount))}
+                />
+              ))}
+            </div>
+            <p className="text-sm text-gray-500">
+              {t("grandTotal")}:{" "}
+              <span className="font-semibold text-gray-900">
+                {formatMoney(num(arAging.data.total_outstanding))}
+              </span>
+            </p>
+          </div>
+        )}
+      </SectionCard>
     </div>
   );
 }

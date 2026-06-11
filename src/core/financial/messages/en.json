@@ -438,7 +438,7 @@
     "title": "Financial Reports",
     "subtitle": "Revenue, collections, accounts receivable, and more.",
     "tabs": {
-      "revenue": "Revenue",
+      "overview": "Overview",
       "daily": "Daily",
       "byService": "By Service",
       "byDoctor": "By Doctor",
@@ -455,9 +455,17 @@
     },
     "loading": "Loading report…",
     "noData": "No data for this period.",
+    "sections": {
+      "revenueTrend": "Revenue vs Collections",
+      "topDoctors": "Top doctors",
+      "topServices": "Top services",
+      "arSnapshot": "AR aging snapshot"
+    },
     "labels": {
       "invoiced": "Invoiced",
       "collected": "Collected",
+      "totalInvoiced": "Total invoiced",
+      "totalCollected": "Total collected",
       "total": "Total",
       "count": "Count",
       "service": "Service",
