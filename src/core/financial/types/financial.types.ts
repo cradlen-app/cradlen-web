@@ -427,12 +427,14 @@ export type OutstandingInvoiceRow = {
   invoice_number: string;
   patient_id: string;
   patient_name: string;
+  doctor_name: string | null;
   status: InvoiceStatus;
   total_amount: string;
   paid_amount: string;
   balance_due: string;
   issued_at: string | null;
   due_date: string | null;
+  last_payment_date: string | null;
   age_days: number;
   aging_bucket: string;
 };
@@ -440,6 +442,41 @@ export type OutstandingInvoicesReport = {
   invoices: OutstandingInvoiceRow[];
   total_outstanding: string;
   count: number;
+};
+
+export type RevenueSummaryReport = {
+  total_invoiced: string;
+  total_collected: string;
+  outstanding: string;
+  invoice_count: number;
+};
+
+export type ArAgingReport = {
+  buckets: {
+    current: string;
+    d1_30: string;
+    d31_60: string;
+    d61_90: string;
+    d90_plus: string;
+  };
+  total_outstanding: string;
+};
+
+export type CollectionsByMethodRow = {
+  payment_method: PaymentMethod;
+  total: string;
+  count: number;
+};
+export type CollectionsByStaffRow = {
+  profile_id: string | null;
+  staff_name: string;
+  total: string;
+  count: number;
+};
+export type CollectionsReport = {
+  by_method: CollectionsByMethodRow[];
+  by_staff: CollectionsByStaffRow[];
+  total: string;
 };
 
 export type PaymentsByMethodRow = {

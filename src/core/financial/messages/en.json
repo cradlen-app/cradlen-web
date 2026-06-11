@@ -471,7 +471,19 @@
       "date": "Date",
       "lineCount": "Lines",
       "invoiceCount": "Invoices",
-      "grandTotal": "Grand total"
+      "grandTotal": "Grand total",
+      "outstanding": "Outstanding",
+      "collectionRate": "Collection rate",
+      "share": "Share",
+      "staff": "Staff",
+      "lastPayment": "Last payment"
+    },
+    "buckets": {
+      "current": "Current",
+      "d1_30": "1–30 days",
+      "d31_60": "31–60 days",
+      "d61_90": "61–90 days",
+      "d90_plus": "90+ days"
     }
   },
   "categories": {
