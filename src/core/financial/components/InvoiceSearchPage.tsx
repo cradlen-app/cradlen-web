@@ -1,7 +1,7 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
@@ -23,6 +23,8 @@ const STATUS_OPTIONS: InvoiceStatus[] = [
   "REFUNDED",
 ];
 
+const PAGE_SIZE = 10;
+
 function formatDate(value: string): string {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
@@ -34,21 +36,29 @@ export function InvoiceSearchPage() {
 
   const [status, setStatus] = useState<InvoiceStatus | "">("");
   const [search, setSearch] = useState("");
-  const deferredSearch = useDeferredValue(search);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const { invoices, isLoading } = useInvoices(
-    status ? { status } : undefined,
-  );
+  // Debounce the search box so each keystroke doesn't fire a request. Resetting
+  // to page 1 happens here (not on every keystroke) once the value settles.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(id);
+  }, [search]);
 
-  const filtered = useMemo(() => {
-    const q = deferredSearch.trim().toLowerCase();
-    if (!q) return invoices;
-    return invoices.filter(
-      (inv) =>
-        inv.invoice_number.toLowerCase().includes(q) ||
-        inv.patient_id.toLowerCase().includes(q),
-    );
-  }, [invoices, deferredSearch]);
+  const { invoices, total, totalPages, isLoading, isFetching } = useInvoices({
+    ...(status ? { status } : {}),
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    page,
+    limit: PAGE_SIZE,
+  });
+
+  const resolvedTotalPages = totalPages ?? 1;
+  const canPrev = page > 1;
+  const canNext = page < resolvedTotalPages;
 
   return (
     <FinancialPageShell title={t("invoices.title")} subtitle={t("invoices.subtitle")}>
@@ -69,7 +79,10 @@ export function InvoiceSearchPage() {
             <span className="hidden sm:inline">{t("invoices.filterStatus")}</span>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as InvoiceStatus | "")}
+              onChange={(e) => {
+                setStatus(e.target.value as InvoiceStatus | "");
+                setPage(1);
+              }}
               className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
             >
               <option value="">{t("invoices.statusAll")}</option>
@@ -80,9 +93,9 @@ export function InvoiceSearchPage() {
               ))}
             </select>
           </label>
-          {!isLoading && (
+          {!isLoading && total != null && (
             <span className="ms-auto text-xs text-gray-400">
-              {t("invoices.resultsCount", { count: filtered.length })}
+              {t("invoices.resultsCount", { count: total })}
             </span>
           )}
         </div>
@@ -92,49 +105,90 @@ export function InvoiceSearchPage() {
           <p className="py-10 text-center text-sm text-gray-400">
             {t("invoices.loading")}
           </p>
-        ) : filtered.length === 0 ? (
+        ) : invoices.length === 0 ? (
           <p className="py-10 text-center text-sm text-gray-400">
             {t("invoices.empty")}
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-gray-100">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 text-start text-xs uppercase tracking-wide text-gray-400">
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("invoices.columns.number")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("invoices.columns.patient")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("invoices.columns.status")}
-                  </th>
-                  <th className="px-4 py-3 text-end font-medium">
-                    {t("invoices.columns.total")}
-                  </th>
-                  <th className="px-4 py-3 text-end font-medium">
-                    {t("invoices.columns.paid")}
-                  </th>
-                  <th className="px-4 py-3 text-end font-medium">
-                    {t("invoices.columns.balance")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("invoices.columns.date")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((inv) => (
-                  <InvoiceRow
-                    key={inv.id}
-                    invoice={inv}
-                    href={dashboardPath(`/financial/invoices/${inv.id}`)}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div
+              className={cn(
+                "overflow-x-auto rounded-xl border border-gray-100 transition-opacity",
+                isFetching && "opacity-60",
+              )}
+            >
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 text-start text-xs uppercase tracking-wide text-gray-400">
+                    <th className="px-4 py-3 text-start font-medium">
+                      {t("invoices.columns.number")}
+                    </th>
+                    <th className="px-4 py-3 text-start font-medium">
+                      {t("invoices.columns.patient")}
+                    </th>
+                    <th className="px-4 py-3 text-start font-medium">
+                      {t("invoices.columns.status")}
+                    </th>
+                    <th className="px-4 py-3 text-end font-medium">
+                      {t("invoices.columns.total")}
+                    </th>
+                    <th className="px-4 py-3 text-end font-medium">
+                      {t("invoices.columns.paid")}
+                    </th>
+                    <th className="px-4 py-3 text-end font-medium">
+                      {t("invoices.columns.balance")}
+                    </th>
+                    <th className="px-4 py-3 text-start font-medium">
+                      {t("invoices.columns.date")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.map((inv) => (
+                    <InvoiceRow
+                      key={inv.id}
+                      invoice={inv}
+                      href={dashboardPath(`/financial/invoices/${inv.id}`)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {resolvedTotalPages > 1 && (
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-gray-400">
+                  {t("invoices.pagination.pageOf", {
+                    page,
+                    totalPages: resolvedTotalPages,
+                  })}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={!canPrev}
+                    className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronLeft className="size-4 rtl:rotate-180" />
+                    {t("invoices.pagination.prev")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPage((p) => Math.min(resolvedTotalPages, p + 1))
+                    }
+                    disabled={!canNext}
+                    className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {t("invoices.pagination.next")}
+                    <ChevronRight className="size-4 rtl:rotate-180" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </FinancialPageShell>

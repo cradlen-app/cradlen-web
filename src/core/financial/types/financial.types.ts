@@ -86,10 +86,10 @@ export type InvoiceItem = {
 
 /**
  * Optional nested person shape — present only when the backend explicitly
- * `include`s the relation. Backend currently does NOT include patient/doctor
- * on invoice responses (see `invoices.service.ts` findOne), so these are
- * left optional and callers should fall back to the corresponding *_id.
- * TODO: verify shape if backend starts including these relations.
+ * `include`s the relation. The invoicing endpoints include `patient`
+ * ({ id, full_name }) on both the list (findAll) and detail (findOne)
+ * responses; `doctor` is flattened onto the detail response. These stay
+ * optional so callers can still fall back to the corresponding *_id.
  */
 export type EmbeddedPerson = {
   id: string;
@@ -471,6 +471,8 @@ export type InvoiceFilters = {
   episode_id?: string;
   /** Backend `type` query param (maps to `InvoiceType`). */
   type?: InvoiceType;
+  /** Free-text search across invoice number and patient name. */
+  search?: string;
   date_from?: string;
   date_to?: string;
   page?: number;
