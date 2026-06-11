@@ -156,7 +156,8 @@
       "amount": "المبلغ",
       "method": "الطريقة",
       "reference": "المرجع",
-      "recordedBy": "سجّل بواسطة"
+      "recordedBy": "سجّل بواسطة",
+      "actionsColumn": "إجراءات"
     },
     "panelButton": {
       "openAria": "فتح لوحة الفوترة",
