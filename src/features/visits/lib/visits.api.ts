@@ -100,7 +100,7 @@ export function fetchMyWaitingList({
 }
 
 export function fetchMyCurrentVisit(branchId: string) {
-  return apiAuthFetch<{ data: ApiVisit | null }>(
+  return apiAuthFetch<{ data: ApiVisit[] }>(
     `/branches/${branchId}/visits/my-current`,
   );
 }

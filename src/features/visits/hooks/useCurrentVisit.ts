@@ -13,7 +13,7 @@ export function useMyCurrentVisit(
     queryKey: queryKeys.visits.myCurrent(branchId ?? ""),
     queryFn: async () => {
       const res = await fetchMyCurrentVisit(branchId!);
-      return res.data ? mapApiVisitToVisit(res.data) : null;
+      return res.data.map(mapApiVisitToVisit);
     },
     enabled: enabled && !!branchId,
   });

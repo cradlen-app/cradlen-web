@@ -13,7 +13,7 @@ export function useMedRepMyCurrentVisit(
     queryKey: queryKeys.medicalRepVisits.myCurrent(branchId ?? ""),
     queryFn: async () => {
       const res = await fetchMedRepMyCurrent(branchId!);
-      return res.data ? mapApiMedRepVisitToVisit(res.data) : null;
+      return res.data.map(mapApiMedRepVisitToVisit);
     },
     enabled: enabled && !!branchId,
   });
