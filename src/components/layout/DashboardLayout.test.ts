@@ -69,4 +69,44 @@ describe("canAccessRoute", () => {
     expect(canAccessRoute(makeProfile(), "/dashboard")).toBe(false);
     expect(canAccessRoute(undefined, "/dashboard")).toBe(false);
   });
+
+  it("allows reception into invoices + cash sessions but not services/reports", () => {
+    const recept = makeProfile({
+      roleName: STAFF_API_ROLE.STAFF,
+      jobFunctionCode: JOB_FUNCTION_CODE.RECEPTIONIST,
+    });
+    expect(canAccessRoute(recept, "/dashboard/financial/invoices")).toBe(true);
+    expect(canAccessRoute(recept, "/dashboard/financial/invoices/inv-1")).toBe(
+      true,
+    );
+    expect(canAccessRoute(recept, "/dashboard/financial/cash-sessions")).toBe(
+      true,
+    );
+    expect(canAccessRoute(recept, "/dashboard/financial/services")).toBe(false);
+    expect(canAccessRoute(recept, "/dashboard/financial/reports")).toBe(false);
+  });
+
+  it("denies clinical staff the billing front-desk surfaces", () => {
+    const clinical = makeProfile({
+      roleName: STAFF_API_ROLE.STAFF,
+      jobFunctionCode: JOB_FUNCTION_CODE.OBGYN,
+      isClinical: true,
+    });
+    expect(canAccessRoute(clinical, "/dashboard/financial/invoices")).toBe(
+      false,
+    );
+    expect(canAccessRoute(clinical, "/dashboard/financial/cash-sessions")).toBe(
+      false,
+    );
+  });
+
+  it("allows owner into every financial route", () => {
+    const owner = makeProfile({ roleName: STAFF_API_ROLE.OWNER });
+    expect(canAccessRoute(owner, "/dashboard/financial/services")).toBe(true);
+    expect(canAccessRoute(owner, "/dashboard/financial/invoices")).toBe(true);
+    expect(canAccessRoute(owner, "/dashboard/financial/cash-sessions")).toBe(
+      true,
+    );
+    expect(canAccessRoute(owner, "/dashboard/financial/reports")).toBe(true);
+  });
 });

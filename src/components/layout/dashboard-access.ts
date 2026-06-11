@@ -4,6 +4,7 @@ import {
   isOwner,
 } from "@/features/auth/lib/permissions";
 import { staffCan } from "@/core/staff/api";
+import { financialCan } from "@/core/financial/api";
 import type { UserProfile } from "@/common/types/user.types";
 
 /**
@@ -55,6 +56,26 @@ export function canAccessRoute(
     canonicalPathname.startsWith("/dashboard/medicine/")
   ) {
     return canAccessMedicine(profile);
+  }
+
+  if (canonicalPathname.startsWith("/dashboard/financial")) {
+    // Service catalog management — owners only (owners already returned true above).
+    if (canonicalPathname.startsWith("/dashboard/financial/services")) {
+      return financialCan.manageCatalog(profile);
+    }
+    // Cash sessions — front-desk / accountant / owner.
+    if (canonicalPathname.startsWith("/dashboard/financial/cash-sessions")) {
+      return financialCan.manageCash(profile);
+    }
+    // Aggregated reports — owner / branch manager.
+    if (canonicalPathname.startsWith("/dashboard/financial/reports")) {
+      return financialCan.viewReports(profile);
+    }
+    // Invoice search + detail — the operational front-desk surface.
+    if (canonicalPathname.startsWith("/dashboard/financial/invoices")) {
+      return financialCan.read(profile);
+    }
+    return false;
   }
 
   // Owner-only sections (medical-rep, analytics, etc.) are already guarded by
