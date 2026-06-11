@@ -37,15 +37,26 @@ type Props = {
 
 const TERMINAL_STATUSES: VisitStatus[] = ["COMPLETED", "CANCELLED", "NO_SHOW"];
 
+// Patient visits: reception drives the queue through IN_PROGRESS, then the
+// doctor starts the consultation (IN_CONSULTATION) and completes.
 const NEXT_STATUSES: Partial<Record<VisitStatus, VisitStatus[]>> = {
+  SCHEDULED: ["CHECKED_IN", "CANCELLED"],
+  CHECKED_IN: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
+  IN_PROGRESS: ["IN_CONSULTATION", "CANCELLED", "NO_SHOW"],
+  IN_CONSULTATION: ["COMPLETED"],
+};
+
+// Medical-rep visits have no consultation step — IN_PROGRESS completes directly.
+const MED_REP_NEXT_STATUSES: Partial<Record<VisitStatus, VisitStatus[]>> = {
   SCHEDULED: ["CHECKED_IN", "CANCELLED"],
   CHECKED_IN: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
   IN_PROGRESS: ["COMPLETED"],
 };
 
 // Clinical transitions the backend restricts to the assigned doctor (or an
-// owner / branch-manager override); everything else is a front-desk action.
-const CLINICAL_TRANSITIONS: VisitStatus[] = ["IN_PROGRESS", "COMPLETED"];
+// owner / branch-manager override). Reception drives the queue up to IN_PROGRESS;
+// starting the consultation (IN_CONSULTATION) and completing belong to the doctor.
+const CLINICAL_TRANSITIONS: VisitStatus[] = ["IN_CONSULTATION", "COMPLETED"];
 
 function StatusSelect({ visit }: { visit: Visit }) {
   const t = useTranslations("visits");
@@ -65,7 +76,8 @@ function StatusSelect({ visit }: { visit: Visit }) {
   // Patient visits follow the backend's role split: clinical steps need the
   // assigned doctor, front-desk steps need reception. Medical-rep visits have
   // no assigned-doctor guard, so keep offering every valid transition.
-  const rawNext = NEXT_STATUSES[visit.status] ?? [];
+  const rawNext =
+    (isMedRep ? MED_REP_NEXT_STATUSES : NEXT_STATUSES)[visit.status] ?? [];
   const nextOptions = isMedRep
     ? rawNext
     : rawNext.filter((s) =>
@@ -272,7 +284,7 @@ export function WaitingListTable({
                   <VisitPriorityBadge priority={visit.priority} />
                 </span>
                 <div className="flex items-center justify-end">
-                  {isDoctor && visit.status === "IN_PROGRESS" ? (
+                  {isDoctor && visit.status === "IN_CONSULTATION" ? (
                     <Button
                       type="button"
                       size="sm"
