@@ -167,6 +167,11 @@
     "newPayment": "New Payment",
     "recordTitle": "Record Payment",
     "recording": "Recording…",
+    "noSession": {
+      "title": "No cash session open",
+      "body": "Open a cash session before recording payments so the drawer reconciles.",
+      "action": "Open cash session"
+    },
     "loading": "Loading payments…",
     "method": {
       "CASH": "Cash",
@@ -390,6 +395,7 @@
     "open": "Open Session",
     "openTitle": "Open Cash Session",
     "openingFloat": "Opening float",
+    "carriedFromLastSession": "Carried from last session ({amount})",
     "openConfirm": "Open",
     "noOpenSession": "No open cash session",
     "noOpenSessionHint": "Open a session to start collecting cash payments.",
