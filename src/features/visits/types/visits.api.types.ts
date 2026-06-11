@@ -258,7 +258,7 @@ export type ApiMedicalRepVisitListResponse = {
 
 export type ApiMedicalRepVisitResponse = { data: ApiMedicalRepVisit };
 
-export type ApiMedicalRepVisitMaybeResponse = { data: ApiMedicalRepVisit | null };
+export type ApiMedicalRepVisitArrayResponse = { data: ApiMedicalRepVisit[] };
 
 export type UpdateMedicalRepVisitRequest = {
   assigned_doctor_id?: string;

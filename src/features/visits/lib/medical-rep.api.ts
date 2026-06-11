@@ -1,7 +1,7 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import type {
+  ApiMedicalRepVisitArrayResponse,
   ApiMedicalRepVisitListResponse,
-  ApiMedicalRepVisitMaybeResponse,
   ApiMedicalRepVisitResponse,
   UpdateMedicalRepVisitRequest,
   UpdateMedicalRepVisitStatusRequest,
@@ -47,7 +47,7 @@ export function fetchMedRepMyWaitingList({
 }
 
 export function fetchMedRepMyCurrent(branchId: string) {
-  return apiAuthFetch<ApiMedicalRepVisitMaybeResponse>(
+  return apiAuthFetch<ApiMedicalRepVisitArrayResponse>(
     `/branches/${branchId}/medical-rep-visits/my-current`,
   );
 }
