@@ -97,6 +97,8 @@ describe("RecordPaymentDrawer — cash-session gate", () => {
     const arg = recordMutate.mock.calls[0][0];
     expect(arg.invoiceId).toBe("inv-1");
     expect(arg.payload.payment_method).toBe("CASH");
-    expect(arg.payload.cash_session_id).toBe("sess-1");
+    // The client no longer sends cash_session_id — the server resolves and
+    // attributes the session itself.
+    expect(arg.payload).not.toHaveProperty("cash_session_id");
   });
 });

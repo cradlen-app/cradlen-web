@@ -14,3 +14,18 @@ export function formatMoney(
     maximumFractionDigits: 2,
   })}`;
 }
+
+/** Format a ratio already expressed in percent (e.g. 42.5 → "42.5%"). */
+export function formatPercent(value: number): string {
+  return `${value.toLocaleString("en-US", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  })}%`;
+}
+
+/** Format an ISO date string as a short local date; "—" when null/invalid. */
+export function formatDate(value: string | null | undefined): string {
+  if (!value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
+}
