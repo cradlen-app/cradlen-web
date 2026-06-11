@@ -60,10 +60,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
     });
   }, [setActiveTab]);
 
-  // Only the assigned doctor (or an owner/manager) may complete — mirrors the
+  // Only the assigned doctor (or an owner/manager) may complete, and only once
+  // the consultation has started (IN_CONSULTATION → COMPLETED) — mirrors the
   // backend guard so we never show an action the API will reject with 403.
   const canComplete =
-    visit?.status === "IN_PROGRESS" &&
+    visit?.status === "IN_CONSULTATION" &&
     canDriveClinicalVisit(profile, visit?.assignedDoctorId, activeProfileId);
   const showInvoiceBtn = canAccessBilling(profile);
   // Rendering provider the charge is attributed to: the visit's assigned
