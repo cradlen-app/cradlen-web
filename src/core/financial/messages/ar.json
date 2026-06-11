@@ -390,6 +390,7 @@
     "open": "فتح جلسة",
     "openTitle": "فتح جلسة صندوق",
     "openingFloat": "الرصيد الافتتاحي",
+    "carriedFromLastSession": "مُرحّل من الجلسة السابقة ({amount})",
     "openConfirm": "فتح",
     "noOpenSession": "لا توجد جلسة صندوق مفتوحة",
     "noOpenSessionHint": "افتح جلسة لبدء تحصيل المدفوعات النقدية.",
