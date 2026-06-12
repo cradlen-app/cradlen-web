@@ -9,6 +9,19 @@ import type {
 
 const base = (orgId: string) => `/organizations/${orgId}/financial/charges`;
 
+// ── Decimal normalization ───────────────────────────────────────────────────
+// The backend serializes Prisma Decimal columns as strings, but our types
+// declare `unit_price` as `number`. Coerce at the boundary (mirrors
+// invoices.api.ts) so the UI never does `Number(charge.unit_price)` at a
+// display site.
+
+const toNum = (v: unknown): number =>
+  typeof v === "number" ? v : Number(v ?? 0) || 0;
+
+function normalizeCharge(charge: Charge): Charge {
+  return { ...charge, unit_price: toNum(charge.unit_price) };
+}
+
 // ── reads ─────────────────────────────────────────────────────────────────────
 
 export function fetchCharges(
@@ -30,7 +43,9 @@ export function fetchCharges(
   if (opts?.page != null) params.set("page", String(opts.page));
   if (opts?.limit != null) params.set("limit", String(opts.limit));
   const qs = params.toString();
-  return apiAuthFetch<ApiResponse<Charge[]>>(`${base(orgId)}${qs ? `?${qs}` : ""}`);
+  return apiAuthFetch<ApiResponse<Charge[]>>(
+    `${base(orgId)}${qs ? `?${qs}` : ""}`,
+  ).then((res) => ({ ...res, data: res.data.map(normalizeCharge) }));
 }
 
 /** Backend `getByVisit` returns `{ charges, summary }`, not a flat array. */
@@ -49,7 +64,10 @@ export function fetchVisitCharges(
 ): Promise<ApiResponse<VisitChargesResult>> {
   return apiAuthFetch<ApiResponse<VisitChargesResult>>(
     `${base(orgId)}/visit/${visitId}`,
-  );
+  ).then((res) => ({
+    ...res,
+    data: { ...res.data, charges: res.data.charges.map(normalizeCharge) },
+  }));
 }
 
 // ── writes ────────────────────────────────────────────────────────────────────

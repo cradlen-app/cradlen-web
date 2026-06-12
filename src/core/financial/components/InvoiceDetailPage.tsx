@@ -17,12 +17,7 @@ import {
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
-import { useInvoice } from "../hooks/useInvoice";
-import { usePayments } from "../hooks/usePayments";
-import { useIssueInvoice } from "../hooks/useIssueInvoice";
-import { useReceipts } from "../hooks/useReceipts";
-import { useRefunds, useVoidRefund } from "../hooks/useRefunds";
-import { useVoidPayment } from "../hooks/useVoidPayment";
+import { useInvoiceDetail } from "../hooks/useInvoiceDetail";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 import { InvoicePricingSourceBadge } from "./InvoicePricingSourceBadge";
 import { InvoiceTotalsPanel } from "./InvoiceTotalsPanel";
@@ -32,36 +27,8 @@ import { ReceiptPrintModal } from "./ReceiptPrintModal";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
 import { InvoiceDrawer } from "./InvoiceDrawer";
-import { formatMoney } from "../lib/format";
-import type { EmbeddedPerson, Payment, Refund } from "../types/financial.types";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-/**
- * Best-effort display name from an optional nested person relation. Falls back
- * to the raw UUID when the backend response doesn't include the relation.
- */
-function personName(
-  person: EmbeddedPerson | null | undefined,
-  fallback: string,
-): string {
-  if (!person) return fallback;
-  if (person.full_name) return person.full_name;
-  const composed = [person.first_name, person.last_name]
-    .filter(Boolean)
-    .join(" ")
-    .trim();
-  return composed || fallback;
-}
+import { formatMoney, formatDateLong as formatDate, personName } from "../lib/format";
+import type { Payment, Refund } from "../types/financial.types";
 
 // ── Loading Skeleton ──────────────────────────────────────────────────────────
 
@@ -131,24 +98,21 @@ export function InvoiceDetailPage({ invoiceId }: Props) {
   const [voidPaymentTarget, setVoidPaymentTarget] = useState<Payment | null>(null);
   const [voidRefundTarget, setVoidRefundTarget] = useState<Refund | null>(null);
 
-  const { invoice, isLoading } = useInvoice(invoiceId);
-  const { payments, isLoading: paymentsLoading } = usePayments(invoiceId);
-  const { receipts } = useReceipts(invoiceId);
-  const { refunds } = useRefunds(invoiceId);
-  const voidPaymentMutation = useVoidPayment(invoiceId);
-  const voidRefundMutation = useVoidRefund(invoiceId);
-  const issueMutation = useIssueInvoice();
+  const {
+    invoice,
+    isLoading,
+    payments,
+    paymentsLoading,
+    refunds,
+    receiptByPayment,
+    permissions,
+    issueMutation,
+    voidPaymentMutation,
+    voidRefundMutation,
+  } = useInvoiceDetail(invoiceId);
 
-  // payment_id → receipt, for surfacing a "Receipt" action per payment row.
-  const receiptByPayment = new Map(receipts.map((r) => [r.payment_id, r]));
-
-  // Status-based permissions (mirroring InvoiceDrawer view mode)
-  const canEdit = invoice?.status === "DRAFT";
-  const canIssue = invoice?.status === "DRAFT";
-  const canRecordPayment =
-    invoice?.status === "ISSUED" || invoice?.status === "PARTIALLY_PAID";
-  const canVoid = invoice?.status === "DRAFT";
-  const isPartiallyPaid = invoice?.status === "PARTIALLY_PAID";
+  const { canEdit, canIssue, canRecordPayment, canVoid, isPartiallyPaid } =
+    permissions;
 
   // Base dashboard path
   const dashboardBase = `/${locale}/${orgId}/${branchId}/dashboard`;
