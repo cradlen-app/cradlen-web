@@ -29,3 +29,36 @@ export function formatDate(value: string | null | undefined): string {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
 }
+
+/** Format an ISO date string as a medium date (e.g. "Jun 12, 2026"); "—" when null. */
+export function formatDateLong(value: string | null | undefined): string {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/**
+ * Best-effort display name from an optional nested person relation. Falls back
+ * to the supplied fallback (typically the raw UUID) when the backend response
+ * doesn't include the relation or any name parts.
+ */
+export function personName(
+  person:
+    | { full_name?: string | null; first_name?: string | null; last_name?: string | null }
+    | null
+    | undefined,
+  fallback: string,
+): string {
+  if (!person) return fallback;
+  if (person.full_name) return person.full_name;
+  const composed = [person.first_name, person.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  return composed || fallback;
+}
