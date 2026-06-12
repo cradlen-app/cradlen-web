@@ -39,5 +39,4 @@ export const shellPermissions = {
   "dashboard.home": fromCtx(_canSeeDashboardHome),
   "medicine.read": fromCtx((p) => canAccessMedicine(p ?? undefined)),
   "medicalRep.view": fromCtx((p) => isOwner(p ?? undefined)),
-  "analytics.view": fromCtx((p) => isOwner(p ?? undefined)),
 } as const;

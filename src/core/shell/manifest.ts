@@ -6,7 +6,7 @@ import { SHELL_QUERY_KEY_ROOT } from "./queryKeys";
 
 /**
  * Transitional "shell" module. Contributes the top-level operational nav
- * (dashboard, visits, calendar, patients, medicine, medical-rep, analytics)
+ * (dashboard, visits, calendar, patients, medicine, medical-rep)
  * and their visibility permissions while those features still live under
  * `src/features/*`. Labels reuse the global `nav.*` keys, so `loadMessages`
  * contributes nothing. As each feature migrates to `src/core/<module>`, its
