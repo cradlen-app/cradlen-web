@@ -1,10 +1,6 @@
-import {
-  canAccessMedicine,
-  hasAnyStaffRole,
-  isOwner,
-} from "@/features/auth/lib/permissions";
-import { staffCan } from "@/core/staff/api";
-import { financialCan } from "@/core/financial/api";
+import type { AuthContext, AuthProfile } from "@/common/kernel-contracts";
+import { hasAnyStaffRole, isOwner } from "@/features/auth/lib/permissions";
+import { bootModules } from "@/kernel";
 import type { UserProfile } from "@/common/types/user.types";
 
 /**
@@ -18,67 +14,60 @@ export function getCanonicalDashboardPath(pathname: string): string {
 }
 
 /**
+ * Converts a canonical dashboard path into the dashboard-relative form used by
+ * `NavItem.path`: `/dashboard/financial/services` → `/financial/services`,
+ * `/dashboard` → `""`.
+ */
+function toNavRelativePath(canonicalPathname: string): string {
+  if (canonicalPathname === "/dashboard") return "";
+  if (canonicalPathname.startsWith("/dashboard/")) {
+    return canonicalPathname.slice("/dashboard".length);
+  }
+  return canonicalPathname;
+}
+
+/**
  * Route-level gate. The detailed authorization (per-branch scoping, role-edits,
  * etc.) is enforced by the backend; this only decides whether to *display* the
  * page at all so unauthorised users don't see a flash of forbidden content.
+ *
+ * Access is derived from the kernel nav registry: each route resolves to the
+ * nav item that owns it, and that item's `requiresPermission` is the single
+ * source of truth — the same value that gates the sidebar entry. Adding or
+ * regating a route is therefore a one-line change on its `NavItem`.
+ *
+ * Two surfaces stay always-on for any staff member regardless of sidebar
+ * visibility:
+ *  - the dashboard root (`""`), which is the universal fallback redirect target
+ *    and must never be denied (denying it would loop the redirect), and
+ *  - `/settings`, which has no nav entry.
+ * Routes not modeled in the nav at all are reachable by owners only.
  */
 export function canAccessRoute(
   profile: UserProfile | undefined,
   canonicalPathname: string,
 ): boolean {
   if (!hasAnyStaffRole(profile)) return false;
-  if (isOwner(profile)) return true;
 
-  // Always-available staff routes.
-  if (
-    canonicalPathname === "/dashboard" ||
-    canonicalPathname === "/dashboard/visits" ||
-    canonicalPathname.startsWith("/dashboard/visits/") ||
-    canonicalPathname === "/dashboard/calendar" ||
-    canonicalPathname.startsWith("/dashboard/calendar/") ||
-    canonicalPathname === "/dashboard/patients" ||
-    canonicalPathname.startsWith("/dashboard/patients/") ||
-    canonicalPathname === "/dashboard/settings" ||
-    canonicalPathname.startsWith("/dashboard/settings/")
-  ) {
+  const rel = toNavRelativePath(canonicalPathname);
+
+  if (rel === "" || rel === "/settings" || rel.startsWith("/settings/")) {
     return true;
   }
 
-  if (
-    canonicalPathname === "/dashboard/staff" ||
-    canonicalPathname.startsWith("/dashboard/staff/")
-  ) {
-    return staffCan.read(profile);
+  const registry = bootModules();
+  const item = registry.nav.matchByPath(rel);
+  if (item) {
+    if (!item.requiresPermission) return true;
+    const ctx: AuthContext = {
+      user: null,
+      profile: (profile ?? null) as AuthProfile | null,
+      orgId: null,
+      branchId: null,
+    };
+    return registry.permissions.check(item.requiresPermission, ctx);
   }
 
-  if (
-    canonicalPathname === "/dashboard/medicine" ||
-    canonicalPathname.startsWith("/dashboard/medicine/")
-  ) {
-    return canAccessMedicine(profile);
-  }
-
-  if (canonicalPathname.startsWith("/dashboard/financial")) {
-    // Service catalog management — owners only (owners already returned true above).
-    if (canonicalPathname.startsWith("/dashboard/financial/services")) {
-      return financialCan.manageCatalog(profile);
-    }
-    // Cash sessions — front-desk / accountant / owner.
-    if (canonicalPathname.startsWith("/dashboard/financial/cash-sessions")) {
-      return financialCan.manageCash(profile);
-    }
-    // Aggregated reports — owner / branch manager.
-    if (canonicalPathname.startsWith("/dashboard/financial/reports")) {
-      return financialCan.viewReports(profile);
-    }
-    // Invoice search + detail — the operational front-desk surface.
-    if (canonicalPathname.startsWith("/dashboard/financial/invoices")) {
-      return financialCan.read(profile);
-    }
-    return false;
-  }
-
-  // Owner-only sections (medical-rep, analytics, etc.) are already guarded by
-  // the early `isOwner` short-circuit; deny everything else for safety.
-  return false;
+  // Un-modeled routes: owners can reach them; everyone else is denied.
+  return isOwner(profile);
 }
