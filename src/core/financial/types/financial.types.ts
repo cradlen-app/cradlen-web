@@ -271,8 +271,9 @@ export type Charge = {
   service_id: string | null;
   description: string;
   quantity: number;
-  /** Backend serializes the Decimal as a string. */
-  unit_price: string;
+  /** Backend serializes the Decimal as a string; normalized to a number at the
+   *  charging.api.ts boundary (see normalizeCharge). */
+  unit_price: number;
   currency: string;
   pricing_source: PricingSource;
   source: ChargeSource;
@@ -419,6 +420,19 @@ export type RevenueByDoctorRow = {
 };
 export type RevenueByDoctorReport = {
   by_doctor: RevenueByDoctorRow[];
+  total: string;
+};
+
+export type RevenueByBranchRow = {
+  branch_id: string | null;
+  branch_name: string;
+  invoice_count: number;
+  billed: string;
+  collected: string;
+  outstanding: string;
+};
+export type RevenueByBranchReport = {
+  by_branch: RevenueByBranchRow[];
   total: string;
 };
 

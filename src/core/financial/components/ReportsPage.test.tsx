@@ -3,12 +3,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { renderWithIntl } from "@/test/render";
 
-const { useFinancialReportMock } = vi.hoisted(() => ({
-  useFinancialReportMock: vi.fn(),
-}));
+const { useFinancialReportMock, useUserProfileContextMock } = vi.hoisted(
+  () => ({
+    useFinancialReportMock: vi.fn(),
+    useUserProfileContextMock: vi.fn(),
+  }),
+);
 
 vi.mock("../hooks/useReports", () => ({
   useFinancialReport: (name: string) => useFinancialReportMock(name),
+}));
+
+vi.mock("@/features/auth/hooks/useUserProfileContext", () => ({
+  useUserProfileContext: () => useUserProfileContextMock(),
 }));
 
 import { ReportsPage } from "./ReportsPage";
@@ -22,6 +29,22 @@ function mockReports(map: ReportMap) {
     isLoading: false,
     error: null,
   }));
+}
+
+/** Default profile context: a non-owner with no branches (analytics hidden). */
+function mockProfile(
+  overrides: Partial<{
+    activeProfile: unknown;
+    branchId: string | undefined;
+    isOwner: boolean;
+  }> = {},
+) {
+  useUserProfileContextMock.mockReturnValue({
+    activeProfile: undefined,
+    branchId: undefined,
+    isOwner: false,
+    ...overrides,
+  });
 }
 
 const REVENUE = {
@@ -41,6 +64,8 @@ const AR = {
 describe("ReportsPage — Overview", () => {
   beforeEach(() => {
     useFinancialReportMock.mockReset();
+    useUserProfileContextMock.mockReset();
+    mockProfile();
   });
 
   it("renders KPI cards with the derived collection rate", () => {
@@ -126,5 +151,74 @@ describe("ReportsPage — Overview", () => {
 
     expect(screen.getByText("Share")).toBeInTheDocument();
     expect(screen.getByText("60.0%")).toBeInTheDocument(); // 6000 / 10000
+  });
+
+  describe("branch analytics (owner, multi-branch)", () => {
+    const OWNER_MULTI = {
+      isOwner: true,
+      branchId: "br-1",
+      activeProfile: {
+        branches: [
+          { id: "br-1", name: "Main Clinic" },
+          { id: "br-2", name: "Downtown" },
+        ],
+      },
+    };
+    const BY_BRANCH = {
+      by_branch: [
+        {
+          branch_id: "br-2",
+          branch_name: "Downtown",
+          invoice_count: 12,
+          billed: 9000,
+          collected: 6000,
+          outstanding: 3000,
+        },
+        {
+          branch_id: "br-1",
+          branch_name: "Main Clinic",
+          invoice_count: 30,
+          billed: 20000,
+          collected: 18000,
+          outstanding: 2000,
+        },
+      ],
+      total: 29000,
+    };
+
+    it("shows the Branch breakdown card on Overview", () => {
+      mockProfile(OWNER_MULTI);
+      mockReports({ revenue: REVENUE, "revenue-by-branch": BY_BRANCH });
+
+      renderWithIntl(<ReportsPage />);
+
+      expect(screen.getByText("Branch breakdown")).toBeInTheDocument();
+    });
+
+    it("renders the By Branch tab sorted by invoice count", () => {
+      mockProfile(OWNER_MULTI);
+      mockReports({ revenue: REVENUE, "revenue-by-branch": BY_BRANCH });
+
+      renderWithIntl(<ReportsPage />);
+      fireEvent.click(screen.getByRole("button", { name: "By Branch" }));
+
+      // Main Clinic (30 invoices) sorts above Downtown (12).
+      const rows = screen.getAllByRole("row");
+      const firstDataRow = rows[1];
+      expect(firstDataRow).toHaveTextContent("Main Clinic");
+      expect(firstDataRow).toHaveTextContent("30");
+    });
+
+    it("hides branch analytics for a non-owner", () => {
+      mockProfile({ isOwner: false });
+      mockReports({ revenue: REVENUE });
+
+      renderWithIntl(<ReportsPage />);
+
+      expect(screen.queryByText("Branch breakdown")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "By Branch" }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

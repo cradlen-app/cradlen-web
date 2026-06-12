@@ -444,6 +444,7 @@
       "daily": "Daily",
       "byService": "By Service",
       "byDoctor": "By Doctor",
+      "byBranch": "By Branch",
       "byMethod": "By Method",
       "arAging": "AR Aging",
       "collections": "Collections",
@@ -451,6 +452,8 @@
       "outstanding": "Outstanding"
     },
     "filters": {
+      "branch": "Branch",
+      "allBranches": "All branches (organization-wide)",
       "from": "From",
       "to": "To",
       "apply": "Apply"
@@ -461,6 +464,7 @@
       "revenueTrend": "Revenue vs Collections",
       "topDoctors": "Top doctors",
       "topServices": "Top services",
+      "branchBreakdown": "Branch breakdown",
       "arSnapshot": "AR aging snapshot"
     },
     "labels": {
@@ -472,6 +476,7 @@
       "count": "Count",
       "service": "Service",
       "doctor": "Doctor",
+      "branch": "Branch",
       "method": "Method",
       "balance": "Balance due",
       "patient": "Patient",
