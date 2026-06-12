@@ -11,7 +11,8 @@ const { useFinancialReportMock, useUserProfileContextMock } = vi.hoisted(
 );
 
 vi.mock("../hooks/useReports", () => ({
-  useFinancialReport: (name: string) => useFinancialReportMock(name),
+  useFinancialReport: (name: string, params?: unknown) =>
+    useFinancialReportMock(name, params),
 }));
 
 vi.mock("@/features/auth/hooks/useUserProfileContext", () => ({
@@ -193,6 +194,20 @@ describe("ReportsPage — Overview", () => {
       renderWithIntl(<ReportsPage />);
 
       expect(screen.getByText("Branch breakdown")).toBeInTheDocument();
+    });
+
+    it("scopes the branch report to the active branch by default", () => {
+      mockProfile(OWNER_MULTI);
+      mockReports({ revenue: REVENUE, "revenue-by-branch": BY_BRANCH });
+
+      renderWithIntl(<ReportsPage />);
+
+      // Default selection is the active branch (br-1), so the branch report
+      // is fetched scoped to it — not organization-wide.
+      expect(useFinancialReportMock).toHaveBeenCalledWith(
+        "revenue-by-branch",
+        expect.objectContaining({ branch_id: "br-1" }),
+      );
     });
 
     it("renders the By Branch tab sorted by invoice count", () => {

@@ -132,8 +132,9 @@ export function ReportsPage() {
   const effectiveBranchId =
     branchScope === ORG_WIDE ? undefined : branchScope || activeBranchId;
 
-  // Cross-branch analytics: only for owners of a multi-branch org, and always
-  // org-wide (the comparison ignores the branch selector — see orgWideParams).
+  // Cross-branch analytics: only for owners of a multi-branch org. They follow
+  // the branch selector like every other panel — a specific branch shows just
+  // that branch, "All branches" shows the full comparison (see reportParams).
   const showBranchAnalytics = isOwner && branches.length > 1;
   const visibleTabs = showBranchAnalytics ? TABS_WITH_BRANCH : TABS;
 
@@ -145,9 +146,6 @@ export function ReportsPage() {
     }),
     [effectiveBranchId, params],
   );
-
-  // Branch comparison is always organization-wide — keep only the date range.
-  const orgWideParams = useMemo<ReportParams>(() => ({ ...params }), [params]);
 
   function applyRange() {
     setParams({
@@ -237,14 +235,13 @@ export function ReportsPage() {
             <OverviewPanel
               params={reportParams}
               showBranchAnalytics={showBranchAnalytics}
-              branchParams={orgWideParams}
             />
           )}
           {tab === "daily" && <DailyPanel params={reportParams} />}
           {tab === "byService" && <ByServicePanel params={reportParams} />}
           {tab === "byDoctor" && <ByDoctorPanel params={reportParams} />}
           {tab === "byBranch" && showBranchAnalytics && (
-            <ByBranchPanel params={orgWideParams} />
+            <ByBranchPanel params={reportParams} />
           )}
           {tab === "byMethod" && <ByMethodPanel params={reportParams} />}
           {tab === "arAging" && <ArAgingPanel params={reportParams} />}
@@ -443,11 +440,9 @@ function KpiSkeleton() {
 function OverviewPanel({
   params,
   showBranchAnalytics,
-  branchParams,
 }: {
   params: ReportParams;
   showBranchAnalytics: boolean;
-  branchParams: ReportParams;
 }) {
   const t = useTranslations("financial.reports.labels");
   const tSection = useTranslations("financial.reports.sections");
@@ -464,10 +459,10 @@ function OverviewPanel({
     params,
   );
   const arAging = useFinancialReport<ArAgingReport>("ar-aging", params);
-  // Org-wide branch comparison; only fetched for owners of a multi-branch org.
+  // Branch comparison; follows the selected branch, only for multi-branch owners.
   const byBranch = useFinancialReport<RevenueByBranchReport>(
     "revenue-by-branch",
-    branchParams,
+    params,
     { enabled: showBranchAnalytics },
   );
 
