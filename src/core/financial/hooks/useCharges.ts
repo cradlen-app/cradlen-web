@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { financialQueryKeys } from "@/core/financial/queryKeys";
@@ -73,83 +74,81 @@ export function useCharges(opts?: {
   };
 }
 
-function useInvalidateCharges() {
+/**
+ * Shared factory for the charge write-path mutations. Every charge mutation
+ * needs the same plumbing — resolve the active org id, invalidate the charges
+ * cache on success, and surface an i18n'd toast on failure — so they're
+ * declared once here and parameterized per operation.
+ *
+ * `errorKey` indexes `financial.charges.errors.*`; `invalidateInvoices` opts a
+ * mutation into refreshing the invoice side as well (only capture needs it).
+ */
+function useChargeMutation<TVars>(config: {
+  mutationFn: (orgId: string, vars: TVars) => Promise<unknown>;
+  errorKey: "capture" | "update" | "cancel" | "void" | "writeOff";
+  invalidateInvoices?: boolean;
+}) {
   const qc = useQueryClient();
-  return () =>
-    void qc.invalidateQueries({ queryKey: financialQueryKeys.charges.all() });
+  const orgId = useAuthContextStore((s) => s.organizationId);
+  const t = useTranslations("financial.charges.errors");
+
+  return useMutation({
+    mutationFn: (vars: TVars) => config.mutationFn(orgId!, vars),
+    onSuccess: () => {
+      void qc.invalidateQueries({
+        queryKey: financialQueryKeys.charges.all(),
+      });
+      if (config.invalidateInvoices) {
+        // Auto-billing lands the captured charge on its case invoice via the
+        // server-side `charge.captured` listener (best-effort, post-commit), so
+        // the invoice side must refresh too. We can't scope to the affected
+        // invoice — its id isn't returned to the client — and the billing queue
+        // is a cross-visit list, so a `forVisit()` invalidation would leave it
+        // stale. Invalidate the invoice root; in practice only the current
+        // visit's invoice query is mounted, so the refetch cost is minimal.
+        void qc.invalidateQueries({
+          queryKey: financialQueryKeys.invoices.all(),
+        });
+      }
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, t(config.errorKey)));
+    },
+  });
 }
 
 export function useCaptureCharge() {
-  const qc = useQueryClient();
-  const orgId = useAuthContextStore((s) => s.organizationId);
-  const invalidate = useInvalidateCharges();
-
-  return useMutation({
-    mutationFn: (payload: CaptureChargePayload) => captureCharge(orgId!, payload),
-    onSuccess: () => {
-      // The backend auto-bills the charge onto its case invoice inline, so refresh
-      // both the charges list and the invoice side (episode invoice, open drawer,
-      // billing queue) — the new line is on the invoice the moment the add returns.
-      invalidate();
-      void qc.invalidateQueries({
-        queryKey: financialQueryKeys.invoices.all(),
-      });
-    },
-    onError: (err) => {
-      toast.error(getApiErrorMessage(err, "Failed to add charge"));
-    },
+  return useChargeMutation<CaptureChargePayload>({
+    mutationFn: (orgId, payload) => captureCharge(orgId, payload),
+    errorKey: "capture",
+    invalidateInvoices: true,
   });
 }
 
 export function useUpdateCharge() {
-  const orgId = useAuthContextStore((s) => s.organizationId);
-  const invalidate = useInvalidateCharges();
-
-  return useMutation({
-    mutationFn: (vars: { id: string; payload: UpdateChargePayload }) =>
-      updateCharge(orgId!, vars.id, vars.payload),
-    onSuccess: invalidate,
-    onError: (err) => {
-      toast.error(getApiErrorMessage(err, "Failed to update charge"));
-    },
+  return useChargeMutation<{ id: string; payload: UpdateChargePayload }>({
+    mutationFn: (orgId, vars) => updateCharge(orgId, vars.id, vars.payload),
+    errorKey: "update",
   });
 }
 
 export function useCancelCharge() {
-  const orgId = useAuthContextStore((s) => s.organizationId);
-  const invalidate = useInvalidateCharges();
-
-  return useMutation({
-    mutationFn: (id: string) => cancelCharge(orgId!, id),
-    onSuccess: invalidate,
-    onError: (err) => {
-      toast.error(getApiErrorMessage(err, "Failed to cancel charge"));
-    },
+  return useChargeMutation<string>({
+    mutationFn: (orgId, id) => cancelCharge(orgId, id),
+    errorKey: "cancel",
   });
 }
 
 export function useVoidCharge() {
-  const orgId = useAuthContextStore((s) => s.organizationId);
-  const invalidate = useInvalidateCharges();
-
-  return useMutation({
-    mutationFn: (id: string) => voidCharge(orgId!, id),
-    onSuccess: invalidate,
-    onError: (err) => {
-      toast.error(getApiErrorMessage(err, "Failed to void charge"));
-    },
+  return useChargeMutation<string>({
+    mutationFn: (orgId, id) => voidCharge(orgId, id),
+    errorKey: "void",
   });
 }
 
 export function useWriteOffCharge() {
-  const orgId = useAuthContextStore((s) => s.organizationId);
-  const invalidate = useInvalidateCharges();
-
-  return useMutation({
-    mutationFn: (id: string) => writeOffCharge(orgId!, id),
-    onSuccess: invalidate,
-    onError: (err) => {
-      toast.error(getApiErrorMessage(err, "Failed to write off charge"));
-    },
+  return useChargeMutation<string>({
+    mutationFn: (orgId, id) => writeOffCharge(orgId, id),
+    errorKey: "writeOff",
   });
 }
