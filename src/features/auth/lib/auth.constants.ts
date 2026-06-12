@@ -85,7 +85,11 @@ export const AUTH_REFRESH_TOKEN_COOKIE = "cradlen-refresh-token";
 export const AUTH_SELECTION_TOKEN_COOKIE = "cradlen-selection-token";
 export const SIGNUP_TOKEN_COOKIE = "cradlen-signup-token";
 export const RESET_TOKEN_COOKIE = "cradlen-reset-token";
-export const AUTH_REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 30;
+// Matches the backend refresh-token JWT lifetime (JWT_REFRESH_EXPIRATION, 7d).
+// setAuthCookies re-sets this cookie on every rotation, so the 7-day window
+// slides on each use: active within any 7-day window = never logged out;
+// 7 full days idle = clean logout (no dead-cookie 401 dance past the JWT exp).
+export const AUTH_REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 7;
 export const DEFAULT_AUTH_EXPIRES_IN = 60 * 60;
 export const AUTH_SELECTION_TOKEN_MAX_AGE = 60 * 30;
 export const SIGNUP_TOKEN_MAX_AGE = 60 * 10;
