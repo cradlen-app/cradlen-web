@@ -145,6 +145,97 @@ export type InvoicePanelProps = {
   autoOpenVisitId?: string;
 };
 
+/**
+ * Shared queue list + footer summary, rendered both in the always-visible
+ * desktop panel and inside the mobile drawer. Calls `useBillingQueue` itself —
+ * TanStack Query dedupes the shared key so the two instances never diverge.
+ */
+function BillingQueueBody({
+  onOpenInvoice,
+  onCollect,
+}: {
+  onOpenInvoice: (item: PanelItem) => void;
+  onCollect: (visit: Visit) => void;
+}) {
+  const t = useTranslations("financial.invoice.panel");
+  const branchId = useAuthContextStore((s) => s.branchId);
+  const { pending, invoiced, isLoading } = useBillingQueue(branchId);
+  const totalCount = pending.length + invoiced.length;
+
+  return (
+    <>
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto py-3">
+        {isLoading ? (
+          <BillingQueueSkeleton />
+        ) : totalCount === 0 ? (
+          <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
+            <ReceiptText className="size-8 text-gray-200" aria-hidden="true" />
+            <p className="text-xs text-gray-400">{t("noVisits")}</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {pending.length > 0 && (
+              <div>
+                <SectionHeader
+                  title={t("pendingBilling", { count: pending.length })}
+                />
+                <div>
+                  {pending.map((item) => (
+                    <VisitRow
+                      key={item.visit.id}
+                      item={item}
+                      onClick={() => onOpenInvoice(item)}
+                      onCollect={
+                        item.invoice ? undefined : () => onCollect(item.visit)
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {invoiced.length > 0 && (
+              <div>
+                <SectionHeader
+                  title={t("invoiced", { count: invoiced.length })}
+                />
+                <div>
+                  {invoiced.map((item) => (
+                    <VisitRow
+                      key={item.visit.id}
+                      item={item}
+                      onClick={() => onOpenInvoice(item)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer summary */}
+      {totalCount > 0 && !isLoading && (
+        <div className="border-t border-gray-100 px-4 py-2.5">
+          <p className="text-[11px] text-gray-400">
+            {t.rich("summary", {
+              pending: () => (
+                <span className="font-medium text-red-500">{pending.length}</span>
+              ),
+              invoiced: () => (
+                <span className="font-medium text-emerald-600">
+                  {invoiced.length}
+                </span>
+              ),
+            })}
+          </p>
+        </div>
+      )}
+    </>
+  );
+}
+
 export function InvoicePanel({
   open,
   onOpenChange,
@@ -153,8 +244,10 @@ export function InvoicePanel({
   const t = useTranslations("financial.invoice.panel");
   const branchId = useAuthContextStore((s) => s.branchId);
 
-  const { pending, invoiced, isLoading } = useBillingQueue(branchId);
-  const totalCount = pending.length + invoiced.length;
+  // Held at the top level (not gated by the mobile drawer's `open`) so the
+  // deep-link auto-open works regardless of screen size, and so a single
+  // InvoiceDrawer serves both the inline desktop panel and the mobile drawer.
+  const { pending, invoiced } = useBillingQueue(branchId);
 
   const [drawerState, setDrawerState] = useState<DrawerState>({ open: false });
   const [collectVisit, setCollectVisit] = useState<Visit | null>(null);
@@ -193,12 +286,25 @@ export function InvoicePanel({
 
   return (
     <>
+      {/* Inline panel — always visible on large screens, replacing the old
+          calendar overview. Box styling mirrors the former overview aside. */}
+      <div className="hidden h-[calc(100vh-15rem)] w-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:flex">
+        <p className="shrink-0 border-b border-gray-100 px-4 py-3 text-center text-sm font-semibold text-brand-black">
+          {t("todaysBilling")}
+        </p>
+        <BillingQueueBody
+          onOpenInvoice={openDrawerForItem}
+          onCollect={setCollectVisit}
+        />
+      </div>
+
+      {/* Mobile drawer — slide-in on small screens, opened by the header icon. */}
       <Dialog.Root open={open} onOpenChange={onOpenChange}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]" />
+          <Dialog.Overlay className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px] lg:hidden" />
           <Dialog.Content
             className={cn(
-              "fixed inset-y-0 end-0 z-50 flex w-full flex-col bg-white shadow-2xl outline-none",
+              "fixed inset-y-0 end-0 z-50 flex w-full flex-col bg-white shadow-2xl outline-none lg:hidden",
               "sm:w-80",
               "data-[state=open]:animate-in data-[state=closed]:animate-out",
               "data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
@@ -222,78 +328,10 @@ export function InvoicePanel({
               </Dialog.Close>
             </div>
 
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto py-3">
-              {isLoading ? (
-                <BillingQueueSkeleton />
-              ) : totalCount === 0 ? (
-                <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
-                  <ReceiptText className="size-8 text-gray-200" aria-hidden="true" />
-                  <p className="text-xs text-gray-400">{t("noVisits")}</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {pending.length > 0 && (
-                    <div>
-                      <SectionHeader
-                        title={t("pendingBilling", { count: pending.length })}
-                      />
-                      <div>
-                        {pending.map((item) => (
-                          <VisitRow
-                            key={item.visit.id}
-                            item={item}
-                            onClick={() => openDrawerForItem(item)}
-                            onCollect={
-                              item.invoice
-                                ? undefined
-                                : () => setCollectVisit(item.visit)
-                            }
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {invoiced.length > 0 && (
-                    <div>
-                      <SectionHeader
-                        title={t("invoiced", { count: invoiced.length })}
-                      />
-                      <div>
-                        {invoiced.map((item) => (
-                          <VisitRow
-                            key={item.visit.id}
-                            item={item}
-                            onClick={() => openDrawerForItem(item)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Footer summary */}
-            {totalCount > 0 && !isLoading && (
-              <div className="border-t border-gray-100 px-4 py-2.5">
-                <p className="text-[11px] text-gray-400">
-                  {t.rich("summary", {
-                    pending: () => (
-                      <span className="font-medium text-red-500">
-                        {pending.length}
-                      </span>
-                    ),
-                    invoiced: () => (
-                      <span className="font-medium text-emerald-600">
-                        {invoiced.length}
-                      </span>
-                    ),
-                  })}
-                </p>
-              </div>
-            )}
+            <BillingQueueBody
+              onOpenInvoice={openDrawerForItem}
+              onCollect={setCollectVisit}
+            />
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
