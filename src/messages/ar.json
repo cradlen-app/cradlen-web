@@ -684,9 +684,16 @@
     },
     "visibility": {
       "PRIVATE": "خاص",
+      "ORGANIZATION": "المنظمة"
+    },
+    "audience": {
+      "title": "من يمكنه رؤية هذا الحدث؟",
+      "PRIVATE": "خاص",
       "PRIVATE_hint": "أنت فقط ترى هذا الحدث",
-      "ORGANIZATION": "المنظمة",
-      "ORGANIZATION_hint": "يظهر لزملاء الفرع"
+      "BRANCH": "هذا الفرع",
+      "BRANCH_hint": "يظهر لزملاء الفرع",
+      "ORG": "على مستوى المنظمة",
+      "ORG_hint": "يظهر لجميع أعضاء المنظمة"
     },
     "form": {
       "title": "التقويم / حدث جديد",
@@ -700,8 +707,6 @@
       "description": "الوصف",
       "descriptionPlaceholder": "ملاحظات اختيارية...",
       "branch": "الفرع",
-      "orgWide": "على مستوى المنظمة (بدون فرع)",
-      "visibility": "الظهور",
       "procedure": "الإجراء",
       "procedurePlaceholder": "ابحث بالاسم أو الرمز...",
       "procedureNotFound": "لم يُعثر على إجراء.",
