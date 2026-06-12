@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Mail } from "lucide-react";
+import { Mail, ChevronDown, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
@@ -14,6 +14,13 @@ import LogoIcon from "@/public/Logo-icon.png";
 import { NotificationDropdown } from "@/features/notifications/components/NotificationDropdown";
 import { InvestigationReviewDrawer } from "@/features/investigations/components/InvestigationReviewDrawer";
 import { Link } from "@/i18n/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useLogout } from "./hooks/useLogout";
 
 function UserAvatar({
   name,
@@ -75,7 +82,9 @@ function IconButton({
 
 export function Navbar() {
   const tRoles = useTranslations("settings.roles");
+  const tNav = useTranslations("nav");
   const { data: user } = useCurrentUser();
+  const { handleLogout } = useLogout();
 
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
@@ -112,26 +121,44 @@ export function Navbar() {
 
         <div className="hidden lg:block w-px h-5 bg-gray-200 mx-1.5" />
 
-        <div className="hidden lg:flex items-center gap-2.5 h-10 ps-1 pe-3.5 rounded-full border border-transparent">
-          <UserAvatar
-            name={displayName}
-            avatarUrl={profile?.profile_image_url ?? undefined}
-            className="size-8"
-          />
-          <div className="hidden sm:flex flex-col items-start leading-none gap-0.5">
-            <span className="text-sm text-brand-black group-hover:text-brand-primary transition-colors duration-150 whitespace-nowrap">
-              {displayName}
-            </span>
-            <span
-              className={cn(
-                "text-[11px] leading-none whitespace-nowrap",
-                subLabel ? "text-brand-primary/70" : "text-gray-400",
-              )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={tNav("account")}
+              className="group hidden lg:flex items-center gap-2.5 h-10 ps-1 pe-3 rounded-full border border-transparent hover:bg-brand-primary/8 transition-colors duration-150"
             >
-              {subLabel}
-            </span>
-          </div>
-        </div>
+              <UserAvatar
+                name={displayName}
+                avatarUrl={profile?.profile_image_url ?? undefined}
+                className="size-8"
+              />
+              <div className="hidden sm:flex flex-col items-start leading-none gap-0.5">
+                <span className="text-sm text-brand-black group-hover:text-brand-primary transition-colors duration-150 whitespace-nowrap">
+                  {displayName}
+                </span>
+                <span
+                  className={cn(
+                    "text-[11px] leading-none whitespace-nowrap",
+                    subLabel ? "text-brand-primary/70" : "text-gray-400",
+                  )}
+                >
+                  {subLabel}
+                </span>
+              </div>
+              <ChevronDown className="size-4 shrink-0 text-gray-400 transition-transform duration-150 group-data-[state=open]:rotate-180" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-44">
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => void handleLogout()}
+            >
+              <LogOut className="size-4" />
+              {tNav("logout")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
