@@ -3,6 +3,7 @@ import type { ModuleManifest, NavItem } from "@/common/kernel-contracts";
 
 import financialManifest from "@/core/financial/manifest";
 import patientPortalManifest from "@/core/patient-portal/manifest";
+import shellManifest from "@/core/shell/manifest";
 import staffManifest from "@/core/staff/manifest";
 
 import { kernelEvents } from "../events";
@@ -14,7 +15,7 @@ import { ModuleRegistry } from "../registry/ModuleRegistry";
  * affect nav ordering — that's driven by `NavItem.order`).
  */
 function listManifests(): readonly ModuleManifest[] {
-  return [staffManifest, patientPortalManifest, financialManifest];
+  return [shellManifest, staffManifest, patientPortalManifest, financialManifest];
 }
 
 /**

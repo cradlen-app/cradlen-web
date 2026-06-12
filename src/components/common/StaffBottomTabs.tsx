@@ -22,7 +22,7 @@ export function StaffBottomTabs() {
 
   const { data: user } = useCurrentUser();
   const profile = getActiveProfile(user);
-  const navItems = useStaffNavItems(profile);
+  const navItems = useStaffNavItems();
 
   if (!hasAnyStaffRole(profile)) return null;
 
