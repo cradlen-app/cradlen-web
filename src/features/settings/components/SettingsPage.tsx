@@ -37,7 +37,6 @@ import {
   OrganizationSection,
   ProfileSection,
 } from "./settings-sections";
-import { BillingSection } from "@/core/financial/pages";
 import {
   getVisibleSections,
   type DrawerKey,
@@ -217,9 +216,6 @@ export function SettingsPage() {
           )}
           {activeSection === "danger" && isOwner && (
             <DangerSection {...sectionProps} />
-          )}
-          {activeSection === "billing" && (
-            <BillingSection profile={profile} />
           )}
         </div>
       </div>
