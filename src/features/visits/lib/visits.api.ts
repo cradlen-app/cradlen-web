@@ -14,26 +14,13 @@ import type {
   BookMedicalRepVisitResponse,
   BookVisitRequest,
   BookVisitResponse,
+  UpdateVisitRequest,
   UpdateVisitStatusRequest,
-  VisitIntake,
 } from "../types/visits.api.types";
 
 export type PaginationParams = { page?: number; limit?: number };
 
-export type UpdateVisitRequest = VisitIntake & {
-  assigned_doctor_id?: string;
-  branch_id?: string;
-  appointment_type?: ApiVisit["appointment_type"];
-  priority?: ApiVisit["priority"];
-  scheduled_at?: string;
-  notes?: string;
-  full_name?: string;
-  national_id?: string;
-  date_of_birth?: string;
-  phone_number?: string;
-  address?: string;
-  marital_status?: "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED" | "SEPARATED" | "ENGAGED" | "UNKNOWN";
-};
+export type { UpdateVisitRequest };
 
 function appendPagination(search: URLSearchParams, params: PaginationParams) {
   if (params.page) search.set("page", String(params.page));

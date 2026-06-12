@@ -7,32 +7,20 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError } from "@/infrastructure/http/api";
 import { useFormTemplate } from "@/builder/templates/useFormTemplate";
 import {
   TemplateExecutionContextProvider,
   useTemplateExecution,
 } from "@/builder/runtime/TemplateExecutionContext";
 import { TemplateRenderer } from "@/builder/renderer/TemplateRenderer";
-import { buildSubmission } from "@/builder/templates/submission-builder";
 import { buildInitialValues } from "@/builder/templates/initial-values-builder";
-import {
-  mapServerFieldErrors,
-  mapServerMessageErrors,
-  validateTemplate,
-} from "@/builder/validator/client-validator";
+import { validateTemplate } from "@/builder/validator/client-validator";
 import type { FormTemplateDto } from "@/builder/templates/template.types";
+import { useVisitCharges } from "@/core/financial/api";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { usePatient } from "@/features/patients/hooks/usePatient";
-import { useBookVisit } from "../hooks/useBookVisit";
-import { useBookMedicalRepVisit } from "../hooks/useBookMedicalRepVisit";
-import { useUpdateVisit, type UpdateVisitRequest } from "../hooks/useUpdateVisit";
-import { useUpdateMedRepVisit } from "../hooks/useUpdateMedRepVisit";
-import type {
-  BookMedicalRepVisitRequest,
-  BookVisitRequest,
-  UpdateMedicalRepVisitRequest,
-} from "../types/visits.api.types";
+import { useSubmitVisit } from "../hooks/useSubmitVisit";
+import { mapVisitApiError } from "../lib/mapVisitApiError";
 import type { Visit } from "../types/visits.types";
 
 const TEMPLATE_CODE = "book_visit";
@@ -72,6 +60,26 @@ export function BookVisitDrawer({
   const { data: patientResp, isLoading: patientLoading } = usePatient(patientId);
   const fullPatient = patientResp?.data;
 
+  // The booked service isn't stored on the visit row — it lives on the booking
+  // charge (visit_id → service_id). Read it for patient edits so the Service
+  // field prefills like the other fields.
+  const isPatientEdit = isEdit && editingVisit?.kind !== "medical_rep";
+  const { charges: visitCharges, isLoading: chargesLoading } = useVisitCharges(
+    isPatientEdit ? editingVisit?.id : undefined,
+  );
+  const bookingServiceId = useMemo(() => {
+    // Earliest service-bearing charge still eligible to be re-billed = the one
+    // captured at booking.
+    const eligible = visitCharges
+      .filter(
+        (c) =>
+          c.service_id &&
+          (c.status === "PENDING" || c.status === "INVOICED"),
+      )
+      .sort((a, b) => a.captured_at.localeCompare(b.captured_at));
+    return eligible[0]?.service_id ?? undefined;
+  }, [visitCharges]);
+
   const filteredTemplate = useMemo(
     () => (isEdit && template ? stripDiscriminatorSections(template) : template),
     [template, isEdit],
@@ -79,17 +87,32 @@ export function BookVisitDrawer({
 
   const initial = useMemo(() => {
     if (!isEdit || !editingVisit || !template) return undefined;
-    // For patient visits we wait for the full patient fetch so identity
-    // fields can be prefilled. For medical-rep we have everything on the
-    // visit row already.
-    if (editingVisit.kind !== "medical_rep" && !fullPatient) return undefined;
-    return buildInitialValues(
+    // For patient visits we wait for the full patient fetch (identity fields)
+    // and the booking-charge fetch (Service field) before building, so both
+    // prefill on first mount. Medical-rep has everything on the visit row.
+    if (editingVisit.kind !== "medical_rep" && (!fullPatient || chargesLoading))
+      return undefined;
+    const built = buildInitialValues(
       template,
       editingVisit,
       fullPatient,
       editingVisit.specialtyCode ?? templateExtension ?? "",
     );
-  }, [isEdit, editingVisit, template, fullPatient, templateExtension]);
+    // Inject the booked service (field code `service_id`) — the dynamic Service
+    // select resolves its label once the catalog options load.
+    if (bookingServiceId) {
+      built.formValues = { ...built.formValues, service_id: bookingServiceId };
+    }
+    return built;
+  }, [
+    isEdit,
+    editingVisit,
+    template,
+    fullPatient,
+    templateExtension,
+    chargesLoading,
+    bookingServiceId,
+  ]);
 
   const waitingForPrefill = isEdit && !initial;
   const loading = isLoading || specialtiesLoading || (isEdit && patientLoading);
@@ -203,22 +226,11 @@ function DrawerBody({
   const tValidation = useTranslations("builder.validation");
   const router = useRouter();
   const { state } = useTemplateExecution();
-  const bookVisit = useBookVisit();
-  const bookMedicalRepVisit = useBookMedicalRepVisit();
-  const updateVisit = useUpdateVisit();
-  const updateMedRepVisit = useUpdateMedRepVisit();
+  const { submit, isPending: submitPending } = useSubmitVisit();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isEdit = !!editingVisit;
   const isMedicalRep = state.systemValues.visitor_type === "MEDICAL_REP";
-
-  const submitPending = isEdit
-    ? isMedicalRep
-      ? updateMedRepVisit.isPending
-      : updateVisit.isPending
-    : isMedicalRep
-      ? bookMedicalRepVisit.isPending
-      : bookVisit.isPending;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -239,100 +251,40 @@ function DrawerBody({
       return;
     }
 
-    const body = buildSubmission(template, snapshot);
-
-    if (!isEdit) body.branch_id = branchId;
-
-    // Normalize scheduled_at to a full ISO timestamp (the DATETIME input
-    // emits `YYYY-MM-DDTHH:mm` from datetime-local).
-    if (
-      typeof body.scheduled_at === "string" &&
-      body.scheduled_at.length === 16
-    ) {
-      const d = new Date(body.scheduled_at);
-      if (!Number.isNaN(d.getTime())) body.scheduled_at = d.toISOString();
-    }
-
     try {
-      if (isEdit && editingVisit) {
-        // Identity-search hosts (full_name etc.) submit the typed text via
-        // their create-namespace binding. The URL identifies the visit; strip
-        // any LOOKUP id that might still be present.
-        delete body.patient_id;
-        delete body.medical_rep_id;
-
-        if (isMedicalRep) {
-          await updateMedRepVisit.mutateAsync({
-            visitId: editingVisit.id,
-            body: body as unknown as UpdateMedicalRepVisitRequest,
-          });
-        } else {
-          await updateVisit.mutateAsync({
-            visitId: editingVisit.id,
-            body: body as unknown as UpdateVisitRequest,
-            branchId: editingVisit.branchId,
-          });
-        }
-        toast.success(t("editVisit.savedToast"));
-        onClose();
-        return;
-      }
-
-      if (isMedicalRep) {
-        const res = await bookMedicalRepVisit.mutateAsync(
-          body as unknown as BookMedicalRepVisitRequest,
-        );
-        toast.success(t("create.successMessage"));
-        onClose();
-        // Land on the new rep visit's workspace — the unified visit route, with
-        // `?kind=medical_rep` so it renders the rep workspace body.
-        const newVisitId = res?.data?.visit?.id;
-        if (newVisitId && organizationId && branchId) {
-          router.push(
-            `/${organizationId}/${branchId}/dashboard/visits/${newVisitId}?kind=medical_rep`,
-          );
-        }
-        return;
-      }
-      await bookVisit.mutateAsync(body as unknown as BookVisitRequest);
-      toast.success(t("create.successMessage"));
+      const { newVisitId } = await submit({
+        template,
+        snapshot,
+        editingVisit,
+        isMedicalRep,
+        branchId,
+      });
+      toast.success(
+        isEdit ? t("editVisit.savedToast") : t("create.successMessage"),
+      );
       onClose();
+      // Land medical-rep bookings on the new rep visit's workspace — the unified
+      // visit route, with `?kind=medical_rep` so it renders the rep workspace.
+      if (!isEdit && isMedicalRep && newVisitId && organizationId && branchId) {
+        router.push(
+          `/${organizationId}/${branchId}/dashboard/visits/${newVisitId}?kind=medical_rep`,
+        );
+      }
     } catch (error) {
-      if (error instanceof ApiError) {
-        const apiBody = error.body as
-          | {
-              error?: {
-                code?: string;
-                message?: string | string[];
-                details?: { fields?: Record<string, string[]> };
-              };
-            }
-          | undefined;
-        if (apiBody?.error?.code === "PATIENT_HAS_OPEN_VISIT") {
-          toast.error(t("create.errorPatientHasOpenVisit"));
-          return;
-        }
-        const details = apiBody?.error?.details?.fields;
-        if (details) {
-          setErrors(mapServerFieldErrors(template, details));
-          return;
-        }
-        // Template-validation failures arrive as a `message` array of
-        // "<fieldCode> <message>" strings (empty `details`). Map them to fields.
-        const message = apiBody?.error?.message;
-        if (Array.isArray(message)) {
-          const mapped = mapServerMessageErrors(template, message);
-          if (Object.keys(mapped).length > 0) {
-            setErrors(mapped);
-            return;
-          }
-          toast.error(message.join(", "));
-          return;
-        }
-        toast.error(message ?? t("create.errorGeneric"));
+      const mapped = mapVisitApiError(error, template);
+      if (mapped.kind === "fields") {
+        setErrors(mapped.fieldErrors);
         return;
       }
-      toast.error(t("create.errorGeneric"));
+      if (mapped.kind === "toastKey") {
+        toast.error(
+          mapped.key === "errorPatientHasOpenVisit"
+            ? t("create.errorPatientHasOpenVisit")
+            : t("create.errorGeneric"),
+        );
+        return;
+      }
+      toast.error(mapped.message);
     }
   }
 
