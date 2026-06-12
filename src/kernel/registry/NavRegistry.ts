@@ -15,8 +15,8 @@ export class NavRegistry {
    * All items in display order (no permission filter applied).
    *
    * Grouped items sort by their group's order first, then by their own order
-   * within the group — so e.g. a "Financial" group (`group.order: 45`) clusters
-   * between Patients (40) and Staff (50) with its children kept in sequence.
+   * within the group — so e.g. a "Financial" group (`group.order: 35`) clusters
+   * between Calendar (30) and Patients (40) with its children kept in sequence.
    * Ungrouped items sort by their own order.
    */
   list(): readonly NavItem[] {
