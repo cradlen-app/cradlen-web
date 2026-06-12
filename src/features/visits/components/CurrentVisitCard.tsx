@@ -15,11 +15,7 @@ import { useUnifiedMyCurrentVisit } from "../hooks/useUnifiedCurrentVisit";
 import { useStartVisit } from "../hooks/useStartVisit";
 import { visitWorkspacePath } from "../lib/visits.utils";
 import type { Visit } from "../types/visits.types";
-import {
-  VisitPriorityBadge,
-  VisitStatusBadge,
-  VisitTypeBadge,
-} from "./VisitBadges";
+import { VisitPriorityBadge, VisitTypeBadge } from "./VisitBadges";
 
 type Props = {
   branchId: string | null | undefined;
@@ -82,7 +78,6 @@ function CurrentVisitRow({
       <VisitTypeBadge type={visit.type} />
       <VisitPriorityBadge priority={visit.priority} />
       <div className="flex items-center justify-end gap-2">
-        <VisitStatusBadge status={visit.status} />
         {isInConsultation ? (
           <Button
             type="button"
@@ -136,7 +131,6 @@ export function CurrentVisitCard({ branchId, organizationId }: Props) {
           <span>{t("columns.name")}</span>
           <span>{t("columns.type")}</span>
           <span>{t("columns.priority")}</span>
-          <span className="text-end">{t("columns.status")}</span>
           <span className="text-end"></span>
         </div>
 
