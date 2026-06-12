@@ -5,7 +5,6 @@ import {
   Users,
   Pill,
   Briefcase,
-  BarChart2,
 } from "lucide-react";
 
 import type { NavItem } from "@/common/kernel-contracts";
@@ -13,7 +12,7 @@ import type { NavItem } from "@/common/kernel-contracts";
 /**
  * Transitional "shell" nav — the top-level operational surfaces that haven't
  * migrated to their own core module yet (dashboard home, visits, calendar,
- * patients, medicine, medical-rep, analytics).
+ * patients, medicine, medical-rep).
  *
  * Each item reuses the existing global `nav.*` message keys, so no translation
  * changes are needed. Visibility is driven entirely by `requiresPermission`
@@ -67,13 +66,5 @@ export const shellNav: readonly NavItem[] = [
     icon: Briefcase,
     requiresPermission: "medicalRep.view",
     order: 70,
-  },
-  {
-    id: "shell-analytics",
-    path: "/analytics",
-    labelKey: "nav.analytics",
-    icon: BarChart2,
-    requiresPermission: "analytics.view",
-    order: 80,
   },
 ];

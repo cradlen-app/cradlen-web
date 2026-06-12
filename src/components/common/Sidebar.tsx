@@ -4,7 +4,6 @@ import Image from "next/image";
 import LogoIcon from "@/public/Logo-icon.png";
 import {
   Settings,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   ChevronDown,
@@ -29,7 +28,6 @@ import { canUseSettings } from "./sidebar-access";
 import { SidebarNav } from "./SidebarNav";
 import { useStaffNavItems } from "./staff-nav";
 import { useSidebarBranchSwitch } from "./hooks/useSidebarBranchSwitch";
-import { useLogout } from "./hooks/useLogout";
 
 export function Sidebar() {
   const { collapsed, setCollapsed, mobileOpen, closeMobile } = useSidebar();
@@ -55,8 +53,6 @@ export function Sidebar() {
     hasMultipleOptions,
     handleSelect,
   } = useSidebarBranchSwitch(profile);
-
-  const { handleLogout } = useLogout();
 
   const navItems = useStaffNavItems();
 
@@ -302,19 +298,6 @@ export function Sidebar() {
             {!effectiveCollapsed && <span>{t("settings")}</span>}
           </Link>
         )}
-
-        <button
-          type="button"
-          onClick={() => void handleLogout()}
-          title={effectiveCollapsed ? t("logout") : undefined}
-          className={cn(
-            "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150",
-            effectiveCollapsed && "justify-center px-0",
-          )}
-        >
-          <LogOut className="size-4.5 shrink-0" />
-          {!effectiveCollapsed && <span>{t("logout")}</span>}
-        </button>
       </div>
     </aside>
   );
