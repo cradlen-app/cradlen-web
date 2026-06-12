@@ -684,9 +684,16 @@
     },
     "visibility": {
       "PRIVATE": "Private",
+      "ORGANIZATION": "Organization"
+    },
+    "audience": {
+      "title": "Who can see this event?",
+      "PRIVATE": "Private",
       "PRIVATE_hint": "Only you can see this event",
-      "ORGANIZATION": "Organization",
-      "ORGANIZATION_hint": "Visible to your branch peers"
+      "BRANCH": "This branch",
+      "BRANCH_hint": "Visible to your branch peers",
+      "ORG": "Organization-wide",
+      "ORG_hint": "Visible to everyone in the organization"
     },
     "form": {
       "title": "Calendar / New event",
@@ -700,8 +707,6 @@
       "description": "Description",
       "descriptionPlaceholder": "Optional notes...",
       "branch": "Branch",
-      "orgWide": "Organization-wide (no branch)",
-      "visibility": "Visibility",
       "procedure": "Procedure",
       "procedurePlaceholder": "Search by name or code...",
       "procedureNotFound": "No procedure found.",
