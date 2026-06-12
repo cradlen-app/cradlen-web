@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { io, type Socket } from "socket.io-client";
 import { queryKeys } from "@/lib/queryKeys";
@@ -8,6 +8,37 @@ import { queryKeys } from "@/lib/queryKeys";
 function getWsBaseUrl() {
   const url = process.env.NEXT_PUBLIC_API_URL ?? "https://api.cradlen.com/v1";
   return url.replace(/\/v1\/?$/, "");
+}
+
+/**
+ * Fetches a fresh short-lived handshake ticket from the BFF. Called by the
+ * socket on every (re)connect attempt, so an expired ticket (or a reconnect
+ * after a network blip) always re-authenticates with a new one. Returns `""` on
+ * failure so the gateway rejects the connect rather than hanging.
+ */
+async function fetchWsTicket(
+  profileId?: string | null,
+  branchId?: string | null,
+): Promise<string> {
+  try {
+    // Forward the active context so the BFF's selection-token fallback can
+    // recover a session if both the access and refresh cookies have lapsed
+    // (the normal path resolves straight off the httpOnly cookies).
+    const headers: Record<string, string> = {};
+    if (profileId) headers["X-Profile-Id"] = profileId;
+    if (branchId) headers["X-Branch-Id"] = branchId;
+
+    const res = await fetch("/api/auth/ws-ticket", {
+      method: "POST",
+      credentials: "include",
+      headers,
+    });
+    if (!res.ok) return "";
+    const json = (await res.json()) as { data?: { ws_ticket?: string } };
+    return json?.data?.ws_ticket ?? "";
+  } catch {
+    return "";
+  }
 }
 
 const VISIT_EVENTS = [
@@ -40,29 +71,30 @@ export function useVisitSocket(
 ) {
   const queryClient = useQueryClient();
 
+  // Keep the latest billing callback in a ref so it can change between renders
+  // without tearing down and re-authenticating the socket.
+  const onBillingChargeAddedRef = useRef(onBillingChargeAdded);
+  useEffect(() => {
+    onBillingChargeAddedRef.current = onBillingChargeAdded;
+  }, [onBillingChargeAdded]);
+
   useEffect(() => {
     if (!profileId && !branchId) return;
 
     const socket: Socket = io(`${getWsBaseUrl()}/visits`, {
-      transports: ["websocket"],
+      // Re-invoked by socket.io on every (re)connect attempt → always a fresh
+      // ticket. The gateway derives rooms from the verified ticket, so no
+      // client-side `join` is needed.
+      auth: async (cb) => {
+        cb({ token: await fetchWsTicket(profileId, branchId) });
+      },
+      // Fall back to HTTP long-polling if a proxy/firewall blocks WebSocket.
+      transports: ["websocket", "polling"],
       withCredentials: true,
-    });
-
-    socket.on("connect", () => {
-      socket.emit("join", {
-        ...(profileId ? { doctorId: profileId } : {}),
-        ...(branchId ? { branchId } : {}),
-      });
     });
 
     socket.on("connect_error", (err: Error) => {
       console.error("[visit-socket] connection error:", err.message);
-    });
-
-    socket.on("disconnect", (reason) => {
-      if (reason === "io server disconnect") {
-        socket.connect();
-      }
     });
 
     const invalidate = () => {
@@ -76,14 +108,12 @@ export function useVisitSocket(
       socket.on(event, invalidate);
     }
 
-    if (onBillingChargeAdded) {
-      socket.on("billing.charge_added", (payload: BillingChargeAddedPayload) => {
-        onBillingChargeAdded(payload);
-      });
-    }
+    socket.on("billing.charge_added", (payload: BillingChargeAddedPayload) => {
+      onBillingChargeAddedRef.current?.(payload);
+    });
 
     return () => {
       socket.disconnect();
     };
-  }, [profileId, branchId, queryClient, onBillingChargeAdded]);
+  }, [profileId, branchId, queryClient]);
 }

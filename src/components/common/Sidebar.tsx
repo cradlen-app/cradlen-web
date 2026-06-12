@@ -58,7 +58,7 @@ export function Sidebar() {
 
   const { handleLogout } = useLogout();
 
-  const navItems = useStaffNavItems(profile);
+  const navItems = useStaffNavItems();
 
   if (!hasAnyStaffRole(profile)) return null;
 
