@@ -11,6 +11,7 @@ import {
   PalmtreeIcon,
   Lock,
   Building2,
+  Globe,
 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useForm } from "react-hook-form";
@@ -89,6 +90,21 @@ const DEFAULT_VISIBILITY: Record<CalendarEventType, CalendarVisibility> = {
   MEETING: "PRIVATE",
   GENERIC: "PRIVATE",
 };
+
+/**
+ * The "Who can see this event?" selector collapses the two underlying fields
+ * (`branch_id` + `visibility`) into one linear choice so they can never land in
+ * a contradictory state (e.g. org-wide + private).
+ */
+type Audience = "PRIVATE" | "THIS_BRANCH" | "ORG_WIDE";
+
+function computeAudience(
+  branchId: string | undefined,
+  visibility: CalendarVisibility | undefined,
+): Audience {
+  if (!branchId) return "ORG_WIDE";
+  return visibility === "PRIVATE" ? "PRIVATE" : "THIS_BRANCH";
+}
 
 function schemaForType(type: CalendarEventType) {
   switch (type) {
@@ -213,7 +229,30 @@ export function NewEventDrawer({
     }
   }, [event, reset]);
 
+  // Active branch to fall back on when a Private / This-branch audience needs a
+  // concrete branch (org-wide stores none).
+  const fallbackBranchId =
+    branchId ?? branches[0]?.branch_id ?? branches[0]?.id ?? "";
+
+  const currentBranchId = watch("branch_id") as string | undefined;
   const currentVisibility = watch("visibility") as CalendarVisibility | undefined;
+  const audience = computeAudience(currentBranchId, currentVisibility);
+
+  function selectAudience(next: Audience) {
+    if (next === "ORG_WIDE") {
+      setValue("branch_id", "", { shouldValidate: false });
+      setValue("visibility", "ORGANIZATION", { shouldValidate: false });
+      return;
+    }
+    // Private / This branch both need a concrete branch — restore one if we're
+    // coming back from org-wide.
+    if (!currentBranchId) {
+      setValue("branch_id", fallbackBranchId, { shouldValidate: false });
+    }
+    setValue("visibility", next === "PRIVATE" ? "PRIVATE" : "ORGANIZATION", {
+      shouldValidate: false,
+    });
+  }
 
   const createMut = useCreateCalendarEvent({
     onSuccess: () => {
@@ -355,66 +394,53 @@ export function NewEventDrawer({
                     {t("form.allDay")}
                   </label>
 
-                  {/* Branch */}
+                  {/* Audience — single selector merging branch scope + visibility */}
                   <div>
-                    <label className={labelClass}>{t("form.branch")}</label>
-                    <select
-                      {...register("branch_id", {
-                        onChange: (e) => {
-                          // Org-wide (no branch) only makes sense as an
-                          // ORGANIZATION broadcast — a PRIVATE null-branch event
-                          // would silently stay personal, so force visibility.
-                          if (e.target.value === "") {
-                            setValue("visibility", "ORGANIZATION", {
-                              shouldValidate: false,
-                            });
-                          }
-                        },
-                      })}
-                      className={inputClass}
-                    >
-                      {canOrgWide && (
-                        <option value="">{t("form.orgWide")}</option>
-                      )}
-                      {branches.map((b) => (
-                        <option
-                          key={b.branch_id ?? b.id}
-                          value={b.branch_id ?? b.id}
-                        >
-                          {b.name ?? b.city}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Visibility */}
-                  <div>
-                    <label className={labelClass}>{t("form.visibility")}</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <VisibilityCard
-                        active={currentVisibility === "ORGANIZATION"}
-                        icon={<Building2 className="size-4" aria-hidden />}
-                        label={t("visibility.ORGANIZATION")}
-                        hint={t("visibility.ORGANIZATION_hint")}
-                        onClick={() =>
-                          setValue("visibility", "ORGANIZATION", {
-                            shouldValidate: false,
-                          })
-                        }
-                      />
-                      <VisibilityCard
-                        active={currentVisibility === "PRIVATE"}
+                    <label className={labelClass}>{t("audience.title")}</label>
+                    <div className="space-y-2">
+                      <AudienceOption
+                        active={audience === "PRIVATE"}
                         icon={<Lock className="size-4" aria-hidden />}
-                        label={t("visibility.PRIVATE")}
-                        hint={t("visibility.PRIVATE_hint")}
-                        onClick={() =>
-                          setValue("visibility", "PRIVATE", {
-                            shouldValidate: false,
-                          })
-                        }
+                        label={t("audience.PRIVATE")}
+                        hint={t("audience.PRIVATE_hint")}
+                        onClick={() => selectAudience("PRIVATE")}
                       />
+                      <AudienceOption
+                        active={audience === "THIS_BRANCH"}
+                        icon={<Building2 className="size-4" aria-hidden />}
+                        label={t("audience.BRANCH")}
+                        hint={t("audience.BRANCH_hint")}
+                        onClick={() => selectAudience("THIS_BRANCH")}
+                      />
+                      {(canOrgWide || audience === "ORG_WIDE") && (
+                        <AudienceOption
+                          active={audience === "ORG_WIDE"}
+                          icon={<Globe className="size-4" aria-hidden />}
+                          label={t("audience.ORG")}
+                          hint={t("audience.ORG_hint")}
+                          onClick={() => selectAudience("ORG_WIDE")}
+                        />
+                      )}
                     </div>
                   </div>
+
+                  {/* Branch picker — only when the user spans multiple branches
+                      and the event is tied to one (not org-wide). */}
+                  {branches.length >= 2 && audience !== "ORG_WIDE" && (
+                    <div>
+                      <label className={labelClass}>{t("form.branch")}</label>
+                      <select {...register("branch_id")} className={inputClass}>
+                        {branches.map((b) => (
+                          <option
+                            key={b.branch_id ?? b.id}
+                            value={b.branch_id ?? b.id}
+                          >
+                            {b.name ?? b.city}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {/* Description */}
                   <div>
@@ -462,12 +488,16 @@ export function NewEventDrawer({
                 <Button
                   type="button"
                   onClick={() => setStep("form")}
-                  className="ms-auto"
+                  className="ms-auto bg-brand-primary text-white hover:bg-brand-primary/90"
                 >
                   {t("form.next")}
                 </Button>
               ) : (
-                <Button type="submit" disabled={isPending}>
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  className="bg-brand-primary text-white hover:bg-brand-primary/90"
+                >
                   {isPending ? (
                     <>
                       <Loader2 className="me-2 size-4 animate-spin" aria-hidden />
@@ -527,9 +557,9 @@ function TypePicker({
   );
 }
 
-// ── Visibility toggle card ─────────────────────────────────────────────────
+// ── Audience option row ────────────────────────────────────────────────────
 
-function VisibilityCard({
+function AudienceOption({
   active,
   icon,
   label,
@@ -547,7 +577,7 @@ function VisibilityCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex flex-col items-start gap-1 rounded-lg border-2 px-3 py-2 text-start transition-all",
+        "flex w-full items-start gap-3 rounded-lg border-2 px-3 py-2.5 text-start transition-all",
         active
           ? "border-brand-primary bg-brand-primary/5"
           : "border-gray-200 bg-white hover:border-gray-300",
@@ -556,14 +586,23 @@ function VisibilityCard({
     >
       <span
         className={cn(
-          "flex items-center gap-1.5 text-xs font-medium",
-          active ? "text-brand-primary" : "text-brand-black",
+          "mt-0.5 shrink-0",
+          active ? "text-brand-primary" : "text-gray-400",
         )}
       >
         {icon}
-        {label}
       </span>
-      <span className="text-[11px] text-gray-500">{hint}</span>
+      <span className="flex flex-col gap-0.5">
+        <span
+          className={cn(
+            "text-xs font-medium",
+            active ? "text-brand-primary" : "text-brand-black",
+          )}
+        >
+          {label}
+        </span>
+        <span className="text-[11px] text-gray-500">{hint}</span>
+      </span>
     </button>
   );
 }
