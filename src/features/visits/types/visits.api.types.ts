@@ -194,6 +194,36 @@ export type BookVisitRequest =
   | BookVisitExistingPatientRequest
   | BookVisitNewPatientRequest;
 
+// Visit PATCH — every field optional (partial correction of an existing visit).
+// Canonical home for the shape; visits.api.ts and the update hook re-export it.
+export type UpdateVisitRequest = VisitIntake & {
+  assigned_doctor_id?: string;
+  branch_id?: string;
+  /**
+   * Billable service. Not a Visit column — when it differs from the service
+   * captured at booking the backend swaps the booking charge + invoice line
+   * (allowed only while the case invoice is unpaid).
+   */
+  service_id?: string;
+  appointment_type?: ApiVisitType;
+  priority?: ApiVisitPriority;
+  scheduled_at?: string;
+  notes?: string | null;
+  full_name?: string;
+  national_id?: string;
+  date_of_birth?: string;
+  phone_number?: string;
+  address?: string;
+  marital_status?:
+    | "SINGLE"
+    | "MARRIED"
+    | "DIVORCED"
+    | "WIDOWED"
+    | "SEPARATED"
+    | "ENGAGED"
+    | "UNKNOWN";
+};
+
 export type BookVisitResponse = {
   data: {
     visit: ApiVisit;
