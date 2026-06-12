@@ -80,12 +80,21 @@ function useInvalidateCharges() {
 }
 
 export function useCaptureCharge() {
+  const qc = useQueryClient();
   const orgId = useAuthContextStore((s) => s.organizationId);
   const invalidate = useInvalidateCharges();
 
   return useMutation({
     mutationFn: (payload: CaptureChargePayload) => captureCharge(orgId!, payload),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      // The backend auto-bills the charge onto its case invoice inline, so refresh
+      // both the charges list and the invoice side (episode invoice, open drawer,
+      // billing queue) — the new line is on the invoice the moment the add returns.
+      invalidate();
+      void qc.invalidateQueries({
+        queryKey: financialQueryKeys.invoices.all(),
+      });
+    },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to add charge"));
     },
