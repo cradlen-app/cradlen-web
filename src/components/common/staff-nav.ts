@@ -30,7 +30,7 @@ function toSidebarItem(item: NavItem): SidebarNavItem {
  * `Sidebar` and the mobile `StaffBottomTabs` / `StaffMoreSheet`.
  *
  * Every item — including the formerly hardcoded dashboard / visits / calendar /
- * patients / medicine / medical-rep / analytics entries — is now contributed by
+ * patients / medicine / medical-rep entries — is now contributed by
  * a kernel manifest (`@/core/shell`, `@/core/staff`, `@/core/financial`, ...),
  * filtered by permission, and sorted by the `NavRegistry`.
  */
