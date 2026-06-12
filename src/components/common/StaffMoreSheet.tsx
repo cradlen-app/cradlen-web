@@ -75,7 +75,7 @@ export function StaffMoreSheet({
 
   const { handleLogout } = useLogout();
 
-  const navItems = useStaffNavItems(profile);
+  const navItems = useStaffNavItems();
   const overflowItems = navItems.filter(
     (item) =>
       !(STAFF_PRIMARY_TAB_PATHS as readonly string[]).includes(item.path),

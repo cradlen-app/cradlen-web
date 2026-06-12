@@ -1,118 +1,41 @@
-import {
-  LayoutDashboard,
-  ClipboardList,
-  Calendar,
-  Users,
-  Pill,
-  Briefcase,
-  BarChart2,
-} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import type { NavItem } from "@/common/kernel-contracts";
-import type { UserProfile } from "@/common/types/user.types";
 import { usePluginNav } from "@/kernel";
-import {
-  canAccessMedicine,
-  isOwner,
-  isReceptionist,
-} from "@/features/auth/lib/permissions";
 import type { SidebarNavItem } from "./SidebarNav";
 
 /**
- * Legacy nav items contributed by `features/*` that haven't migrated to
- * the kernel manifest yet. Staff has migrated and is contributed by
- * `@/core/staff/manifest` via `usePluginNav()` (order: 50).
- *
- * Each item carries an `order` used to interleave with plugin nav items
- * at render time. As features migrate, their entries here are deleted
- * and re-declared in their core/<module>/nav.ts.
+ * Maps a kernel `NavItem` to the sidebar's render shape. Permission filtering
+ * and display ordering are owned by the kernel's `NavRegistry` —
+ * `usePluginNav()` already returns the visible items in order — so this is a
+ * pure shape adapter with no role logic.
  */
-type OrderedNavItem = SidebarNavItem & { order: number };
-
-const OWNER_LEGACY_NAV: OrderedNavItem[] = [
-  { path: "", key: "nav.dashboard", icon: LayoutDashboard, order: 10 },
-  { path: "/visits", key: "nav.visits", icon: ClipboardList, order: 20 },
-  { path: "/calendar", key: "nav.calendar", icon: Calendar, order: 30 },
-  { path: "/patients", key: "nav.patients", icon: Users, order: 40 },
-  { path: "/medicine", key: "nav.medicine", icon: Pill, order: 60 },
-  { path: "/medical-rep", key: "nav.medicalRep", icon: Briefcase, order: 70 },
-  { path: "/analytics", key: "nav.analytics", icon: BarChart2, order: 80 },
-];
-
-const BASE_LEGACY_NAV: OrderedNavItem[] = [
-  { path: "", key: "nav.dashboard", icon: LayoutDashboard, order: 10 },
-  { path: "/visits", key: "nav.visits", icon: ClipboardList, order: 20 },
-  { path: "/calendar", key: "nav.calendar", icon: Calendar, order: 30 },
-  { path: "/patients", key: "nav.patients", icon: Users, order: 40 },
-];
-
-const MEDICINE_LEGACY_NAV: OrderedNavItem = {
-  path: "/medicine",
-  key: "nav.medicine",
-  icon: Pill,
-  order: 60,
-};
-
-function buildLegacyNav(profile: UserProfile | undefined): OrderedNavItem[] {
-  if (isOwner(profile)) return OWNER_LEGACY_NAV;
-  const items = [...BASE_LEGACY_NAV];
-  if (canAccessMedicine(profile)) items.push(MEDICINE_LEGACY_NAV);
-  if (isReceptionist(profile)) {
-    return items.filter((item) => item.path !== "");
-  }
-  return items;
-}
-
-function pluginToSidebarItem(item: NavItem): OrderedNavItem {
-  const group = item.group;
-  // Grouped items cluster at their group's order and stay internally ordered,
-  // e.g. group.order 45 + child order 1..4 → 45.01..45.04 (between Patients=40
-  // and Staff=50). Ungrouped items keep their own integer order.
-  const order = group
-    ? (group.order ?? 999) + (item.order ?? 0) / 100
-    : (item.order ?? 999);
+function toSidebarItem(item: NavItem): SidebarNavItem {
   return {
     path: item.path,
     key: item.labelKey,
     icon: item.icon as LucideIcon,
-    order,
-    group: group
+    group: item.group
       ? {
-          id: group.id,
-          labelKey: group.labelKey,
-          icon: group.icon as LucideIcon,
+          id: item.group.id,
+          labelKey: item.group.labelKey,
+          icon: item.group.icon as LucideIcon,
         }
       : undefined,
   };
 }
 
-function mergeNav(
-  legacy: OrderedNavItem[],
-  pluginNav: readonly NavItem[],
-): SidebarNavItem[] {
-  const combined: OrderedNavItem[] = [
-    ...legacy,
-    ...pluginNav.map(pluginToSidebarItem),
-  ];
-  combined.sort((a, b) => a.order - b.order);
-  return combined.map(({ path, key, icon, group }) => ({
-    path,
-    key,
-    icon,
-    group,
-  }));
-}
-
 /**
- * The role-aware, plugin-merged staff navigation list shared by the
- * desktop `Sidebar` and the mobile `StaffBottomTabs` / `StaffMoreSheet`.
+ * The role-aware, registry-driven staff navigation list shared by the desktop
+ * `Sidebar` and the mobile `StaffBottomTabs` / `StaffMoreSheet`.
+ *
+ * Every item — including the formerly hardcoded dashboard / visits / calendar /
+ * patients / medicine / medical-rep / analytics entries — is now contributed by
+ * a kernel manifest (`@/core/shell`, `@/core/staff`, `@/core/financial`, ...),
+ * filtered by permission, and sorted by the `NavRegistry`.
  */
-export function useStaffNavItems(
-  profile: UserProfile | undefined,
-): SidebarNavItem[] {
-  const pluginNav = usePluginNav();
-  return mergeNav(buildLegacyNav(profile), pluginNav);
+export function useStaffNavItems(): SidebarNavItem[] {
+  return usePluginNav().map(toSidebarItem);
 }
 
 /** Paths surfaced as primary tabs in the mobile bottom bar. */
