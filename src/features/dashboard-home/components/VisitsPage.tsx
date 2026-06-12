@@ -21,12 +21,11 @@ import {
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { InvoicePanel, InvoicePanelButton } from "@/core/financial/pages";
 import { useBillingQueue, financialQueryKeys } from "@/core/financial/api";
+import { cn } from "@/common/utils/utils";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
-import { VisitsOverviewPanel } from "@/features/visits/components/VisitsOverviewPanel";
 import { WaitingListSection } from "@/features/visits/components/WaitingListSection";
 import { useVisitSocket } from "@/features/visits/hooks/useVisitSocket";
-import { getTodayIso } from "@/features/visits/lib/visits.utils";
 
 export function VisitsPage() {
   const t = useTranslations("visits");
@@ -41,7 +40,6 @@ export function VisitsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
   const [invoicePanelOpen, setInvoicePanelOpen] = useState(false);
 
   // Deep-link from the "service added" notification: the target visit is read
@@ -95,15 +93,21 @@ export function VisitsPage() {
           <p className="mt-0.5 text-xs text-gray-500">{t("breadcrumb")}</p>
         </div>
         {showBilling && (
-          <InvoicePanelButton
-            onClick={() => setInvoicePanelOpen(true)}
-            pendingCount={pendingCount}
-          />
+          // Small screens open the billing drawer via this icon; on large
+          // screens the panel is shown inline in the column, so it's hidden.
+          <span className="lg:hidden">
+            <InvoicePanelButton
+              onClick={() => setInvoicePanelOpen(true)}
+              pendingCount={pendingCount}
+            />
+          </span>
         )}
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <section className="space-y-6 lg:col-span-3">
+      <div
+        className={cn("grid grid-cols-1 gap-6", showBilling && "lg:grid-cols-4")}
+      >
+        <section className={cn("space-y-6", showBilling && "lg:col-span-3")}>
           {showAssigned && (
             <CurrentVisitCard
               branchId={branchId}
@@ -126,23 +130,19 @@ export function VisitsPage() {
             isDoctor={showAssigned}
           />
         </section>
-        <aside className="hidden lg:block">
-          <VisitsOverviewPanel
-            branchId={branchId}
-            selectedDate={selectedDate}
-            onSelect={setSelectedDate}
-            assignedToMe={showAssigned}
-          />
-        </aside>
+        {showBilling && (
+          // Inline billing panel on large screens; its mobile drawer and
+          // invoice drawer portal to <body>, so they still work on small
+          // screens even though this aside is hidden there.
+          <aside className="hidden lg:block">
+            <InvoicePanel
+              open={invoicePanelOpen}
+              onOpenChange={setInvoicePanelOpen}
+              autoOpenVisitId={autoOpenInvoiceVisitId ?? undefined}
+            />
+          </aside>
+        )}
       </div>
-
-      {showBilling && (
-        <InvoicePanel
-          open={invoicePanelOpen}
-          onOpenChange={setInvoicePanelOpen}
-          autoOpenVisitId={autoOpenInvoiceVisitId ?? undefined}
-        />
-      )}
     </main>
   );
 }
