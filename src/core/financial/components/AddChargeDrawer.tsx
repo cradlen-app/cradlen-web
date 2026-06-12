@@ -266,7 +266,7 @@ function ChargeRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [qty, setQty] = useState(charge.quantity);
-  const lineTotal = Number(charge.unit_price) * charge.quantity;
+  const lineTotal = charge.unit_price * charge.quantity;
   const isPending = charge.status === "PENDING";
 
   function save() {
@@ -290,7 +290,7 @@ function ChargeRow({
           ) : (
             charge.quantity
           )}{" "}
-          × {formatMoney(Number(charge.unit_price), charge.currency)}
+          × {formatMoney(charge.unit_price, charge.currency)}
           {" · "}
           {statusLabel}
         </p>

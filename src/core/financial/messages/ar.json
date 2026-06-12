@@ -444,6 +444,7 @@
       "daily": "يومي",
       "byService": "حسب الخدمة",
       "byDoctor": "حسب الطبيب",
+      "byBranch": "حسب الفرع",
       "byMethod": "حسب الطريقة",
       "arAging": "أعمار الذمم",
       "collections": "التحصيلات",
@@ -451,6 +452,8 @@
       "outstanding": "المستحقة"
     },
     "filters": {
+      "branch": "الفرع",
+      "allBranches": "كل الفروع (على مستوى المؤسسة)",
       "from": "من",
       "to": "إلى",
       "apply": "تطبيق"
@@ -461,6 +464,7 @@
       "revenueTrend": "الإيرادات مقابل التحصيلات",
       "topDoctors": "أعلى الأطباء",
       "topServices": "أعلى الخدمات",
+      "branchBreakdown": "تحليل الفروع",
       "arSnapshot": "لمحة أعمار الذمم"
     },
     "labels": {
@@ -472,6 +476,7 @@
       "count": "العدد",
       "service": "الخدمة",
       "doctor": "الطبيب",
+      "branch": "الفرع",
       "method": "الطريقة",
       "balance": "الرصيد المستحق",
       "patient": "المريض",

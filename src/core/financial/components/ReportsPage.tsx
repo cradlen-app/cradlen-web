@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Bar,
@@ -25,7 +25,20 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/common/utils/utils";
+import { formatBranchLocation } from "@/common/utils/branch.utils";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getBranchId,
+  getProfileBranches,
+} from "@/features/auth/lib/current-user";
+import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 
 import { useFinancialReport } from "../hooks/useReports";
 import { formatDate, formatMoney, formatPercent } from "../lib/format";
@@ -37,6 +50,7 @@ import type {
   PaymentsByMethodReport,
   ReportParams,
   ReportSummary,
+  RevenueByBranchReport,
   RevenueByDoctorReport,
   RevenueByServiceReport,
   RevenueSummaryReport,
@@ -49,6 +63,7 @@ type Tab =
   | "daily"
   | "byService"
   | "byDoctor"
+  | "byBranch"
   | "byMethod"
   | "arAging"
   | "collections"
@@ -60,6 +75,20 @@ const TABS: Tab[] = [
   "daily",
   "byService",
   "byDoctor",
+  "byMethod",
+  "arAging",
+  "collections",
+  "writeOffs",
+  "outstanding",
+];
+
+/** Tab list including the cross-branch comparison (owners with >1 branch). */
+const TABS_WITH_BRANCH: Tab[] = [
+  "overview",
+  "daily",
+  "byService",
+  "byDoctor",
+  "byBranch",
   "byMethod",
   "arAging",
   "collections",
@@ -81,12 +110,44 @@ function num(value: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Sentinel select value meaning "no branch_id" → organization-wide (owner only). */
+const ORG_WIDE = "__org_wide__";
+
 export function ReportsPage() {
   const t = useTranslations("financial.reports");
+  const { activeProfile, branchId: activeBranchId, isOwner } =
+    useUserProfileContext();
+  const branches = getProfileBranches(activeProfile);
+
   const [tab, setTab] = useState<Tab>("overview");
   const [fromInput, setFromInput] = useState("");
   const [toInput, setToInput] = useState("");
   const [params, setParams] = useState<ReportParams>({});
+
+  // Branch scope: an empty selection falls back to the active branch (handled
+  // below and in the Select's value). ORG_WIDE means "send no branch_id"
+  // (organization-wide, owner only).
+  const [branchScope, setBranchScope] = useState<string>("");
+
+  const effectiveBranchId =
+    branchScope === ORG_WIDE ? undefined : branchScope || activeBranchId;
+
+  // Cross-branch analytics: only for owners of a multi-branch org, and always
+  // org-wide (the comparison ignores the branch selector — see orgWideParams).
+  const showBranchAnalytics = isOwner && branches.length > 1;
+  const visibleTabs = showBranchAnalytics ? TABS_WITH_BRANCH : TABS;
+
+  // Compose the branch dimension with the applied date range.
+  const reportParams = useMemo<ReportParams>(
+    () => ({
+      ...(effectiveBranchId ? { branch_id: effectiveBranchId } : {}),
+      ...params,
+    }),
+    [effectiveBranchId, params],
+  );
+
+  // Branch comparison is always organization-wide — keep only the date range.
+  const orgWideParams = useMemo<ReportParams>(() => ({ ...params }), [params]);
 
   function applyRange() {
     setParams({
@@ -98,8 +159,36 @@ export function ReportsPage() {
   return (
     <FinancialPageShell title={t("title")} subtitle={t("subtitle")}>
       <div className="flex flex-col gap-5">
-        {/* Date range */}
+        {/* Filters: branch scope + date range */}
         <div className="flex flex-wrap items-end gap-3">
+          {(isOwner || branches.length > 1) && (
+            <label className="flex flex-col gap-1 text-xs text-gray-500">
+              {t("filters.branch")}
+              <Select
+                value={branchScope || activeBranchId || ""}
+                onValueChange={setBranchScope}
+              >
+                <SelectTrigger size="sm" className="min-w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((b) => {
+                    const id = getBranchId(b);
+                    return id ? (
+                      <SelectItem key={id} value={id}>
+                        {b.name ?? formatBranchLocation(b) ?? id}
+                      </SelectItem>
+                    ) : null;
+                  })}
+                  {isOwner && (
+                    <SelectItem value={ORG_WIDE}>
+                      {t("filters.allBranches")}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </label>
+          )}
           <label className="flex flex-col gap-1 text-xs text-gray-500">
             {t("filters.from")}
             <input
@@ -125,7 +214,7 @@ export function ReportsPage() {
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-1 border-b border-gray-100">
-          {TABS.map((key) => (
+          {visibleTabs.map((key) => (
             <button
               key={key}
               type="button"
@@ -144,17 +233,26 @@ export function ReportsPage() {
 
         {/* Active panel */}
         <div className="min-h-[320px]">
-          {tab === "overview" && <OverviewPanel params={params} />}
-          {tab === "daily" && <DailyPanel params={params} />}
-          {tab === "byService" && <ByServicePanel params={params} />}
-          {tab === "byDoctor" && <ByDoctorPanel params={params} />}
-          {tab === "byMethod" && <ByMethodPanel params={params} />}
-          {tab === "arAging" && <ArAgingPanel params={params} />}
-          {tab === "collections" && <CollectionsPanel params={params} />}
-          {tab === "writeOffs" && (
-            <SummaryPanel name="write-offs" params={params} />
+          {tab === "overview" && (
+            <OverviewPanel
+              params={reportParams}
+              showBranchAnalytics={showBranchAnalytics}
+              branchParams={orgWideParams}
+            />
           )}
-          {tab === "outstanding" && <OutstandingPanel params={params} />}
+          {tab === "daily" && <DailyPanel params={reportParams} />}
+          {tab === "byService" && <ByServicePanel params={reportParams} />}
+          {tab === "byDoctor" && <ByDoctorPanel params={reportParams} />}
+          {tab === "byBranch" && showBranchAnalytics && (
+            <ByBranchPanel params={orgWideParams} />
+          )}
+          {tab === "byMethod" && <ByMethodPanel params={reportParams} />}
+          {tab === "arAging" && <ArAgingPanel params={reportParams} />}
+          {tab === "collections" && <CollectionsPanel params={reportParams} />}
+          {tab === "writeOffs" && (
+            <SummaryPanel name="write-offs" params={reportParams} />
+          )}
+          {tab === "outstanding" && <OutstandingPanel params={reportParams} />}
         </div>
       </div>
     </FinancialPageShell>
@@ -342,7 +440,15 @@ function KpiSkeleton() {
 }
 
 /** Compose the financial reports into an at-a-glance overview dashboard. */
-function OverviewPanel({ params }: { params: ReportParams }) {
+function OverviewPanel({
+  params,
+  showBranchAnalytics,
+  branchParams,
+}: {
+  params: ReportParams;
+  showBranchAnalytics: boolean;
+  branchParams: ReportParams;
+}) {
   const t = useTranslations("financial.reports.labels");
   const tSection = useTranslations("financial.reports.sections");
   const tBucket = useTranslations("financial.reports.buckets");
@@ -358,6 +464,12 @@ function OverviewPanel({ params }: { params: ReportParams }) {
     params,
   );
   const arAging = useFinancialReport<ArAgingReport>("ar-aging", params);
+  // Org-wide branch comparison; only fetched for owners of a multi-branch org.
+  const byBranch = useFinancialReport<RevenueByBranchReport>(
+    "revenue-by-branch",
+    branchParams,
+    { enabled: showBranchAnalytics },
+  );
 
   const invoiced = num(revenue.data?.total_invoiced);
   const collected = num(revenue.data?.total_collected);
@@ -376,6 +488,11 @@ function OverviewPanel({ params }: { params: ReportParams }) {
 
   const topServices = [...(byService.data?.by_service ?? [])]
     .map((r) => ({ label: r.service_name, amount: num(r.total) }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+
+  const topBranches = [...(byBranch.data?.by_branch ?? [])]
+    .map((r) => ({ label: r.branch_name, amount: num(r.billed) }))
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5);
 
@@ -466,6 +583,13 @@ function OverviewPanel({ params }: { params: ReportParams }) {
           {byService.isLoading ? <Loading /> : <RankedBars rows={topServices} />}
         </SectionCard>
       </div>
+
+      {/* Branch breakdown (owners, multi-branch) */}
+      {showBranchAnalytics && (
+        <SectionCard title={tSection("branchBreakdown")}>
+          {byBranch.isLoading ? <Loading /> : <RankedBars rows={topBranches} />}
+        </SectionCard>
+      )}
 
       {/* AR aging snapshot */}
       <SectionCard title={tSection("arSnapshot")}>
@@ -790,6 +914,62 @@ function ByDoctorPanel({ params }: { params: ReportParams }) {
           String(r.invoice_count),
         ])}
         alignEnd={[1, 2]}
+      />
+    </div>
+  );
+}
+
+/** Cross-branch comparison: billed revenue + invoice counts per branch. */
+function ByBranchPanel({ params }: { params: ReportParams }) {
+  const t = useTranslations("financial.reports.labels");
+  const { data, isLoading } = useFinancialReport<RevenueByBranchReport>(
+    "revenue-by-branch",
+    params,
+  );
+  if (isLoading) return <Loading />;
+  if (!data || data.by_branch.length === 0) return <Empty />;
+
+  const rows = [...data.by_branch].sort(
+    (a, b) => b.invoice_count - a.invoice_count,
+  );
+  const chartData = rows.map((r) => ({
+    name: r.branch_name,
+    total: num(r.billed),
+  }));
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-500">
+        {t("grandTotal")}:{" "}
+        <span className="font-semibold text-gray-900">
+          {formatMoney(num(data.total))}
+        </span>
+      </p>
+      <ChartCard>
+        <BarChart data={chartData} margin={{ top: 8, right: 16, bottom: 8, left: 8 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+          <YAxis tick={{ fontSize: 11 }} width={56} />
+          <Tooltip />
+          <Bar dataKey="total" name={t("invoiced")} fill={CHART_COLORS[0]} radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ChartCard>
+      <SimpleTable
+        headers={[
+          t("branch"),
+          t("invoiceCount"),
+          t("invoiced"),
+          t("collected"),
+          t("outstanding"),
+        ]}
+        rows={rows.map((r) => [
+          r.branch_name,
+          String(r.invoice_count),
+          formatMoney(num(r.billed)),
+          formatMoney(num(r.collected)),
+          formatMoney(num(r.outstanding)),
+        ])}
+        alignEnd={[1, 2, 3, 4]}
       />
     </div>
   );
