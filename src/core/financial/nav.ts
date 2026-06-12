@@ -22,7 +22,7 @@ const financialGroup: NavGroup = {
   id: "financial",
   labelKey: "financial.nav.group",
   icon: Wallet,
-  order: 45,
+  order: 35,
 };
 
 export const financialNav: readonly NavItem[] = [
