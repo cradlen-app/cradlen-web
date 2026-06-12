@@ -60,8 +60,9 @@ export function VisitsPage() {
   const showBilling = canAccessBilling(profile);
 
   // Reception gets a live nudge when a doctor adds a billable service mid-visit,
-  // so they can collect for it; the billing queue/badge then refresh. Plain
-  // function — the React Compiler memoizes it so the socket effect stays stable.
+  // so they can collect for it; the billing queue/badge then refresh. The socket
+  // hook holds this in a ref, so a fresh function each render won't churn the
+  // connection — no memoization needed.
   const handleBillingChargeAdded = () => {
     if (!showBilling) return;
     toast.info(t("billing.chargeAddedToast"));
