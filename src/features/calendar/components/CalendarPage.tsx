@@ -202,7 +202,12 @@ export function CalendarPage() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-brand-black">{t("title")}</h1>
         {canCreate && (
-          <Button onClick={handleOpenCreate}>{t("newEvent")}</Button>
+          <Button
+            onClick={handleOpenCreate}
+            className="bg-brand-primary text-white hover:bg-brand-primary/90"
+          >
+            {t("newEvent")}
+          </Button>
         )}
       </header>
 
