@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Mail, ChevronDown, LogOut } from "lucide-react";
+import { Mail, ChevronDown, LogOut, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
@@ -9,6 +9,7 @@ import {
   getProfilePrimaryRole,
 } from "@/features/auth/lib/current-user";
 import { cn } from "@/common/utils/utils";
+import { useDashboardPath } from "@/hooks/useDashboardPath";
 import Logo from "@/public/Logo.png";
 import LogoIcon from "@/public/Logo-icon.png";
 import { NotificationDropdown } from "@/features/notifications/components/NotificationDropdown";
@@ -18,8 +19,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { canUseSettings } from "./sidebar-access";
 import { useLogout } from "./hooks/useLogout";
 
 function UserAvatar({
@@ -85,6 +88,7 @@ export function Navbar() {
   const tNav = useTranslations("nav");
   const { data: user } = useCurrentUser();
   const { handleLogout } = useLogout();
+  const dashboardPath = useDashboardPath();
 
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
@@ -149,14 +153,66 @@ export function Navbar() {
               <ChevronDown className="size-4 shrink-0 text-gray-400 transition-transform duration-150 group-data-[state=open]:rotate-180" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-44">
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={() => void handleLogout()}
-            >
-              <LogOut className="size-4" />
-              {tNav("logout")}
-            </DropdownMenuItem>
+          <DropdownMenuContent
+            align="end"
+            sideOffset={10}
+            className="w-72 p-0 overflow-hidden rounded-2xl shadow-xl shadow-black/5"
+          >
+            {/* Account header */}
+            <div className="flex items-center gap-3 px-4 py-4 bg-gradient-to-br from-brand-primary/10 via-brand-secondary/5 to-transparent border-b border-gray-100">
+              <UserAvatar
+                name={displayName}
+                avatarUrl={profile?.profile_image_url ?? undefined}
+                className="size-12"
+              />
+              <div className="flex flex-col min-w-0 leading-tight">
+                <span className="text-[15px] font-semibold text-brand-black truncate">
+                  {displayName}
+                </span>
+                {user?.email && (
+                  <span className="text-xs text-gray-400 truncate mt-0.5">
+                    {user.email}
+                  </span>
+                )}
+                {subLabel && (
+                  <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-brand-primary/10 px-2 py-0.5 text-[10px] font-medium text-brand-primary">
+                    {subLabel}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="p-2">
+              {canUseSettings(profile) && (
+                <>
+                  <DropdownMenuItem
+                    asChild
+                    className="gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-gray-600 focus:text-brand-primary"
+                  >
+                    <Link
+                      href={
+                        dashboardPath(
+                          "/settings",
+                        ) as Parameters<typeof Link>[0]["href"]
+                      }
+                    >
+                      <Settings className="size-4.5 text-gray-400" />
+                      {tNav("settings")}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-1.5" />
+                </>
+              )}
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={() => void handleLogout()}
+                className="gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer text-sm font-medium"
+              >
+                <LogOut className="size-4.5" />
+                {tNav("logout")}
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
