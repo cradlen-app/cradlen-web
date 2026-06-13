@@ -68,7 +68,12 @@ export function AuthorizationsSubSection() {
           <p className="mt-0.5 text-sm text-gray-500">{t("description")}</p>
         </div>
         {profileId && (
-          <Button type="button" size="sm" onClick={() => setDrawerOpen(true)}>
+          <Button
+            type="button"
+            size="sm"
+            className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+            onClick={() => setDrawerOpen(true)}
+          >
             <Plus className="size-3.5" aria-hidden="true" />
             {t("authorizeService")}
           </Button>
