@@ -679,6 +679,41 @@
     },
     "calendar": {
       "title": "Calendar"
+    },
+    "overview": {
+      "thisMonth": "This month",
+      "vsLastMonth": "vs last month",
+      "noPrior": "no prior data",
+      "viewFullReports": "View full reports",
+      "empty": "No data yet",
+      "scope": {
+        "branch": "This branch",
+        "org": "All branches"
+      },
+      "kpi": {
+        "visits": "Visits",
+        "followUps": "Follow-ups",
+        "patients": "Patients",
+        "collected": "Collected"
+      },
+      "sections": {
+        "visitTrend": "Visit throughput",
+        "financial": "Financial overview",
+        "patientGrowth": "Patient growth",
+        "staff": "Staff",
+        "topDoctors": "Top doctors",
+        "topServices": "Top services"
+      },
+      "financial": {
+        "invoiced": "Invoiced",
+        "collected": "Collected",
+        "outstanding": "Outstanding",
+        "collectionRate": "Collection rate"
+      },
+      "chart": {
+        "visits": "Visits",
+        "followUps": "Follow-ups"
+      }
     }
   },
   "calendar": {

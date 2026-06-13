@@ -7,3 +7,6 @@
 export { StaffPage } from "./components/StaffPage";
 export { StaffInvitationsPage } from "./components/StaffInvitationsPage";
 export { StaffInviteAcceptance } from "./components/StaffInviteAcceptance";
+
+// ── Embedded components consumed by other features ──────────────────────────
+export { StaffStatCards } from "./components/StaffStatCards";
