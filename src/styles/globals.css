@@ -157,13 +157,16 @@
   #invoice-printable,
   #invoice-printable *,
   #receipt-printable,
-  #receipt-printable * {
+  #receipt-printable *,
+  #prescription-printable,
+  #prescription-printable * {
     visibility: visible;
   }
 
   /* Size naturally and supply page margins (since @page margin is 0). */
   #invoice-printable,
-  #receipt-printable {
+  #receipt-printable,
+  #prescription-printable {
     max-height: none !important;
     overflow: visible !important;
     padding: 14mm !important;
