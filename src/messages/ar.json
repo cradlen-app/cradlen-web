@@ -886,6 +886,16 @@
         "medications": "الأدوية",
         "investigations": "الفحوصات",
         "statusNormal": "طبيعي",
+        "journeyStarted": "بدأت في {date}",
+        "episodeStarted": "بدأت في {date}",
+        "episode": "المرحلة {order}",
+        "noEpisodes": "لا توجد مراحل مسجلة بعد.",
+        "noVisitsInEpisode": "لا توجد زيارات مكتملة في هذه المرحلة بعد.",
+        "status": {
+          "ACTIVE": "نشطة",
+          "COMPLETED": "مكتملة",
+          "CANCELLED": "ملغاة"
+        },
         "typeLabel": {
           "VISIT": "زيارة",
           "FOLLOW_UP": "متابعة"
