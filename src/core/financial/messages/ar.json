@@ -105,6 +105,16 @@
       "visitId": "معرّف الزيارة",
       "visitIdPlaceholder": "معرّف الزيارة",
       "doctor": "الطبيب",
+      "currency": "العملة",
+      "doctorRequired": "يرجى اختيار الطبيب",
+      "selectPatient": "اختر المريض…",
+      "patientSearchPlaceholder": "ابحث عن المريض بالاسم…",
+      "selectDoctor": "اختر الطبيب…",
+      "doctorSearchPlaceholder": "ابحث عن الطبيب بالاسم…",
+      "searchHint": "اكتب حرفين على الأقل",
+      "searching": "جارٍ البحث…",
+      "noPatients": "لا يوجد مرضى",
+      "noDoctors": "لا يوجد أطباء",
       "type": "النوع",
       "invoiceType": "نوع الفاتورة",
       "issued": "تاريخ الإصدار",
@@ -112,6 +122,9 @@
       "notes": "ملاحظات",
       "notesPlaceholder": "ملاحظات إضافية…",
       "remainingBalance": "الرصيد المتبقي"
+    },
+    "preview": {
+      "numberPending": "يُحدَّد الرقم عند الحفظ"
     },
     "view": {
       "loadError": "تعذّر تحميل الفاتورة. ربما تم حذفها أو ليس لديك صلاحية الوصول.",

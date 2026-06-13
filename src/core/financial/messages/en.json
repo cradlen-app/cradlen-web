@@ -105,6 +105,16 @@
       "visitId": "Visit ID",
       "visitIdPlaceholder": "Visit ID",
       "doctor": "Doctor",
+      "currency": "Currency",
+      "doctorRequired": "Please select a doctor",
+      "selectPatient": "Select patient…",
+      "patientSearchPlaceholder": "Search patient by name…",
+      "selectDoctor": "Select doctor…",
+      "doctorSearchPlaceholder": "Search doctor by name…",
+      "searchHint": "Type at least 2 characters",
+      "searching": "Searching…",
+      "noPatients": "No patients found",
+      "noDoctors": "No doctors found",
       "type": "Type",
       "invoiceType": "Invoice Type",
       "issued": "Issued",
@@ -112,6 +122,9 @@
       "notes": "Notes",
       "notesPlaceholder": "Additional notes…",
       "remainingBalance": "Remaining Balance"
+    },
+    "preview": {
+      "numberPending": "Number assigned on save"
     },
     "view": {
       "loadError": "Failed to load invoice. It may have been deleted or you don't have access.",
