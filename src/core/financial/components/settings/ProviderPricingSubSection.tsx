@@ -57,7 +57,12 @@ export function ProviderPricingSubSection() {
           <p className="mt-0.5 text-sm text-gray-500">{t("description")}</p>
         </div>
         {profileId && (
-          <Button type="button" size="sm" onClick={openCreate}>
+          <Button
+            type="button"
+            size="sm"
+            className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+            onClick={openCreate}
+          >
             <Plus className="size-3.5" aria-hidden="true" />
             {tMy("addOverride")}
           </Button>
