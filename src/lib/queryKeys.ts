@@ -19,6 +19,9 @@ export const queryKeys = {
       ["visits", branchId, "schedule", date, assignedToMe] as const,
     stats: (branchId: string, date: string, assignedToMe: boolean) =>
       ["visits", branchId, "stats", date, assignedToMe] as const,
+    /** Monthly visit analytics. `scope` = "org" (owner) or the branch id. */
+    monthlyStats: (scope: string) =>
+      ["visits", scope, "monthly-stats"] as const,
     branchWaitingList: (
       branchId: string,
       opts: { page: number; limit: number },

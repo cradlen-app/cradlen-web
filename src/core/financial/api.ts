@@ -26,8 +26,9 @@ export { useVisitCharges } from "./hooks/useCharges";
 export { useServices } from "./hooks/useServices";
 export { usePriceLists } from "./hooks/usePriceLists";
 export { useResolvePrice } from "./hooks/useResolvePrice";
+export { useFinancialReport } from "./hooks/useReports";
 
 // ── Formatting helpers ──────────────────────────────────────────────────────
-export { formatMoney } from "./lib/format";
+export { formatMoney, formatPercent } from "./lib/format";
 
 export type * from "./types/financial.types";
