@@ -51,37 +51,18 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("InvoicePanel auto-open deep-link", () => {
-  it("opens the invoice drawer for the matching queued visit", () => {
+describe("InvoicePanel", () => {
+  it("lists queued visits from the billing queue", () => {
     useBillingQueueMock.mockReturnValue({
       pending: [makeItem()],
       invoiced: [],
       isLoading: false,
     });
 
-    renderWithIntl(
-      <InvoicePanel open={false} onOpenChange={() => {}} autoOpenVisitId="visit-1" />,
-    );
+    renderWithIntl(<InvoicePanel open={false} onOpenChange={() => {}} />);
 
-    const drawer = screen.getByTestId("invoice-drawer");
-    expect(drawer).toHaveAttribute("data-invoice-id", "inv-9");
-  });
-
-  it("does not open the drawer when no queued visit matches", () => {
-    useBillingQueueMock.mockReturnValue({
-      pending: [makeItem()],
-      invoiced: [],
-      isLoading: false,
-    });
-
-    renderWithIntl(
-      <InvoicePanel
-        open={false}
-        onOpenChange={() => {}}
-        autoOpenVisitId="visit-unknown"
-      />,
-    );
-
+    expect(screen.getByText("Jane Doe")).toBeInTheDocument();
+    // No drawer is opened until the user picks a row.
     expect(screen.queryByTestId("invoice-drawer")).toBeNull();
   });
 });

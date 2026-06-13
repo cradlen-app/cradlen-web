@@ -18,8 +18,6 @@ export type BillingQueueItem = {
  * InvoicePanel so the count and the list never drift.
  */
 export function useBillingQueue(branchId: string | null | undefined) {
-  const today = new Date().toISOString().split("T")[0]!;
-
   const waitingList = useUnifiedWaitingList({
     branchId,
     assignedToMe: false,
@@ -27,19 +25,32 @@ export function useBillingQueue(branchId: string | null | undefined) {
     limit: 100,
   });
 
-  // `limit` must stay within the backend cap (Max 100) or the whole request
-  // 400s and the panel shows "No invoice" for everyone. No `date_to`: the
-  // `gte` lower bound alone returns today's invoices on any backend version
-  // (the upper-bound handling isn't relied upon here). Poll so a charge the
-  // doctor adds mid-visit (auto-appended to the invoice) surfaces without a
-  // manual reload — the visits Socket.IO can't authenticate cross-origin.
+  // Fetch invoices for exactly the cases (episodes) on screen, NOT by date: a
+  // case invoice is episode-scoped and can have been created on an earlier day
+  // (a returning patient, or just the local-vs-UTC midnight boundary), so a
+  // `date_from: today` filter would drop it and the visit would show "No
+  // invoice" even though its invoice exists. Bounding to the waiting list's
+  // episodes (≤100) keeps the result set small and timing-independent.
+  const episodeIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const v of waitingList.data?.rows ?? []) {
+      if (v.episodeId) ids.add(v.episodeId);
+    }
+    return [...ids];
+  }, [waitingList.data]);
+
+  // `limit` stays within the backend cap (Max 100). Poll so a charge the doctor
+  // adds mid-visit (auto-appended to the invoice) surfaces without a manual
+  // reload — the visits Socket.IO can't authenticate cross-origin.
   const { invoices, isLoading: invoicesLoading } = useInvoices(
     {
       branch_id: branchId ?? undefined,
-      date_from: today,
+      episode_ids: episodeIds,
       limit: 100,
     },
-    { refetchInterval: 15000 },
+    // No episodes on screen → nothing to match; skip the fetch entirely rather
+    // than letting an empty `episode_ids` widen the query to all branch invoices.
+    { refetchInterval: 15000, enabled: episodeIds.length > 0 },
   );
 
   const { invoiceByVisitId, invoiceByEpisodeId } = useMemo(() => {

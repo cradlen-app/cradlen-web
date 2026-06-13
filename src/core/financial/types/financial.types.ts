@@ -520,6 +520,8 @@ export type InvoiceFilters = {
   branch_id?: string;
   /** Filter invoices by clinical case (episode). */
   episode_id?: string;
+  /** Filter invoices by a set of clinical cases (episodes) — used by the billing queue. */
+  episode_ids?: string[];
   /** Backend `type` query param (maps to `InvoiceType`). */
   type?: InvoiceType;
   /** Free-text search across invoice number and patient name. */
