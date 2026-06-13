@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
   getActiveProfile,
@@ -37,21 +35,7 @@ export function VisitsPage() {
 
   const profileId = useAuthContextStore((s) => s.profileId);
   const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const [invoicePanelOpen, setInvoicePanelOpen] = useState(false);
-
-  // Deep-link from the "service added" notification: the target visit is read
-  // straight from the URL and handed to the billing panel, which opens its
-  // drawer once (guarded internally). We then strip the param so closing the
-  // drawer or refreshing won't reopen it.
-  const autoOpenInvoiceVisitId = searchParams.get("invoiceVisit");
-  useEffect(() => {
-    if (autoOpenInvoiceVisitId) {
-      router.replace(pathname);
-    }
-  }, [autoOpenInvoiceVisitId, router, pathname]);
 
   // Compute permissions before hooks that depend on them (hooks must not be
   // called after a conditional return, so showBilling is derived here).
@@ -138,7 +122,6 @@ export function VisitsPage() {
             <InvoicePanel
               open={invoicePanelOpen}
               onOpenChange={setInvoicePanelOpen}
-              autoOpenVisitId={autoOpenInvoiceVisitId ?? undefined}
             />
           </aside>
         )}
