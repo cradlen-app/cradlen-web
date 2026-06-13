@@ -2,6 +2,18 @@
   "builder": {
     "sections": {
       "lastUpdatedAt": "last update:"
+    },
+    "validation": {
+      "required": "{label} is required",
+      "forbidden": "{label} is not allowed here",
+      "minLength": "{label} must be at least {min} characters",
+      "maxLength": "{label} must be at most {max} characters",
+      "invalidFormat": "{label} has an invalid format",
+      "invalidDate": "{label} is not a valid date",
+      "futureDate": "{label} must not be in the future",
+      "maxAge": "{label} exceeds the maximum allowed age of {maxAge} years",
+      "min": "{label} must be at least {min}",
+      "max": "{label} must be at most {max}"
     }
   },
   "common": {
