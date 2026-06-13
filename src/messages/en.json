@@ -1216,7 +1216,12 @@
     "filters": {
       "category": "Category",
       "form": "Form",
-      "comingSoon": "Coming soon"
+      "all": "All"
+    },
+    "sort": {
+      "label": "Sort by",
+      "default": "Default",
+      "usage": "Most prescribed"
     },
     "showResults": "show {count} of {total} results",
     "pagination": {
