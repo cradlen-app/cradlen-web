@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Crown,
-  Stethoscope,
-  UserCog,
-  UserPlus,
-  UserRound,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import { Briefcase, Stethoscope, UserPlus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   StatTrendCard,
@@ -21,18 +13,6 @@ type Props = {
   branchId?: string;
 };
 
-/** Icon hint per known role code; unknown/new codes fall back to a generic icon. */
-const ROLE_ICONS: Record<string, LucideIcon> = {
-  OWNER: Crown,
-  BRANCH_MANAGER: UserCog,
-  STAFF: Users,
-  EXTERNAL: UserPlus,
-};
-
-function iconForRole(roleCode: string): LucideIcon {
-  return ROLE_ICONS[roleCode] ?? UserRound;
-}
-
 export function StaffStatCardsSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
@@ -44,9 +24,9 @@ export function StaffStatCardsSkeleton() {
 }
 
 /**
- * Analytics cards above the staff table: a total plus one card per role present
- * in the data (labels prefer the localized staff role names, falling back to the
- * API role name) plus a clinical subtotal, each with a month-over-month trend.
+ * Analytics cards above the staff table: a fixed set of four — total members,
+ * clinical staff, administrative (non-clinical) staff, and external-role staff,
+ * each with a month-over-month trend chip.
  */
 export function StaffStatCards({ organizationId, branchId }: Props) {
   const t = useTranslations("staff");
@@ -55,11 +35,22 @@ export function StaffStatCards({ organizationId, branchId }: Props) {
   if (isLoading) return <StaffStatCardsSkeleton />;
   if (!data) return null;
 
-  const roleLabel = (roleCode: string, fallback: string) =>
-    t.has(`apiRoles.${roleCode}`) ? t(`apiRoles.${roleCode}`) : fallback;
-
   const vsLastMonth = t("stats.vsLastMonth");
   const noPrior = t("stats.noPrior");
+
+  // Administrative = every active member without a clinical job function. Clinical
+  // is a subset of total, so this is exact and never negative.
+  const administrative = {
+    current: data.total.current - data.clinical.current,
+    previous: data.total.previous - data.clinical.previous,
+  };
+
+  // External-role staff — read straight from the data-driven role breakdown.
+  const external =
+    data.by_role.find((r) => r.role_code === "EXTERNAL") ?? {
+      current: 0,
+      previous: 0,
+    };
 
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
@@ -71,20 +62,24 @@ export function StaffStatCards({ organizationId, branchId }: Props) {
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
       />
-      {data.by_role.map((r) => (
-        <StatTrendCard
-          key={r.role_code}
-          icon={iconForRole(r.role_code)}
-          label={roleLabel(r.role_code, r.role_name)}
-          metric={r}
-          vsLastMonthLabel={vsLastMonth}
-          noPriorLabel={noPrior}
-        />
-      ))}
       <StatTrendCard
         icon={Stethoscope}
         label={t("stats.clinical")}
         metric={data.clinical}
+        vsLastMonthLabel={vsLastMonth}
+        noPriorLabel={noPrior}
+      />
+      <StatTrendCard
+        icon={Briefcase}
+        label={t("stats.administrative")}
+        metric={administrative}
+        vsLastMonthLabel={vsLastMonth}
+        noPriorLabel={noPrior}
+      />
+      <StatTrendCard
+        icon={UserPlus}
+        label={t("stats.external")}
+        metric={external}
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
       />

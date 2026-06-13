@@ -13,6 +13,8 @@
   "stats": {
     "total": "Total Staff",
     "clinical": "Clinical",
+    "administrative": "Administrative",
+    "external": "External",
     "vsLastMonth": "vs last month",
     "noPrior": "—"
   },
