@@ -135,3 +135,27 @@
     font-feature-settings: normal;
   }
 }
+
+@media print {
+  /* Hide everything, then reveal only the active printable region. */
+  body * {
+    visibility: hidden;
+  }
+  #invoice-printable,
+  #invoice-printable *,
+  #receipt-printable,
+  #receipt-printable * {
+    visibility: visible;
+  }
+  /* Lift the printable out of the centered/scrolling dialog so it fills the
+     page and is never clipped by max-h-* / overflow-y-auto. */
+  #invoice-printable,
+  #receipt-printable {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
