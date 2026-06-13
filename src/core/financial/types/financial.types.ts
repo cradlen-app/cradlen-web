@@ -463,6 +463,21 @@ export type RevenueSummaryReport = {
   invoice_count: number;
 };
 
+/** A single status bucket for the billing dashboard cards. Amount is a Decimal string. */
+export type InvoiceStatBucket = { count: number; amount: string };
+
+/**
+ * Per-status invoice rollup powering the invoices-page stat cards. PENDING and
+ * OVERDUE are derived server-side (we have no such statuses): pending = DRAFT,
+ * overdue = issued/partially-paid past due_date. See the `invoice-stats` report.
+ */
+export type InvoiceStatsReport = {
+  paid: InvoiceStatBucket;
+  unpaid: InvoiceStatBucket;
+  pending: InvoiceStatBucket;
+  overdue: InvoiceStatBucket;
+};
+
 export type ArAgingReport = {
   buckets: {
     current: string;

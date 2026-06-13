@@ -373,8 +373,9 @@
     }
   },
   "invoices": {
-    "title": "Invoice Search",
+    "title": "Invoices & Billing",
     "subtitle": "Search and manage invoices for this branch.",
+    "newInvoice": "New Invoice",
     "searchPlaceholder": "Search by invoice number or patient name…",
     "filterStatus": "Status",
     "statusAll": "All statuses",
@@ -382,11 +383,20 @@
     "error": "Couldn't load invoices. Please try again.",
     "loading": "Loading invoices…",
     "resultsCount": "{count, plural, one {# invoice} other {# invoices}}",
+    "selectPrompt": "Select an invoice to view its details.",
+    "stats": {
+      "paid": "Paid Invoices",
+      "unpaid": "Unpaid Invoices",
+      "pending": "Pending Invoices",
+      "overdue": "Overdue Invoices",
+      "fromInvoices": "from {count, plural, one {# invoice} other {# invoices}}"
+    },
     "columns": {
       "number": "Invoice #",
       "patient": "Patient",
       "status": "Status",
       "total": "Total",
+      "amount": "Amount",
       "paid": "Paid",
       "balance": "Balance",
       "date": "Date"
