@@ -134,6 +134,7 @@
     },
     "stats": {
       "total": "إجمالي المرضى",
+      "newThisMonth": "الجدد هذا الشهر",
       "vsLastMonth": "مقارنة بالشهر الماضي",
       "noPrior": "—"
     }
