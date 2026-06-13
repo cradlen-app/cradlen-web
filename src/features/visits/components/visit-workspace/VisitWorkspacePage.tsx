@@ -14,7 +14,7 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUpdateVisitStatus } from "../../hooks/useUpdateVisitStatus";
 import { useVisit } from "../../hooks/useVisit";
 import { InvoiceDrawer, AddChargeDrawer } from "@/core/financial/pages";
-import { financialCan, useEpisodeInvoice } from "@/core/financial/api";
+import { financialCan, useVisitInvoice } from "@/core/financial/api";
 import { CompleteVisitDialog } from "../CompleteVisitDialog";
 import { VisitWorkspaceHeader } from "./VisitWorkspaceHeader";
 import { VisitContextRail } from "./overview/VisitContextRail";
@@ -42,8 +42,8 @@ export function VisitWorkspacePage({ visitId }: Props) {
 
   const { data: visit, isLoading, isError } = useVisit(visitId);
   const { data: journey } = useVisitJourney(visitId);
-  // The case's single open invoice, resolvable from any visit in the episode.
-  const { invoice: episodeInvoice } = useEpisodeInvoice(visit?.episodeId);
+  // The visit's single open invoice (created at booking).
+  const { invoice: visitInvoice } = useVisitInvoice(visit?.id);
   const updateStatus = useUpdateVisitStatus();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
@@ -187,10 +187,9 @@ export function VisitWorkspacePage({ visitId }: Props) {
       <InvoiceDrawer
         open={invoiceDrawerOpen}
         onOpenChange={setInvoiceDrawerOpen}
-        invoiceId={episodeInvoice?.id}
+        invoiceId={visitInvoice?.id}
         prefill={{
           visitId: visit.id,
-          episodeId: visit.episodeId,
           patientId: visit.patient.id,
           patientName: visit.patient.fullName,
           doctorId: visit.assignedDoctorId,

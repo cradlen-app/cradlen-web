@@ -6,23 +6,23 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { fetchInvoices } from "../lib/invoices.api";
 
 /**
- * The active (non-VOID) invoice for a clinical case (episode), if one exists.
- * Resolves the single open invoice per case from any of the episode's visits, so
- * reopening the drawer on a later visit shows the existing invoice rather than
- * building a duplicate.
+ * The active (non-VOID) invoice for a visit (encounter), if one exists. Billing
+ * is per-visit — one open invoice per visit, created at booking — so reopening
+ * the drawer on the same visit shows the existing invoice rather than building a
+ * duplicate.
  */
-export function useEpisodeInvoice(episodeId: string | undefined) {
+export function useVisitInvoice(visitId: string | undefined) {
   const orgId = useAuthContextStore((s) => s.organizationId);
 
   const query = useQuery({
     queryKey: financialQueryKeys.invoices.list(orgId ?? "", {
-      episode_id: episodeId,
+      visit_ids: visitId ? [visitId] : undefined,
     }),
     queryFn: async () => {
-      const res = await fetchInvoices(orgId!, { episode_id: episodeId });
+      const res = await fetchInvoices(orgId!, { visit_ids: [visitId!] });
       return res.data;
     },
-    enabled: !!orgId && !!episodeId,
+    enabled: !!orgId && !!visitId,
   });
 
   const invoice = (query.data ?? []).find((i) => i.status !== "VOID") ?? null;
