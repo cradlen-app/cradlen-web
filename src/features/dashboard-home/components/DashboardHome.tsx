@@ -2,15 +2,23 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { cn } from "@/common/utils/utils";
-import { getProfileBranches } from "@/features/auth/lib/current-user";
+import { getBranchId, getProfileBranches } from "@/features/auth/lib/current-user";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PatientStatCards } from "@/features/patients/components/PatientStatCards";
 import { StaffStatCards } from "@/core/staff/pages";
 import { DashboardKpiRow } from "./overview/DashboardKpiRow";
 import { DashboardVisitsChart } from "./overview/DashboardVisitsChart";
 import { DashboardFinancialOverview } from "./overview/DashboardFinancialOverview";
 import { DashboardTopPerformers } from "./overview/DashboardTopPerformers";
+
+const ORG_SCOPE = "org";
 
 export function DashboardHome() {
   const t = useTranslations("dashboardHome");
@@ -28,13 +36,16 @@ export function DashboardHome() {
     isClinical,
   } = useUserProfileContext();
 
-  const [orgWide, setOrgWide] = useState(false);
+  const [scope, setScope] = useState<string>(branchId ?? "");
 
   if (!hasAnyStaffRole) return null;
 
   const branches = getProfileBranches(activeProfile);
   const canToggleScope = isOwner && branches.length > 1;
-  const scopeOrgWide = canToggleScope && orgWide;
+  const scopeOrgWide = canToggleScope && scope === ORG_SCOPE;
+  const effectiveBranchId = canToggleScope && !scopeOrgWide ? scope : branchId;
+  const selectedBranchName =
+    branches.find((b) => getBranchId(b) === effectiveBranchId)?.name ?? branchName;
 
   const showRevenue = isOwner || isBranchManager;
   const showPatients = isOwner || isBranchManager || isClinical;
@@ -47,7 +58,7 @@ export function DashboardHome() {
     day: "numeric",
   }).format(new Date());
 
-  const subtitle = [organizationName, !scopeOrgWide ? branchName : null]
+  const subtitle = [organizationName, !scopeOrgWide ? selectedBranchName : null]
     .filter(Boolean)
     .join(" · ");
 
@@ -64,32 +75,22 @@ export function DashboardHome() {
         </div>
         <div className="flex items-center gap-2">
           {canToggleScope && (
-            <div className="inline-flex rounded-full border border-gray-200 p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setOrgWide(false)}
-                className={cn(
-                  "rounded-full px-3 py-1 font-medium transition-colors",
-                  !orgWide
-                    ? "bg-brand-primary text-white"
-                    : "text-gray-500 hover:text-brand-black",
-                )}
-              >
-                {tOverview("scope.branch")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setOrgWide(true)}
-                className={cn(
-                  "rounded-full px-3 py-1 font-medium transition-colors",
-                  orgWide
-                    ? "bg-brand-primary text-white"
-                    : "text-gray-500 hover:text-brand-black",
-                )}
-              >
-                {tOverview("scope.org")}
-              </button>
-            </div>
+            <Select value={scope} onValueChange={setScope}>
+              <SelectTrigger size="sm" className="h-8 min-w-44 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ORG_SCOPE}>{tOverview("scope.org")}</SelectItem>
+                {branches.map((b) => {
+                  const id = getBranchId(b) ?? "";
+                  return (
+                    <SelectItem key={id} value={id}>
+                      {b.name}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           )}
           <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3 py-1 text-[11px] font-medium text-gray-500 shadow-sm">
             {t("todayBadge", { date: todayLabel })}
@@ -98,7 +99,7 @@ export function DashboardHome() {
       </header>
 
       <DashboardKpiRow
-        branchId={branchId}
+        branchId={effectiveBranchId}
         orgId={organizationId}
         orgWide={scopeOrgWide}
         showRevenue={showRevenue}
@@ -106,13 +107,16 @@ export function DashboardHome() {
       />
 
       <DashboardVisitsChart
-        branchId={branchId}
+        branchId={effectiveBranchId}
         orgId={organizationId}
         orgWide={scopeOrgWide}
       />
 
       {showRevenue && (
-        <DashboardFinancialOverview branchId={branchId} orgWide={scopeOrgWide} />
+        <DashboardFinancialOverview
+          branchId={effectiveBranchId}
+          orgWide={scopeOrgWide}
+        />
       )}
 
       {showPatients && (
@@ -120,7 +124,7 @@ export function DashboardHome() {
           <h2 className="text-sm font-medium text-gray-700">
             {tOverview("sections.patientGrowth")}
           </h2>
-          <PatientStatCards branchId={branchId} orgWide={scopeOrgWide} />
+          <PatientStatCards branchId={effectiveBranchId} orgWide={scopeOrgWide} />
         </section>
       )}
 
@@ -130,9 +134,15 @@ export function DashboardHome() {
             <h2 className="text-sm font-medium text-gray-700">
               {tOverview("sections.staff")}
             </h2>
-            <StaffStatCards organizationId={organizationId} branchId={branchId} />
+            <StaffStatCards
+              organizationId={organizationId}
+              branchId={effectiveBranchId}
+            />
           </section>
-          <DashboardTopPerformers branchId={branchId} orgWide={scopeOrgWide} />
+          <DashboardTopPerformers
+            branchId={effectiveBranchId}
+            orgWide={scopeOrgWide}
+          />
         </>
       )}
     </main>
