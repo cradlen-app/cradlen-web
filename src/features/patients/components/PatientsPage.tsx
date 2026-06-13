@@ -14,6 +14,7 @@ import type { PatientFilter } from "../types/patients.types";
 import { usePatients } from "../hooks/usePatients";
 import { usePatientsDirectory } from "../hooks/usePatientsDirectory";
 import { PatientsHeader } from "./PatientsHeader";
+import { PatientStatCards } from "./PatientStatCards";
 import { PatientsTable } from "./PatientsTable";
 import { PatientsToolbar } from "./PatientsToolbar";
 
@@ -95,6 +96,10 @@ export function PatientsPage() {
   return (
     <div className="flex h-full flex-col gap-4 p-4 lg:p-6">
       <PatientsHeader />
+
+      {!noBranch && (
+        <PatientStatCards branchId={branchId ?? undefined} orgWide={orgWide} />
+      )}
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
         <PatientsToolbar

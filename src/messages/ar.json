@@ -119,6 +119,11 @@
       "GENERAL_GYN": "نساء عام",
       "SURGICAL": "جراحي",
       "CHRONIC_CONDITION": "حالة مزمنة"
+    },
+    "stats": {
+      "total": "إجمالي المرضى",
+      "vsLastMonth": "مقارنة بالشهر الماضي",
+      "noPrior": "—"
     }
   },
   "patientNav": {
