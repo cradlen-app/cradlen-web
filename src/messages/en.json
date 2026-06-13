@@ -998,6 +998,27 @@
       "cancelledToast": "Visit cancelled.",
       "actionError": "Could not update the visit."
     },
+    "prescription": {
+      "title": "Prescription sent",
+      "sentTo": "The prescription was sent to {patient}.",
+      "sentGeneric": "The prescription was sent to the patient.",
+      "print": "Print",
+      "close": "Close",
+      "loading": "Loading prescription…",
+      "empty": "No medications were prescribed for this visit.",
+      "license": "License",
+      "date": "Date",
+      "patient": "Patient",
+      "age": "Age",
+      "years": "{count} yrs",
+      "phone": "Phone",
+      "complaint": "Main complaint",
+      "diagnosis": "Diagnosis",
+      "medications": "Medications",
+      "noMedications": "No medications.",
+      "notes": "Notes",
+      "signature": "Signature"
+    },
     "waitingList": {
       "title": "Waiting List",
       "searchPlaceholder": "Search patient....",
