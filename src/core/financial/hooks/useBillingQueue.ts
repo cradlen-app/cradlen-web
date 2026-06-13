@@ -25,16 +25,15 @@ export function useBillingQueue(branchId: string | null | undefined) {
     limit: 100,
   });
 
-  // Fetch invoices for exactly the cases (episodes) on screen, NOT by date: a
-  // case invoice is episode-scoped and can have been created on an earlier day
-  // (a returning patient, or just the local-vs-UTC midnight boundary), so a
-  // `date_from: today` filter would drop it and the visit would show "No
-  // invoice" even though its invoice exists. Bounding to the waiting list's
-  // episodes (≤100) keeps the result set small and timing-independent.
-  const episodeIds = useMemo(() => {
+  // Fetch invoices for exactly the visits on screen, NOT by date: billing is
+  // per-visit, so a visit's invoice is created at booking but a `date_from:
+  // today` filter could still drop it at the local-vs-UTC midnight boundary.
+  // Bounding to the waiting list's visit ids (≤100) keeps the result set small
+  // and timing-independent, and each visit maps 1:1 to its own invoice.
+  const visitIds = useMemo(() => {
     const ids = new Set<string>();
     for (const v of waitingList.data?.rows ?? []) {
-      if (v.episodeId) ids.add(v.episodeId);
+      if (v.id) ids.add(v.id);
     }
     return [...ids];
   }, [waitingList.data]);
@@ -45,26 +44,20 @@ export function useBillingQueue(branchId: string | null | undefined) {
   const { invoices, isLoading: invoicesLoading } = useInvoices(
     {
       branch_id: branchId ?? undefined,
-      episode_ids: episodeIds,
+      visit_ids: visitIds,
       limit: 100,
     },
-    // No episodes on screen → nothing to match; skip the fetch entirely rather
-    // than letting an empty `episode_ids` widen the query to all branch invoices.
-    { refetchInterval: 15000, enabled: episodeIds.length > 0 },
+    // No visits on screen → nothing to match; skip the fetch entirely rather
+    // than letting an empty `visit_ids` widen the query to all branch invoices.
+    { refetchInterval: 15000, enabled: visitIds.length > 0 },
   );
 
-  const { invoiceByVisitId, invoiceByEpisodeId } = useMemo(() => {
+  const invoiceByVisitId = useMemo(() => {
     const byVisit = new Map<string, Invoice>();
-    const byEpisode = new Map<string, Invoice>();
     for (const inv of invoices ?? []) {
       if (inv.visit_id) byVisit.set(inv.visit_id, inv);
-      // One open invoice per case — key by episode so a later visit in the same
-      // episode resolves the case invoice even though its visit_id differs.
-      if (inv.episode_id && inv.status !== "VOID") {
-        byEpisode.set(inv.episode_id, inv);
-      }
     }
-    return { invoiceByVisitId: byVisit, invoiceByEpisodeId: byEpisode };
+    return byVisit;
   }, [invoices]);
 
   const { pending, invoiced } = useMemo<{
@@ -75,9 +68,7 @@ export function useBillingQueue(branchId: string | null | undefined) {
     const p: BillingQueueItem[] = [];
     const i: BillingQueueItem[] = [];
     for (const visit of rows) {
-      const inv =
-        invoiceByVisitId.get(visit.id) ??
-        (visit.episodeId ? invoiceByEpisodeId.get(visit.episodeId) : undefined);
+      const inv = invoiceByVisitId.get(visit.id);
       const item: BillingQueueItem = { visit, invoice: inv };
       if (!inv || inv.status === "DRAFT") {
         p.push(item);
@@ -86,7 +77,7 @@ export function useBillingQueue(branchId: string | null | undefined) {
       }
     }
     return { pending: p, invoiced: i };
-  }, [waitingList.data, invoiceByVisitId, invoiceByEpisodeId]);
+  }, [waitingList.data, invoiceByVisitId]);
 
   return {
     pending,
