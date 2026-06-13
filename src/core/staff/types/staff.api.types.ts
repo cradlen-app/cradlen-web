@@ -18,6 +18,27 @@ export type ApiStaffSpecialty = {
   name: string;
 };
 
+/** A single staff metric with its current value and the value at start-of-month. */
+export type ApiStaffStatMetric = {
+  current: number;
+  previous: number;
+};
+
+/** Active-staff count for one role, keyed by role code (`OWNER`, `STAFF`, …). */
+export type ApiRoleStat = ApiStaffStatMetric & {
+  role_code: string;
+  role_name: string;
+};
+
+/** Branch staff analytics: total + data-driven per-role breakdown + clinical. */
+export type ApiStaffStats = {
+  total: ApiStaffStatMetric;
+  by_role: ApiRoleStat[];
+  clinical: ApiStaffStatMetric;
+};
+
+export type ApiStaffStatsResponse = { data: ApiStaffStats };
+
 export type ApiStaffShift = {
   id?: string;
   start_time: string;
