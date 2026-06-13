@@ -8,7 +8,7 @@ import type { InvoiceFilters } from "../types/financial.types";
 
 export function useInvoices(
   filters?: InvoiceFilters,
-  options?: { refetchInterval?: number },
+  options?: { refetchInterval?: number; enabled?: boolean },
 ) {
   const orgId = useAuthContextStore((s) => s.organizationId);
 
@@ -18,7 +18,7 @@ export function useInvoices(
       const res = await fetchInvoices(orgId!, filters);
       return { data: res.data, meta: res.meta };
     },
-    enabled: !!orgId,
+    enabled: !!orgId && (options?.enabled ?? true),
     placeholderData: (prev) => prev,
     refetchInterval: options?.refetchInterval,
   });
