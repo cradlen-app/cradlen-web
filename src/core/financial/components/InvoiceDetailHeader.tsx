@@ -14,6 +14,8 @@ type Props = {
   permissions: InvoicePermissions;
   /** Whether the issue mutation is in flight (drives the button spinner). */
   issuing: boolean;
+  /** Compact, single-surface layout for the narrow master-detail panel. */
+  dense?: boolean;
   onVoid: () => void;
   onEdit: () => void;
   onIssue: () => void;
@@ -25,6 +27,7 @@ export function InvoiceDetailHeader({
   invoice,
   permissions,
   issuing,
+  dense = false,
   onVoid,
   onEdit,
   onIssue,
@@ -36,14 +39,38 @@ export function InvoiceDetailHeader({
   const remaining = invoice.total_amount - invoice.paid_amount;
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div
+      className={cn(
+        dense
+          ? "min-w-0"
+          : "rounded-2xl border border-gray-200 bg-white p-6 shadow-sm",
+      )}
+    >
+      <div
+        className={cn(
+          "flex flex-col gap-4",
+          !dense && "sm:flex-row sm:items-start sm:justify-between",
+        )}
+      >
         {/* Left: identity */}
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <FileText className="size-5 text-gray-400" aria-hidden="true" />
-              <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+            <div className="flex min-w-0 items-center gap-2">
+              <FileText
+                className={cn(
+                  "shrink-0 text-gray-400",
+                  dense ? "size-4" : "size-5",
+                )}
+                aria-hidden="true"
+              />
+              <h1
+                className={cn(
+                  "font-bold text-gray-900",
+                  dense
+                    ? "text-lg leading-snug break-words"
+                    : "text-xl sm:text-2xl",
+                )}
+              >
                 {invoice.invoice_number}
               </h1>
             </div>

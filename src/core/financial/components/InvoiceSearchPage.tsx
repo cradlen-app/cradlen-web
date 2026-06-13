@@ -103,7 +103,7 @@ export function InvoiceSearchPage() {
 
         <div className="grid gap-4 lg:grid-cols-[1fr_minmax(380px,440px)] lg:items-start lg:gap-6">
           {/* ── List ─────────────────────────────────────────────────── */}
-          <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="min-w-0 rounded-2xl border border-gray-100 bg-white shadow-sm">
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 p-4">
               <div className="relative min-w-0 flex-1 sm:max-w-xs">
@@ -233,7 +233,7 @@ export function InvoiceSearchPage() {
           </div>
 
           {/* ── Detail panel (lg+) ───────────────────────────────────── */}
-          <div className="hidden rounded-2xl border border-gray-100 bg-gray-50/40 p-4 shadow-sm lg:sticky lg:top-4 lg:block lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto">
+          <div className="hidden min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm lg:sticky lg:top-4 lg:block lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto">
             {effectiveSelectedId ? (
               <InvoiceDetailView invoiceId={effectiveSelectedId} layout="panel" />
             ) : (
@@ -249,7 +249,7 @@ export function InvoiceSearchPage() {
           <Dialog.Overlay className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px] lg:hidden" />
           <Dialog.Content
             className={cn(
-              "fixed inset-y-0 end-0 z-50 flex w-full max-w-md flex-col bg-gray-50 shadow-2xl outline-none lg:hidden",
+              "fixed inset-y-0 end-0 z-50 flex w-full max-w-md flex-col bg-white shadow-2xl outline-none lg:hidden",
               "data-[state=open]:animate-in data-[state=closed]:animate-out",
               "data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
               "duration-200",

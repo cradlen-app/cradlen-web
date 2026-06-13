@@ -114,16 +114,19 @@ export function InvoiceDetailView({ invoiceId, layout = "page" }: Props) {
     );
   }
 
-  const bodyGrid =
-    layout === "panel" ? "grid gap-6" : "grid gap-6 lg:grid-cols-[320px_1fr]";
+  // In the narrow master-detail panel the sub-sections render dense (compact
+  // padding, single-surface, no fixed widths) so nothing clips or overflows.
+  const dense = layout === "panel";
+  const bodyGrid = dense ? "grid gap-4" : "grid gap-6 lg:grid-cols-[320px_1fr]";
 
   return (
     <>
-      <div className="space-y-6">
+      <div className={dense ? "min-w-0 space-y-4" : "space-y-6"}>
         <InvoiceDetailHeader
           invoice={invoice}
           permissions={permissions}
           issuing={issueMutation.isPending}
+          dense={dense}
           onVoid={() => setVoidDialogOpen(true)}
           onEdit={() => setEditDrawerOpen(true)}
           onIssue={() => issueMutation.mutate(invoice.id)}
@@ -131,15 +134,20 @@ export function InvoiceDetailView({ invoiceId, layout = "page" }: Props) {
         />
 
         <div className={bodyGrid}>
-          <InvoiceDetailsCard invoice={invoice} />
+          <InvoiceDetailsCard invoice={invoice} dense={dense} />
 
-          <div className="space-y-6">
-            <InvoiceItemsTable items={invoice.items} currency={invoice.currency} />
+          <div className={dense ? "min-w-0 space-y-4" : "space-y-6"}>
+            <InvoiceItemsTable
+              items={invoice.items}
+              currency={invoice.currency}
+              dense={dense}
+            />
 
             <InvoicePaymentsList
               payments={payments}
               loading={paymentsLoading}
               receiptByPayment={receiptByPayment}
+              dense={dense}
               onPrintReceipt={setPrintReceiptId}
               onRefund={setRefundTarget}
               onVoidPayment={setVoidPaymentTarget}
@@ -148,6 +156,7 @@ export function InvoiceDetailView({ invoiceId, layout = "page" }: Props) {
             <InvoiceRefundsList
               refunds={refunds}
               currency={invoice.currency}
+              dense={dense}
               onVoidRefund={setVoidRefundTarget}
             />
           </div>
