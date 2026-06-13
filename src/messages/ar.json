@@ -679,6 +679,41 @@
     },
     "calendar": {
       "title": "التقويم"
+    },
+    "overview": {
+      "thisMonth": "هذا الشهر",
+      "vsLastMonth": "مقارنة بالشهر الماضي",
+      "noPrior": "لا توجد بيانات سابقة",
+      "viewFullReports": "عرض التقارير الكاملة",
+      "empty": "لا توجد بيانات بعد",
+      "scope": {
+        "branch": "هذا الفرع",
+        "org": "كل الفروع"
+      },
+      "kpi": {
+        "visits": "الزيارات",
+        "followUps": "المتابعات",
+        "patients": "المرضى",
+        "collected": "المحصّل"
+      },
+      "sections": {
+        "visitTrend": "حركة الزيارات",
+        "financial": "نظرة مالية عامة",
+        "patientGrowth": "نمو المرضى",
+        "staff": "الفريق",
+        "topDoctors": "أعلى الأطباء",
+        "topServices": "أعلى الخدمات"
+      },
+      "financial": {
+        "invoiced": "إجمالي الفواتير",
+        "collected": "المحصّل",
+        "outstanding": "المستحق",
+        "collectionRate": "نسبة التحصيل"
+      },
+      "chart": {
+        "visits": "الزيارات",
+        "followUps": "المتابعات"
+      }
     }
   },
   "calendar": {
