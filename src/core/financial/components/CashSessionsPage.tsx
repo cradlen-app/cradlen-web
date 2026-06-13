@@ -46,6 +46,7 @@ export function CashSessionsPage() {
   const t = useTranslations("financial.cashSessions");
   const tCommon = useTranslations("financial.common");
   const branchId = useAuthContextStore((s) => s.branchId);
+  const profileId = useAuthContextStore((s) => s.profileId);
 
   const { session: current, isLoading: currentLoading } = useCurrentCashSession();
   const { sessions, isLoading: historyLoading } = useCashSessions();
@@ -212,6 +213,9 @@ export function CashSessionsPage() {
                     <th className="px-4 py-2.5 text-start font-medium">
                       {t("columns.opened")}
                     </th>
+                    <th className="px-4 py-2.5 text-start font-medium">
+                      {t("columns.openedBy")}
+                    </th>
                     <th className="px-4 py-2.5 text-end font-medium">
                       {t("columns.openingFloat")}
                     </th>
@@ -228,13 +232,18 @@ export function CashSessionsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sessions.map((s) => (
+                  {sessions.map((s) => {
+                    const ownedByMe = s.profile_id === profileId;
+                    return (
                     <tr
                       key={s.id}
                       className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50"
                     >
                       <td className="px-4 py-3 text-gray-600">
                         {dateTime(s.opened_at)}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {ownedByMe ? t("you") : t("anotherCashier")}
                       </td>
                       <td className="px-4 py-3 text-end tabular-nums text-gray-700">
                         {money(s.opening_float)}
@@ -256,7 +265,9 @@ export function CashSessionsPage() {
                         <span
                           className={cn(
                             "rounded-full px-2 py-0.5 text-xs font-medium",
-                            STATUS_STYLES[s.status],
+                            s.status === "OPEN" && !ownedByMe
+                              ? "bg-gray-100 text-gray-500"
+                              : STATUS_STYLES[s.status],
                           )}
                         >
                           {t(`status.${s.status}`)}
@@ -275,7 +286,8 @@ export function CashSessionsPage() {
                         )}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             )}
