@@ -137,7 +137,20 @@
 }
 
 @media print {
-  /* Hide everything, then reveal only the active printable region. */
+  /* Drop the browser's own header/footer (date, URL, page numbers). */
+  @page {
+    margin: 0;
+  }
+
+  /* Hide the whole app shell so the portaled print dialog is the only flow
+     content — keeps the receipt/invoice to a single page (no trailing blank
+     sheet). The Radix dialog is portaled to <body>, outside #app-shell. */
+  #app-shell {
+    display: none !important;
+  }
+
+  /* Blank any stray body-level layers (toasts, tooltips), then reveal only the
+     active printable region. */
   body * {
     visibility: hidden;
   }
@@ -147,15 +160,12 @@
   #receipt-printable * {
     visibility: visible;
   }
-  /* Lift the printable out of the centered/scrolling dialog so it fills the
-     page and is never clipped by max-h-* / overflow-y-auto. */
+
+  /* Size naturally and supply page margins (since @page margin is 0). */
   #invoice-printable,
   #receipt-printable {
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-    width: 100%;
     max-height: none !important;
     overflow: visible !important;
+    padding: 14mm !important;
   }
 }
