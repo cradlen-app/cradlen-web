@@ -1206,6 +1206,12 @@
       "form": "Form",
       "comingSoon": "Coming soon"
     },
+    "showResults": "show {count} of {total} results",
+    "pagination": {
+      "prev": "Previous page",
+      "next": "Next page",
+      "pageOf": "Page {page} of {total}"
+    },
     "table": {
       "columns": {
         "name": "Name",
@@ -1266,6 +1272,12 @@
   "medicalRep": {
     "title": "Medical Rep",
     "search": "Search ....",
+    "showResults": "show {count} of {total} results",
+    "pagination": {
+      "prev": "Previous page",
+      "next": "Next page",
+      "pageOf": "Page {page} of {total}"
+    },
     "table": {
       "name": "Name",
       "phone": "Phone",
