@@ -33,6 +33,9 @@ export const queryKeys = {
     myCurrent: (branchId: string) =>
       ["visits", branchId, "my-current"] as const,
     byId: (visitId: string) => ["visits", "detail", visitId] as const,
+    /** Printable prescription aggregate + resolved layout for a visit. */
+    prescriptionPrint: (visitId: string) =>
+      ["visits", "prescription-print", visitId] as const,
     patientHistory: (patientId: string, excludeVisitId: string) =>
       ["visits", "patient-history", patientId, excludeVisitId] as const,
     journeyTimeline: (patientId: string, excludeVisitId: string) =>
