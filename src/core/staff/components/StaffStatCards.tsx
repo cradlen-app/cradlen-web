@@ -85,27 +85,27 @@ function MetricCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm",
+        "flex flex-col gap-1 rounded-2xl border border-gray-100 bg-white px-3 py-2 shadow-sm",
         "transition-shadow hover:shadow-md",
       )}
     >
       <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
         <span
           className={cn(
-            "inline-flex size-6 items-center justify-center rounded-full",
+            "inline-flex size-5 items-center justify-center rounded-full",
             accent
               ? "bg-brand-primary/10 text-brand-primary"
               : "bg-gray-50 text-gray-400",
           )}
         >
-          <Icon className="size-3.5" aria-hidden="true" />
+          <Icon className="size-3" aria-hidden="true" />
         </span>
         <span className="truncate">{label}</span>
       </div>
-      <div className="text-2xl font-semibold tabular-nums text-brand-black">
+      <div className="text-xl font-semibold tabular-nums text-brand-black">
         {metric.current}
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <TrendChip metric={metric} />
         <span className="truncate text-[11px] text-gray-400">
           {t("vsLastMonth")}
@@ -121,13 +121,13 @@ export function StaffStatCardsSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm"
+          className="flex flex-col gap-1 rounded-2xl border border-gray-100 bg-white px-3 py-2 shadow-sm"
         >
           <div className="flex items-center gap-2">
-            <div className="size-6 animate-pulse rounded-full bg-gray-100" />
+            <div className="size-5 animate-pulse rounded-full bg-gray-100" />
             <div className="h-3 w-20 animate-pulse rounded bg-gray-100" />
           </div>
-          <div className="h-7 w-12 animate-pulse rounded bg-gray-100" />
+          <div className="h-6 w-12 animate-pulse rounded bg-gray-100" />
           <div className="h-3 w-24 animate-pulse rounded bg-gray-100" />
         </div>
       ))}
