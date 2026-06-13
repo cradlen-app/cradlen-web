@@ -20,6 +20,7 @@ const CATEGORY_FILTERS: CategoryFilter[] = [
   "medicine",
   "patient",
   "report",
+  "billing",
   "system",
 ];
 
