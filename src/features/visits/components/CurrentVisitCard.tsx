@@ -68,20 +68,16 @@ function CurrentVisitRow({
   }
 
   return (
-    <li className="flex items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40">
-      <span className="shrink-0 text-xs font-medium text-gray-500 tabular-nums">
+    <li className="grid grid-cols-[40px_minmax(0,1.5fr)_88px_84px_minmax(0,1fr)] items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-gray-50/40">
+      <span className="text-xs font-medium text-gray-500 tabular-nums">
         {visit.queueNumber ?? 1}
       </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-medium text-brand-black">
-          {visit.patient.fullName}
-        </p>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <VisitTypeBadge type={visit.type} />
-          <VisitPriorityBadge priority={visit.priority} />
-        </div>
-      </div>
-      <div className="flex shrink-0 items-center justify-end gap-2">
+      <p className="truncate text-xs font-medium text-brand-black">
+        {visit.patient.fullName}
+      </p>
+      <VisitTypeBadge type={visit.type} />
+      <VisitPriorityBadge priority={visit.priority} />
+      <div className="flex items-center justify-end gap-2">
         {isInConsultation ? (
           <Button
             type="button"
@@ -130,31 +126,38 @@ export function CurrentVisitCard({ branchId, organizationId }: Props) {
       </header>
 
       <div className="overflow-hidden rounded-xl border border-gray-100">
-        <div className="flex items-center gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-          <span className="shrink-0">{t("columns.id")}</span>
-          <span className="flex-1">{t("columns.name")}</span>
-        </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[460px]">
+            <div className="grid grid-cols-[40px_minmax(0,1.5fr)_88px_84px_minmax(0,1fr)] gap-3 border-b border-gray-100 bg-gray-50/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+              <span>{t("columns.id")}</span>
+              <span>{t("columns.name")}</span>
+              <span>{t("columns.type")}</span>
+              <span>{t("columns.priority")}</span>
+              <span className="text-end"></span>
+            </div>
 
-        {isLoading ? (
-          <div className="space-y-1 p-3">
-            <div className="h-10 animate-pulse rounded-lg bg-gray-50" />
+            {isLoading ? (
+              <div className="space-y-1 p-3">
+                <div className="h-10 animate-pulse rounded-lg bg-gray-50" />
+              </div>
+            ) : visit.length > 0 && branchId && organizationId ? (
+              <ul>
+                {visit.map((v) => (
+                  <CurrentVisitRow
+                    key={v.id}
+                    visit={v}
+                    branchId={branchId}
+                    organizationId={organizationId}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <p className="px-4 py-8 text-center text-xs text-gray-400">
+                {t("empty")}
+              </p>
+            )}
           </div>
-        ) : visit.length > 0 && branchId && organizationId ? (
-          <ul>
-            {visit.map((v) => (
-              <CurrentVisitRow
-                key={v.id}
-                visit={v}
-                branchId={branchId}
-                organizationId={organizationId}
-              />
-            ))}
-          </ul>
-        ) : (
-          <p className="px-4 py-8 text-center text-xs text-gray-400">
-            {t("empty")}
-          </p>
-        )}
+        </div>
       </div>
     </section>
   );

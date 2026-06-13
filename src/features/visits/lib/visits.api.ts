@@ -6,6 +6,7 @@ import type {
   ApiVisit,
   ApiVitalsTrendPoint,
   ApiVisitHistoryResponse,
+  ApiJourneyTimelineResponse,
   ApiVisitListResponse,
   ApiVisitMonthlyStatsResponse,
   ApiVisitResponse,
@@ -151,6 +152,26 @@ export function fetchPatientVisitHistory({
   if (excludeVisitId) search.set("exclude", excludeVisitId);
   return apiAuthFetch<ApiVisitHistoryResponse>(
     `/patients/${patientId}/visits/history?${search.toString()}`,
+  );
+}
+
+export function fetchPatientJourneyTimeline({
+  patientId,
+  page = 1,
+  limit = 5,
+  excludeVisitId,
+}: {
+  patientId: string;
+  page?: number;
+  limit?: number;
+  excludeVisitId?: string;
+}) {
+  const search = new URLSearchParams();
+  search.set("page", String(page));
+  search.set("limit", String(limit));
+  if (excludeVisitId) search.set("exclude", excludeVisitId);
+  return apiAuthFetch<ApiJourneyTimelineResponse>(
+    `/patients/${patientId}/journeys/timeline?${search.toString()}`,
   );
 }
 
