@@ -4,6 +4,7 @@ import type {
   ApiJourneyType,
   ApiPatient,
   ApiPatientListResponse,
+  ApiPatientStatsResponse,
 } from "@/features/visits/types/visits.api.types";
 
 export function fetchPatientById(id: string) {
@@ -58,4 +59,16 @@ export function fetchOrgPatients(params: FetchBranchPatientsParams = {}) {
   return apiAuthFetch<ApiPatientListResponse>(
     `/patients/directory${patientListQuery(params)}`,
   );
+}
+
+/** Branch patient analytics: total + per-care-path counts with MoM trend. */
+export function fetchBranchPatientStats(branchId: string) {
+  return apiAuthFetch<ApiPatientStatsResponse>(
+    `/branches/${branchId}/patients/stats`,
+  );
+}
+
+/** OWNER-only org-wide patient analytics — same shape as the branch stats. */
+export function fetchOrgPatientStats() {
+  return apiAuthFetch<ApiPatientStatsResponse>(`/patients/stats`);
 }

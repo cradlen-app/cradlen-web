@@ -119,6 +119,11 @@
       "GENERAL_GYN": "General GYN",
       "SURGICAL": "Surgical",
       "CHRONIC_CONDITION": "Chronic Condition"
+    },
+    "stats": {
+      "total": "Total Patients",
+      "vsLastMonth": "vs last month",
+      "noPrior": "—"
     }
   },
   "patientNav": {
