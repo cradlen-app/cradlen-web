@@ -1220,7 +1220,8 @@
     },
     "sort": {
       "label": "Sort by",
-      "default": "Default",
+      "nameAsc": "Name (A–Z)",
+      "nameDesc": "Name (Z–A)",
       "usage": "Most prescribed"
     },
     "showResults": "show {count} of {total} results",

@@ -1,4 +1,4 @@
-export type MedicationSort = "name" | "usage";
+export type MedicationSort = "name_asc" | "name_desc" | "usage";
 
 export interface MedicationListParams {
   page: number;
@@ -20,7 +20,7 @@ export const medicationQueryKeys = {
       params.search,
       params.category ?? null,
       params.form ?? null,
-      params.sort ?? "name",
+      params.sort ?? "name_asc",
     ] as const,
   facets: () => ["medications", "facets"] as const,
 } as const;
