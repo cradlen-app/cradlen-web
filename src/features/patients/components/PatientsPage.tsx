@@ -7,7 +7,11 @@ import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
-import { canOpenPatientWorkspace, isOwner } from "@/features/auth/lib/permissions";
+import {
+  canOpenPatientWorkspace,
+  canViewPatientAnalytics,
+  isOwner,
+} from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import type { ApiJourneyStatus } from "@/features/visits/types/visits.api.types";
 import type { PatientFilter } from "../types/patients.types";
@@ -56,6 +60,7 @@ export function PatientsPage() {
   const { data: currentUser } = useCurrentUser();
   const activeProfile = getActiveProfile(currentUser);
   const canOpen = canOpenPatientWorkspace(activeProfile);
+  const canViewAnalytics = canViewPatientAnalytics(activeProfile);
   const owner = isOwner(activeProfile);
   const [filter, setFilter] = useState<PatientFilter>("all");
   const [search, setSearch] = useState("");
@@ -97,7 +102,7 @@ export function PatientsPage() {
     <div className="flex h-full flex-col gap-4 p-4 lg:p-6">
       <PatientsHeader />
 
-      {!noBranch && (
+      {canViewAnalytics && !noBranch && (
         <PatientStatCards branchId={branchId ?? undefined} orgWide={orgWide} />
       )}
 
