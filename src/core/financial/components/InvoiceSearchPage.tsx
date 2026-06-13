@@ -42,7 +42,7 @@ export function InvoiceSearchPage() {
 
   // Deep-link / preselect support (e.g. notifications link to `?invoice=<id>`).
   const [selectedId, setSelectedId] = useState<string | null>(
-    () => searchParams.get("invoice"),
+    () => searchParams?.get("invoice") ?? null,
   );
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const [newInvoiceOpen, setNewInvoiceOpen] = useState(false);
@@ -69,13 +69,9 @@ export function InvoiceSearchPage() {
       limit: PAGE_SIZE,
     });
 
-  // Auto-select the first invoice so the detail panel is never empty on load.
-  // Only fills an empty selection — never overrides a deliberate pick.
-  useEffect(() => {
-    if (!selectedId && invoices.length > 0) {
-      setSelectedId(invoices[0].id);
-    }
-  }, [invoices, selectedId]);
+  // Derive the active selection during render (no effect): a deliberate pick
+  // wins, otherwise fall back to the first row so the panel is never empty.
+  const effectiveSelectedId = selectedId ?? invoices[0]?.id ?? null;
 
   const resolvedTotalPages = totalPages ?? 1;
   const canPrev = page > 1;
@@ -191,7 +187,7 @@ export function InvoiceSearchPage() {
                         <InvoiceRow
                           key={inv.id}
                           invoice={inv}
-                          selected={inv.id === selectedId}
+                          selected={inv.id === effectiveSelectedId}
                           onSelect={() => selectInvoice(inv.id)}
                         />
                       ))}
@@ -238,8 +234,8 @@ export function InvoiceSearchPage() {
 
           {/* ── Detail panel (lg+) ───────────────────────────────────── */}
           <div className="hidden rounded-2xl border border-gray-100 bg-gray-50/40 p-4 shadow-sm lg:sticky lg:top-4 lg:block lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto">
-            {selectedId ? (
-              <InvoiceDetailView invoiceId={selectedId} layout="panel" />
+            {effectiveSelectedId ? (
+              <InvoiceDetailView invoiceId={effectiveSelectedId} layout="panel" />
             ) : (
               <DetailEmptyState message={t("invoices.selectPrompt")} />
             )}

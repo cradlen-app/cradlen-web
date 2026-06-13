@@ -41,6 +41,20 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+// Stub the data-fetching children so these list-focused tests don't need a
+// QueryClient — they're covered by their own units / integration tests.
+vi.mock("./InvoiceStatCards", () => ({
+  InvoiceStatCards: () => null,
+}));
+
+vi.mock("./InvoiceDetailView", () => ({
+  InvoiceDetailView: () => null,
+}));
+
+vi.mock("./InvoiceDrawer", () => ({
+  InvoiceDrawer: () => null,
+}));
+
 import { InvoiceSearchPage } from "./InvoiceSearchPage";
 
 function makeInvoice(over: Partial<Invoice> = {}): Invoice {
