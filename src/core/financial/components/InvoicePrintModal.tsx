@@ -53,7 +53,7 @@ export function InvoicePrintModal({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/35 print:hidden" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-51 flex max-h-[88vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl bg-white shadow-2xl outline-none">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-51 flex max-h-[88vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl bg-white shadow-2xl outline-none print:static print:translate-x-0 print:translate-y-0 print:max-h-none print:w-full print:rounded-none print:shadow-none">
           {/* Chrome */}
           <div className="flex items-center justify-between border-b border-gray-100 p-4 print:hidden">
             <Dialog.Title className="text-base font-medium text-gray-900">
