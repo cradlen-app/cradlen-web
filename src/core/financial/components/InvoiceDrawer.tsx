@@ -87,8 +87,6 @@ type InvoiceDrawerProps = {
     /** Display name for the patient, shown read-only instead of the raw UUID. */
     patientName?: string;
     visitId?: string;
-    /** Clinical case (episode) the invoice bills; links the case so later sessions reuse it. */
-    episodeId?: string;
     /**
      * Doctor for the visit. Used only for price-resolution context inside the
      * line-items editor; NOT sent to the backend create/update endpoints.
@@ -308,7 +306,6 @@ export function InvoiceDrawer({
             branch_id: branchId,
             patient_id: data.patient_id,
             visit_id: prefill?.visitId,
-            episode_id: prefill?.episodeId,
             charge_ids: pendingCharges.map((c) => c.id),
             invoice_type: data.invoice_type,
             due_date: data.due_date || undefined,
@@ -319,7 +316,6 @@ export function InvoiceDrawer({
             branch_id: branchId,
             patient_id: data.patient_id,
             visit_id: data.visit_id || undefined,
-            episode_id: prefill?.episodeId,
             invoice_type: data.invoice_type,
             due_date: data.due_date || undefined,
             notes: data.notes || undefined,
