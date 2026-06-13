@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 
@@ -34,7 +35,13 @@ function formatDate(value: string): string {
 export function InvoiceSearchPage() {
   const t = useTranslations("financial");
   const dashboardPath = useDashboardPath();
+  const router = useRouter();
   const branchId = useAuthContextStore((s) => s.branchId);
+
+  // Deep-link from the "doctor added a service" notification: scope the list to
+  // one clinical case so reception lands on that patient's case invoice.
+  const searchParams = useSearchParams();
+  const episodeId = searchParams.get("episode") ?? undefined;
 
   const [status, setStatus] = useState<InvoiceStatus | "">("");
   const [search, setSearch] = useState("");
@@ -57,11 +64,28 @@ export function InvoiceSearchPage() {
       // hit the backend's branch-access check instead of the owner-only
       // org-management check. Consistent with cash sessions + the billing queue.
       ...(branchId ? { branch_id: branchId } : {}),
+      ...(episodeId ? { episode_id: episodeId } : {}),
       ...(status ? { status } : {}),
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
       page,
       limit: PAGE_SIZE,
     });
+
+  // When the episode deep-link resolves to exactly one invoice, jump straight to
+  // it so reception can collect without an extra click. One-shot per episode.
+  const autoOpenedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!episodeId || isLoading || isFetching) return;
+    if (autoOpenedRef.current === episodeId) return;
+    if (invoices.length === 1) {
+      autoOpenedRef.current = episodeId;
+      router.replace(
+        dashboardPath(`/financial/invoices/${invoices[0]!.id}`) as Parameters<
+          typeof router.replace
+        >[0],
+      );
+    }
+  }, [episodeId, isLoading, isFetching, invoices, router, dashboardPath]);
 
   const resolvedTotalPages = totalPages ?? 1;
   const canPrev = page > 1;
