@@ -24,40 +24,34 @@ import { InvoiceTotalsPanel } from "./InvoiceTotalsPanel";
 import { InvoiceLineItemsEditor } from "./InvoiceLineItemsEditor";
 import { InvoicePaymentsPanel } from "./InvoicePaymentsPanel";
 import { InvoicePrintModal } from "./InvoicePrintModal";
+import { InvoicePreview } from "./InvoicePreview";
+import { InvoicePatientSelect } from "./InvoicePatientSelect";
+import { InvoiceDoctorSelect } from "./InvoiceDoctorSelect";
 import { RecordPaymentDrawer } from "./RecordPaymentDrawer";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
-import { formatMoney } from "../lib/format";
-import type { EmbeddedPerson } from "../types/financial.types";
+import { formatMoney, personName } from "../lib/format";
 
-/**
- * Best-effort display name from an optional nested person relation. Backend
- * does not currently include patient/doctor on invoice responses — callers
- * pass `fallback` (the raw UUID) so the UI still shows something useful.
- */
-function personName(
-  person: EmbeddedPerson | null | undefined,
-  fallback: string,
-): string {
-  if (!person) return fallback;
-  if (person.full_name) return person.full_name;
-  const composed = [person.first_name, person.last_name]
-    .filter(Boolean)
-    .join(" ")
-    .trim();
-  return composed || fallback;
-}
+/** Currencies offered in the create-mode currency selector. */
+const CURRENCY_OPTIONS = ["EGP", "USD", "EUR", "SAR", "AED"] as const;
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 
 export const invoiceFormSchema = z.object({
   patient_id: z.string().min(1, "Patient is required"),
+  /** Display name of the selected patient — for the preview, not sent. */
+  patient_name: z.string().optional(),
   visit_id: z.string().optional(),
   /**
-   * Carried in form state so price resolution can use the doctor's overrides.
-   * NOT sent in create/update payloads — backend doesn't accept it on those
-   * endpoints (the visit relation already pins the doctor).
+   * Assigned provider. Sent as `assigned_doctor_id` on create/update (the
+   * backend accepts it) and used for line-item price resolution. Required on
+   * standalone create — enforced in `runCreate`, not the schema, because the
+   * visit-backed path pins the doctor server-side.
    */
   doctor_id: z.string().optional(),
+  /** Display name of the selected doctor — for the preview, not sent. */
+  doctor_name: z.string().optional(),
+  /** Invoice currency (create only; UpdateInvoiceDto has no currency). */
+  currency: z.string(),
   invoice_type: z.enum(["STANDARD", "FOLLOWUP", "PROFORMA", "INSURANCE", "REFUND"]),
   due_date: z.string().optional(),
   notes: z.string().optional(),
@@ -118,6 +112,8 @@ export function InvoiceDrawer({
   const t = useTranslations("financial.invoice");
   const tCommon = useTranslations("financial.common");
   const branchId = useAuthContextStore((s) => s.branchId) ?? "";
+  const organizationId =
+    useAuthContextStore((s) => s.organizationId) ?? undefined;
   const currentProfileId =
     useAuthContextStore((s) => s.profileId) ?? undefined;
 
@@ -179,8 +175,11 @@ export function InvoiceDrawer({
     resolver: zodResolver(invoiceFormSchema),
     defaultValues: {
       patient_id: prefill?.patientId ?? "",
+      patient_name: prefill?.patientName ?? "",
       visit_id: prefill?.visitId ?? "",
       doctor_id: prefill?.doctorId ?? "",
+      doctor_name: prefill?.doctorName ?? "",
+      currency: "EGP",
       invoice_type: "STANDARD",
       due_date: "",
       notes: "",
@@ -194,8 +193,17 @@ export function InvoiceDrawer({
     if (invoice && editMode) {
       form.reset({
         patient_id: invoice.patient_id ?? "",
+        patient_name:
+          prefill?.patientName ??
+          personName(invoice.patient, invoice.patient_id ?? ""),
         visit_id: invoice.visit_id ?? "",
         doctor_id: invoice.assigned_doctor_id ?? prefill?.doctorId ?? "",
+        doctor_name:
+          prefill?.doctorName ??
+          (invoice.assigned_doctor_id
+            ? personName(invoice.doctor, invoice.assigned_doctor_id)
+            : ""),
+        currency: invoice.currency ?? "EGP",
         invoice_type: invoice.invoice_type,
         due_date: invoice.due_date ?? "",
         notes: invoice.notes ?? "",
@@ -211,7 +219,15 @@ export function InvoiceDrawer({
         })),
       });
     }
-  }, [invoice?.id, editMode, form, invoice, prefill?.doctorId]);
+  }, [
+    invoice?.id,
+    editMode,
+    form,
+    invoice,
+    prefill?.doctorId,
+    prefill?.patientName,
+    prefill?.doctorName,
+  ]);
 
   // Create mode: `defaultValues` are captured once at mount, but this drawer is
   // mounted before any row is clicked, so the prefill arrives later. Re-apply it
@@ -220,8 +236,11 @@ export function InvoiceDrawer({
     if (open && isCreate) {
       form.reset({
         patient_id: prefill?.patientId ?? "",
+        patient_name: prefill?.patientName ?? "",
         visit_id: prefill?.visitId ?? "",
         doctor_id: prefill?.doctorId ?? "",
+        doctor_name: prefill?.doctorName ?? "",
+        currency: "EGP",
         invoice_type: "STANDARD",
         due_date: "",
         notes: "",
@@ -231,7 +250,15 @@ export function InvoiceDrawer({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, isCreate, prefill?.patientId, prefill?.visitId, prefill?.doctorId]);
+  }, [
+    open,
+    isCreate,
+    prefill?.patientId,
+    prefill?.patientName,
+    prefill?.visitId,
+    prefill?.doctorId,
+    prefill?.doctorName,
+  ]);
 
   // `editMode` is seeded from `invoiceId` at mount, but this drawer is mounted
   // persistently (InvoicePanel) — invoiceId arrives via props after mount. Re-sync
@@ -303,6 +330,17 @@ export function InvoiceDrawer({
     control: form.control,
     name: "discount_value",
   });
+  const watchedCurrency = useWatch({ control: form.control, name: "currency" });
+  const watchedPatientName = useWatch({
+    control: form.control,
+    name: "patient_name",
+  });
+  const watchedDoctorName = useWatch({
+    control: form.control,
+    name: "doctor_name",
+  });
+  const watchedDueDate = useWatch({ control: form.control, name: "due_date" });
+  const watchedNotes = useWatch({ control: form.control, name: "notes" });
   // Prefer the visit's assigned doctor; fall back to current user for price
   // resolution when no doctor is associated with the draft yet.
   const priceResolutionProfileId =
@@ -328,6 +366,15 @@ export function InvoiceDrawer({
       void form.trigger("patient_id");
       return;
     }
+    // Standalone (non-visit) invoices must name a provider; the visit-backed
+    // path pins the doctor server-side, so only guard the manual create.
+    if (!prefill?.visitId && !data.doctor_id) {
+      form.setError("doctor_id", {
+        type: "manual",
+        message: t("fields.doctorRequired"),
+      });
+      return;
+    }
     const discountFields =
       data.discount_type === "NONE"
         ? {}
@@ -351,6 +398,8 @@ export function InvoiceDrawer({
             branch_id: branchId,
             patient_id: data.patient_id,
             visit_id: data.visit_id || undefined,
+            assigned_doctor_id: data.doctor_id || undefined,
+            currency: data.currency || undefined,
             invoice_type: data.invoice_type,
             due_date: data.due_date || undefined,
             notes: data.notes || undefined,
@@ -389,7 +438,8 @@ export function InvoiceDrawer({
       {
         id: invoiceId!,
         payload: {
-          // Backend UpdateInvoiceDto does NOT accept invoice_type — drop it.
+          // UpdateInvoiceDto accepts assigned_doctor_id but not invoice_type/currency.
+          assigned_doctor_id: data.doctor_id || undefined,
           due_date: data.due_date || undefined,
           notes: data.notes || undefined,
           ...discountFields,
@@ -421,6 +471,9 @@ export function InvoiceDrawer({
     issueMutation.isPending ||
     updateMutation.isPending;
 
+  // Create/edit shows the split form + live preview, so the drawer is wider.
+  const isEditing = !isLoading && (isCreate || (!!invoice && editMode && isDraft));
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -431,8 +484,11 @@ export function InvoiceDrawer({
           <Dialog.Content
             className={cn(
               "fixed inset-0 z-50 flex h-dvh flex-col bg-white shadow-2xl outline-none",
-              "sm:inset-y-0 sm:start-auto sm:inset-e-0 sm:w-[80vw] sm:max-w-4xl",
+              "sm:inset-y-0 sm:start-auto sm:inset-e-0",
               "sm:ltr:rounded-l-2xl sm:rtl:rounded-r-2xl",
+              isEditing
+                ? "sm:w-[94vw] sm:max-w-6xl"
+                : "sm:w-[80vw] sm:max-w-4xl",
             )}
           >
             {/* Header */}
@@ -670,8 +726,8 @@ export function InvoiceDrawer({
             {/* Create / Edit mode */}
             {!isLoading && (isCreate || (invoice && editMode && isDraft)) && (
               <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
-                <div className="grid flex-1 grid-cols-[1fr_320px] gap-0 overflow-hidden">
-                  {/* Left column */}
+                <div className="grid flex-1 grid-cols-1 gap-0 overflow-hidden lg:grid-cols-[minmax(360px,420px)_1fr]">
+                  {/* Left column — form */}
                   <div className="flex flex-col gap-5 overflow-y-auto px-6 py-5">
                     {/* Patient */}
                     {prefill?.patientName ? (
@@ -686,16 +742,17 @@ export function InvoiceDrawer({
                     ) : (
                       <div>
                         <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.patientId")} <span className="text-red-500">*</span>
+                          {t("fields.patient")} <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          {...form.register("patient_id")}
-                          type="text"
-                          placeholder={t("fields.patientIdPlaceholder")}
-                          className={cn(
-                            inputClass,
-                            form.formState.errors.patient_id && "border-red-400",
-                          )}
+                        <InvoicePatientSelect
+                          displayName={watchedPatientName}
+                          error={!!form.formState.errors.patient_id}
+                          onChange={(id, name) => {
+                            form.setValue("patient_id", id, {
+                              shouldValidate: true,
+                            });
+                            form.setValue("patient_name", name);
+                          }}
                         />
                         {form.formState.errors.patient_id && (
                           <p className="mt-1 text-xs text-red-500">
@@ -705,8 +762,8 @@ export function InvoiceDrawer({
                       </div>
                     )}
 
-                    {/* Doctor — read-only display when known from the visit */}
-                    {prefill?.doctorName && (
+                    {/* Doctor */}
+                    {prefill?.doctorName ? (
                       <div>
                         <label className="mb-1.5 block text-xs font-medium text-gray-700">
                           {t("fields.doctor")}
@@ -715,40 +772,85 @@ export function InvoiceDrawer({
                           {prefill.doctorName}
                         </div>
                       </div>
+                    ) : (
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                          {t("fields.doctor")} <span className="text-red-500">*</span>
+                        </label>
+                        <InvoiceDoctorSelect
+                          organizationId={organizationId}
+                          branchId={branchId}
+                          displayName={watchedDoctorName}
+                          error={!!form.formState.errors.doctor_id}
+                          onChange={(id, name) => {
+                            form.setValue("doctor_id", id);
+                            form.setValue("doctor_name", name);
+                            form.clearErrors("doctor_id");
+                          }}
+                        />
+                        {form.formState.errors.doctor_id && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {form.formState.errors.doctor_id.message}
+                          </p>
+                        )}
+                      </div>
                     )}
 
-                    {/* Visit ID — read-only when pinned by the visit */}
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        {t("fields.visitId")} <span className="text-gray-400">{tCommon("optional")}</span>
-                      </label>
-                      <input
-                        {...form.register("visit_id")}
-                        type="text"
-                        placeholder={t("fields.visitIdPlaceholder")}
-                        readOnly={!!prefill?.visitId}
-                        className={cn(
-                          inputClass,
-                          prefill?.visitId && "bg-gray-50 text-gray-500",
-                        )}
-                      />
-                    </div>
+                    {/* Visit ID — read-only, shown only when pinned by a visit */}
+                    {prefill?.visitId && (
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                          {t("fields.visitId")}
+                        </label>
+                        <input
+                          {...form.register("visit_id")}
+                          type="text"
+                          readOnly
+                          className={cn(inputClass, "bg-gray-50 text-gray-500")}
+                        />
+                      </div>
+                    )}
 
-                    {/* Invoice type */}
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        {t("fields.invoiceType")}
-                      </label>
-                      <select
-                        {...form.register("invoice_type")}
-                        className={inputClass}
-                      >
-                        <option value="STANDARD">{t("types.STANDARD")}</option>
-                        <option value="FOLLOWUP">{t("types.FOLLOWUP")}</option>
-                        <option value="PROFORMA">{t("types.PROFORMA")}</option>
-                        <option value="INSURANCE">{t("types.INSURANCE")}</option>
-                        <option value="REFUND">{t("types.REFUND")}</option>
-                      </select>
+                    {/* Invoice type + Currency */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                          {t("fields.invoiceType")}
+                        </label>
+                        <select
+                          {...form.register("invoice_type")}
+                          className={inputClass}
+                        >
+                          <option value="STANDARD">{t("types.STANDARD")}</option>
+                          <option value="FOLLOWUP">{t("types.FOLLOWUP")}</option>
+                          <option value="PROFORMA">{t("types.PROFORMA")}</option>
+                          <option value="INSURANCE">{t("types.INSURANCE")}</option>
+                          <option value="REFUND">{t("types.REFUND")}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                          {t("fields.currency")}
+                        </label>
+                        {isCreate ? (
+                          <select
+                            {...form.register("currency")}
+                            className={inputClass}
+                          >
+                            {CURRENCY_OPTIONS.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <div
+                            className={cn(inputClass, "bg-gray-50 text-gray-500")}
+                          >
+                            {invoice?.currency ?? watchedCurrency}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Due date */}
@@ -804,14 +906,9 @@ export function InvoiceDrawer({
                         remove={remove}
                         branchId={branchId}
                         profileId={priceResolutionProfileId}
-                        currency={invoice?.currency}
+                        currency={watchedCurrency ?? invoice?.currency}
                       />
                     </div>
-                  </div>
-
-                  {/* Right column — sticky totals */}
-                  <div className="flex flex-col gap-4 border-l border-gray-100 bg-gray-50/50 px-5 py-5">
-                    <h3 className="text-sm font-semibold text-gray-700">{t("view.summary")}</h3>
 
                     {/* Invoice-level discount */}
                     <div className="rounded-xl border border-gray-200 bg-white p-3">
@@ -841,14 +938,30 @@ export function InvoiceDrawer({
                         )}
                       </div>
                     </div>
+                  </div>
 
-                    <InvoiceTotalsPanel
-                      items={watchedItems}
-                      currency={invoice?.currency}
-                      discountType={watchedDiscountType}
-                      discountValue={watchedDiscountValue}
-                      invoice={invoice ?? null}
-                    />
+                  {/* Right column — live preview */}
+                  <div className="hidden flex-col overflow-y-auto border-s border-gray-100 bg-gray-100/60 p-6 lg:flex">
+                    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+                      <InvoicePreview
+                        invoiceNumber={invoice?.invoice_number ?? null}
+                        status={invoice?.status}
+                        patientName={watchedPatientName ?? ""}
+                        doctorName={watchedDoctorName || undefined}
+                        issueDate={
+                          invoice?.issued_at ??
+                          invoice?.created_at ??
+                          new Date().toISOString()
+                        }
+                        dueDate={watchedDueDate || null}
+                        currency={watchedCurrency ?? "EGP"}
+                        items={watchedItems ?? []}
+                        discountType={watchedDiscountType}
+                        discountValue={watchedDiscountValue}
+                        taxAmount={invoice?.tax_amount ?? 0}
+                        notes={watchedNotes || null}
+                      />
+                    </div>
                   </div>
                 </div>
 

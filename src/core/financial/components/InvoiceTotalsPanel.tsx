@@ -4,13 +4,8 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { formatMoney } from "../lib/format";
+import { computeInvoiceTotals, type TotalsItem } from "../lib/totals";
 import type { DiscountType, Invoice } from "../types/financial.types";
-
-type TotalsItem = {
-  unit_price: number;
-  quantity: number;
-  discount_amount?: number | null;
-};
 
 type Props = {
   items: TotalsItem[];
@@ -37,31 +32,15 @@ export function InvoiceTotalsPanel({
 }: Props) {
   const t = useTranslations("financial.invoice.totals");
 
-  const calc = useMemo(() => {
-    const subtotal = items.reduce(
-      (sum, it) => sum + (it.unit_price || 0) * (it.quantity || 0),
-      0,
-    );
-    const lineDiscounts = items.reduce(
-      (sum, it) => sum + (it.discount_amount ?? 0),
-      0,
-    );
-    const afterLine = Math.max(subtotal - lineDiscounts, 0);
-
-    let invoiceDiscount = 0;
-    if (discountType === "PERCENTAGE") {
-      invoiceDiscount = (afterLine * (discountValue || 0)) / 100;
-    } else if (discountType === "FIXED") {
-      invoiceDiscount = Math.min(discountValue || 0, afterLine);
-    }
-
-    const tax = invoice?.tax_amount ?? 0;
-    const total = Math.max(afterLine - invoiceDiscount + tax, 0);
-    const paid = invoice?.paid_amount ?? 0;
-    const balance = invoice ? invoice.balance_due : total;
-
-    return { subtotal, lineDiscounts, invoiceDiscount, tax, total, paid, balance };
-  }, [items, discountType, discountValue, invoice]);
+  const calc = useMemo(
+    () =>
+      computeInvoiceTotals(items, discountType, discountValue, {
+        tax: invoice?.tax_amount,
+        paid: invoice?.paid_amount,
+        balance: invoice?.balance_due,
+      }),
+    [items, discountType, discountValue, invoice],
+  );
 
   return (
     <div
