@@ -1220,7 +1220,8 @@
     },
     "sort": {
       "label": "ترتيب حسب",
-      "default": "افتراضي",
+      "nameAsc": "الاسم (أ–ي)",
+      "nameDesc": "الاسم (ي–أ)",
       "usage": "الأكثر وصفًا"
     },
     "showResults": "عرض {count} من {total} نتيجة",
