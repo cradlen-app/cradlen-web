@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useStaff } from "@/core/staff/api";
 
 import {
   useCashSessions,
@@ -45,8 +46,20 @@ function dateTime(value: string | null) {
 export function CashSessionsPage() {
   const t = useTranslations("financial.cashSessions");
   const tCommon = useTranslations("financial.common");
+  const orgId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
   const profileId = useAuthContextStore((s) => s.profileId);
+
+  const staffQuery = useStaff(orgId ?? undefined, branchId ?? undefined);
+  // Cash session `profile_id` equals a StaffMember `id` (both the Profile id),
+  // so we can resolve who opened each drawer.
+  const nameByProfileId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const member of staffQuery.data ?? []) {
+      map.set(member.id, `${member.firstName} ${member.lastName}`.trim());
+    }
+    return map;
+  }, [staffQuery.data]);
 
   const { session: current, isLoading: currentLoading } = useCurrentCashSession();
   const { sessions, isLoading: historyLoading } = useCashSessions();
@@ -244,7 +257,10 @@ export function CashSessionsPage() {
                         {dateTime(s.opened_at)}
                       </td>
                       <td className="px-4 py-3 text-gray-600">
-                        {ownedByMe ? t("you") : t("anotherCashier")}
+                        {ownedByMe
+                          ? t("you")
+                          : nameByProfileId.get(s.profile_id) ||
+                            t("anotherCashier")}
                       </td>
                       <td className="px-4 py-3 text-end tabular-nums text-gray-700">
                         {money(s.opening_float)}
