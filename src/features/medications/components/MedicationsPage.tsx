@@ -2,12 +2,22 @@
 
 import { useState, useDeferredValue } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Search,
+} from "lucide-react";
+import { DropdownMenu } from "radix-ui";
 import { cn } from "@/common/utils/utils";
 import { MedicationsTable } from "./MedicationsTable";
 import { MedicationDrawer } from "./MedicationDrawer";
 import { DeleteMedicationDialog } from "./DeleteMedicationDialog";
 import { useMedications } from "../hooks/useMedications";
+import { useMedicationFacets } from "../hooks/useMedicationFacets";
+import type { MedicationSort } from "../lib/medications.queryKeys";
 import {
   useCreateMedication,
   useUpdateMedication,
@@ -22,6 +32,9 @@ export function MedicationsPage() {
   const t = useTranslations("medications");
 
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<string | undefined>(undefined);
+  const [form, setForm] = useState<string | undefined>(undefined);
+  const [sort, setSort] = useState<MedicationSort>("name");
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
@@ -29,11 +42,31 @@ export function MedicationsPage() {
 
   const deferredSearch = useDeferredValue(search);
 
+  // Any filter/sort change invalidates the current page index — reset inline
+  // (matching the search handler) rather than in an effect.
+  function changeCategory(value: string | undefined) {
+    setCategory(value);
+    setPage(1);
+  }
+  function changeForm(value: string | undefined) {
+    setForm(value);
+    setPage(1);
+  }
+  function changeSort(value: string | undefined) {
+    setSort((value as MedicationSort) ?? "name");
+    setPage(1);
+  }
+
   const { data, isLoading } = useMedications({
     page,
     limit: PAGE_LIMIT,
     search: deferredSearch,
+    category,
+    form,
+    sort,
   });
+
+  const { data: facets } = useMedicationFacets();
 
   const createMutation = useCreateMedication();
   const updateMutation = useUpdateMedication();
@@ -129,23 +162,31 @@ export function MedicationsPage() {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
         {/* Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:gap-3">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled
-              title={t("filters.comingSoon")}
-              className="inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 text-sm text-gray-400 opacity-60"
-            >
-              {t("filters.category")} ↓
-            </button>
-            <button
-              type="button"
-              disabled
-              title={t("filters.comingSoon")}
-              className="inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 text-sm text-gray-400 opacity-60"
-            >
-              {t("filters.form")} ↓
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <FilterMenu
+              label={t("filters.category")}
+              allLabel={t("filters.all")}
+              value={category}
+              options={facets?.categories ?? []}
+              onChange={changeCategory}
+            />
+            <FilterMenu
+              label={t("filters.form")}
+              allLabel={t("filters.all")}
+              value={form}
+              options={facets?.forms ?? []}
+              onChange={changeForm}
+            />
+            <FilterMenu
+              label={t("sort.label")}
+              value={sort}
+              options={[
+                { value: "name", label: t("sort.default") },
+                { value: "usage", label: t("sort.usage") },
+              ]}
+              onChange={changeSort}
+              isActive={sort !== "name"}
+            />
           </div>
           <label className="relative block min-w-0 flex-1 sm:w-64 sm:flex-none">
             <span className="sr-only">{t("searchPlaceholder")}</span>
@@ -238,5 +279,112 @@ export function MedicationsPage() {
         isPending={deleteMutation.isPending}
       />
     </div>
+  );
+}
+
+type FilterOption = { value: string; label: string };
+
+/**
+ * Pill dropdown for a single filter/sort axis. Pass `allLabel` for an "All"
+ * reset entry (category/form, value `undefined`); omit it for a fixed-choice
+ * axis (sort). String options are treated as `{ value, label }` pairs.
+ */
+function FilterMenu({
+  label,
+  allLabel,
+  value,
+  options,
+  onChange,
+  isActive,
+}: {
+  label: string;
+  allLabel?: string;
+  value: string | undefined;
+  options: (string | FilterOption)[];
+  onChange: (value: string | undefined) => void;
+  isActive?: boolean;
+}) {
+  const ALL = "__all__";
+  const normalized: FilterOption[] = options.map((o) =>
+    typeof o === "string" ? { value: o, label: o } : o,
+  );
+  const selected = normalized.find((o) => o.value === value);
+  const active = isActive ?? value !== undefined;
+
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex h-9 items-center gap-1.5 rounded-full border px-4 text-sm outline-none transition-colors data-[state=open]:border-brand-primary/40",
+            active
+              ? "border-brand-primary/40 bg-brand-primary/5 text-brand-primary"
+              : "border-gray-200 bg-white text-gray-600 hover:border-brand-primary/40 hover:text-brand-black",
+          )}
+        >
+          <span className="truncate">
+            {selected ? `${label}: ${selected.label}` : label}
+          </span>
+          <ChevronDown
+            className="size-4 shrink-0 text-gray-400 transition-transform data-[state=open]:rotate-180"
+            aria-hidden="true"
+          />
+        </button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          align="start"
+          sideOffset={6}
+          className="z-50 max-h-72 min-w-44 overflow-auto rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"
+        >
+          <DropdownMenu.RadioGroup
+            value={value ?? ALL}
+            onValueChange={(v) => onChange(v === ALL ? undefined : v)}
+          >
+            {allLabel !== undefined && (
+              <FilterMenuItem
+                value={ALL}
+                label={allLabel}
+                selected={value === undefined}
+              />
+            )}
+            {normalized.map((option) => (
+              <FilterMenuItem
+                key={option.value}
+                value={option.value}
+                label={option.label}
+                selected={value === option.value}
+              />
+            ))}
+          </DropdownMenu.RadioGroup>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
+}
+
+function FilterMenuItem({
+  value,
+  label,
+  selected,
+}: {
+  value: string;
+  label: string;
+  selected: boolean;
+}) {
+  return (
+    <DropdownMenu.RadioItem
+      value={value}
+      className={cn(
+        "flex cursor-pointer items-center justify-between gap-2.5 px-3.5 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-gray-50",
+        selected ? "text-brand-primary" : "text-brand-black",
+      )}
+    >
+      <span className="truncate font-medium">{label}</span>
+      {selected && (
+        <Check className="size-4 shrink-0 text-brand-primary" aria-hidden="true" />
+      )}
+    </DropdownMenu.RadioItem>
   );
 }
