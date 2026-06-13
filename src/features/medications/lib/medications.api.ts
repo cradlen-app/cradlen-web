@@ -23,12 +23,15 @@ export function fetchMedications({
   if (search.trim()) params.set("search", search.trim());
   if (category) params.set("category", category);
   if (form) params.set("form", form);
-  if (sort && sort !== "name") params.set("sort", sort);
+  if (sort && sort !== "name_asc") params.set("sort", sort);
   return apiAuthFetch<MedicationListResponse>(`/medications?${params}`);
 }
 
-export function fetchMedicationFacets() {
-  return apiAuthFetch<MedicationFacets>("/medications/facets");
+export async function fetchMedicationFacets() {
+  const res = await apiAuthFetch<{ data: MedicationFacets }>(
+    "/medications/facets",
+  );
+  return res.data;
 }
 
 export function createMedication(data: CreateMedicationRequest) {
