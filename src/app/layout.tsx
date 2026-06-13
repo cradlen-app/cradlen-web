@@ -38,7 +38,9 @@ export default async function RootLayout({
       className={`${poppins.variable} ${cairo.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {children}
+        <div id="app-shell" className="contents">
+          {children}
+        </div>
         <Analytics />
         <SpeedInsights />
       </body>
