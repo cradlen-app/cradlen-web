@@ -1216,7 +1216,12 @@
     "filters": {
       "category": "الفئة",
       "form": "الشكل",
-      "comingSoon": "قريباً"
+      "all": "الكل"
+    },
+    "sort": {
+      "label": "ترتيب حسب",
+      "default": "افتراضي",
+      "usage": "الأكثر وصفًا"
     },
     "showResults": "عرض {count} من {total} نتيجة",
     "pagination": {

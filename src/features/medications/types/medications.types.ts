@@ -30,6 +30,11 @@ export interface Medication {
   }>;
 }
 
+export interface MedicationFacets {
+  categories: string[];
+  forms: string[];
+}
+
 export interface MedicationListMeta {
   page: number;
   limit: number;
