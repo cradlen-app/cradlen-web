@@ -886,6 +886,16 @@
         "medications": "Medications",
         "investigations": "Investigations",
         "statusNormal": "Normal",
+        "journeyStarted": "Started {date}",
+        "episodeStarted": "Started {date}",
+        "episode": "Episode {order}",
+        "noEpisodes": "No episodes recorded yet.",
+        "noVisitsInEpisode": "No completed visits in this episode yet.",
+        "status": {
+          "ACTIVE": "Active",
+          "COMPLETED": "Completed",
+          "CANCELLED": "Cancelled"
+        },
         "typeLabel": {
           "VISIT": "Visit",
           "FOLLOW_UP": "Follow-up"
