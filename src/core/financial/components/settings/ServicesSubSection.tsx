@@ -138,7 +138,12 @@ export function ServicesSubSection() {
             {t("description")}
           </p>
         </div>
-        <Button type="button" size="sm" onClick={openCreate}>
+        <Button
+          type="button"
+          size="sm"
+          className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+          onClick={openCreate}
+        >
           <Plus className="size-3.5" aria-hidden="true" />
           {t("newService")}
         </Button>

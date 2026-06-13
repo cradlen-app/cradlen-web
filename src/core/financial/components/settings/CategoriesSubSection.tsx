@@ -103,7 +103,12 @@ export function CategoriesSubSection() {
           <h3 className="text-base font-medium text-gray-900">{t("title")}</h3>
           <p className="mt-0.5 text-sm text-gray-500">{t("description")}</p>
         </div>
-        <Button type="button" size="sm" onClick={openCreate}>
+        <Button
+          type="button"
+          size="sm"
+          className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+          onClick={openCreate}
+        >
           <Plus className="size-3.5" aria-hidden="true" />
           {t("newCategory")}
         </Button>
