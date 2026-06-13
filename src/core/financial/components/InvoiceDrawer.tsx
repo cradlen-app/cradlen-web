@@ -206,6 +206,14 @@ export function InvoiceDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isCreate, prefill?.patientId, prefill?.visitId, prefill?.doctorId]);
 
+  // `editMode` is seeded from `invoiceId` at mount, but this drawer is mounted
+  // persistently (InvoicePanel) — invoiceId arrives via props after mount. Re-sync
+  // the mode each time the drawer opens so an existing invoice opens in view mode
+  // (create/draft default to edit) instead of falling through to a blank body.
+  useEffect(() => {
+    if (open) setEditMode(!invoiceId);
+  }, [open, invoiceId]);
+
   // Single field array owned here so imports/auto-stage and the editor share
   // one instance (two useFieldArray on the same name don't re-render in sync).
   const { fields, append, remove } = useFieldArray({
