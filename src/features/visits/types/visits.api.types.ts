@@ -193,6 +193,27 @@ export type ApiPatientStats = {
 
 export type ApiPatientStatsResponse = { data: ApiPatientStats };
 
+/**
+ * Monthly visit analytics: each metric is a period flow (attended visits within
+ * the current vs the previous calendar month), reusing the `{ current, previous }`
+ * shape so the shared trend chip works unchanged. `daily` is the current-month
+ * per-day series for the throughput chart.
+ */
+export type ApiVisitDailyPoint = {
+  date: string;
+  visits: number;
+  follow_ups: number;
+};
+
+export type ApiVisitMonthlyStats = {
+  total: ApiPatientStatMetric;
+  visits: ApiPatientStatMetric;
+  follow_ups: ApiPatientStatMetric;
+  daily: ApiVisitDailyPoint[];
+};
+
+export type ApiVisitMonthlyStatsResponse = { data: ApiVisitMonthlyStats };
+
 // Existing patient booking
 export type BookVisitExistingPatientRequest = VisitIntake & {
   patient_id: string;

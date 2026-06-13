@@ -1,45 +1,55 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import {
-  getActiveProfile,
-  getDefaultBranch,
-  getProfileOrganization,
-} from "@/features/auth/lib/current-user";
-import {
-  hasAnyStaffRole,
-  showsAssignedVisits,
-} from "@/features/auth/lib/permissions";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { MiniCalendar } from "@/features/visits/components/MiniCalendar";
-import { StatCards, StatCardsSkeleton } from "@/features/visits/components/StatCards";
-import { TodaysScheduleCard, TodaysScheduleCardSkeleton } from "@/features/visits/components/TodaysScheduleCard";
-import { UpNextPreview } from "@/features/visits/components/UpNextPreview";
-import { getTodayIso } from "@/features/visits/lib/visits.utils";
+import { cn } from "@/common/utils/utils";
+import { getProfileBranches } from "@/features/auth/lib/current-user";
+import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
+import { PatientStatCards } from "@/features/patients/components/PatientStatCards";
+import { StaffStatCards } from "@/core/staff/pages";
+import { DashboardKpiRow } from "./overview/DashboardKpiRow";
+import { DashboardVisitsChart } from "./overview/DashboardVisitsChart";
+import { DashboardFinancialOverview } from "./overview/DashboardFinancialOverview";
+import { DashboardTopPerformers } from "./overview/DashboardTopPerformers";
 
 export function DashboardHome() {
   const t = useTranslations("dashboardHome");
-  const tDate = useTranslations("dashboardHome");
-  const { data: user } = useCurrentUser();
-  const branchId = useAuthContextStore((s) => s.branchId);
-  const profile = getActiveProfile(user);
-  const branch = getDefaultBranch(profile, branchId ?? undefined);
-  const organization = getProfileOrganization(profile);
+  const tOverview = useTranslations("dashboardHome.overview");
+  const {
+    currentUser,
+    activeProfile,
+    organizationId,
+    organizationName,
+    branchId,
+    branchName,
+    hasAnyStaffRole,
+    isOwner,
+    isBranchManager,
+    isClinical,
+  } = useUserProfileContext();
 
-  const [selectedDate, setSelectedDate] = useState(() => getTodayIso());
+  const [orgWide, setOrgWide] = useState(false);
 
-  if (!hasAnyStaffRole(profile)) return null;
+  if (!hasAnyStaffRole) return null;
 
-  const assignedToMe = showsAssignedVisits(profile);
+  const branches = getProfileBranches(activeProfile);
+  const canToggleScope = isOwner && branches.length > 1;
+  const scopeOrgWide = canToggleScope && orgWide;
+
+  const showRevenue = isOwner || isBranchManager;
+  const showPatients = isOwner || isBranchManager || isClinical;
+  const showStaffAndPerformers = isOwner || isBranchManager;
+
+  const greetingFirstName = currentUser?.first_name ?? "";
   const todayLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "short",
     month: "short",
     day: "numeric",
   }).format(new Date());
 
-  const greetingFirstName = user?.first_name ?? "";
+  const subtitle = [organizationName, !scopeOrgWide ? branchName : null]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <main className="space-y-6 p-6">
@@ -50,46 +60,81 @@ export function DashboardHome() {
               ? t("titleWithName", { name: greetingFirstName })
               : t("title")}
           </h1>
-          <p className="mt-0.5 text-xs text-gray-500">
-            {organization?.name ?? ""}
-            {branch?.city ? ` · ${branch.city}` : ""}
-          </p>
+          <p className="mt-0.5 text-xs text-gray-500">{subtitle}</p>
         </div>
-        <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3 py-1 text-[11px] font-medium text-gray-500 shadow-sm">
-          {tDate("todayBadge", { date: todayLabel })}
-        </span>
+        <div className="flex items-center gap-2">
+          {canToggleScope && (
+            <div className="inline-flex rounded-full border border-gray-200 p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setOrgWide(false)}
+                className={cn(
+                  "rounded-full px-3 py-1 font-medium transition-colors",
+                  !orgWide
+                    ? "bg-brand-primary text-white"
+                    : "text-gray-500 hover:text-brand-black",
+                )}
+              >
+                {tOverview("scope.branch")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setOrgWide(true)}
+                className={cn(
+                  "rounded-full px-3 py-1 font-medium transition-colors",
+                  orgWide
+                    ? "bg-brand-primary text-white"
+                    : "text-gray-500 hover:text-brand-black",
+                )}
+              >
+                {tOverview("scope.org")}
+              </button>
+            </div>
+          )}
+          <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3 py-1 text-[11px] font-medium text-gray-500 shadow-sm">
+            {t("todayBadge", { date: todayLabel })}
+          </span>
+        </div>
       </header>
 
-      {branchId ? (
-        <Suspense fallback={<StatCardsSkeleton />}>
-          <StatCards branchId={branchId} date={selectedDate} assignedToMe={assignedToMe} />
-        </Suspense>
-      ) : (
-        <StatCardsSkeleton />
+      <DashboardKpiRow
+        branchId={branchId}
+        orgId={organizationId}
+        orgWide={scopeOrgWide}
+        showRevenue={showRevenue}
+        showPatients={showPatients}
+      />
+
+      <DashboardVisitsChart
+        branchId={branchId}
+        orgId={organizationId}
+        orgWide={scopeOrgWide}
+      />
+
+      {showRevenue && (
+        <DashboardFinancialOverview branchId={branchId} orgWide={scopeOrgWide} />
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <section className="space-y-6 lg:col-span-2">
-          {branchId ? (
-            <Suspense fallback={<TodaysScheduleCardSkeleton />}>
-              <TodaysScheduleCard
-                branchId={branchId}
-                date={selectedDate}
-                assignedToMe={assignedToMe}
-              />
-            </Suspense>
-          ) : (
-            <TodaysScheduleCardSkeleton />
-          )}
-          <UpNextPreview branchId={branchId} assignedToMe={assignedToMe} />
+      {showPatients && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium text-gray-700">
+            {tOverview("sections.patientGrowth")}
+          </h2>
+          <PatientStatCards branchId={branchId} orgWide={scopeOrgWide} />
         </section>
-        <aside className="space-y-6">
-          <MiniCalendar
-            selectedDate={selectedDate}
-            onSelect={setSelectedDate}
-          />
-        </aside>
-      </div>
+      )}
+
+      {showStaffAndPerformers && (
+        <>
+          <section className="space-y-3">
+            <h2 className="text-sm font-medium text-gray-700">
+              {tOverview("sections.staff")}
+            </h2>
+            <StaffStatCards organizationId={organizationId} branchId={branchId} />
+          </section>
+          <DashboardTopPerformers branchId={branchId} orgWide={scopeOrgWide} />
+        </>
+      )}
     </main>
   );
 }
