@@ -368,17 +368,23 @@ export async function proxyAuthenticatedRequest(
       return forwardBackendResponse(response, refreshedTokens);
     }
 
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get(AUTH_REFRESH_TOKEN_COOKIE)?.value;
-
     let newTokens: AuthTokens | null = null;
-    if (refreshToken) {
-      try {
-        newTokens = await refreshAuthTokens(refreshToken);
-      } catch {
-        // Network failure or backend error during refresh — fall through to
-        // the selection-token fallback before giving up.
-        newTokens = null;
+    // If we already refreshed proactively in getValidAccessToken, a 401 means
+    // the freshly-minted access token was itself rejected — refreshing again
+    // with the now-stale cookie token only mints another orphan refresh row and
+    // is near-certain to fail. Skip straight to the selection-token fallback so
+    // each proxied request rotates at most once.
+    if (!refreshedTokens) {
+      const cookieStore = await cookies();
+      const refreshToken = cookieStore.get(AUTH_REFRESH_TOKEN_COOKIE)?.value;
+      if (refreshToken) {
+        try {
+          newTokens = await refreshAuthTokens(refreshToken);
+        } catch {
+          // Network failure or backend error during refresh — fall through to
+          // the selection-token fallback before giving up.
+          newTokens = null;
+        }
       }
     }
 
