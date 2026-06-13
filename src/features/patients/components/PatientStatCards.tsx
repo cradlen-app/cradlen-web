@@ -6,6 +6,7 @@ import {
   Route,
   Scissors,
   Stethoscope,
+  UserPlus,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -45,9 +46,9 @@ export function PatientStatCardsSkeleton() {
 }
 
 /**
- * Analytics cards above the patients table: a total plus one card per care-path
- * journey present in the data (specialty-agnostic — labels come from the API),
- * each with a month-over-month trend chip.
+ * Analytics cards above the patients table: a fixed set of four — total
+ * patients, new this month, and the two largest care paths (specialty-agnostic —
+ * labels come from the API), each with a month-over-month trend chip.
  */
 export function PatientStatCards({ branchId, orgWide }: Props) {
   const t = useTranslations("patients.stats");
@@ -69,7 +70,15 @@ export function PatientStatCards({ branchId, orgWide }: Props) {
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
       />
-      {data.by_care_path.map((cp) => (
+      <StatTrendCard
+        icon={UserPlus}
+        label={t("newThisMonth")}
+        metric={data.new_this_month}
+        vsLastMonthLabel={vsLastMonth}
+        noPriorLabel={noPrior}
+      />
+      {/* Top two care paths — `by_care_path` arrives sorted desc by count. */}
+      {data.by_care_path.slice(0, 2).map((cp) => (
         <StatTrendCard
           key={cp.journey_template_id}
           icon={iconForType(cp.type)}

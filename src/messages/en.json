@@ -134,6 +134,7 @@
     },
     "stats": {
       "total": "Total Patients",
+      "newThisMonth": "New This Month",
       "vsLastMonth": "vs last month",
       "noPrior": "—"
     }
