@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "radix-ui";
 import { useForm, useWatch, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +10,7 @@ import { X, Loader2, FileText, CreditCard, Ban, Send, Pencil, FilePlus2, Printer
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
+import { financialQueryKeys } from "@/core/financial/queryKeys";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useVisitCharges } from "../hooks/useCharges";
 import { useInvoice } from "../hooks/useInvoice";
@@ -124,8 +126,33 @@ export function InvoiceDrawer({
   const [voidDialogOpen, setVoidDialogOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
 
+  const qc = useQueryClient();
+
   // Data
   const { invoice, isLoading } = useInvoice(invoiceId);
+
+  // A mid-visit charge is auto-billed onto the visit invoice by an async,
+  // post-commit backend listener, so the invalidation fired at capture time
+  // races ahead of the accrual and re-reads the pre-accrual invoice. Re-pull the
+  // invoice + charge state when this drawer opens (the listener has settled by
+  // then), with one short delayed retry to absorb listener latency, so a service
+  // added mid-visit shows up without a full page reload.
+  useEffect(() => {
+    if (!open) return;
+    const refresh = () => {
+      void qc.invalidateQueries({
+        queryKey: financialQueryKeys.invoices.all(),
+      });
+      if (prefill?.visitId) {
+        void qc.invalidateQueries({
+          queryKey: financialQueryKeys.charges.byVisit(prefill.visitId),
+        });
+      }
+    };
+    refresh();
+    const timer = setTimeout(refresh, 1200);
+    return () => clearTimeout(timer);
+  }, [open, qc, invoiceId, prefill?.visitId]);
 
   // Mutations
   const createMutation = useCreateInvoice();
