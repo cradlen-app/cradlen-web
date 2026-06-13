@@ -94,6 +94,11 @@ export function canManagePatient(profile?: UserProfile): boolean {
   return isOwner(profile) || isBranchManager(profile);
 }
 
+/** Who may see the patients-page analytics cards: owners and branch managers. */
+export function canViewPatientAnalytics(profile?: UserProfile): boolean {
+  return isOwner(profile) || isBranchManager(profile);
+}
+
 /** Who may open the read-only medical-rep overview page: owners, branch managers, and doctors. */
 export function canOpenMedicalRepOverview(profile?: UserProfile): boolean {
   return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);
