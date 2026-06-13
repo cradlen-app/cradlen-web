@@ -23,7 +23,12 @@ export function PriceListsSubSection() {
             {t("description")}
           </p>
         </div>
-        <Button type="button" size="sm" onClick={() => setDrawerOpen(true)}>
+        <Button
+          type="button"
+          size="sm"
+          className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+          onClick={() => setDrawerOpen(true)}
+        >
           <Plus className="size-3.5" aria-hidden="true" />
           {t("newList")}
         </Button>

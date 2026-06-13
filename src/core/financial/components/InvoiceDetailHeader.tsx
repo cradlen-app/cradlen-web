@@ -89,6 +89,7 @@ export function InvoiceDetailHeader({
             <Button
               type="button"
               size="sm"
+              className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
               onClick={onIssue}
               disabled={issuing}
             >
@@ -101,7 +102,12 @@ export function InvoiceDetailHeader({
             </Button>
           )}
           {canRecordPayment && (
-            <Button type="button" size="sm" onClick={onRecordPayment}>
+            <Button
+              type="button"
+              size="sm"
+              className="rounded-full bg-brand-primary text-white hover:bg-brand-primary/90"
+              onClick={onRecordPayment}
+            >
               <CreditCard className="size-3.5" aria-hidden="true" />
               {t("actions.recordPayment")}
             </Button>
