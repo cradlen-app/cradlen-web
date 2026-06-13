@@ -13,6 +13,8 @@
   "stats": {
     "total": "إجمالي الفريق",
     "clinical": "طاقم سريري",
+    "administrative": "إداري",
+    "external": "خارجي",
     "vsLastMonth": "مقارنة بالشهر الماضي",
     "noPrior": "—"
   },
