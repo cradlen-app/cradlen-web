@@ -12,6 +12,7 @@ const CATEGORY_ICON: Record<NotificationCategory, string> = {
   medicine: "💊",
   patient: "🧑‍⚕️",
   report: "📊",
+  billing: "💳",
   system: "⚙️",
 };
 
@@ -21,6 +22,7 @@ const CATEGORY_ICON_BG: Record<NotificationCategory, string> = {
   medicine: "bg-yellow-100",
   patient: "bg-blue-100",
   report: "bg-orange-100",
+  billing: "bg-rose-100",
   system: "bg-gray-100",
 };
 
@@ -30,6 +32,7 @@ const CATEGORY_BADGE_CLASS: Record<NotificationCategory, string> = {
   medicine: "bg-yellow-100 text-yellow-800",
   patient: "bg-blue-100 text-blue-800",
   report: "bg-orange-100 text-orange-800",
+  billing: "bg-rose-100 text-rose-800",
   system: "bg-gray-100 text-gray-700",
 };
 

@@ -4,6 +4,7 @@ export type NotificationCategory =
   | "medicine"
   | "patient"
   | "report"
+  | "billing"
   | "system";
 
 export type Notification = {

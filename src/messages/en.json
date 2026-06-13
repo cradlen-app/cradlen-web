@@ -639,6 +639,7 @@
       "medicine": "Medicine",
       "patient": "Patients",
       "report": "Reports",
+      "billing": "Billing",
       "system": "System"
     }
   },
