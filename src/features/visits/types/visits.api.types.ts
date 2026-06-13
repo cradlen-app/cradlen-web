@@ -166,6 +166,33 @@ export type ApiPatientListResponse = {
   meta: ApiPaginationMeta;
 };
 
+// ── Patient analytics ─────────────────────────────────────────────────────────
+
+/** A metric's value now vs. at the start of the current month (drives the trend). */
+export type ApiPatientStatMetric = { current: number; previous: number };
+
+/**
+ * Patient count for one care-path journey, keyed by its journey template (which
+ * belongs to a specialty). Data-driven — `name` is the display label and `type`
+ * is only an icon hint, so new specialties surface without frontend changes.
+ */
+export type ApiCarePathStat = {
+  journey_template_id: string;
+  name: string;
+  specialty_id: string;
+  specialty_name: string;
+  type: ApiJourneyType;
+  current: number;
+  previous: number;
+};
+
+export type ApiPatientStats = {
+  total: ApiPatientStatMetric;
+  by_care_path: ApiCarePathStat[];
+};
+
+export type ApiPatientStatsResponse = { data: ApiPatientStats };
+
 // Existing patient booking
 export type BookVisitExistingPatientRequest = VisitIntake & {
   patient_id: string;
