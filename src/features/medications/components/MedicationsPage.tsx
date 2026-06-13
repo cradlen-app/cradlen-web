@@ -34,7 +34,7 @@ export function MedicationsPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [form, setForm] = useState<string | undefined>(undefined);
-  const [sort, setSort] = useState<MedicationSort>("name");
+  const [sort, setSort] = useState<MedicationSort>("name_asc");
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
@@ -53,7 +53,7 @@ export function MedicationsPage() {
     setPage(1);
   }
   function changeSort(value: string | undefined) {
-    setSort((value as MedicationSort) ?? "name");
+    setSort((value as MedicationSort) ?? "name_asc");
     setPage(1);
   }
 
@@ -181,11 +181,12 @@ export function MedicationsPage() {
               label={t("sort.label")}
               value={sort}
               options={[
-                { value: "name", label: t("sort.default") },
+                { value: "name_asc", label: t("sort.nameAsc") },
+                { value: "name_desc", label: t("sort.nameDesc") },
                 { value: "usage", label: t("sort.usage") },
               ]}
               onChange={changeSort}
-              isActive={sort !== "name"}
+              isActive={sort !== "name_asc"}
             />
           </div>
           <label className="relative block min-w-0 flex-1 sm:w-64 sm:flex-none">
