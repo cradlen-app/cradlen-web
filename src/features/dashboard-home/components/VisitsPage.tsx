@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -22,8 +22,10 @@ import { useBillingQueue, financialQueryKeys } from "@/core/financial/api";
 import { cn } from "@/common/utils/utils";
 import { CurrentVisitCard } from "@/features/visits/components/CurrentVisitCard";
 import { InProgressByDoctorPanel } from "@/features/visits/components/InProgressByDoctorPanel";
+import { StatCards, StatCardsSkeleton } from "@/features/visits/components/StatCards";
 import { WaitingListSection } from "@/features/visits/components/WaitingListSection";
 import { useVisitSocket } from "@/features/visits/hooks/useVisitSocket";
+import { getTodayIso } from "@/features/visits/lib/visits.utils";
 
 export function VisitsPage() {
   const t = useTranslations("visits");
@@ -87,6 +89,18 @@ export function VisitsPage() {
           </span>
         )}
       </header>
+
+      {branchId ? (
+        <Suspense fallback={<StatCardsSkeleton />}>
+          <StatCards
+            branchId={branchId}
+            date={getTodayIso()}
+            assignedToMe={showAssigned}
+          />
+        </Suspense>
+      ) : (
+        <StatCardsSkeleton />
+      )}
 
       <div
         className={cn("grid grid-cols-1 gap-6", showBilling && "lg:grid-cols-4")}
