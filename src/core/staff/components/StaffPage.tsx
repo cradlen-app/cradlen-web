@@ -30,6 +30,7 @@ const StaffResetPasswordDialog = dynamic(
 import { cn } from "@/common/utils/utils";
 import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
+import { StaffStatCards } from "./StaffStatCards";
 import { StaffTable } from "./StaffTable";
 import { StaffToolbar } from "./StaffToolbar";
 
@@ -83,6 +84,7 @@ export function StaffPage() {
     isCurrentUserError,
     currentUserStaffId,
     isOwner,
+    isBranchManager,
     organizationId,
     organizationName,
     branchId,
@@ -184,6 +186,10 @@ export function StaffPage() {
             onInviteStaff={() => setCreateMethod("invite")}
             onCreateDirectStaff={() => setCreateMethod("direct")}
           />
+
+          {!isLoading && !isError && !hasNoBranch && (isOwner || isBranchManager) && (
+            <StaffStatCards organizationId={organizationId} branchId={branchId} />
+          )}
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
             <StaffToolbar

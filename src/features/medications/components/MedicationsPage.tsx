@@ -2,7 +2,8 @@
 
 import { useState, useDeferredValue } from "react";
 import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
+import { cn } from "@/common/utils/utils";
 import { MedicationsTable } from "./MedicationsTable";
 import { MedicationDrawer } from "./MedicationDrawer";
 import { DeleteMedicationDialog } from "./DeleteMedicationDialog";
@@ -107,100 +108,116 @@ export function MedicationsPage() {
   const to = Math.min(page * PAGE_LIMIT, total);
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex h-full flex-col gap-4 p-4 pb-24 lg:p-6 lg:pb-6">
       {/* Page header */}
-      <div className="flex items-center justify-between px-6 py-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-black">{t("title")}</h1>
+          <h1 className="text-2xl font-medium text-brand-black">{t("title")}</h1>
           <p className="mt-1 text-sm text-gray-400">{t("subtitle")}</p>
         </div>
         <button
           type="button"
           onClick={openAddDrawer}
-          className="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary/90"
+          className="inline-flex h-9 items-center gap-2 rounded-full bg-brand-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary/90"
         >
-          + {t("addButton")}
+          <Plus className="size-4" aria-hidden="true" />
+          {t("addButton")}
         </button>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-100 px-6 pb-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled
-            title={t("filters.comingSoon")}
-            className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-400 opacity-60"
-          >
-            {t("filters.category")} ↓
-          </button>
-          <button
-            type="button"
-            disabled
-            title={t("filters.comingSoon")}
-            className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-400 opacity-60"
-          >
-            {t("filters.form")} ↓
-          </button>
-        </div>
-        <div className="relative">
-          <Search
-            className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
-            aria-hidden
-          />
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder={t("searchPlaceholder")}
-            className="w-64 rounded-lg border border-gray-200 py-2 pe-4 ps-9 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
-          />
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="flex-1 overflow-x-auto pb-20 lg:pb-0">
-        <MedicationsTable
-          medications={data?.data ?? []}
-          isLoading={isLoading}
-          onEdit={openEditDrawer}
-          onDelete={setDeletingMedication}
-        />
-      </div>
-
-      {/* Pagination */}
-      {!isLoading && total > 0 && (
-        <div className="flex items-center justify-between border-t border-gray-100 px-6 py-3">
-          <span className="text-sm text-gray-400">
-            {t("table.showing", { from, to, total })}
-          </span>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(totalPages, 10) }).map((_, i) => {
-              const p = i + 1;
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPage(p)}
-                  className={`inline-flex size-8 items-center justify-center rounded-lg text-sm transition-colors ${
-                    page === p
-                      ? "bg-brand-primary text-white"
-                      : "border border-gray-200 text-gray-500 hover:bg-gray-50"
-                  }`}
-                >
-                  {p}
-                </button>
-              );
-            })}
-            {totalPages > 10 && (
-              <span className="px-1 text-sm text-gray-400">…</span>
-            )}
+      {/* Card: toolbar + table + pagination */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
+        {/* Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled
+              title={t("filters.comingSoon")}
+              className="inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 text-sm text-gray-400 opacity-60"
+            >
+              {t("filters.category")} ↓
+            </button>
+            <button
+              type="button"
+              disabled
+              title={t("filters.comingSoon")}
+              className="inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 text-sm text-gray-400 opacity-60"
+            >
+              {t("filters.form")} ↓
+            </button>
           </div>
+          <label className="relative block min-w-0 flex-1 sm:w-64 sm:flex-none">
+            <span className="sr-only">{t("searchPlaceholder")}</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder={t("searchPlaceholder")}
+              className="h-9 w-full rounded-full border border-gray-200 bg-white pe-4 ps-9 text-sm outline-none transition-colors placeholder:text-gray-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
+            />
+            <Search
+              className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+              aria-hidden="true"
+            />
+          </label>
         </div>
-      )}
+
+        {/* Table */}
+        <div className="min-h-0 flex-1 overflow-auto pb-20 lg:pb-0">
+          <MedicationsTable
+            medications={data?.data ?? []}
+            isLoading={isLoading}
+            onEdit={openEditDrawer}
+            onDelete={setDeletingMedication}
+          />
+        </div>
+
+        {/* Pagination */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 px-4 py-3">
+          <p className="text-xs text-gray-400">
+            {!isLoading &&
+              total > 0 &&
+              t("showResults", { count: to - from + 1, total })}
+          </p>
+          {!isLoading && totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                aria-label={t("pagination.prev")}
+                className={cn(
+                  "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
+                  "hover:border-brand-primary/40 hover:text-brand-primary",
+                  "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
+                )}
+              >
+                <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+              </button>
+              <span className="px-1.5 text-xs tabular-nums text-gray-500">
+                {t("pagination.pageOf", { page, total: totalPages })}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                aria-label={t("pagination.next")}
+                className={cn(
+                  "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
+                  "hover:border-brand-primary/40 hover:text-brand-primary",
+                  "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
+                )}
+              >
+                <ChevronRight className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Drawer */}
       <MedicationDrawer

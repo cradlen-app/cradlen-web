@@ -29,6 +29,9 @@ export const staffQueryKeys = {
     ] as const,
   detail: (organizationId: string, branchId: string, staffId: string) =>
     ["staff", "detail", organizationId, branchId, staffId] as const,
+  /** Analytics cards above the staff table (branch-scoped). */
+  stats: (organizationId: string, branchId: string) =>
+    ["staff", "stats", organizationId, branchId] as const,
   roles: (organizationId: string) => ["staff-roles", organizationId] as const,
   invitationPreview: (invitationId: string, token: string) =>
     ["staff", "invitation-preview", invitationId, token] as const,

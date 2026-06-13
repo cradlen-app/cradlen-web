@@ -10,6 +10,12 @@
   "noOrganization": "No organization is linked to this account.",
   "noBranch": "No organization or branch is linked to this account.",
   "loadError": "Failed to load staff. Please try again.",
+  "stats": {
+    "total": "Total Staff",
+    "clinical": "Clinical",
+    "vsLastMonth": "vs last month",
+    "noPrior": "—"
+  },
   "roles": {
     "owner": "Owner",
     "doctor": "Doctor",

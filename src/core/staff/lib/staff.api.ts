@@ -12,6 +12,7 @@ import type {
   ApiStaffMemberResponse,
   ApiStaffRole,
   ApiStaffSpecialty,
+  ApiStaffStatsResponse,
   CreateStaffDirectRequest,
   CreateStaffDirectResponse,
   InvitationPreview,
@@ -89,6 +90,20 @@ export async function fetchAllStaff(
     all.push(...res.data);
   }
   return all;
+}
+
+/**
+ * GET /v1/organizations/:orgId/branches/:branchId/staff/stats
+ * Branch staff analytics for the cards above the table: total + per-role
+ * breakdown + clinical subtotal, each with a month-over-month trend pair.
+ */
+export function fetchBranchStaffStats(
+  organizationId: string,
+  branchId: string,
+) {
+  return apiAuthFetch<ApiStaffStatsResponse>(
+    `/organizations/${organizationId}/branches/${branchId}/staff/stats`,
+  );
 }
 
 export function inviteStaff(
