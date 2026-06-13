@@ -44,7 +44,7 @@ export function fetchVisitStats({
   if (assignedToMe) params.set("assigned_to_me", "true");
   const qs = params.toString();
   return apiAuthFetch<ApiVisitStatsResponse>(
-    `/branches/${branchId}/visits/stats${qs ? `?${qs}` : ""}`,
+    `/branches/${branchId}/visits/today-stats${qs ? `?${qs}` : ""}`,
   );
 }
 
