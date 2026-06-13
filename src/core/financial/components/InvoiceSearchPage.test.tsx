@@ -39,11 +39,6 @@ vi.mock("@/i18n/navigation", () => ({
       {children}
     </a>
   ),
-  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
-}));
-
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { InvoiceSearchPage } from "./InvoiceSearchPage";
@@ -55,7 +50,6 @@ function makeInvoice(over: Partial<Invoice> = {}): Invoice {
     branch_id: "branch-1",
     patient_id: "pat-uuid-1",
     visit_id: null,
-    episode_id: null,
     assigned_doctor_id: null,
     invoice_number: "INV-2026-00001",
     invoice_type: "STANDARD",

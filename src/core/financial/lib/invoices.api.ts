@@ -57,9 +57,8 @@ export async function fetchInvoices(
   const params = new URLSearchParams();
   if (filters?.branch_id) params.set("branch_id", filters.branch_id);
   if (filters?.patient_id) params.set("patient_id", filters.patient_id);
-  if (filters?.episode_id) params.set("episode_id", filters.episode_id);
-  if (filters?.episode_ids?.length)
-    params.set("episode_ids", filters.episode_ids.join(","));
+  if (filters?.visit_ids?.length)
+    params.set("visit_ids", filters.visit_ids.join(","));
   if (filters?.status) params.set("status", filters.status);
   if (filters?.type) params.set("type", filters.type);
   if (filters?.search) params.set("search", filters.search);
