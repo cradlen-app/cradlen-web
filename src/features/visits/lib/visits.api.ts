@@ -7,6 +7,7 @@ import type {
   ApiVitalsTrendPoint,
   ApiVisitHistoryResponse,
   ApiVisitListResponse,
+  ApiVisitMonthlyStatsResponse,
   ApiVisitResponse,
   ApiVisitStatsResponse,
   ApiVisitStatus,
@@ -44,6 +45,20 @@ export function fetchVisitStats({
   const qs = params.toString();
   return apiAuthFetch<ApiVisitStatsResponse>(
     `/branches/${branchId}/visits/stats${qs ? `?${qs}` : ""}`,
+  );
+}
+
+/** Monthly visit analytics for a branch: total / visits / follow-ups (MoM) + daily series. */
+export function fetchBranchVisitStats(branchId: string) {
+  return apiAuthFetch<ApiVisitMonthlyStatsResponse>(
+    `/branches/${branchId}/visits/stats`,
+  );
+}
+
+/** OWNER-only org-wide visit analytics — same shape as the branch stats. */
+export function fetchOrgVisitStats(orgId: string) {
+  return apiAuthFetch<ApiVisitMonthlyStatsResponse>(
+    `/organizations/${orgId}/visits/stats`,
   );
 }
 
