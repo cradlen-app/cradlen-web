@@ -2,6 +2,7 @@
 
 import { Ban, Receipt, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/common/utils/utils";
 import { formatMoney, formatDateLong as formatDate, personName } from "../lib/format";
 import type { Payment, Receipt as ReceiptRow } from "../types/financial.types";
 
@@ -10,6 +11,8 @@ type Props = {
   loading: boolean;
   /** payment_id → receipt, for the per-row "Receipt" action. */
   receiptByPayment: Map<string, ReceiptRow>;
+  /** Compact, single-surface layout for the narrow master-detail panel. */
+  dense?: boolean;
   onPrintReceipt: (receiptId: string) => void;
   onRefund: (payment: Payment) => void;
   onVoidPayment: (payment: Payment) => void;
@@ -20,6 +23,7 @@ export function InvoicePaymentsList({
   payments,
   loading,
   receiptByPayment,
+  dense = false,
   onPrintReceipt,
   onRefund,
   onVoidPayment,
@@ -30,7 +34,13 @@ export function InvoicePaymentsList({
   const tReceipt = useTranslations("financial.receipt");
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div
+      className={cn(
+        dense
+          ? "min-w-0 border-t border-gray-100 pt-4"
+          : "rounded-2xl border border-gray-200 bg-white p-5 shadow-sm",
+      )}
+    >
       <h2 className="mb-4 text-sm font-semibold text-gray-700">
         {t("view.paymentHistory")}
       </h2>
@@ -46,7 +56,7 @@ export function InvoicePaymentsList({
           {t("view.noPayments")}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-100">
+        <div className="min-w-0 overflow-x-auto rounded-xl border border-gray-100">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
@@ -59,12 +69,16 @@ export function InvoicePaymentsList({
                 <th className="px-4 py-2.5 text-left font-medium">
                   {t("payments.method")}
                 </th>
-                <th className="px-4 py-2.5 text-left font-medium">
-                  {t("payments.reference")}
-                </th>
-                <th className="px-4 py-2.5 text-left font-medium">
-                  {t("payments.recordedBy")}
-                </th>
+                {!dense && (
+                  <>
+                    <th className="px-4 py-2.5 text-left font-medium">
+                      {t("payments.reference")}
+                    </th>
+                    <th className="px-4 py-2.5 text-left font-medium">
+                      {t("payments.recordedBy")}
+                    </th>
+                  </>
+                )}
                 <th className="px-4 py-2.5 text-right font-medium">
                   {t("payments.actionsColumn")}
                 </th>
@@ -91,12 +105,19 @@ export function InvoicePaymentsList({
                     <td className="px-4 py-3 text-gray-600">
                       {tPay(`method.${payment.payment_method}`)}
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
-                      {payment.reference_number ?? "—"}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {personName(payment.recorded_by, payment.recorded_by_id)}
-                    </td>
+                    {!dense && (
+                      <>
+                        <td className="px-4 py-3 text-gray-500">
+                          {payment.reference_number ?? "—"}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {personName(
+                            payment.recorded_by,
+                            payment.recorded_by_id,
+                          )}
+                        </td>
+                      </>
+                    )}
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         {receiptByPayment.has(payment.id) && (
