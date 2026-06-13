@@ -1206,6 +1206,12 @@
       "form": "الشكل",
       "comingSoon": "قريباً"
     },
+    "showResults": "عرض {count} من {total} نتيجة",
+    "pagination": {
+      "prev": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "pageOf": "صفحة {page} من {total}"
+    },
     "table": {
       "columns": {
         "name": "الاسم",
@@ -1266,6 +1272,12 @@
   "medicalRep": {
     "title": "المندوب الطبي",
     "search": "بحث ....",
+    "showResults": "عرض {count} من {total} نتيجة",
+    "pagination": {
+      "prev": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "pageOf": "صفحة {page} من {total}"
+    },
     "table": {
       "name": "الاسم",
       "phone": "الهاتف",
