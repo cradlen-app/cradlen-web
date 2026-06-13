@@ -188,6 +188,8 @@ export type ApiCarePathStat = {
 
 export type ApiPatientStats = {
   total: ApiPatientStatMetric;
+  /** Patients added this month vs last month (drives a MoM trend chip). */
+  new_this_month: ApiPatientStatMetric;
   by_care_path: ApiCarePathStat[];
 };
 
