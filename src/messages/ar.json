@@ -998,6 +998,27 @@
       "cancelledToast": "تم إلغاء الزيارة.",
       "actionError": "تعذّر تحديث الزيارة."
     },
+    "prescription": {
+      "title": "تم إرسال الروشتة",
+      "sentTo": "تم إرسال الروشتة إلى {patient}.",
+      "sentGeneric": "تم إرسال الروشتة إلى المريض.",
+      "print": "طباعة",
+      "close": "إغلاق",
+      "loading": "جارٍ تحميل الروشتة…",
+      "empty": "لم يتم وصف أي أدوية لهذه الزيارة.",
+      "license": "الترخيص",
+      "date": "التاريخ",
+      "patient": "المريض",
+      "age": "العمر",
+      "years": "{count} سنة",
+      "phone": "الهاتف",
+      "complaint": "الشكوى الرئيسية",
+      "diagnosis": "التشخيص",
+      "medications": "الأدوية",
+      "noMedications": "لا توجد أدوية.",
+      "notes": "ملاحظات",
+      "signature": "التوقيع"
+    },
     "waitingList": {
       "title": "قائمة الانتظار",
       "searchPlaceholder": "بحث عن مريض....",

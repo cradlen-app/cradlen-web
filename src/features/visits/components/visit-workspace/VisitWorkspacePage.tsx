@@ -16,6 +16,7 @@ import { useVisit } from "../../hooks/useVisit";
 import { InvoiceDrawer, AddChargeDrawer } from "@/core/financial/pages";
 import { financialCan, useVisitInvoice } from "@/core/financial/api";
 import { CompleteVisitDialog } from "../CompleteVisitDialog";
+import { PrescriptionPrintModal } from "../PrescriptionPrintModal";
 import { VisitWorkspaceHeader } from "./VisitWorkspaceHeader";
 import { VisitContextRail } from "./overview/VisitContextRail";
 import { ExaminationTab } from "./tabs/ExaminationTab";
@@ -46,6 +47,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const { invoice: visitInvoice } = useVisitInvoice(visit?.id);
   const updateStatus = useUpdateVisitStatus();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
   const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
   const [addChargeOpen, setAddChargeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
@@ -181,7 +183,18 @@ export function VisitWorkspacePage({ visitId }: Props) {
         open={completeDialogOpen}
         onOpenChange={setCompleteDialogOpen}
         visit={visit}
-        onCompleted={() => toast.success(tDetail("completedToast"))}
+        onCompleted={() => {
+          toast.success(tDetail("completedToast"));
+          // Confirm the prescription was sent and offer to print it.
+          setPrescriptionModalOpen(true);
+        }}
+      />
+
+      <PrescriptionPrintModal
+        open={prescriptionModalOpen}
+        onOpenChange={setPrescriptionModalOpen}
+        visitId={visit.id}
+        patientName={visit.patient.fullName}
       />
 
       <InvoiceDrawer
