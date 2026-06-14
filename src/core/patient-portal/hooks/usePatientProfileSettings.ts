@@ -5,7 +5,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   changePassword,
   fetchPatientProfile,
+  fetchSecurityQuestion,
   removeProfileImage,
+  setSecurityQuestion,
   updatePatientProfile,
   uploadProfileImage,
 } from "../data/patient-portal.api";
@@ -74,5 +76,34 @@ export function useChangePassword() {
   return useMutation({
     mutationFn: (input: { currentPassword: string; newPassword: string }) =>
       changePassword(input),
+  });
+}
+
+/** The account's current security-question key (null when none is set yet). */
+export function usePatientSecurityQuestion() {
+  return useQuery({
+    queryKey: patientPortalQueryKeys.securityQuestion(),
+    queryFn: fetchSecurityQuestion,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Sets/updates the account security question. On success invalidates the patient
+ * identity query so the profile's "current question" display refreshes.
+ */
+export function useSetSecurityQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      securityQuestion: string;
+      securityAnswer: string;
+      currentPassword: string;
+    }) => setSecurityQuestion(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: patientPortalQueryKeys.me(),
+      });
+    },
   });
 }
