@@ -43,6 +43,14 @@ export function HeaderBlock({ document }: BlockProps) {
   const cityLine = [branch.city, branch.governorate].filter(Boolean).join(", ");
   return (
     <div className="text-center">
+      {organization.logo_image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={organization.logo_image_url}
+          alt={organization.name}
+          className="mx-auto mb-2 h-16 w-auto object-contain"
+        />
+      ) : null}
       <h2 className="text-lg font-semibold text-brand-primary">
         {organization.name}
       </h2>

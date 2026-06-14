@@ -85,7 +85,13 @@ export type PrescriptionDocumentItem = {
 export type PrescriptionDocument = {
   prescribed_at: string;
   notes?: string | null;
-  organization: { id: string; name: string; logo_object_key?: string | null };
+  organization: {
+    id: string;
+    name: string;
+    logo_object_key?: string | null;
+    /** Presigned GET URL for the logo; render directly. */
+    logo_image_url?: string | null;
+  };
   branch: {
     id: string;
     name: string;
