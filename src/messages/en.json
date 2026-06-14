@@ -789,6 +789,7 @@
     "allDay": "All day",
     "more": "more",
     "patientLabel": "Patient",
+    "createdBy": "Created by",
     "notes": "Notes",
     "types": {
       "DAY_OFF": "Day off",

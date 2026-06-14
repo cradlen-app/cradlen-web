@@ -22,6 +22,7 @@ export type CalendarEvent = {
   procedureName: string | null;
   patientId: string | null;
   patientName: string | null;
+  createdByName: string | null;
   assistants: CalendarAssistant[];
   createdAt: string;
   updatedAt: string;
