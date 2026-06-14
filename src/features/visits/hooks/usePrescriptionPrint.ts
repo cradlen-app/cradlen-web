@@ -31,6 +31,10 @@ export function usePrescriptionPrint(visitId: string | undefined) {
     print: query.data ?? null,
     isLoading: query.isLoading,
     isNotFound,
+    // Any non-404 failure (500, validation, network, missing route) — surfaced
+    // distinctly so it isn't masked as "no medications".
     error: isNotFound ? null : query.error,
+    isFetching: query.isFetching,
+    refetch: query.refetch,
   };
 }
