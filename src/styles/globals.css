@@ -137,8 +137,10 @@
 }
 
 @media print {
-  /* Drop the browser's own header/footer (date, URL, page numbers). */
+  /* Drop the browser's own header/footer (date, URL, page numbers) and lock
+     these documents to portrait — they are all portrait slips. */
   @page {
+    size: A4 portrait;
     margin: 0;
   }
 
@@ -170,5 +172,14 @@
     max-height: none !important;
     overflow: visible !important;
     padding: 14mm !important;
+  }
+
+  /* The prescription fills the whole sheet (footer pinned to the bottom via the
+     flex column below), unlike the short receipt/invoice slips. */
+  #prescription-printable {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    box-sizing: border-box !important;
   }
 }
