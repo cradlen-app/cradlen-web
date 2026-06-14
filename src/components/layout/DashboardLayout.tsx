@@ -9,6 +9,7 @@ import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { hasAnyStaffRole } from "@/features/auth/lib/permissions";
 import { buildDashboardUrl } from "@/infrastructure/http/routes";
 import type { CurrentUser } from "@/common/types/user.types";
+import { SubscriptionBanner } from "@/features/subscriptions/components/SubscriptionBanner";
 import { Navbar } from "../common/Navbar";
 import { Sidebar } from "../common/Sidebar";
 import { StaffBottomTabs } from "../common/StaffBottomTabs";
@@ -56,6 +57,7 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <Navbar />
+      <SubscriptionBanner />
       <div className="flex flex-1 overflow-hidden lg:pb-3">
         {/* Sidebar — desktop only; mobile navigation uses the bottom tab bar. */}
         <div className="hidden shrink-0 lg:relative lg:block">

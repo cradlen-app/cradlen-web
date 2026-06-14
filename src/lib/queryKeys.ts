@@ -131,6 +131,17 @@ export const queryKeys = {
       ["organizations", organizationId, "specialties"] as const,
   },
 
+  // ── Subscription (org plan + manual payments) ─────────────────────────────
+  subscription: {
+    current: (organizationId: string) =>
+      ["subscription", organizationId, "current"] as const,
+    plans: () => ["subscription", "plans"] as const,
+    payments: (organizationId: string, opts?: { status?: string }) =>
+      ["subscription", organizationId, "payments", opts ?? {}] as const,
+    payment: (organizationId: string, paymentId: string) =>
+      ["subscription", organizationId, "payment", paymentId] as const,
+  },
+
   // ── Form templates ────────────────────────────────────────────────────────
   formTemplates: {
     byCode: (code: string, extension?: string | null, locale?: string) =>

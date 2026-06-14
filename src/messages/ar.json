@@ -1,4 +1,98 @@
 {
+  "subscriptions": {
+    "title": "الاشتراك",
+    "description": "إدارة خطتك أو تجديدها أو ترقيتها.",
+    "currentPlan": "الخطة الحالية",
+    "viewPayments": "المدفوعات",
+    "loadError": "تعذّر تحميل اشتراكك",
+    "loadErrorDesc": "يرجى المحاولة مرة أخرى بعد قليل.",
+    "fields": {
+      "status": "الحالة",
+      "renews": "يتجدد في",
+      "trialEnds": "تنتهي التجربة",
+      "limits": "الحدود"
+    },
+    "status": {
+      "TRIAL": "تجريبي",
+      "ACTIVE": "نشط",
+      "EXPIRED": "منتهٍ",
+      "CANCELLED": "ملغى"
+    },
+    "paymentStatus": {
+      "PENDING": "قيد الانتظار",
+      "AWAITING_VERIFICATION": "بانتظار التحقق",
+      "VERIFIED": "تم التحقق",
+      "REJECTED": "مرفوض",
+      "CANCELLED": "ملغى"
+    },
+    "plans": {
+      "title": "اختر خطة",
+      "perYear": "سنة",
+      "current": "الحالية",
+      "upgrade": "ترقية",
+      "renew": "تجديد",
+      "limitsInline": "{branches} فروع · {staff} موظفين",
+      "limits": {
+        "branches": "حتى {count} فروع",
+        "staff": "حتى {count} موظفين",
+        "organizations": "حتى {count} منظمات"
+      }
+    },
+    "createDialog": {
+      "title": "الاشتراك في {plan}",
+      "description": "سيتم تحصيل {amount} لمدة سنة واحدة.",
+      "descriptionNoPrice": "اختر طريقة الدفع.",
+      "provider": "طريقة الدفع",
+      "providers": {
+        "INSTAPAY": "إنستاباي",
+        "WALLET": "محفظة إلكترونية"
+      },
+      "cancel": "إلغاء",
+      "submit": "المتابعة إلى الدفع",
+      "error": "تعذّر بدء عملية الدفع. حاول مرة أخرى."
+    },
+    "payments": {
+      "title": "المدفوعات",
+      "description": "مدفوعات اشتراكك وحالتها.",
+      "back": "العودة إلى الإعدادات",
+      "empty": "لا توجد مدفوعات بعد",
+      "emptyDesc": "عند الاشتراك أو التجديد، ستظهر مدفوعاتك هنا.",
+      "loadError": "تعذّر تحميل المدفوعات"
+    },
+    "detail": {
+      "title": "الدفعة",
+      "back": "العودة إلى المدفوعات",
+      "loadError": "تعذّر تحميل هذه الدفعة",
+      "instructions": "تعليمات الدفع",
+      "instructionsFallback": "أكمل التحويل ثم ارفع الإيصال أدناه. المرجع: {reference}",
+      "payTo": "حوّل إلى",
+      "amount": "المبلغ",
+      "reference": "المرجع",
+      "proofs": "إثبات الدفع",
+      "viewProof": "عرض الملف",
+      "noProofs": "لم يتم رفع أي إثبات بعد.",
+      "cancel": "إلغاء الدفعة",
+      "cancelConfirm": "إلغاء هذه الدفعة؟",
+      "keep": "احتفاظ",
+      "cancelled": "تم إلغاء الدفعة",
+      "cancelError": "تعذّر إلغاء الدفعة"
+    },
+    "proof": {
+      "add": "رفع الإثبات",
+      "remove": "إزالة",
+      "removed": "تمت إزالة الإثبات",
+      "uploaded": "تم رفع الإثبات",
+      "typeError": "يُسمح فقط بملفات PDF أو الصور",
+      "tooLarge": "حجم الملف كبير جدًا",
+      "error": "فشل الرفع. حاول مرة أخرى."
+    },
+    "banner": {
+      "expired": "انتهى اشتراكك. جدّد للاستمرار في استخدام كرادلن.",
+      "trialEnding": "تنتهي تجربتك خلال {days} يومًا.",
+      "renew": "جدّد الآن",
+      "contactAdmin": "تواصل مع المسؤول للتجديد."
+    }
+  },
   "builder": {
     "sections": {
       "lastUpdatedAt": "آخر تحديث:"
@@ -197,6 +291,7 @@
       "account": "الحساب",
       "organization": "المنظمة",
       "branches": "الفروع",
+      "subscription": "الاشتراك",
       "danger": "منطقة الخطر"
     },
     "fields": {
