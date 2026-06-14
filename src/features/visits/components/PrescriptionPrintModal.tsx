@@ -24,11 +24,10 @@ export function PrescriptionPrintModal({
   patientName,
 }: Props) {
   const t = useTranslations("visits.prescription");
-  const { print, isLoading, isNotFound } = usePrescriptionPrint(
-    open ? visitId ?? undefined : undefined,
-  );
+  const { print, isLoading, isNotFound, error, isFetching, refetch } =
+    usePrescriptionPrint(open ? visitId ?? undefined : undefined);
 
-  const canPrint = !!print && !isNotFound;
+  const canPrint = !!print && !isNotFound && !error;
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -66,6 +65,25 @@ export function PrescriptionPrintModal({
               <div className="flex items-center justify-center py-12 text-sm text-gray-400">
                 <Loader2 className="me-2 size-4 animate-spin" aria-hidden="true" />
                 {t("loading")}
+              </div>
+            ) : error ? (
+              <div className="flex flex-col items-center gap-3 py-10 text-center">
+                <p className="text-sm text-red-500">{t("error")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void refetch()}
+                  disabled={isFetching}
+                >
+                  {isFetching ? (
+                    <Loader2
+                      className="size-3.5 animate-spin"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  {t("retry")}
+                </Button>
               </div>
             ) : isNotFound || !print ? (
               <div className="py-10 text-center text-sm text-gray-400">
