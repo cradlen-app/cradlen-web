@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/common/utils/utils";
 import { ApiError } from "@/infrastructure/http/api";
 import { usePatientLogin } from "../hooks/usePatientAuth";
@@ -108,6 +108,12 @@ export function PatientSignInForm() {
         {errors.password && (
           <p className="text-xs text-red-500">{errors.password.message}</p>
         )}
+        <Link
+          href="/patient/forgot-password"
+          className="text-end text-xs text-brand-secondary transition-opacity hover:opacity-80"
+        >
+          {t("forgotPassword")}
+        </Link>
       </div>
 
       {/* API error */}

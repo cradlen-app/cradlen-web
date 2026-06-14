@@ -1,12 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/common/utils/utils";
 import { ApiError } from "@/infrastructure/http/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   usePatientSignupComplete,
   usePatientSignupStart,
@@ -15,6 +22,7 @@ import {
   createPatientSignUpSchema,
   type PatientSignUpFormData,
 } from "../lib/patient-sign-up.schemas";
+import { SECURITY_QUESTION_KEYS } from "../lib/security-questions";
 import { PhoneInput } from "./PhoneInput";
 import { PasswordInput } from "./PasswordInput";
 
@@ -73,6 +81,7 @@ function StepIndicator({
 
 export function PatientSignUpForm() {
   const t = useTranslations("auth.patientSignUp");
+  const tq = useTranslations("auth.securityQuestions");
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [stepError, setStepError] = useState<string | null>(null);
@@ -87,6 +96,8 @@ export function PatientSignUpForm() {
       nationalId: "",
       phoneNumber: "",
       dateOfBirth: "",
+      securityQuestion: "",
+      securityAnswer: "",
       password: "",
       confirmPassword: "",
     },
@@ -110,6 +121,8 @@ export function PatientSignUpForm() {
       "nationalId",
       "phoneNumber",
       "dateOfBirth",
+      "securityQuestion",
+      "securityAnswer",
     ]);
     if (!valid) return;
 
@@ -139,6 +152,8 @@ export function PatientSignUpForm() {
       await signupComplete.mutateAsync({
         password: data.password,
         confirm_password: data.confirmPassword,
+        security_question: data.securityQuestion,
+        security_answer: data.securityAnswer,
       });
       router.replace("/patient");
     } catch (error) {
@@ -201,6 +216,66 @@ export function PatientSignUpForm() {
                 className={cn(inputClass, errorInputClass(!!errors.dateOfBirth))}
               />
               {fieldError(errors.dateOfBirth?.message)}
+            </div>
+
+            {/* Security question — used to recover a forgotten password */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="securityQuestion"
+                className="text-sm text-brand-black"
+              >
+                {t("securityQuestionLabel")}
+              </label>
+              <Controller
+                control={form.control}
+                name="securityQuestion"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      id="securityQuestion"
+                      className={cn(
+                        inputClass,
+                        "!h-auto min-h-11 w-full justify-between font-normal",
+                        errorInputClass(!!errors.securityQuestion),
+                      )}
+                    >
+                      <SelectValue
+                        placeholder={t("securityQuestionPlaceholder")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SECURITY_QUESTION_KEYS.map((key) => (
+                        <SelectItem key={key} value={key}>
+                          {tq(key)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {fieldError(errors.securityQuestion?.message)}
+            </div>
+
+            {/* Security answer */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="securityAnswer"
+                className="text-sm text-brand-black"
+              >
+                {t("securityAnswerLabel")}
+              </label>
+              <input
+                id="securityAnswer"
+                type="text"
+                autoComplete="off"
+                placeholder={t("securityAnswerPlaceholder")}
+                {...form.register("securityAnswer")}
+                className={cn(
+                  inputClass,
+                  errorInputClass(!!errors.securityAnswer),
+                )}
+              />
+              {fieldError(errors.securityAnswer?.message)}
             </div>
 
             {stepError && (

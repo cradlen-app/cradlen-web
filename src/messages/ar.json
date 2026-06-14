@@ -527,7 +527,8 @@
         "passwordSymbol": "يجب أن تحتوي كلمة المرور على رمز",
         "invalidCredentials": "الرقم القومي أو كلمة المرور غير صحيحة",
         "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
-      }
+      },
+      "forgotPassword": "نسيت كلمة المرور؟"
     },
     "patientSignUp": {
       "alreadyHaveAccount": "لديك حساب بالفعل ؟",
@@ -562,8 +563,14 @@
         "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
         "passwordMismatch": "كلمتا المرور غير متطابقتين",
         "signupStartFailed": "لم نتمكن من العثور على سجل مريض مطابق لهذه البيانات.",
-        "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
-      }
+        "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+        "securityQuestionRequired": "يرجى اختيار سؤال أمان",
+        "securityAnswerRequired": "يجب أن تكون الإجابة حرفين على الأقل"
+      },
+      "securityQuestionLabel": "سؤال الأمان",
+      "securityQuestionPlaceholder": "اختر سؤالًا",
+      "securityAnswerLabel": "الإجابة",
+      "securityAnswerPlaceholder": "إجابتك"
     },
     "selectProfile": {
       "title": "اختر الملف",
@@ -586,6 +593,54 @@
       "selectBranch": "اختر الفرع",
       "selectBranchSubtitle": "اختر الفرع الذي تريد العمل فيه.",
       "createOrganization": "إنشاء منظمة جديدة"
+    },
+    "securityQuestions": {
+      "MOTHERS_MAIDEN_NAME": "ما اسم والدتك قبل الزواج؟",
+      "BIRTH_CITY": "في أي مدينة ولدت؟",
+      "FIRST_SCHOOL": "ما اسم أول مدرسة التحقت بها؟",
+      "CHILDHOOD_NICKNAME": "ما كان لقبك في الطفولة؟",
+      "FAVORITE_TEACHER": "من كان معلمك المفضل؟"
+    },
+    "patientForgotPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "تحقق من هويتك لتعيين كلمة مرور جديدة.",
+      "backToSignIn": "العودة إلى تسجيل الدخول",
+      "nationalIdLabel": "الرقم القومي",
+      "nationalIdPlaceholder": "الرقم القومي المكون من 14 رقمًا",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "+20 100 000 0000",
+      "dateOfBirthLabel": "تاريخ الميلاد",
+      "securityQuestionLabel": "سؤال الأمان",
+      "securityAnswerLabel": "الإجابة",
+      "securityAnswerPlaceholder": "إجابتك",
+      "passwordLabel": "كلمة مرور جديدة",
+      "passwordPlaceholder": "أدخل كلمة مرور جديدة",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+      "showPassword": "إظهار",
+      "hidePassword": "إخفاء",
+      "continueButton": "متابعة",
+      "resetButton": "إعادة تعيين كلمة المرور",
+      "successMessage": "تمت إعادة تعيين كلمة المرور. يرجى تسجيل الدخول بكلمة المرور الجديدة.",
+      "errors": {
+        "nationalIdRequired": "الرقم القومي مطلوب",
+        "nationalIdInvalid": "أدخل رقمًا قوميًا صحيحًا مكونًا من 14 رقمًا",
+        "phoneRequired": "رقم الهاتف مطلوب",
+        "invalidPhone": "أدخل رقم هاتف صحيح",
+        "dateOfBirthRequired": "تاريخ الميلاد مطلوب",
+        "dateOfBirthInvalid": "أدخل تاريخ ميلاد صحيح",
+        "securityAnswerRequired": "يجب أن تكون الإجابة حرفين على الأقل",
+        "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "passwordLowercase": "يجب أن تحتوي كلمة المرور على حرف صغير",
+        "passwordUppercase": "يجب أن تحتوي كلمة المرور على حرف كبير",
+        "passwordNumber": "يجب أن تحتوي كلمة المرور على رقم",
+        "passwordSymbol": "يجب أن تحتوي كلمة المرور على رمز",
+        "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+        "passwordMismatch": "كلمتا المرور غير متطابقتين",
+        "identityFailed": "لم نتمكن من العثور على سجل مريض مطابق لهذه البيانات.",
+        "invalidAnswer": "هذه الإجابة غير صحيحة.",
+        "serverError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
     }
   },
   "createOrganization": {

@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import z from "zod";
+import { SECURITY_QUESTION_KEYS } from "./security-questions";
 
 const PHONE_NUMBER_REGEXES = [
   /^(?:\+20|0020|0)?1[0125]\d{8}$/,
@@ -35,6 +36,15 @@ export const createPatientSignUpSchema = (
         .string()
         .min(1, t("errors.dateOfBirthRequired"))
         .refine(isValidPastDate, t("errors.dateOfBirthInvalid")),
+      securityQuestion: z
+        .string()
+        .refine(
+          (v) => (SECURITY_QUESTION_KEYS as readonly string[]).includes(v),
+          t("errors.securityQuestionRequired"),
+        ),
+      securityAnswer: z
+        .string()
+        .min(2, t("errors.securityAnswerRequired")),
       password: z
         .string()
         .min(8, t("errors.passwordMinLength"))
