@@ -32,6 +32,8 @@ type FetchBranchPatientsParams = {
   journey_type?: ApiJourneyType;
   page?: number;
   limit?: number;
+  /** Restrict to the caller's own patients (doctor's directory). */
+  assigned_to_me?: boolean;
 };
 
 function patientListQuery(params: FetchBranchPatientsParams): string {
@@ -41,6 +43,7 @@ function patientListQuery(params: FetchBranchPatientsParams): string {
   if (params.journey_type)   qs.set("journey_type", params.journey_type);
   if (params.page)           qs.set("page", String(params.page));
   if (params.limit)          qs.set("limit", String(params.limit));
+  if (params.assigned_to_me) qs.set("assigned_to_me", "true");
   const q = qs.toString();
   return q ? `?${q}` : "";
 }
