@@ -775,6 +775,11 @@
   "calendar": {
     "title": "التقويم",
     "newEvent": "+ حدث جديد",
+    "scope": {
+      "label": "نطاق التقويم",
+      "mine": "تقويمي",
+      "branch": "الفرع"
+    },
     "allBranches": "كل الفروع",
     "overview": "نظرة عامة",
     "close": "إغلاق",

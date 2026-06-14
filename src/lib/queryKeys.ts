@@ -103,8 +103,12 @@ export const queryKeys = {
   calendar: {
     /** Broad key — matches all calendar queries. */
     all: () => ["calendar"] as const,
-    events: (branchId: string | undefined, from: string, to: string) =>
-      ["calendar", "events", branchId, from, to] as const,
+    events: (
+      branchId: string | undefined,
+      from: string,
+      to: string,
+      profileId?: string,
+    ) => ["calendar", "events", branchId, from, to, profileId ?? null] as const,
   },
 
   // ── Settings ──────────────────────────────────────────────────────────────

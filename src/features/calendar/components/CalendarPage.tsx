@@ -12,6 +12,7 @@ import {
   isOwner,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { CalendarGrid } from "./CalendarGrid";
@@ -27,8 +28,11 @@ function todayDate() {
   return { year: yyyy, month: mm - 1 };
 }
 
+type CalendarScope = "mine" | "branch";
+
 type CalendarContentProps = {
   branchId: string | undefined;
+  profileId: string | undefined;
   viewYear: number;
   viewMonth: number;
   selectedDate: string;
@@ -43,6 +47,7 @@ type CalendarContentProps = {
 
 function CalendarContent({
   branchId,
+  profileId,
   viewYear,
   viewMonth,
   selectedDate,
@@ -56,7 +61,7 @@ function CalendarContent({
 }: CalendarContentProps) {
   const t = useTranslations("calendar");
   const { from, to } = monthWindowFrom(viewYear, viewMonth);
-  const { data: events } = useCalendarEvents({ branchId, from, to });
+  const { data: events } = useCalendarEvents({ branchId, from, to, profileId });
 
   return (
     <>
@@ -128,6 +133,16 @@ export function CalendarPage() {
   const { data: user } = useCurrentUser();
   const profile = getActiveProfile(user);
   const branchId = useAuthContextStore((s) => s.branchId) ?? undefined;
+  const myProfileId = useAuthContextStore((s) => s.profileId) ?? undefined;
+
+  // Doctors (clinical, non-managerial) default to their own calendar; owners and
+  // branch managers default to the shared branch view. Everyone can toggle.
+  const personalDefault =
+    isClinical(profile) && !isOwner(profile) && !isBranchManager(profile);
+  const [scope, setScope] = useState<CalendarScope>(
+    personalDefault ? "mine" : "branch",
+  );
+  const eventsProfileId = scope === "mine" ? myProfileId : undefined;
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerKey, setDrawerKey] = useState(0);
@@ -201,20 +216,45 @@ export function CalendarPage() {
     <main className="flex min-h-full flex-col gap-4 p-4 lg:h-full lg:gap-6 lg:overflow-hidden lg:p-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-brand-black">{t("title")}</h1>
-        {canCreate && (
-          <Button
-            onClick={handleOpenCreate}
-            className="bg-brand-primary text-white hover:bg-brand-primary/90"
+        <div className="flex items-center gap-3">
+          <div
+            role="group"
+            aria-label={t("scope.label")}
+            className="inline-flex rounded-full border border-gray-200 bg-gray-50 p-0.5 text-xs font-medium"
           >
-            {t("newEvent")}
-          </Button>
-        )}
+            {(["mine", "branch"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={scope === value}
+                onClick={() => setScope(value)}
+                className={cn(
+                  "rounded-full px-3 py-1 transition-colors",
+                  scope === value
+                    ? "bg-white text-brand-black shadow-sm"
+                    : "text-gray-500 hover:text-brand-black",
+                )}
+              >
+                {t(`scope.${value}`)}
+              </button>
+            ))}
+          </div>
+          {canCreate && (
+            <Button
+              onClick={handleOpenCreate}
+              className="bg-brand-primary text-white hover:bg-brand-primary/90"
+            >
+              {t("newEvent")}
+            </Button>
+          )}
+        </div>
       </header>
 
       <div className="grid grid-cols-1 gap-4 lg:min-h-0 lg:flex-1 lg:auto-rows-fr lg:grid-cols-[1fr_300px] lg:grid-rows-1 lg:gap-6">
         <Suspense fallback={<CalendarContentSkeleton />}>
           <CalendarContent
             branchId={branchId}
+            profileId={eventsProfileId}
             viewYear={viewYear}
             viewMonth={viewMonth}
             selectedDate={selectedDate}
