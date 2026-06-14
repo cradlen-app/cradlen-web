@@ -8,6 +8,7 @@ function makeItem(
 ): ApiPatientMedicationItem {
   return {
     id: "item-1",
+    prescription_id: "rx-1",
     name: "Folic acid",
     generic_name: "folic acid",
     strength: "5 mg",
@@ -35,6 +36,7 @@ describe("mapApiMedication", () => {
 
     expect(med).toMatchObject({
       id: "item-1",
+      prescriptionId: "rx-1",
       name: "Folic acid",
       genericName: "folic acid",
       dose: "1 tab",
