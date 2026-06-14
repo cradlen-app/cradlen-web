@@ -100,6 +100,13 @@ function OverviewEntry({ event, canManage, onEdit }: EntryProps) {
               ? t("allDay")
               : formatEventTime(event.startsAt, event.endsAt)}
           </p>
+
+          {event.createdByName && (
+            <p className="mt-0.5 text-[11px] text-gray-500">
+              <span className="text-gray-400">{t("createdBy")}: </span>
+              <span className="text-brand-black">{event.createdByName}</span>
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-1">

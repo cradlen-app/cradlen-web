@@ -151,6 +151,7 @@ export function CalendarGrid({
                     key={ev.id}
                     title={ev.title}
                     type={ev.type}
+                    creatorName={ev.createdByName}
                     isContinuation={cell.iso > localIsoDate(ev.startsAt)}
                   />
                 ))}
