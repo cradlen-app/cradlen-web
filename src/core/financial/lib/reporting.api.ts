@@ -9,6 +9,7 @@ function qs(params?: ReportParams): string {
   if (params?.branch_id) sp.set("branch_id", params.branch_id);
   if (params?.date_from) sp.set("date_from", params.date_from);
   if (params?.date_to) sp.set("date_to", params.date_to);
+  if (params?.doctor_id) sp.set("doctor_id", params.doctor_id);
   const s = sp.toString();
   return s ? `?${s}` : "";
 }

@@ -69,7 +69,15 @@ export function ExaminationTab({ visit, readOnly = false }: Props) {
       <div className="p-6 text-xs text-gray-500">{t("loadError")}</div>
     );
   }
-  if (isNotFound(templateQuery.error) || isNotFound(dataQuery.error)) {
+  // A 404 on the template means the org hasn't published a form for this visit's
+  // specialty (e.g. a pediatric visit in an OBGYN-only org) — surface that
+  // explicitly rather than as a generic load failure.
+  if (isNotFound(templateQuery.error)) {
+    return (
+      <div className="p-6 text-xs text-gray-500">{t("unsupportedSpecialty")}</div>
+    );
+  }
+  if (isNotFound(dataQuery.error)) {
     return (
       <div className="p-6 text-xs text-gray-500">{t("loadError")}</div>
     );
