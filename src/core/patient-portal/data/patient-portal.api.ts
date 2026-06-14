@@ -403,6 +403,39 @@ export async function changePassword({
   });
 }
 
+/** The account's current security-question key (null if none set yet). */
+export async function fetchSecurityQuestion(): Promise<string | null> {
+  const me = await apiFetch<{ data: { security_question: string | null } }>(
+    "/api/patient-auth/me",
+  );
+  return me.data.security_question ?? null;
+}
+
+/**
+ * Sets or updates the account's security question + answer. Requires the
+ * current password (the backend re-verifies it). Returns nothing (backend
+ * replies 204). Only the question key + answer are sent; the answer is hashed
+ * server-side and never read back.
+ */
+export async function setSecurityQuestion({
+  securityQuestion,
+  securityAnswer,
+  currentPassword,
+}: {
+  securityQuestion: string;
+  securityAnswer: string;
+  currentPassword: string;
+}): Promise<void> {
+  await apiFetch("/api/patient-auth/security-question", {
+    method: "POST",
+    body: JSON.stringify({
+      security_question: securityQuestion,
+      security_answer: securityAnswer,
+      current_password: currentPassword,
+    }),
+  });
+}
+
 /** Removes a result file the patient uploaded (allowed before review). */
 export async function removeInvestigationAttachment({
   investigationId,

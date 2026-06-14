@@ -10,6 +10,9 @@ export const patientPortalQueryKeys = {
   all: () => ["patient-portal"] as const,
   /** The authenticated patient/guardian identity from /patient-auth/me. */
   me: () => ["patient-portal", "me"] as const,
+  /** The account's security-question key (child of `me`, so `me()` invalidation refreshes it). */
+  securityQuestion: () =>
+    ["patient-portal", "me", "security-question"] as const,
   profiles: () => ["patient-portal", "profiles"] as const,
   profileDetails: (patientId: string) =>
     ["patient-portal", "profile-details", patientId] as const,
