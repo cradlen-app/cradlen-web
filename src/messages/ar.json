@@ -1324,6 +1324,7 @@
       "saveError": "تعذر حفظ الفحص.",
       "loading": "جاري تحميل الفحص…",
       "loadError": "تعذر تحميل الفحص.",
+      "unsupportedSpecialty": "لا تدعم هذه المؤسسة توثيق هذا التخصص بعد.",
       "showSection": "إظهار مجموعة الأقسام",
       "hideSection": "إخفاء مجموعة الأقسام",
       "versionLabel": "نسخة {version}",

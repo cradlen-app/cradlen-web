@@ -96,6 +96,20 @@ const TABS_WITH_BRANCH: Tab[] = [
   "outstanding",
 ];
 
+/**
+ * Tabs shown to a doctor viewing only their own revenue. Excludes the org-wide
+ * surfaces (by-doctor, by-branch, collections-by-staff, write-offs) that don't
+ * apply to a single provider.
+ */
+const OWN_TABS: Tab[] = [
+  "overview",
+  "daily",
+  "byService",
+  "byMethod",
+  "arAging",
+  "outstanding",
+];
+
 const CHART_COLORS = [
   "#11604C",
   "#AAB37D",
@@ -115,9 +129,18 @@ const ORG_WIDE = "__org_wide__";
 
 export function ReportsPage() {
   const t = useTranslations("financial.reports");
-  const { activeProfile, branchId: activeBranchId, isOwner } =
-    useUserProfileContext();
+  const {
+    activeProfile,
+    branchId: activeBranchId,
+    isOwner,
+    isBranchManager,
+    currentUserStaffId,
+  } = useUserProfileContext();
   const branches = getProfileBranches(activeProfile);
+
+  // Org-wide viewers (owner / branch manager) get the full dashboard; any other
+  // permitted viewer (a matched-specialty doctor) sees only their own revenue.
+  const ownReportsOnly = !(isOwner || isBranchManager);
 
   const [tab, setTab] = useState<Tab>("overview");
   const [fromInput, setFromInput] = useState("");
@@ -136,15 +159,23 @@ export function ReportsPage() {
   // the branch selector like every other panel — a specific branch shows just
   // that branch, "All branches" shows the full comparison (see reportParams).
   const showBranchAnalytics = isOwner && branches.length > 1;
-  const visibleTabs = showBranchAnalytics ? TABS_WITH_BRANCH : TABS;
+  const visibleTabs = ownReportsOnly
+    ? OWN_TABS
+    : showBranchAnalytics
+      ? TABS_WITH_BRANCH
+      : TABS;
 
-  // Compose the branch dimension with the applied date range.
+  // Compose the branch dimension with the applied date range. Own-revenue
+  // doctors additionally scope every report to their own provider id.
   const reportParams = useMemo<ReportParams>(
     () => ({
       ...(effectiveBranchId ? { branch_id: effectiveBranchId } : {}),
+      ...(ownReportsOnly && currentUserStaffId
+        ? { doctor_id: currentUserStaffId }
+        : {}),
       ...params,
     }),
-    [effectiveBranchId, params],
+    [effectiveBranchId, ownReportsOnly, currentUserStaffId, params],
   );
 
   function applyRange() {
@@ -159,7 +190,7 @@ export function ReportsPage() {
       <div className="flex flex-col gap-5">
         {/* Filters: branch scope + date range */}
         <div className="flex flex-wrap items-end gap-3">
-          {(isOwner || branches.length > 1) && (
+          {!ownReportsOnly && (isOwner || branches.length > 1) && (
             <label className="flex flex-col gap-1 text-xs text-gray-500">
               {t("filters.branch")}
               <Select
@@ -235,6 +266,7 @@ export function ReportsPage() {
             <OverviewPanel
               params={reportParams}
               showBranchAnalytics={showBranchAnalytics}
+              ownScope={ownReportsOnly}
             />
           )}
           {tab === "daily" && <DailyPanel params={reportParams} />}
@@ -440,9 +472,12 @@ function KpiSkeleton() {
 function OverviewPanel({
   params,
   showBranchAnalytics,
+  ownScope = false,
 }: {
   params: ReportParams;
   showBranchAnalytics: boolean;
+  /** Own-revenue doctor view: hide the cross-provider "top doctors" breakdown. */
+  ownScope?: boolean;
 }) {
   const t = useTranslations("financial.reports.labels");
   const tSection = useTranslations("financial.reports.sections");
@@ -453,6 +488,7 @@ function OverviewPanel({
   const byDoctor = useFinancialReport<RevenueByDoctorReport>(
     "revenue-by-doctor",
     params,
+    { enabled: !ownScope },
   );
   const byService = useFinancialReport<RevenueByServiceReport>(
     "revenue-by-service",
@@ -569,11 +605,13 @@ function OverviewPanel({
         )}
       </SectionCard>
 
-      {/* Top doctors / Top services */}
-      <div className="grid gap-5 lg:grid-cols-2">
-        <SectionCard title={tSection("topDoctors")}>
-          {byDoctor.isLoading ? <Loading /> : <RankedBars rows={topDoctors} />}
-        </SectionCard>
+      {/* Top doctors / Top services — the by-doctor breakdown is org-wide only. */}
+      <div className={cn("grid gap-5", !ownScope && "lg:grid-cols-2")}>
+        {!ownScope && (
+          <SectionCard title={tSection("topDoctors")}>
+            {byDoctor.isLoading ? <Loading /> : <RankedBars rows={topDoctors} />}
+          </SectionCard>
+        )}
         <SectionCard title={tSection("topServices")}>
           {byService.isLoading ? <Loading /> : <RankedBars rows={topServices} />}
         </SectionCard>

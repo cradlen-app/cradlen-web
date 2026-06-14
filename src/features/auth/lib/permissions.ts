@@ -84,6 +84,49 @@ export function isDoctor(profile?: UserProfile): boolean {
   return DOCTOR_JOB_FUNCTIONS.some((c) => codes.has(c));
 }
 
+/** Upper-case specialty codes from a mixed `UserSpecialty | string` list. */
+function specialtyCodes(
+  list: readonly (string | { code?: string | null })[] | undefined,
+): Set<string> {
+  const codes = new Set<string>();
+  for (const entry of list ?? []) {
+    const raw = typeof entry === "string" ? entry : entry?.code;
+    if (raw) codes.add(raw.toUpperCase());
+  }
+  return codes;
+}
+
+/**
+ * Whether the staff member shares at least one specialty with their
+ * organization. Compares the profile's own `specialties[]` against the org's
+ * published `organization.specialties[]` (both normalized to upper-case codes;
+ * the deprecated misspelled `organization.specialities` string[] is a fallback).
+ *
+ * If the org publishes no specialties at all (misconfigured / not yet set up),
+ * we treat everyone as supported rather than locking the whole org out.
+ */
+export function specialtyMatchesOrg(profile?: UserProfile): boolean {
+  const orgList =
+    profile?.organization?.specialties ?? profile?.organization?.specialities;
+  const orgCodes = specialtyCodes(orgList);
+  if (orgCodes.size === 0) return true;
+
+  const staffCodes = specialtyCodes(profile?.specialties);
+  for (const code of staffCodes) {
+    if (orgCodes.has(code)) return true;
+  }
+  return false;
+}
+
+/**
+ * A clinician whose specialty is supported by the organization — i.e. they can
+ * actually practice (document visits, see the medicine catalogue, view their
+ * own financials) here. Drives the matched-vs-mismatched doctor distinction.
+ */
+export function canPracticeSpecialty(profile?: UserProfile): boolean {
+  return isClinical(profile) && specialtyMatchesOrg(profile);
+}
+
 /** Who may open the read-only patient workspace: owners, branch managers, and doctors. */
 export function canOpenPatientWorkspace(profile?: UserProfile): boolean {
   return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);

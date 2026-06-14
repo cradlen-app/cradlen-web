@@ -3,8 +3,9 @@ import type {
   PermissionPredicate,
 } from "@/common/kernel-contracts";
 import {
-  canAccessMedicine,
+  canPracticeSpecialty,
   hasAnyStaffRole,
+  isBranchManager,
   isOwner,
   isReceptionist,
 } from "@/features/auth/lib/permissions";
@@ -35,8 +36,19 @@ const fromCtx =
   (ctx: AuthContext) =>
     fn(ctx.profile as Profile);
 
+/**
+ * Medicine catalogue is clinical-facing, but only for clinicians whose specialty
+ * the organization actually supports — a mismatched-specialty doctor can't
+ * practice here, so the catalogue (and prescribing) stays hidden. Owners and
+ * branch managers always see it.
+ */
+function _canAccessMedicine(profile: Profile): boolean {
+  const p = profile ?? undefined;
+  return isOwner(p) || isBranchManager(p) || canPracticeSpecialty(p);
+}
+
 export const shellPermissions = {
   "dashboard.home": fromCtx(_canSeeDashboardHome),
-  "medicine.read": fromCtx((p) => canAccessMedicine(p ?? undefined)),
+  "medicine.read": fromCtx(_canAccessMedicine),
   "medicalRep.view": fromCtx((p) => isOwner(p ?? undefined)),
 } as const;

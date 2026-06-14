@@ -1324,6 +1324,7 @@
       "saveError": "Could not save examination.",
       "loading": "Loading examination…",
       "loadError": "Could not load examination.",
+      "unsupportedSpecialty": "This organization doesn't support documenting this specialty yet.",
       "showSection": "Show section group",
       "hideSection": "Hide section group",
       "versionLabel": "v{version}",
