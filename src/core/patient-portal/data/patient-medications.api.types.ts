@@ -8,6 +8,8 @@
 
 export interface ApiPatientMedicationItem {
   id: string;
+  /** Id of the prescription this medicine belongs to (groups items together). */
+  prescription_id: string;
   name: string;
   generic_name: string | null;
   strength: string | null;

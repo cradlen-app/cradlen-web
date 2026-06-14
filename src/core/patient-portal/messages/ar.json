@@ -3,7 +3,7 @@
     "home": "الرئيسية",
     "record": "السجل",
     "visits": "الزيارات",
-    "medications": "الأدوية",
+    "medications": "الوصفات الطبية",
     "tests": "الفحوصات",
     "appointments": "المواعيد",
     "documents": "المستندات",
@@ -85,16 +85,15 @@
     }
   },
   "medications": {
-    "title": "الأدوية",
-    "active": "الحالية",
-    "past": "السابقة",
+    "title": "الوصفات الطبية",
+    "prescribedOn": "صرفت بتاريخ {date}",
     "dose": "الجرعة",
     "frequency": "التكرار",
     "route": "طريق الإعطاء",
     "instructions": "تعليمات",
     "prescribedBy": "وصفها",
     "since": "منذ {date}",
-    "none": "لا توجد أدوية مسجلة",
+    "none": "لا توجد وصفات طبية مسجلة",
     "everyHours": "كل {count} ساعة",
     "class": {
       "antibiotic": "مضاد حيوي",

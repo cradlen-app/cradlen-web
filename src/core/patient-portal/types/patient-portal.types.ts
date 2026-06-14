@@ -161,6 +161,8 @@ export type MedicationClass =
 
 export interface PortalMedication {
   id: string;
+  /** Id of the prescription this medicine was written in (groups items). */
+  prescriptionId: string;
   name: string;
   genericName?: string;
   dose: string;
@@ -190,6 +192,17 @@ export interface PortalMedication {
   foodTiming?: FoodTiming;
   /** Total course length in days; formatted as days/weeks/months. */
   courseDays?: number;
+}
+
+/** A prescription: the set of medicines a doctor wrote at one visit. */
+export interface PortalPrescription {
+  id: string;
+  /** ISO timestamp the prescription was issued (header date, newest-first sort key). */
+  prescribedAt: string;
+  doctorName: string;
+  clinic: Clinic;
+  organizationName?: string;
+  items: PortalMedication[];
 }
 
 /**
