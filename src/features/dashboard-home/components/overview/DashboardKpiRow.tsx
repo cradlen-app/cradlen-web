@@ -26,6 +26,8 @@ type Props = {
   showRevenue: boolean;
   /** Owners / managers / clinical staff: include the patients total. */
   showPatients: boolean;
+  /** Doctor personal view: count only the viewer's own visits/patients. */
+  mine?: boolean;
 };
 
 /**
@@ -39,11 +41,12 @@ export function DashboardKpiRow({
   orgWide,
   showRevenue,
   showPatients,
+  mine = false,
 }: Props) {
   const t = useTranslations("dashboardHome.overview");
 
-  const visits = useVisitMonthlyStats(branchId, { orgWide, orgId });
-  const patients = usePatientStats(branchId, { orgWide });
+  const visits = useVisitMonthlyStats(branchId, { orgWide, orgId, mine });
+  const patients = usePatientStats(branchId, { orgWide, mine });
 
   // Collected revenue as a MoM flow: one report for this month, one for last.
   const branchParam: ReportParams = orgWide ? {} : { branch_id: branchId };

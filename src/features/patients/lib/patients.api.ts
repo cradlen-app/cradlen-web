@@ -62,9 +62,10 @@ export function fetchOrgPatients(params: FetchBranchPatientsParams = {}) {
 }
 
 /** Branch patient analytics: total + per-care-path counts with MoM trend. */
-export function fetchBranchPatientStats(branchId: string) {
+export function fetchBranchPatientStats(branchId: string, mine = false) {
+  const qs = mine ? "?assigned_to_me=true" : "";
   return apiAuthFetch<ApiPatientStatsResponse>(
-    `/branches/${branchId}/patients/stats`,
+    `/branches/${branchId}/patients/stats${qs}`,
   );
 }
 
