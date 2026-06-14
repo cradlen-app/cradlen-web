@@ -19,9 +19,12 @@ export const queryKeys = {
       ["visits", branchId, "schedule", date, assignedToMe] as const,
     stats: (branchId: string, date: string, assignedToMe: boolean) =>
       ["visits", branchId, "stats", date, assignedToMe] as const,
-    /** Monthly visit analytics. `scope` = "org" (owner) or the branch id. */
-    monthlyStats: (scope: string) =>
-      ["visits", scope, "monthly-stats"] as const,
+    /**
+     * Monthly visit analytics. `scope` = "org" (owner) or the branch id;
+     * `mine` narrows to the current doctor's own visits.
+     */
+    monthlyStats: (scope: string, mine = false) =>
+      ["visits", scope, "monthly-stats", mine] as const,
     branchWaitingList: (
       branchId: string,
       opts: { page: number; limit: number },
@@ -71,8 +74,12 @@ export const queryKeys = {
   patients: {
     list: (branchId: string, opts: { search?: string; journeyStatus?: string }) =>
       ["patients", branchId, opts.search, opts.journeyStatus] as const,
-    /** Analytics cards. `scope` = "org" (owner) or the branch id. */
-    stats: (scope: string) => ["patients", scope, "stats"] as const,
+    /**
+     * Analytics cards. `scope` = "org" (owner) or the branch id; `mine`
+     * narrows to the current doctor's own patients.
+     */
+    stats: (scope: string, mine = false) =>
+      ["patients", scope, "stats", mine] as const,
     search: (query: string) => ["patients", "search", query] as const,
     byId: (id: string) => ["patients", "byId", id] as const,
   },

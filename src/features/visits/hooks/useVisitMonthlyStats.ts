@@ -12,6 +12,8 @@ type UseVisitMonthlyStatsParams = {
   orgWide?: boolean;
   /** Required when `orgWide` is true — the organization to aggregate. */
   orgId?: string;
+  /** Narrow to the current doctor's own visits (branch scope only). */
+  mine?: boolean;
 };
 
 /** Monthly visit analytics (total / visits / follow-ups with MoM trend + daily series). */
@@ -20,12 +22,16 @@ export function useVisitMonthlyStats(
   params: UseVisitMonthlyStatsParams = {},
 ) {
   const orgWide = params.orgWide ?? false;
+  const mine = !orgWide && (params.mine ?? false);
   return useQuery({
-    queryKey: queryKeys.visits.monthlyStats(orgWide ? "org" : branchId ?? ""),
+    queryKey: queryKeys.visits.monthlyStats(
+      orgWide ? "org" : branchId ?? "",
+      mine,
+    ),
     queryFn: async () => {
       const res = orgWide
         ? await fetchOrgVisitStats(params.orgId!)
-        : await fetchBranchVisitStats(branchId!);
+        : await fetchBranchVisitStats(branchId!, mine);
       return res.data;
     },
     enabled: orgWide ? !!params.orgId : !!branchId,
