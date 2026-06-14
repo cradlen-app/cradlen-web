@@ -21,6 +21,8 @@ import { usePatientStats } from "../hooks/usePatientStats";
 type Props = {
   branchId?: string;
   orgWide: boolean;
+  /** Doctor personal view: count only the viewer's own patients. Defaults to false. */
+  mine?: boolean;
 };
 
 /** Icon hint per known journey type; unknown/new types fall back to a generic icon. */
@@ -50,9 +52,9 @@ export function PatientStatCardsSkeleton() {
  * patients, new this month, and the two largest care paths (specialty-agnostic —
  * labels come from the API), each with a month-over-month trend chip.
  */
-export function PatientStatCards({ branchId, orgWide }: Props) {
+export function PatientStatCards({ branchId, orgWide, mine = false }: Props) {
   const t = useTranslations("patients.stats");
-  const { data, isLoading } = usePatientStats(branchId, { orgWide });
+  const { data, isLoading } = usePatientStats(branchId, { orgWide, mine });
 
   if (isLoading) return <PatientStatCardsSkeleton />;
   if (!data) return null;

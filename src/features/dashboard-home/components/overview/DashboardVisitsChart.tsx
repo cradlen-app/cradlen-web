@@ -16,15 +16,26 @@ type Props = {
   branchId?: string;
   orgId?: string;
   orgWide: boolean;
+  /** Doctor personal view: chart only the viewer's own visits. */
+  mine?: boolean;
 };
 
 const VISITS_COLOR = "#11604C";
 const FOLLOW_UPS_COLOR = "#AAB37D";
 
 /** Daily attended visits vs follow-ups across the current month. */
-export function DashboardVisitsChart({ branchId, orgId, orgWide }: Props) {
+export function DashboardVisitsChart({
+  branchId,
+  orgId,
+  orgWide,
+  mine = false,
+}: Props) {
   const t = useTranslations("dashboardHome.overview");
-  const { data, isLoading } = useVisitMonthlyStats(branchId, { orgWide, orgId });
+  const { data, isLoading } = useVisitMonthlyStats(branchId, {
+    orgWide,
+    orgId,
+    mine,
+  });
 
   const rows = data?.daily ?? [];
 
