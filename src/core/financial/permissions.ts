@@ -7,6 +7,7 @@ import {
   canAccessBilling,
   canManageBillingAdmin,
   canManageOwnPrices,
+  canPracticeSpecialty,
   isBranchManager,
   isDoctor,
   isOwner,
@@ -30,7 +31,8 @@ import {
  * - Clinical staff → manage their own provider price overrides
  *   (`canManageOwnPrices`).
  * - Doctors (and owners) → capture charges on a visit.
- * - Owner / branch manager → view financial reports.
+ * - Owner / branch manager → view org-wide financial reports; a matched-specialty
+ *   clinician → view their own (server-scoped) revenue reports.
  */
 
 type Profile = UserProfile | null | undefined;
@@ -75,9 +77,27 @@ function _canCaptureCharge(profile: Profile): boolean {
   return isDoctor(profile ?? undefined) || isOwner(profile ?? undefined);
 }
 
-/** View aggregated financial reports. */
+/** View aggregated, org-wide financial reports. */
 function _canViewReports(profile: Profile): boolean {
   return isOwner(profile ?? undefined) || isBranchManager(profile ?? undefined);
+}
+
+/**
+ * View one's OWN revenue reports — a matched-specialty clinician. The data is
+ * scoped to the requesting doctor server-side; this only gates visibility of a
+ * personal (not org-wide) reports view.
+ */
+function _canViewOwnReports(profile: Profile): boolean {
+  return canPracticeSpecialty(profile ?? undefined);
+}
+
+/**
+ * Reports nav/route gate: either an org-wide viewer (owner / branch manager) or
+ * a matched clinician viewing their own revenue. The `ReportsPage` itself reads
+ * the org-wide flag to decide between the full dashboard and the own-scoped view.
+ */
+function _canViewReportsNav(profile: Profile): boolean {
+  return _canViewReports(profile) || _canViewOwnReports(profile);
 }
 
 export const financialCan = {
@@ -90,6 +110,8 @@ export const financialCan = {
   manageProviderPricing: _canManageProviderPricing,
   captureCharge: _canCaptureCharge,
   viewReports: _canViewReports,
+  viewOwnReports: _canViewOwnReports,
+  viewReportsNav: _canViewReportsNav,
 } as const;
 
 const fromCtx =
@@ -107,4 +129,6 @@ export const financialPermissions = {
   "financial.manageProviderPricing": fromCtx(_canManageProviderPricing),
   "financial.captureCharge": fromCtx(_canCaptureCharge),
   "financial.viewReports": fromCtx(_canViewReports),
+  "financial.viewOwnReports": fromCtx(_canViewOwnReports),
+  "financial.viewReportsNav": fromCtx(_canViewReportsNav),
 } as const;
