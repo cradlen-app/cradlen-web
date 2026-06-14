@@ -52,6 +52,7 @@ export function mapApiMedication(
 
   return {
     id: item.id,
+    prescriptionId: item.prescription_id,
     name: item.name,
     genericName: item.generic_name ?? undefined,
     dose: item.dose,
