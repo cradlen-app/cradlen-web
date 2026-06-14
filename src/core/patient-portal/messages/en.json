@@ -3,7 +3,7 @@
     "home": "Home",
     "record": "Record",
     "visits": "Visits",
-    "medications": "Meds",
+    "medications": "Prescriptions",
     "tests": "Tests",
     "appointments": "Appointments",
     "documents": "Documents",
@@ -85,16 +85,15 @@
     }
   },
   "medications": {
-    "title": "Medications",
-    "active": "Current",
-    "past": "Past",
+    "title": "Prescriptions",
+    "prescribedOn": "Prescribed {date}",
     "dose": "Dose",
     "frequency": "Frequency",
     "route": "Route",
     "instructions": "Instructions",
     "prescribedBy": "Prescribed by",
     "since": "Since {date}",
-    "none": "No medications on record",
+    "none": "No prescriptions on record",
     "everyHours": "{count} h",
     "class": {
       "antibiotic": "Antibiotic",
