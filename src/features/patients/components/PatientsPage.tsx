@@ -10,6 +10,8 @@ import { getActiveProfile } from "@/features/auth/lib/current-user";
 import {
   canOpenPatientWorkspace,
   canViewPatientAnalytics,
+  isBranchManager,
+  isClinical,
   isOwner,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
@@ -62,6 +64,12 @@ export function PatientsPage() {
   const canOpen = canOpenPatientWorkspace(activeProfile);
   const canViewAnalytics = canViewPatientAnalytics(activeProfile);
   const owner = isOwner(activeProfile);
+  // A doctor (clinical, non-managerial) sees only their own patients; reception,
+  // owners and branch managers keep the full branch directory.
+  const personalScope =
+    isClinical(activeProfile) &&
+    !owner &&
+    !isBranchManager(activeProfile);
   const [filter, setFilter] = useState<PatientFilter>("all");
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
@@ -73,6 +81,7 @@ export function PatientsPage() {
     search: deferredSearch || undefined,
     journeyStatus: toJourneyStatusParam(filter),
     orgWide,
+    mine: personalScope,
   });
 
   const patients = data?.patients ?? [];
@@ -103,7 +112,11 @@ export function PatientsPage() {
       <PatientsHeader />
 
       {canViewAnalytics && !noBranch && (
-        <PatientStatCards branchId={branchId ?? undefined} orgWide={orgWide} />
+        <PatientStatCards
+          branchId={branchId ?? undefined}
+          orgWide={orgWide}
+          mine={personalScope}
+        />
       )}
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white/50">
