@@ -1006,6 +1006,8 @@
       "close": "Close",
       "loading": "Loading prescription…",
       "empty": "No medications were prescribed for this visit.",
+      "error": "Could not load the prescription.",
+      "retry": "Retry",
       "license": "License",
       "date": "Date",
       "patient": "Patient",
