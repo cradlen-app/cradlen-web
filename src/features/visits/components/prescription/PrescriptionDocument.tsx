@@ -31,11 +31,15 @@ export function PrescriptionDocument({ template, document }: Props) {
     });
 
   return (
-    <div className="space-y-4">
+    // In print, become a full-height flex column so the footer block (which gets
+    // `print:mt-auto`) is pushed to the bottom of the page.
+    <div className="space-y-4 print:flex print:min-h-full print:flex-1 print:flex-col">
       {rendered.map((b, i) => (
         <div
           key={`${b.key}-${i}`}
-          className={`${blockSeparatorClass(i)} empty:hidden`}
+          className={`${blockSeparatorClass(i)} empty:hidden ${
+            b.key === "footer" ? "print:mt-auto!" : ""
+          }`}
         >
           {b.node}
         </div>
