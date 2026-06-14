@@ -527,7 +527,8 @@
         "passwordSymbol": "Password must contain a symbol",
         "invalidCredentials": "Invalid National ID or password",
         "serverError": "Something went wrong. Please try again."
-      }
+      },
+      "forgotPassword": "Forgot password?"
     },
     "patientSignUp": {
       "alreadyHaveAccount": "Already have an account?",
@@ -562,8 +563,14 @@
         "confirmPasswordRequired": "Please confirm your password",
         "passwordMismatch": "Passwords do not match",
         "signupStartFailed": "We couldn't find a patient record matching these details.",
-        "serverError": "Something went wrong. Please try again."
-      }
+        "serverError": "Something went wrong. Please try again.",
+        "securityQuestionRequired": "Please choose a security question",
+        "securityAnswerRequired": "Answer must be at least 2 characters"
+      },
+      "securityQuestionLabel": "Security question",
+      "securityQuestionPlaceholder": "Choose a question",
+      "securityAnswerLabel": "Answer",
+      "securityAnswerPlaceholder": "Your answer"
     },
     "selectProfile": {
       "title": "Select profile",
@@ -586,6 +593,54 @@
       "selectBranch": "Select your branch",
       "selectBranchSubtitle": "Choose the branch you want to work in.",
       "createOrganization": "Create new organization"
+    },
+    "securityQuestions": {
+      "MOTHERS_MAIDEN_NAME": "What is your mother’s maiden name?",
+      "BIRTH_CITY": "In which city were you born?",
+      "FIRST_SCHOOL": "What was the name of your first school?",
+      "CHILDHOOD_NICKNAME": "What was your childhood nickname?",
+      "FAVORITE_TEACHER": "Who was your favorite teacher?"
+    },
+    "patientForgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Verify your identity to set a new password.",
+      "backToSignIn": "Back to sign in",
+      "nationalIdLabel": "National ID",
+      "nationalIdPlaceholder": "14-digit National ID",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "+20 100 000 0000",
+      "dateOfBirthLabel": "Date of birth",
+      "securityQuestionLabel": "Security question",
+      "securityAnswerLabel": "Answer",
+      "securityAnswerPlaceholder": "Your answer",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "Enter a new password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Enter your password again",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "continueButton": "Continue",
+      "resetButton": "Reset password",
+      "successMessage": "Password reset. Please sign in with your new password.",
+      "errors": {
+        "nationalIdRequired": "National ID is required",
+        "nationalIdInvalid": "Enter a valid 14-digit National ID",
+        "phoneRequired": "Phone number is required",
+        "invalidPhone": "Enter a valid phone number",
+        "dateOfBirthRequired": "Date of birth is required",
+        "dateOfBirthInvalid": "Enter a valid date of birth",
+        "securityAnswerRequired": "Answer must be at least 2 characters",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordLowercase": "Password must contain a lowercase letter",
+        "passwordUppercase": "Password must contain an uppercase letter",
+        "passwordNumber": "Password must contain a number",
+        "passwordSymbol": "Password must contain a symbol",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordMismatch": "Passwords do not match",
+        "identityFailed": "We couldn’t find a patient record matching these details.",
+        "invalidAnswer": "That answer is incorrect.",
+        "serverError": "Something went wrong. Please try again."
+      }
     }
   },
   "createOrganization": {
