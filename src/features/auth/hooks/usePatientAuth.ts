@@ -5,6 +5,9 @@ import { queryClient } from "@/infrastructure/query/queryClient";
 import { patientPortalQueryKeys } from "@/core/patient-portal/api";
 import type {
   PatientAuthenticatedResponse,
+  PatientForgotPasswordCompleteRequest,
+  PatientForgotPasswordStartRequest,
+  PatientForgotPasswordStartResponse,
   PatientLoginRequest,
   PatientMeResponse,
   PatientSignupCompleteRequest,
@@ -39,6 +42,32 @@ export function usePatientSignupComplete() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+  });
+}
+
+export function usePatientForgotPasswordStart() {
+  return useMutation({
+    mutationFn: (data: PatientForgotPasswordStartRequest) =>
+      apiFetch<PatientForgotPasswordStartResponse>(
+        "/api/patient-auth/forgot-password/start",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        },
+      ).then((r) => r.data),
+  });
+}
+
+export function usePatientForgotPasswordComplete() {
+  return useMutation({
+    mutationFn: (data: PatientForgotPasswordCompleteRequest) =>
+      apiFetch<PatientAuthenticatedResponse>(
+        "/api/patient-auth/forgot-password/complete",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        },
+      ),
   });
 }
 
