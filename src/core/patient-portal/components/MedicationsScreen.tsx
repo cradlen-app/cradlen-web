@@ -1,26 +1,24 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
+import { useMemo } from "react";
+import { CalendarDays, Stethoscope } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { cn } from "@/common/utils/utils";
 import { formatDate } from "../lib/format";
-import { MED_FORM_ICON } from "../lib/medications";
+import { groupIntoPrescriptions, MED_FORM_ICON } from "../lib/medications";
 import { useMedications } from "../hooks/usePortalData";
-import type { PortalMedication } from "../types/patient-portal.types";
+import type {
+  PortalMedication,
+  PortalPrescription,
+} from "../types/patient-portal.types";
 import { EmptyState, ScreenHeader } from "./portal-ui";
 
 export function MedicationsScreen() {
   const t = useTranslations("patientPortal");
   const { data: meds, isLoading } = useMedications();
 
-  const active = useMemo(
-    () => (meds ?? []).filter((m) => m.status === "active"),
-    [meds],
-  );
-  const past = useMemo(
-    () => (meds ?? []).filter((m) => m.status === "past"),
+  const prescriptions = useMemo(
+    () => groupIntoPrescriptions(meds ?? []),
     [meds],
   );
 
@@ -30,107 +28,72 @@ export function MedicationsScreen() {
 
       {isLoading ? (
         <EmptyState message={t("common.loading")} />
-      ) : (meds?.length ?? 0) === 0 ? (
+      ) : prescriptions.length === 0 ? (
         <EmptyState message={t("medications.none")} />
       ) : (
-        <>
-          <CollapsibleSection title={t("medications.active")} count={active.length}>
-            {active.length === 0 ? (
-              <p className="py-1 text-sm text-gray-400">
-                {t("medications.none")}
-              </p>
-            ) : (
-              <MedGrid meds={active} />
-            )}
-          </CollapsibleSection>
-
-          {past.length > 0 && (
-            <CollapsibleSection
-              title={t("medications.past")}
-              count={past.length}
-              defaultOpen={false}
-            >
-              <MedGrid meds={past} muted />
-            </CollapsibleSection>
-          )}
-        </>
+        <div className="space-y-4">
+          {prescriptions.map((rx) => (
+            <PrescriptionCard key={rx.id} prescription={rx} />
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
-/** Collapsible card matching the portal's `SectionCard` styling, with a chevron. */
-function CollapsibleSection({
-  title,
-  count,
-  defaultOpen = true,
-  children,
+/** One prescription: a dated header (doctor/clinic) plus the medicines inside it. */
+function PrescriptionCard({
+  prescription,
 }: {
-  title: string;
-  count?: number;
-  defaultOpen?: boolean;
-  children: ReactNode;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2"
-      >
-        <span className="flex items-center gap-2">
-          <h2 className="text-xs font-bold uppercase tracking-wide text-gray-400">
-            {title}
-          </h2>
-          {count != null && (
-            <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
-              {count}
-            </span>
-          )}
-        </span>
-        <ChevronDown
-          className={cn(
-            "size-4 text-gray-400 transition-transform",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-      {open && <div className="mt-3">{children}</div>}
-    </section>
-  );
-}
-
-function MedGrid({ meds, muted }: { meds: PortalMedication[]; muted?: boolean }) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {meds.map((m) => (
-        <MedicationCard key={m.id} med={m} muted={muted} />
-      ))}
-    </div>
-  );
-}
-
-function MedicationCard({
-  med,
-  muted,
-}: {
-  med: PortalMedication;
-  muted?: boolean;
+  prescription: PortalPrescription;
 }) {
   const t = useTranslations("patientPortal");
   const locale = useLocale();
 
+  const clinicLabel =
+    prescription.organizationName ?? prescription.clinic.name;
+
+  return (
+    <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      <header className="flex flex-wrap items-start justify-between gap-2 border-b border-gray-100 pb-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-brand-primary">
+            <CalendarDays className="size-3.5 shrink-0" />
+            {t("medications.prescribedOn", {
+              date: formatDate(prescription.prescribedAt, locale),
+            })}
+          </p>
+          {prescription.doctorName && (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+              <Stethoscope className="size-3.5 shrink-0" />
+              <span className="truncate">{prescription.doctorName}</span>
+            </p>
+          )}
+        </div>
+        {clinicLabel && (
+          <span className="shrink-0 rounded-full bg-brand-secondary/10 px-2 py-0.5 text-[11px] font-medium text-brand-primary">
+            {clinicLabel}
+          </span>
+        )}
+      </header>
+
+      <ul className="mt-3 flex flex-col gap-2">
+        {prescription.items.map((med) => (
+          <MedicineRow key={med.id} med={med} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** A single medicine within a prescription card. */
+function MedicineRow({ med }: { med: PortalMedication }) {
+  const t = useTranslations("patientPortal");
+
   const Icon = MED_FORM_ICON[med.form ?? "other"];
 
   return (
-    <article
-      className={cn(
-        "flex flex-col rounded-xl border border-gray-100 bg-white p-3",
-        muted && "opacity-70",
-      )}
-    >
+    <li className="flex flex-col rounded-xl border border-gray-100 bg-white p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-secondary/10 text-brand-primary">
@@ -159,20 +122,11 @@ function MedicationCard({
           />
         )}
       </div>
-
-      <div className="mt-2 flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
-        <span className="truncate text-xs text-gray-500">
-          {med.prescriberName}
-        </span>
-        <span className="shrink-0 text-[10px] uppercase tracking-wide text-gray-400">
-          {formatDate(med.startDate, locale)}
-        </span>
-      </div>
-    </article>
+    </li>
   );
 }
 
-/** A single labeled detail row inside a medication card. */
+/** A single labeled detail row inside a medicine row. */
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-3 text-xs">
