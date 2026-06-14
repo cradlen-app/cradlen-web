@@ -72,8 +72,17 @@ export const queryKeys = {
 
   // ── Patients ──────────────────────────────────────────────────────────────
   patients: {
-    list: (branchId: string, opts: { search?: string; journeyStatus?: string }) =>
-      ["patients", branchId, opts.search, opts.journeyStatus] as const,
+    list: (
+      branchId: string,
+      opts: { search?: string; journeyStatus?: string; mine?: boolean },
+    ) =>
+      [
+        "patients",
+        branchId,
+        opts.search,
+        opts.journeyStatus,
+        opts.mine ?? false,
+      ] as const,
     /**
      * Analytics cards. `scope` = "org" (owner) or the branch id; `mine`
      * narrows to the current doctor's own patients.
