@@ -8,12 +8,14 @@ type Params = {
   branchId?: string;
   from: string;
   to: string;
+  /** When set, narrows to this profile's own events ("My calendar" view). */
+  profileId?: string;
 };
 
-export function useCalendarEvents({ branchId, from, to }: Params) {
+export function useCalendarEvents({ branchId, from, to, profileId }: Params) {
   return useSuspenseQuery({
-    queryKey: queryKeys.calendar.events(branchId, from, to),
-    queryFn: () => fetchCalendarEvents({ from, to, branchId }),
+    queryKey: queryKeys.calendar.events(branchId, from, to, profileId),
+    queryFn: () => fetchCalendarEvents({ from, to, branchId, profileId }),
     staleTime: 60 * 1000,
   });
 }
