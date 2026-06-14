@@ -1,5 +1,6 @@
 import {
   Building2,
+  CreditCard,
   KeyRound,
   MapPin,
   ShieldAlert,
@@ -12,6 +13,7 @@ export type SectionKey =
   | "account"
   | "organization"
   | "branches"
+  | "subscription"
   | "danger";
 
 export type DrawerKey =
@@ -35,6 +37,7 @@ export const SETTINGS_SECTIONS: {
   { key: "account", icon: KeyRound },
   { key: "organization", icon: Building2, ownerOnly: true },
   { key: "branches", icon: MapPin, ownerOnly: true },
+  { key: "subscription", icon: CreditCard, ownerOnly: true },
   { key: "danger", icon: ShieldAlert, ownerOnly: true },
 ];
 
