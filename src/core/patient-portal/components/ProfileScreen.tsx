@@ -14,6 +14,7 @@ import { EmptyState, ScreenHeader, SectionCard } from "./portal-ui";
 import { AvatarUploader } from "./profile/AvatarUploader";
 import { ProfileInfoForm } from "./profile/ProfileInfoForm";
 import { ChangePasswordForm } from "./profile/ChangePasswordForm";
+import { SecurityQuestionForm } from "./profile/SecurityQuestionForm";
 
 export function ProfileScreen() {
   const t = useTranslations("patientPortal");
@@ -36,6 +37,7 @@ export function ProfileScreen() {
             <AvatarUploader profile={profile} />
             <ProfileInfoForm key={profile.id} profile={profile} />
             <ChangePasswordForm />
+            <SecurityQuestionForm />
           </>
         )}
 

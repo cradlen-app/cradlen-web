@@ -226,7 +226,21 @@
     "saveError": "تعذّر الحفظ. حاول مرة أخرى.",
     "dependents": "التابعون",
     "manageDependents": "إدارة التابعين",
-    "viewing": "تعرض الآن"
+    "viewing": "تعرض الآن",
+    "securityQuestionTitle": "سؤال الأمان",
+    "securityQuestionDescription": "يُستخدم للتحقق من هويتك إذا نسيت كلمة المرور.",
+    "currentSecurityQuestion": "السؤال الحالي",
+    "securityQuestionNotSet": "لم يُحدَّد بعد",
+    "securityQuestionLabel": "سؤال الأمان",
+    "securityQuestionPlaceholder": "اختر سؤالاً",
+    "securityAnswerLabel": "الإجابة",
+    "securityAnswerPlaceholder": "إجابتك",
+    "securityQuestionRequired": "يرجى اختيار سؤال أمان.",
+    "securityAnswerMinLength": "يجب ألا تقل الإجابة عن حرفين.",
+    "securityAnswerMaxLength": "يجب ألا تزيد الإجابة عن 128 حرفًا.",
+    "saveSecurityQuestion": "حفظ سؤال الأمان",
+    "updateSecurityQuestion": "تحديث سؤال الأمان",
+    "securityQuestionSaved": "تم حفظ سؤال الأمان"
   },
   "upload": {
     "title": "رفع إلى طبيبك",
