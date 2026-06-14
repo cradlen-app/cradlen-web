@@ -101,3 +101,5 @@ export const PATIENT_AUTH_TOKEN_COOKIE = "cradlen-patient-token";
 export const PATIENT_AUTH_REFRESH_TOKEN_COOKIE = "cradlen-patient-refresh-token";
 export const PATIENT_SIGNUP_TOKEN_COOKIE = "cradlen-patient-signup-token";
 export const PATIENT_SIGNUP_TOKEN_MAX_AGE = 60 * 30; // 30 min (backend expires_in 1800)
+export const PATIENT_RESET_TOKEN_COOKIE = "cradlen-patient-reset-token";
+export const PATIENT_RESET_TOKEN_MAX_AGE = 60 * 30; // 30 min (backend expires_in 1800)

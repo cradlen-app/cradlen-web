@@ -12,6 +12,25 @@ export type PatientSignupStartRequest = {
 export type PatientSignupCompleteRequest = {
   password: string;
   confirm_password: string;
+  security_question: string;
+  security_answer: string;
+};
+
+export type PatientForgotPasswordStartRequest = {
+  national_id: string;
+  date_of_birth: string; // YYYY-MM-DD
+  phone_number: string;
+};
+
+export type PatientForgotPasswordStartResponse = {
+  data: { security_question: string; expires_in: number | null };
+  meta: Record<string, unknown>;
+};
+
+export type PatientForgotPasswordCompleteRequest = {
+  security_answer: string;
+  password: string;
+  confirm_password: string;
 };
 
 export type PatientAuthenticatedResponse = {

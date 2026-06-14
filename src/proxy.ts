@@ -20,10 +20,15 @@ const PUBLIC_ROUTE_PREFIXES = [
   "/invitations/accept",
   "/patient/signin",
   "/patient/signup",
+  "/patient/forgot-password",
 ];
 
 // Patient portal pages — gated behind the patient session (separate from staff).
-const PATIENT_PUBLIC_PATHS = ["/patient/signin", "/patient/signup"];
+const PATIENT_PUBLIC_PATHS = [
+  "/patient/signin",
+  "/patient/signup",
+  "/patient/forgot-password",
+];
 
 function isPatientPortalPath(pathWithoutLocale: string) {
   if (
