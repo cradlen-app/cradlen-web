@@ -1,4 +1,98 @@
 {
+  "subscriptions": {
+    "title": "Subscription",
+    "description": "Manage your plan, renew, or upgrade.",
+    "currentPlan": "Current plan",
+    "viewPayments": "Payments",
+    "loadError": "Couldn't load your subscription",
+    "loadErrorDesc": "Please try again in a moment.",
+    "fields": {
+      "status": "Status",
+      "renews": "Renews on",
+      "trialEnds": "Trial ends",
+      "limits": "Limits"
+    },
+    "status": {
+      "TRIAL": "Trial",
+      "ACTIVE": "Active",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled"
+    },
+    "paymentStatus": {
+      "PENDING": "Pending",
+      "AWAITING_VERIFICATION": "Awaiting verification",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled"
+    },
+    "plans": {
+      "title": "Choose a plan",
+      "perYear": "year",
+      "current": "Current",
+      "upgrade": "Upgrade",
+      "renew": "Renew",
+      "limitsInline": "{branches} branches · {staff} staff",
+      "limits": {
+        "branches": "Up to {count} branches",
+        "staff": "Up to {count} staff",
+        "organizations": "Up to {count} organizations"
+      }
+    },
+    "createDialog": {
+      "title": "Subscribe to {plan}",
+      "description": "You'll be charged {amount} for one year.",
+      "descriptionNoPrice": "Choose how you'd like to pay.",
+      "provider": "Payment method",
+      "providers": {
+        "INSTAPAY": "InstaPay",
+        "WALLET": "Mobile wallet"
+      },
+      "cancel": "Cancel",
+      "submit": "Continue to payment",
+      "error": "Couldn't start the payment. Please try again."
+    },
+    "payments": {
+      "title": "Payments",
+      "description": "Your subscription payments and their status.",
+      "back": "Back to settings",
+      "empty": "No payments yet",
+      "emptyDesc": "When you subscribe or renew, your payments appear here.",
+      "loadError": "Couldn't load payments"
+    },
+    "detail": {
+      "title": "Payment",
+      "back": "Back to payments",
+      "loadError": "Couldn't load this payment",
+      "instructions": "Payment instructions",
+      "instructionsFallback": "Complete your transfer, then upload the receipt below. Reference: {reference}",
+      "payTo": "Pay to",
+      "amount": "Amount",
+      "reference": "Reference",
+      "proofs": "Proof of payment",
+      "viewProof": "View file",
+      "noProofs": "No proof uploaded yet.",
+      "cancel": "Cancel payment",
+      "cancelConfirm": "Cancel this payment?",
+      "keep": "Keep",
+      "cancelled": "Payment cancelled",
+      "cancelError": "Couldn't cancel the payment"
+    },
+    "proof": {
+      "add": "Upload proof",
+      "remove": "Remove",
+      "removed": "Proof removed",
+      "uploaded": "Proof uploaded",
+      "typeError": "Only PDF or image files are allowed",
+      "tooLarge": "File is too large",
+      "error": "Upload failed. Please try again."
+    },
+    "banner": {
+      "expired": "Your subscription has expired. Renew to continue using Cradlen.",
+      "trialEnding": "Your trial ends in {days} days.",
+      "renew": "Renew now",
+      "contactAdmin": "Contact your administrator to renew."
+    }
+  },
   "builder": {
     "sections": {
       "lastUpdatedAt": "last update:"
@@ -197,6 +291,7 @@
       "account": "Account",
       "organization": "Organization",
       "branches": "Branches",
+      "subscription": "Subscription",
       "danger": "Danger Zone"
     },
     "fields": {
