@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -37,6 +38,7 @@ import {
   OrganizationSection,
   ProfileSection,
 } from "./settings-sections";
+import { SubscriptionSection } from "@/features/subscriptions/components/SubscriptionSection";
 import {
   getVisibleSections,
   type DrawerKey,
@@ -55,7 +57,11 @@ export function SettingsPage() {
   const isOwner = isOwnerPerm(profile);
   const visibleSections = getVisibleSections(isOwner, profile);
 
-  const [activeSectionState, setActiveSection] = useState<SectionKey>("profile");
+  const searchParams = useSearchParams();
+  const requestedSection = searchParams.get("section") as SectionKey | null;
+  const [activeSectionState, setActiveSection] = useState<SectionKey>(
+    requestedSection ?? "profile",
+  );
   const [activeDrawer, setActiveDrawer] = useState<DrawerKey>(null);
   const [activeBranchId, setActiveBranchId] = useState<string | null>(null);
   const [confirmSoftDelete, setConfirmSoftDelete] =
@@ -213,6 +219,9 @@ export function SettingsPage() {
           )}
           {activeSection === "branches" && isOwner && (
             <BranchesSection {...sectionProps} />
+          )}
+          {activeSection === "subscription" && isOwner && (
+            <SubscriptionSection />
           )}
           {activeSection === "danger" && isOwner && (
             <DangerSection {...sectionProps} />
