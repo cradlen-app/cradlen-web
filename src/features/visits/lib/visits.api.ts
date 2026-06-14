@@ -50,9 +50,10 @@ export function fetchVisitStats({
 }
 
 /** Monthly visit analytics for a branch: total / visits / follow-ups (MoM) + daily series. */
-export function fetchBranchVisitStats(branchId: string) {
+export function fetchBranchVisitStats(branchId: string, mine = false) {
+  const qs = mine ? "?assigned_to_me=true" : "";
   return apiAuthFetch<ApiVisitMonthlyStatsResponse>(
-    `/branches/${branchId}/visits/stats`,
+    `/branches/${branchId}/visits/stats${qs}`,
   );
 }
 

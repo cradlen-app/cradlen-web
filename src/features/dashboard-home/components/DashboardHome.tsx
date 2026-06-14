@@ -51,6 +51,10 @@ export function DashboardHome() {
   const showPatients = isOwner || isBranchManager || isClinical;
   const showStaffAndPerformers = isOwner || isBranchManager;
 
+  // A doctor (clinical, non-managerial) sees their own activity rather than the
+  // whole branch. Reception never reaches this page (dashboard.home gate).
+  const personalScope = isClinical && !isOwner && !isBranchManager;
+
   const greetingFirstName = currentUser?.first_name ?? "";
   const todayLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "short",
@@ -104,12 +108,14 @@ export function DashboardHome() {
         orgWide={scopeOrgWide}
         showRevenue={showRevenue}
         showPatients={showPatients}
+        mine={personalScope}
       />
 
       <DashboardVisitsChart
         branchId={effectiveBranchId}
         orgId={organizationId}
         orgWide={scopeOrgWide}
+        mine={personalScope}
       />
 
       {showRevenue && (
@@ -124,7 +130,11 @@ export function DashboardHome() {
           <h2 className="text-sm font-medium text-gray-700">
             {tOverview("sections.patientGrowth")}
           </h2>
-          <PatientStatCards branchId={effectiveBranchId} orgWide={scopeOrgWide} />
+          <PatientStatCards
+            branchId={effectiveBranchId}
+            orgWide={scopeOrgWide}
+            mine={personalScope}
+          />
         </section>
       )}
 
