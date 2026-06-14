@@ -58,7 +58,7 @@ export const financialNav: readonly NavItem[] = [
     path: "/financial/reports",
     labelKey: "financial.nav.reports",
     icon: BarChart3,
-    requiresPermission: "financial.viewReports",
+    requiresPermission: "financial.viewReportsNav",
     order: 4,
     group: financialGroup,
   },

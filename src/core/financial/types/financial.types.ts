@@ -386,6 +386,11 @@ export type ReportParams = {
   branch_id?: string;
   date_from?: string;
   date_to?: string;
+  /**
+   * Scope reports to a single provider. Sent for the own-revenue doctor view;
+   * the backend enforces that a non-privileged doctor may only query their own id.
+   */
+  doctor_id?: string;
 };
 
 /** Untyped summary reports (revenue, ar-aging, collections, write-offs). */
