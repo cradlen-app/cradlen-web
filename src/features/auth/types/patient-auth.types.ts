@@ -56,6 +56,8 @@ export type PatientIdentity = {
   guardian_id: string | null;
   accessible_patient_ids: string[];
   display_name: string;
+  /** The account's security-question key, or null if none is set. */
+  security_question: string | null;
   accessible_patients: PatientSummary[];
 };
 
