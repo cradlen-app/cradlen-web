@@ -18,6 +18,7 @@ export const TYPE_BAR_CLASS: Record<CalendarEventType, string> = {
 type Props = {
   title: string;
   type: CalendarEventType;
+  creatorName?: string | null;
   isContinuation?: boolean;
   className?: string;
 };
@@ -25,20 +26,28 @@ type Props = {
 export function CalendarEventChip({
   title,
   type,
+  creatorName,
   isContinuation,
   className,
 }: Props) {
   return (
     <span
       className={cn(
-        "block truncate px-1.5 py-0.5 text-[10px] font-medium leading-tight",
+        "block px-1.5 py-0.5 leading-tight",
         isContinuation ? "rounded-e opacity-70" : "rounded",
         TYPE_CHIP_CLASS[type],
         className,
       )}
-      title={title}
+      title={creatorName ? `${title} · ${creatorName}` : title}
     >
-      {isContinuation ? `↳ ${title}` : title}
+      <span className="block truncate text-[10px] font-medium">
+        {isContinuation ? `↳ ${title}` : title}
+      </span>
+      {creatorName && (
+        <span className="block truncate text-[9px] font-normal opacity-80">
+          {creatorName}
+        </span>
+      )}
     </span>
   );
 }
