@@ -226,7 +226,21 @@
     "saveError": "Couldn't save. Please try again.",
     "dependents": "Dependents",
     "manageDependents": "Manage dependents",
-    "viewing": "Now viewing"
+    "viewing": "Now viewing",
+    "securityQuestionTitle": "Security question",
+    "securityQuestionDescription": "Used to verify it's you if you ever forget your password.",
+    "currentSecurityQuestion": "Current question",
+    "securityQuestionNotSet": "Not set yet",
+    "securityQuestionLabel": "Security question",
+    "securityQuestionPlaceholder": "Choose a question",
+    "securityAnswerLabel": "Answer",
+    "securityAnswerPlaceholder": "Your answer",
+    "securityQuestionRequired": "Please choose a security question.",
+    "securityAnswerMinLength": "Answer must be at least 2 characters.",
+    "securityAnswerMaxLength": "Answer must be at most 128 characters.",
+    "saveSecurityQuestion": "Save security question",
+    "updateSecurityQuestion": "Update security question",
+    "securityQuestionSaved": "Security question saved"
   },
   "upload": {
     "title": "Upload to your doctor",
