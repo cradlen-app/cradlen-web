@@ -789,6 +789,7 @@
     "allDay": "طوال اليوم",
     "more": "المزيد",
     "patientLabel": "المريض",
+    "createdBy": "أنشأه",
     "notes": "ملاحظات",
     "types": {
       "DAY_OFF": "إجازة",
