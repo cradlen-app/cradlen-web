@@ -506,18 +506,15 @@
         "CFO": "المدير المالي",
         "CMO": "المدير الطبي"
       },
-      "practitionerToggleLabel": "أمارس العمل كطبيب هنا أيضًا",
-      "practitionerSpecialtiesLabel": "تخصصاتك",
-      "practitionerSpecialtiesPlaceholder": "مثال: النساء والتوليد",
-      "jobFunctionLabel": "الدور / المهمة",
-      "jobFunctionPlaceholder": "اختر دورًا",
-      "jobFunctionHint": "يحدد حالتك السريرية والصلاحيات.",
-      "jobFunctions": {
-        "OBGYN": "النساء والتوليد",
-        "ANESTHESIOLOGIST": "طبيب تخدير",
-        "PEDIATRICIAN": "طبيب أطفال",
-        "OTHER_DOCTOR": "طبيب آخر"
+      "jobRoleLabel": "المهمة الوظيفية",
+      "jobRoles": {
+        "DOCTOR": "طبيب",
+        "RECEPTIONIST": "موظف استقبال",
+        "ACCOUNTANT": "محاسب",
+        "NONE": "بدون / إدارة"
       },
+      "doctorSpecialtyLabel": "تخصصك",
+      "doctorSpecialtyPlaceholder": "اختر تخصصك",
       "professionalTitleLabel": "المسمى الظاهر في ملفك",
       "professionalTitlePlaceholder": "مثال: استشاري النساء والتوليد",
       "professionalTitleHint": "نص حر يظهر في ملفك — للعرض فقط.",
@@ -562,8 +559,7 @@
         "codeDigits": "يجب أن يحتوي الرمز على أرقام فقط",
         "accountNameRequired": "اسم المنظمة مطلوب",
         "specialtiesRequired": "يرجى إدخال تخصص واحد على الأقل",
-        "practitionerSpecialtiesRequired": "يرجى اختيار تخصص واحد على الأقل",
-        "jobFunctionRequired": "يرجى اختيار دور",
+        "doctorSpecialtyRequired": "يرجى اختيار تخصصك",
         "professionalTitleTooLong": "يجب ألا يتجاوز المسمى 120 حرفًا",
         "branchNameRequired": "اسم الفرع مطلوب",
         "cityRequired": "المدينة مطلوبة",
