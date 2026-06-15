@@ -17,8 +17,8 @@ const baseStep3Data: Step3Data = {
   organizationName: "Test Clinic",
   specialties: ["Cardiology", "Pediatrics"],
   executiveTitle: "CEO",
-  isPractitioner: false,
-  practitionerSpecialties: [],
+  jobRole: "NONE",
+  doctorSpecialty: "",
   branchName: "Main Branch",
   city: "Cairo",
   address: "123 Main St",
@@ -222,25 +222,50 @@ describe("buildRegisterOrganizationRequest", () => {
     expect(result).not.toHaveProperty("branch_country");
   });
 
-  it("omits practitioner fields when the owner is not a practitioner", () => {
+  it("omits role fields when the owner has no job function (None)", () => {
     const result = buildRegisterOrganizationRequest(baseStep3Data);
     expect(result).not.toHaveProperty("practitioner_specialties");
     expect(result).not.toHaveProperty("job_function_codes");
     expect(result).not.toHaveProperty("professional_title");
   });
 
-  it("includes practitioner fields when the owner is a doctor", () => {
+  it("maps a doctor's specialty to its clinical code and keeps the title", () => {
     const result = buildRegisterOrganizationRequest({
       ...baseStep3Data,
-      isPractitioner: true,
-      practitionerSpecialties: ["Obstetrics & Gynecology"],
-      jobFunction: "OBGYN",
+      jobRole: "DOCTOR",
+      doctorSpecialty: "OBGYN",
       professionalTitle: "  استشاري النساء والتوليد  ",
     });
     expect(result).toMatchObject({
-      practitioner_specialties: ["Obstetrics & Gynecology"],
+      practitioner_specialties: ["OBGYN"],
       job_function_codes: ["OBGYN"],
       professional_title: "استشاري النساء والتوليد",
     });
+  });
+
+  it("falls back to OTHER_DOCTOR for a non-doctor specialty code", () => {
+    const result = buildRegisterOrganizationRequest({
+      ...baseStep3Data,
+      jobRole: "DOCTOR",
+      doctorSpecialty: "CARDIOLOGY",
+    });
+    expect(result.job_function_codes).toEqual(["OTHER_DOCTOR"]);
+    expect(result.practitioner_specialties).toEqual(["CARDIOLOGY"]);
+    expect(result).not.toHaveProperty("professional_title");
+  });
+
+  it("maps Receptionist and Accountant to a single job-function code", () => {
+    expect(
+      buildRegisterOrganizationRequest({
+        ...baseStep3Data,
+        jobRole: "RECEPTIONIST",
+      }).job_function_codes,
+    ).toEqual(["RECEPTIONIST"]);
+    expect(
+      buildRegisterOrganizationRequest({
+        ...baseStep3Data,
+        jobRole: "ACCOUNTANT",
+      }).job_function_codes,
+    ).toEqual(["ACCOUNTANT"]);
   });
 });

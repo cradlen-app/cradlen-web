@@ -69,6 +69,32 @@ export const EXECUTIVE_TITLE = {
 
 export type ExecutiveTitleCode = (typeof EXECUTIVE_TITLE)[keyof typeof EXECUTIVE_TITLE];
 
+/**
+ * Coarse job-function categories an owner picks for themselves at signup.
+ * DOCTOR fans out to a specific clinical job-function code via the chosen
+ * specialty (see deriveDoctorJobFunction); NONE = purely administrative owner.
+ */
+export const OWNER_JOB_ROLE = {
+  DOCTOR: "DOCTOR",
+  RECEPTIONIST: "RECEPTIONIST",
+  ACCOUNTANT: "ACCOUNTANT",
+  NONE: "NONE",
+} as const;
+
+export type OwnerJobRoleCode = (typeof OWNER_JOB_ROLE)[keyof typeof OWNER_JOB_ROLE];
+
+/**
+ * Map a doctor's chosen specialty code to a clinical JobFunction code. The
+ * specialty itself drives examination templates/care-paths; this only sets the
+ * coarse function used for the clinical flag, doctor picker, and staff filters.
+ * OB/GYN (the dominant case) maps 1:1; anything else falls back to OTHER_DOCTOR.
+ */
+export function deriveDoctorJobFunction(specialtyCode: string): JobFunctionCode {
+  return (DOCTOR_JOB_FUNCTIONS as readonly string[]).includes(specialtyCode)
+    ? (specialtyCode as JobFunctionCode)
+    : JOB_FUNCTION_CODE.OTHER_DOCTOR;
+}
+
 export const ENGAGEMENT_TYPE = {
   FULL_TIME: "FULL_TIME",
   PART_TIME: "PART_TIME",

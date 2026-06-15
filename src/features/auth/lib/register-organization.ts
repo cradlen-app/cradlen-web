@@ -2,6 +2,7 @@ import type {
   RegisterOrganizationRequest,
   Step3Data,
 } from "../types/sign-up.types";
+import { OWNER_JOB_ROLE, deriveDoctorJobFunction } from "./auth.constants";
 
 export function buildRegisterOrganizationRequest(
   data: Step3Data,
@@ -18,16 +19,29 @@ export function buildRegisterOrganizationRequest(
 
   if (data.country) payload.branch_country = data.country;
 
-  // Practitioner (owner-is-also-a-doctor) fields only when opted in.
-  if (data.isPractitioner) {
-    if (data.practitionerSpecialties.length > 0) {
-      payload.practitioner_specialties = data.practitionerSpecialties;
+  // Owner's own job function. DOCTOR fans out to a clinical code derived from
+  // the chosen specialty (which also drives examination templates); the other
+  // roles map to a single code; NONE adds nothing (purely administrative owner).
+  switch (data.jobRole) {
+    case OWNER_JOB_ROLE.DOCTOR: {
+      if (data.doctorSpecialty) {
+        payload.practitioner_specialties = [data.doctorSpecialty];
+        payload.job_function_codes = [
+          deriveDoctorJobFunction(data.doctorSpecialty),
+        ];
+      }
+      const title = data.professionalTitle?.trim();
+      if (title) payload.professional_title = title;
+      break;
     }
-    if (data.jobFunction) {
-      payload.job_function_codes = [data.jobFunction];
-    }
-    const title = data.professionalTitle?.trim();
-    if (title) payload.professional_title = title;
+    case OWNER_JOB_ROLE.RECEPTIONIST:
+      payload.job_function_codes = ["RECEPTIONIST"];
+      break;
+    case OWNER_JOB_ROLE.ACCOUNTANT:
+      payload.job_function_codes = ["ACCOUNTANT"];
+      break;
+    case OWNER_JOB_ROLE.NONE:
+      break;
   }
 
   return payload;

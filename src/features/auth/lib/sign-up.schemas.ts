@@ -1,9 +1,9 @@
 import { z } from "zod";
 import {
   EXECUTIVE_TITLE,
-  DOCTOR_JOB_FUNCTIONS,
+  OWNER_JOB_ROLE,
   type ExecutiveTitleCode,
-  type JobFunctionCode,
+  type OwnerJobRoleCode,
 } from "./auth.constants";
 
 const EXECUTIVE_TITLE_VALUES = Object.values(EXECUTIVE_TITLE) as [
@@ -11,9 +11,9 @@ const EXECUTIVE_TITLE_VALUES = Object.values(EXECUTIVE_TITLE) as [
   ...ExecutiveTitleCode[],
 ];
 
-const DOCTOR_JOB_FUNCTION_VALUES = [...DOCTOR_JOB_FUNCTIONS] as [
-  JobFunctionCode,
-  ...JobFunctionCode[],
+const OWNER_JOB_ROLE_VALUES = Object.values(OWNER_JOB_ROLE) as [
+  OwnerJobRoleCode,
+  ...OwnerJobRoleCode[],
 ];
 
 const PHONE_NUMBER_REGEXES = [
@@ -76,9 +76,8 @@ export function makeStep3Schema(t: (key: string) => string = (k) => k) {
         .array(z.string())
         .min(1, { message: t("errors.specialtiesRequired") }),
       executiveTitle: z.enum(EXECUTIVE_TITLE_VALUES),
-      isPractitioner: z.boolean(),
-      practitionerSpecialties: z.array(z.string()),
-      jobFunction: z.enum(DOCTOR_JOB_FUNCTION_VALUES).optional(),
+      jobRole: z.enum(OWNER_JOB_ROLE_VALUES),
+      doctorSpecialty: z.string(),
       professionalTitle: z
         .string()
         .trim()
@@ -95,19 +94,11 @@ export function makeStep3Schema(t: (key: string) => string = (k) => k) {
       country: z.string().optional(),
     })
     .superRefine((data, ctx) => {
-      if (!data.isPractitioner) return;
-      if (data.practitionerSpecialties.length === 0) {
+      if (data.jobRole === OWNER_JOB_ROLE.DOCTOR && !data.doctorSpecialty) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: t("errors.practitionerSpecialtiesRequired"),
-          path: ["practitionerSpecialties"],
-        });
-      }
-      if (!data.jobFunction) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("errors.jobFunctionRequired"),
-          path: ["jobFunction"],
+          message: t("errors.doctorSpecialtyRequired"),
+          path: ["doctorSpecialty"],
         });
       }
     });
