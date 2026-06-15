@@ -89,6 +89,7 @@ export function PaymentDetailPage({ paymentId }: { paymentId: string }) {
                   {formatMoney(payment.amount, payment.currency, locale)}
                 </h1>
                 <p className="mt-1 text-sm text-gray-400">
+                  {t(`purpose.${payment.purpose}`)} ·{" "}
                   {t(`createDialog.providers.${payment.provider}`)} ·{" "}
                   {formatDate(payment.created_at, locale)}
                 </p>

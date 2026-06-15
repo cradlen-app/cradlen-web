@@ -20,20 +20,20 @@ const mockUsePlans = vi.mocked(usePlans);
 
 const plans: Plan[] = [
   {
-    id: "p-plus",
-    plan: "plus",
-    max_organizations: 3,
-    max_branches: 3,
-    max_staff: 15,
-    prices: [{ billing_interval: "YEARLY", price: "12000", currency: "EGP" }],
+    id: "p-center",
+    plan: "center",
+    max_organizations: 1,
+    max_branches: 1,
+    max_staff: 10,
+    prices: [{ billing_interval: "YEARLY", price: "22000", currency: "EGP" }],
   },
   {
-    id: "p-pro",
-    plan: "pro",
-    max_organizations: 5,
-    max_branches: 5,
+    id: "p-network",
+    plan: "network",
+    max_organizations: 1,
+    max_branches: 3,
     max_staff: 25,
-    prices: [{ billing_interval: "YEARLY", price: "30000", currency: "EGP" }],
+    prices: [{ billing_interval: "YEARLY", price: "50000", currency: "EGP" }],
   },
   {
     id: "p-free",
@@ -56,11 +56,11 @@ describe("PlanCards", () => {
 
   it("hides free_trial and marks the current plan", () => {
     renderWithIntl(
-      <PlanCards organizationId="org-1" currentPlanCode="plus" />,
+      <PlanCards organizationId="org-1" currentPlanCode="center" />,
     );
-    expect(screen.getByText("plus")).toBeInTheDocument();
-    expect(screen.getByText("pro")).toBeInTheDocument();
-    expect(screen.queryByText("free_trial")).not.toBeInTheDocument();
+    expect(screen.getByText("Center")).toBeInTheDocument();
+    expect(screen.getByText("Network of Centers")).toBeInTheDocument();
+    expect(screen.queryByText(/free trial/i)).not.toBeInTheDocument();
     // current plan shows "Current" + a Renew button; the other shows Upgrade
     expect(screen.getByText(/current/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /renew/i })).toBeInTheDocument();
@@ -69,10 +69,12 @@ describe("PlanCards", () => {
 
   it("opens the create-payment dialog when a plan is selected", () => {
     renderWithIntl(
-      <PlanCards organizationId="org-1" currentPlanCode="plus" />,
+      <PlanCards organizationId="org-1" currentPlanCode="center" />,
     );
     fireEvent.click(screen.getByRole("button", { name: /upgrade/i }));
-    // dialog title interpolates the plan code
-    expect(screen.getByText(/subscribe to pro/i)).toBeInTheDocument();
+    // dialog title interpolates the friendly plan name
+    expect(
+      screen.getByText(/subscribe to network of centers/i),
+    ).toBeInTheDocument();
   });
 });

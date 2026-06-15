@@ -25,6 +25,16 @@
       "REJECTED": "Rejected",
       "CANCELLED": "Cancelled"
     },
+    "purpose": {
+      "PLAN": "Plan",
+      "ADD_ON": "Add-on"
+    },
+    "planNames": {
+      "free_trial": "Free Trial",
+      "individual": "Individual Clinic",
+      "center": "Center",
+      "network": "Network of Centers"
+    },
     "plans": {
       "title": "Choose a plan",
       "perYear": "year",
@@ -38,8 +48,30 @@
         "organizations": "Up to {count} organizations"
       }
     },
+    "addOns": {
+      "title": "Add-ons",
+      "description": "Extra branches and user seats on top of your plan.",
+      "empty": "No add-ons available for your plan.",
+      "buy": "Add",
+      "owned": "Your add-ons",
+      "ownedQuantity": "×{count}",
+      "prorated": "Charged pro-rata to your remaining term.",
+      "requiresActive": "Activate a paid plan to purchase add-ons.",
+      "perYearFull": "{amount} / year",
+      "kinds": {
+        "BRANCH_BUNDLE": "Extra branch",
+        "EXTRA_USER": "Extra user"
+      },
+      "grants": {
+        "branchesAndUsers": "+{branches} branch · +{users} users",
+        "usersOnly": "+{users} user"
+      },
+      "quantity": "Quantity"
+    },
     "createDialog": {
       "title": "Subscribe to {plan}",
+      "addOnTitle": "Add {addOn}",
+      "addOnDescription": "{amount} per year, charged pro-rata to your remaining term.",
       "description": "You'll be charged {amount} for one year.",
       "descriptionNoPrice": "Choose how you'd like to pay.",
       "provider": "Payment method",

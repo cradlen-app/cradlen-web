@@ -41,11 +41,13 @@ function sub(status: CurrentSubscription["status"]): { data: { data: CurrentSubs
         trial_ends_at: null,
         plan: {
           id: "p1",
-          plan: "plus",
+          plan: "center",
           max_organizations: 1,
-          max_branches: 3,
-          max_staff: 15,
+          max_branches: 1,
+          max_staff: 10,
         },
+        effective_limits: { max_branches: 1, max_staff: 10 },
+        add_ons: [],
       },
     },
   };
