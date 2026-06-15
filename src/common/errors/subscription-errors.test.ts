@@ -36,6 +36,20 @@ describe("getSubscriptionLimit", () => {
       current: 1,
     });
   });
+
+  it("returns details for a 403 with nested error.code (GlobalExceptionFilter shape)", () => {
+    const err = new ApiError(403, "Branch limit reached", {
+      error: {
+        code: "SUBSCRIPTION_LIMIT_REACHED",
+        details: { resource: "branches", limit: 3, current: 3 },
+      },
+    });
+    expect(getSubscriptionLimit(err)).toEqual({
+      resource: "branches",
+      limit: 3,
+      current: 3,
+    });
+  });
 });
 
 describe("isSubscriptionExpired", () => {

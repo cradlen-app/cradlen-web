@@ -10,12 +10,21 @@ export type SubscriptionLimitInfo = {
 
 export function getSubscriptionLimit(error: unknown): SubscriptionLimitInfo | null {
   if (!(error instanceof ApiError) || error.status !== 403) return null;
+  // The backend's GlobalExceptionFilter wraps every error body as
+  // `{ error: { code, details, ... } }`, but some responses arrive flat. Read
+  // top-level first, then fall back to the nested `error` object.
   const body = error.body as
-    | { code?: string; details?: SubscriptionLimitInfo }
+    | {
+        code?: string;
+        details?: SubscriptionLimitInfo;
+        error?: { code?: string; details?: SubscriptionLimitInfo };
+      }
     | null
     | undefined;
-  if (body?.code !== "SUBSCRIPTION_LIMIT_REACHED" || !body.details) return null;
-  return body.details;
+  const code = body?.code ?? body?.error?.code;
+  const details = body?.details ?? body?.error?.details;
+  if (code !== "SUBSCRIPTION_LIMIT_REACHED" || !details) return null;
+  return details;
 }
 
 /**
