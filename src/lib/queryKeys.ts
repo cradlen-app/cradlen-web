@@ -136,6 +136,8 @@ export const queryKeys = {
     current: (organizationId: string) =>
       ["subscription", organizationId, "current"] as const,
     plans: () => ["subscription", "plans"] as const,
+    addOns: (organizationId: string) =>
+      ["subscription", organizationId, "add-ons"] as const,
     payments: (organizationId: string, opts?: { status?: string }) =>
       ["subscription", organizationId, "payments", opts ?? {}] as const,
     payment: (organizationId: string, paymentId: string) =>
