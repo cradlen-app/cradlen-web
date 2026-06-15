@@ -1,6 +1,7 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import type { ApiResponse } from "@/common/types/api.types";
 import type {
+  AvailableAddOn,
   CreatePaymentRequest,
   CreatePaymentResponse,
   CurrentSubscription,
@@ -10,6 +11,13 @@ import type {
 
 export function listPlans() {
   return apiAuthFetch<ApiResponse<Plan[]>>("/subscription-plans");
+}
+
+/** Add-ons purchasable on top of the org's current plan. */
+export function listAddOns(organizationId: string) {
+  return apiAuthFetch<ApiResponse<AvailableAddOn[]>>(
+    `/organizations/${organizationId}/subscription/add-ons`,
+  );
 }
 
 export function getCurrentSubscription(organizationId: string) {

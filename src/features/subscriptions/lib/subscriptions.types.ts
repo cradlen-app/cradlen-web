@@ -34,6 +34,35 @@ export type CurrentSubscriptionPlan = {
   max_staff: number;
 };
 
+export type AddOnKind = "BRANCH_BUNDLE" | "EXTRA_USER";
+
+export type EffectiveLimits = {
+  max_branches: number;
+  max_staff: number;
+};
+
+/** An add-on the org owns against its current subscription. */
+export type OwnedAddOn = {
+  id: string;
+  code: string;
+  name: string;
+  kind: AddOnKind;
+  quantity: number;
+  ends_at: string | null;
+};
+
+/** An add-on purchasable on top of the current plan (full yearly price). */
+export type AvailableAddOn = {
+  id: string;
+  code: string;
+  name: string;
+  kind: AddOnKind;
+  delta_branches: number;
+  delta_users: number;
+  price: string;
+  currency: string;
+};
+
 export type CurrentSubscription = {
   id: string;
   status: SubscriptionStatus;
@@ -41,6 +70,8 @@ export type CurrentSubscription = {
   ends_at: string | null;
   trial_ends_at: string | null;
   plan: CurrentSubscriptionPlan;
+  effective_limits: EffectiveLimits;
+  add_ons: OwnedAddOn[];
 };
 
 export type PaymentProof = {
@@ -51,10 +82,15 @@ export type PaymentProof = {
   created_at: string;
 };
 
+export type PaymentPurpose = "PLAN" | "ADD_ON";
+
 export type SubscriptionPayment = {
   id: string;
   organization_id: string;
   subscription_plan_id: string;
+  purpose: PaymentPurpose;
+  add_on_id: string | null;
+  quantity: number;
   provider: PaymentProvider;
   billing_interval: BillingInterval;
   amount: string;
@@ -86,4 +122,7 @@ export type CreatePaymentResponse = {
 export type CreatePaymentRequest = {
   plan: string;
   provider: PaymentProvider;
+  /** When set, the payment is an add-on purchase (prorated server-side). */
+  add_on_code?: string;
+  quantity?: number;
 };

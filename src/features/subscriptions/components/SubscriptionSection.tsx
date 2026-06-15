@@ -14,6 +14,7 @@ import {
 } from "@/features/settings/components/settings-ui";
 import { useCurrentSubscription } from "../hooks/useSubscription";
 import { formatDate } from "../lib/format";
+import { AddOnsPanel } from "./AddOnsPanel";
 import { PlanCards } from "./PlanCards";
 import { SubscriptionStatusBadge } from "./status-badges";
 
@@ -59,7 +60,7 @@ export function SubscriptionSection() {
             icon={<CreditCard className="size-5" />}
             label={t("currentPlan")}
             meta={<SubscriptionStatusBadge status={sub.status} />}
-            title={sub.plan.plan}
+            title={t(`planNames.${sub.plan.plan}`)}
           />
           <dl className="rounded-xl border border-gray-100 px-3">
             <DetailRow
@@ -80,11 +81,35 @@ export function SubscriptionSection() {
             <DetailRow
               label={t("fields.limits")}
               value={t("plans.limitsInline", {
-                branches: sub.plan.max_branches,
-                staff: sub.plan.max_staff,
+                branches:
+                  sub.effective_limits?.max_branches ?? sub.plan.max_branches,
+                staff: sub.effective_limits?.max_staff ?? sub.plan.max_staff,
               })}
             />
           </dl>
+
+          {sub.add_ons && sub.add_ons.length > 0 && (
+            <div className="mt-4">
+              <h3 className="mb-2 text-sm font-medium text-brand-black">
+                {t("addOns.owned")}
+              </h3>
+              <ul className="flex flex-wrap gap-2">
+                {sub.add_ons.map((addOn) => (
+                  <li
+                    key={addOn.id}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/8 px-3 py-1 text-xs font-medium text-brand-primary"
+                  >
+                    {t(`addOns.kinds.${addOn.kind}`)}
+                    {addOn.quantity > 1 && (
+                      <span className="text-brand-primary/70">
+                        {t("addOns.ownedQuantity", { count: addOn.quantity })}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <h3 className="mb-3 mt-6 text-sm font-medium text-brand-black">
             {t("plans.title")}
@@ -92,6 +117,12 @@ export function SubscriptionSection() {
           <PlanCards
             organizationId={organizationId}
             currentPlanCode={sub.plan.plan}
+          />
+
+          <AddOnsPanel
+            organizationId={organizationId}
+            currentPlanCode={sub.plan.plan}
+            isActive={sub.status === "ACTIVE"}
           />
         </>
       )}
