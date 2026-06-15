@@ -609,6 +609,7 @@
       "hidePassword": "Hide",
       "submitButton": "Sign in",
       "noticeAccountExists": "You already have an account. Please sign in below.",
+      "noticeResumeOnboarding": "Your registration session expired. Please sign in to finish setting up your organization.",
       "forgotPassword": "Forgot your password?",
       "orDivider": "or",
       "patientSignIn": {

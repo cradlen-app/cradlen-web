@@ -22,6 +22,7 @@ import {
   clearPendingProfileSelection,
   setPendingProfileSelection,
 } from "../lib/profile-selection-session";
+import { setPendingSignupEmail } from "../lib/registration-session";
 import { classifySignInError } from "../lib/sign-in-errors";
 import {
   getBranchId,
@@ -66,9 +67,19 @@ export function SignInForm() {
       const res = await mutateAsync(data);
       const nextPath = resolveAuthRedirect(res, data.email);
 
+      if (nextPath === "/sign-up/complete") {
+        // Verified-but-not-onboarded login: the login route just set a fresh
+        // signup-token cookie. Persist the email so the step-3 guard resolves,
+        // then drop the user straight back onto onboarding.
+        setPendingSignupEmail(data.email);
+        router.replace("/sign-up/complete");
+        return;
+      }
+
       if (isOnboardingRedirectPath(nextPath)) {
-        // Login returned ONBOARDING_REQUIRED. Backend never issues a fresh signup_token here,
-        // so route the user back to the start of signup with email pre-filled via query.
+        // ONBOARDING_REQUIRED at VERIFY_OTP: no signup_token is issued here, so
+        // route back to the start of signup with email pre-filled. /auth/signup/start
+        // re-sends the OTP and re-issues the token for the still-PENDING account.
         router.replace(`${nextPath}?resume=1&email=${encodeURIComponent(data.email)}`);
         return;
       }
@@ -148,6 +159,11 @@ export function SignInForm() {
       {notice === "organization-exists" && (
         <p className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 text-center">
           {t("noticeAccountExists")}
+        </p>
+      )}
+      {notice === "resumeOnboarding" && (
+        <p className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 text-center">
+          {t("noticeResumeOnboarding")}
         </p>
       )}
       {/* Email */}

@@ -106,9 +106,50 @@ describe("sign-in auth redirect responses", () => {
 });
 
 describe("SignInForm", () => {
+  const storage = new Map<string, string>();
+
   beforeEach(() => {
     mockRouter.replace.mockClear();
     mockSignIn.mockReset();
+    storage.clear();
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      value: {
+        getItem: (key: string) => storage.get(key) ?? null,
+        removeItem: (key: string) => storage.delete(key),
+        setItem: (key: string, value: string) => storage.set(key, value),
+        clear: () => storage.clear(),
+      },
+    });
+  });
+
+  it("resumes onboarding at step 3 (cookie already set) and persists the email", async () => {
+    mockSignIn.mockResolvedValue({
+      data: {
+        profiles: [],
+        type: "ONBOARDING_REQUIRED",
+        step: "COMPLETE_ONBOARDING",
+      },
+      meta: {},
+    });
+
+    renderWithIntl(<SignInForm />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "person@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "Password1!" },
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "Sign in" }));
+
+    await waitFor(() => {
+      expect(mockRouter.replace).toHaveBeenCalledWith("/sign-up/complete");
+    });
+    // The step-3 guard reads this email to confirm registration status.
+    expect(window.localStorage.getItem("cradlen-signup-email")).toBe(
+      "person@example.com",
+    );
   });
 
   it("shows a fallback error when sign-in returns no selectable profiles", async () => {

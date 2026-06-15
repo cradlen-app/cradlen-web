@@ -148,8 +148,12 @@ export function SignUpCompleteForm() {
       router.replace("/sign-in");
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
+        // The signup-token cookie expired (or is gone). The registration-status
+        // guard keeps showing this form because it reads DB state, not the cookie,
+        // so don't dead-end here — send the user to sign in, which re-issues a
+        // fresh signup token and drops them straight back onto this step.
         clearPendingSignupSession();
-        setStepError(t("errors.sessionExpired"));
+        router.replace("/sign-in?notice=resumeOnboarding");
         return;
       }
 
