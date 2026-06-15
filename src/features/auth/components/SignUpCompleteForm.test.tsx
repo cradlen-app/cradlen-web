@@ -167,16 +167,19 @@ describe("SignUpCompleteForm", () => {
     expect(mockSelectProfile).not.toHaveBeenCalled();
   });
 
-  it("shows the session-expired error when completion returns 401", async () => {
+  it("redirects to sign-in to resume onboarding when completion returns 401", async () => {
     mockRegisterOrg.mockRejectedValue(new ApiError(401, "expired"));
 
     renderWithIntl(<SignUpCompleteForm />);
     fillForm();
     submit();
 
-    expect(
-      await screen.findByText("Your registration session has expired."),
-    ).toBeInTheDocument();
-    expect(mockRouter.replace).not.toHaveBeenCalled();
+    // The signup-token cookie expired; rather than dead-ending, send the user to
+    // sign in (which re-issues a fresh token and returns them to this step).
+    await waitFor(() =>
+      expect(mockRouter.replace).toHaveBeenCalledWith(
+        "/sign-in?notice=resumeOnboarding",
+      ),
+    );
   });
 });

@@ -609,6 +609,7 @@
       "hidePassword": "إخفاء",
       "submitButton": "تسجيل الدخول",
       "noticeAccountExists": "لديك حساب بالفعل. يرجى تسجيل الدخول أدناه.",
+      "noticeResumeOnboarding": "انتهت جلسة التسجيل. يرجى تسجيل الدخول لإكمال إعداد مؤسستك.",
       "forgotPassword": "هل نسيت كلمة المرور ؟",
       "orDivider": "أو",
       "patientSignIn": {
