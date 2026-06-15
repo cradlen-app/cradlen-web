@@ -11,9 +11,14 @@ const mockRouter = vi.hoisted(() => ({
 const mockVerifyEmail = vi.hoisted(() => vi.fn());
 const mockResendOtp = vi.hoisted(() => vi.fn());
 const mockUseRegistrationStatus = vi.hoisted(() => vi.fn());
+const mockSetQueryData = vi.hoisted(() => vi.fn());
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => mockRouter,
+}));
+
+vi.mock("@/infrastructure/query/queryClient", () => ({
+  queryClient: { setQueryData: mockSetQueryData },
 }));
 
 vi.mock("../hooks/useSignUp", () => ({
@@ -46,6 +51,7 @@ describe("SignUpVerifyForm", () => {
     mockVerifyEmail.mockReset();
     mockVerifyEmail.mockResolvedValue({});
     mockResendOtp.mockReset();
+    mockSetQueryData.mockReset();
     mockUseRegistrationStatus.mockReset();
     mockUseRegistrationStatus.mockReturnValue({
       data: undefined,
@@ -99,6 +105,31 @@ describe("SignUpVerifyForm", () => {
         code: "123456",
       });
     });
+  });
+
+  it("primes the registration-status cache and advances to the complete step on success", async () => {
+    window.localStorage.setItem("cradlen-signup-email", "person@example.com");
+    mockUseRegistrationStatus.mockReturnValue({
+      data: { step: "VERIFY_OTP" },
+      error: null,
+      isLoading: false,
+    });
+
+    renderWithIntl(<SignUpVerifyForm />);
+
+    const input = await screen.findByLabelText("Verification code");
+    fireEvent.change(input, { target: { value: "123456" } });
+    fireEvent.submit(input.closest("form") as HTMLFormElement);
+
+    // The cache must be updated so the complete page's guard doesn't read the stale
+    // VERIFY_OTP value and bounce the user back here.
+    await waitFor(() => {
+      expect(mockSetQueryData).toHaveBeenCalledWith(
+        ["registration-status", "person@example.com"],
+        { step: "COMPLETE_ONBOARDING" },
+      );
+    });
+    expect(mockRouter.replace).toHaveBeenCalledWith("/sign-up/complete");
   });
 
   // --- redirects driven by the registration status ---
