@@ -1,4 +1,20 @@
 import { z } from "zod";
+import {
+  EXECUTIVE_TITLE,
+  DOCTOR_JOB_FUNCTIONS,
+  type ExecutiveTitleCode,
+  type JobFunctionCode,
+} from "./auth.constants";
+
+const EXECUTIVE_TITLE_VALUES = Object.values(EXECUTIVE_TITLE) as [
+  ExecutiveTitleCode,
+  ...ExecutiveTitleCode[],
+];
+
+const DOCTOR_JOB_FUNCTION_VALUES = [...DOCTOR_JOB_FUNCTIONS] as [
+  JobFunctionCode,
+  ...JobFunctionCode[],
+];
 
 const PHONE_NUMBER_REGEXES = [
   /^(?:\+20|0020|0)?1[0125]\d{8}$/,
@@ -51,23 +67,50 @@ export function makeStep2Schema(t: (key: string) => string = (k) => k) {
 }
 
 export function makeStep3Schema(t: (key: string) => string = (k) => k) {
-  return z.object({
-    organizationName: z
-      .string()
-      .min(1, { message: t("errors.accountNameRequired") }),
-    specialties: z
-      .array(z.string())
-      .min(1, { message: t("errors.specialtiesRequired") }),
-    branchName: z
-      .string()
-      .min(1, { message: t("errors.branchNameRequired") }),
-    city: z.string().min(1, { message: t("errors.cityRequired") }),
-    address: z.string().min(1, { message: t("errors.addressRequired") }),
-    governorate: z
-      .string()
-      .min(1, { message: t("errors.governorateRequired") }),
-    country: z.string().optional(),
-  });
+  return z
+    .object({
+      organizationName: z
+        .string()
+        .min(1, { message: t("errors.accountNameRequired") }),
+      specialties: z
+        .array(z.string())
+        .min(1, { message: t("errors.specialtiesRequired") }),
+      executiveTitle: z.enum(EXECUTIVE_TITLE_VALUES),
+      isPractitioner: z.boolean(),
+      practitionerSpecialties: z.array(z.string()),
+      jobFunction: z.enum(DOCTOR_JOB_FUNCTION_VALUES).optional(),
+      professionalTitle: z
+        .string()
+        .trim()
+        .max(120, { message: t("errors.professionalTitleTooLong") })
+        .optional(),
+      branchName: z
+        .string()
+        .min(1, { message: t("errors.branchNameRequired") }),
+      city: z.string().min(1, { message: t("errors.cityRequired") }),
+      address: z.string().min(1, { message: t("errors.addressRequired") }),
+      governorate: z
+        .string()
+        .min(1, { message: t("errors.governorateRequired") }),
+      country: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (!data.isPractitioner) return;
+      if (data.practitionerSpecialties.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("errors.practitionerSpecialtiesRequired"),
+          path: ["practitionerSpecialties"],
+        });
+      }
+      if (!data.jobFunction) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("errors.jobFunctionRequired"),
+          path: ["jobFunction"],
+        });
+      }
+    });
 }
 
 // Convenience exports — use makeStepNSchema(t) in components for translated messages.
