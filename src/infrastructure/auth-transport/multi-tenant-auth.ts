@@ -36,10 +36,18 @@ export function sanitizeProfileSelection(body: unknown) {
   const source = data ?? root;
   const meta = getObject(root?.meta) ?? {};
   const profiles = source?.profiles;
+  // Pass through the ONBOARDING_REQUIRED discriminator so the client can tell a
+  // not-yet-onboarded login apart from a profile selection. The signup_token is
+  // deliberately NOT echoed here — it is set as an HttpOnly cookie by
+  // persistSignupTokenFromBody and must stay out of the JS-readable response.
+  const type = source?.type;
+  const step = source?.step;
 
   return {
     data: {
       profiles: Array.isArray(profiles) ? profiles : [],
+      ...(typeof type === "string" ? { type } : {}),
+      ...(typeof step === "string" ? { step } : {}),
     },
     meta,
   };

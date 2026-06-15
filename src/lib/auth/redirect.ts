@@ -9,14 +9,17 @@ export type OnboardingRequiredResponse = {
 
 export type AuthRedirectPath =
   | "/sign-up"
+  | "/sign-up/complete"
   | "/select-profile"
   | "/sign-in";
 
-// Login responses for ONBOARDING_REQUIRED never carry a fresh signup_token —
-// the user must re-run /auth/signup/start. Both steps therefore restart at /sign-up.
+// COMPLETE_ONBOARDING login responses now carry a fresh signup_token (set as an
+// HttpOnly cookie by the login route), so the user can resume onboarding directly
+// at step 3. VERIFY_OTP still restarts at /sign-up, where /auth/signup/start
+// re-sends the OTP and re-issues the token for the still-PENDING account.
 const ONBOARDING_REDIRECTS: Record<OnboardingRequiredStep, AuthRedirectPath> = {
   VERIFY_OTP: "/sign-up",
-  COMPLETE_ONBOARDING: "/sign-up",
+  COMPLETE_ONBOARDING: "/sign-up/complete",
 };
 
 function getObject(value: unknown) {
