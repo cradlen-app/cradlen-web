@@ -506,18 +506,15 @@
         "CFO": "CFO",
         "CMO": "CMO"
       },
-      "practitionerToggleLabel": "I also practice as a doctor here",
-      "practitionerSpecialtiesLabel": "Your specialties",
-      "practitionerSpecialtiesPlaceholder": "e.g. Obstetrics & Gynecology",
-      "jobFunctionLabel": "Role / function",
-      "jobFunctionPlaceholder": "Select a role",
-      "jobFunctionHint": "Determines your clinical status and permissions.",
-      "jobFunctions": {
-        "OBGYN": "OB/GYN",
-        "ANESTHESIOLOGIST": "Anesthesiologist",
-        "PEDIATRICIAN": "Pediatrician",
-        "OTHER_DOCTOR": "Other doctor"
+      "jobRoleLabel": "Job function",
+      "jobRoles": {
+        "DOCTOR": "Doctor",
+        "RECEPTIONIST": "Receptionist",
+        "ACCOUNTANT": "Accountant",
+        "NONE": "None / administration"
       },
+      "doctorSpecialtyLabel": "Your specialty",
+      "doctorSpecialtyPlaceholder": "Select your specialty",
       "professionalTitleLabel": "Title on your profile",
       "professionalTitlePlaceholder": "e.g. استشاري النساء والتوليد",
       "professionalTitleHint": "Free text shown on your profile — display only.",
@@ -562,8 +559,7 @@
         "codeDigits": "Code must contain only digits",
         "accountNameRequired": "Organization name is required",
         "specialtiesRequired": "Please enter at least one specialty",
-        "practitionerSpecialtiesRequired": "Please select at least one specialty",
-        "jobFunctionRequired": "Please select a role",
+        "doctorSpecialtyRequired": "Please select your specialty",
         "professionalTitleTooLong": "Title must be 120 characters or fewer",
         "branchNameRequired": "Branch name is required",
         "cityRequired": "City is required",

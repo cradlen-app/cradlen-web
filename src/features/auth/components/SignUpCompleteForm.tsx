@@ -22,7 +22,8 @@ import {
 } from "../lib/current-user";
 import { resolveDefaultRouteAfterAuth } from "../lib/redirect";
 import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
-import { EXECUTIVE_TITLE, DOCTOR_JOB_FUNCTIONS } from "../lib/auth.constants";
+import { useSpecialtiesLookup } from "@/features/settings/hooks/useSettingsLookups";
+import { EXECUTIVE_TITLE, OWNER_JOB_ROLE } from "../lib/auth.constants";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
@@ -68,9 +69,8 @@ export function SignUpCompleteForm() {
       organizationName: "",
       specialties: [],
       executiveTitle: EXECUTIVE_TITLE.CEO,
-      isPractitioner: false,
-      practitionerSpecialties: [],
-      jobFunction: undefined,
+      jobRole: OWNER_JOB_ROLE.NONE,
+      doctorSpecialty: "",
       professionalTitle: "",
       city: "",
       address: "",
@@ -80,10 +80,10 @@ export function SignUpCompleteForm() {
     },
   });
 
-  const isPractitioner = useWatch({
-    control: form.control,
-    name: "isPractitioner",
-  });
+  const jobRole = useWatch({ control: form.control, name: "jobRole" });
+  const isDoctor = jobRole === OWNER_JOB_ROLE.DOCTOR;
+  const specialtyLookup = useSpecialtiesLookup();
+  const specialtyOptions = specialtyLookup.data?.data ?? [];
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -243,61 +243,48 @@ export function SignUpCompleteForm() {
         </div>
 
         <div className="flex flex-col gap-3 rounded-xl border border-gray-100 p-4">
-          <label className="flex items-center gap-2.5 text-sm text-brand-black">
-            <input
-              type="checkbox"
-              {...form.register("isPractitioner")}
-              className="size-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
-            />
-            {t("practitionerToggleLabel")}
-          </label>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="jobRole" className="text-sm text-brand-black">
+              {t("jobRoleLabel")}
+            </label>
+            <select
+              id="jobRole"
+              {...form.register("jobRole")}
+              className={cn(inputClass)}
+            >
+              {Object.values(OWNER_JOB_ROLE).map((role) => (
+                <option key={role} value={role}>
+                  {t(`jobRoles.${role}`)}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {isPractitioner && (
+          {isDoctor && (
             <div className="flex flex-col gap-4 ps-1">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-brand-black">
-                  {t("practitionerSpecialtiesLabel")}
-                </label>
-                <Controller
-                  control={form.control}
-                  name="practitionerSpecialties"
-                  render={({ field }) => (
-                    <SpecialtiesSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder={t("practitionerSpecialtiesPlaceholder")}
-                      hasError={!!form.formState.errors.practitionerSpecialties}
-                    />
-                  )}
-                />
-                {fieldError(
-                  form.formState.errors.practitionerSpecialties?.message as
-                    | string
-                    | undefined,
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="jobFunction" className="text-sm text-brand-black">
-                  {t("jobFunctionLabel")}
+                <label
+                  htmlFor="doctorSpecialty"
+                  className="text-sm text-brand-black"
+                >
+                  {t("doctorSpecialtyLabel")}
                 </label>
                 <select
-                  id="jobFunction"
-                  {...form.register("jobFunction")}
+                  id="doctorSpecialty"
+                  {...form.register("doctorSpecialty")}
                   className={cn(
                     inputClass,
-                    errorInputClass(!!form.formState.errors.jobFunction),
+                    errorInputClass(!!form.formState.errors.doctorSpecialty),
                   )}
                 >
-                  <option value="">{t("jobFunctionPlaceholder")}</option>
-                  {DOCTOR_JOB_FUNCTIONS.map((code) => (
+                  <option value="">{t("doctorSpecialtyPlaceholder")}</option>
+                  {specialtyOptions.map(({ code, name }) => (
                     <option key={code} value={code}>
-                      {t(`jobFunctions.${code}`)}
+                      {name}
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-gray-400">{t("jobFunctionHint")}</p>
-                {fieldError(form.formState.errors.jobFunction?.message)}
+                {fieldError(form.formState.errors.doctorSpecialty?.message)}
               </div>
 
               <div className="flex flex-col gap-1.5">
