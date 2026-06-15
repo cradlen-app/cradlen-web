@@ -25,6 +25,16 @@
       "REJECTED": "مرفوض",
       "CANCELLED": "ملغى"
     },
+    "purpose": {
+      "PLAN": "خطة",
+      "ADD_ON": "إضافة"
+    },
+    "planNames": {
+      "free_trial": "تجربة مجانية",
+      "individual": "عيادة فردية",
+      "center": "مركز",
+      "network": "شبكة مراكز"
+    },
     "plans": {
       "title": "اختر خطة",
       "perYear": "سنة",
@@ -38,8 +48,30 @@
         "organizations": "حتى {count} منظمات"
       }
     },
+    "addOns": {
+      "title": "الإضافات",
+      "description": "فروع ومقاعد مستخدمين إضافية فوق خطتك.",
+      "empty": "لا توجد إضافات متاحة لخطتك.",
+      "buy": "إضافة",
+      "owned": "إضافاتك",
+      "ownedQuantity": "×{count}",
+      "prorated": "يُحتسب بالتناسب مع المدة المتبقية من اشتراكك.",
+      "requiresActive": "فعّل خطة مدفوعة لشراء الإضافات.",
+      "perYearFull": "{amount} / سنة",
+      "kinds": {
+        "BRANCH_BUNDLE": "فرع إضافي",
+        "EXTRA_USER": "مستخدم إضافي"
+      },
+      "grants": {
+        "branchesAndUsers": "+{branches} فرع · +{users} مستخدمين",
+        "usersOnly": "+{users} مستخدم"
+      },
+      "quantity": "الكمية"
+    },
     "createDialog": {
       "title": "الاشتراك في {plan}",
+      "addOnTitle": "إضافة {addOn}",
+      "addOnDescription": "{amount} سنويًا، تُحتسب بالتناسب مع المدة المتبقية.",
       "description": "سيتم تحصيل {amount} لمدة سنة واحدة.",
       "descriptionNoPrice": "اختر طريقة الدفع.",
       "provider": "طريقة الدفع",

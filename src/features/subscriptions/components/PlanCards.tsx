@@ -52,8 +52,8 @@ export function PlanCards({
               )}
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-medium capitalize text-brand-black">
-                  {plan.plan}
+                <h3 className="text-base font-medium text-brand-black">
+                  {t(`planNames.${plan.plan}`)}
                 </h3>
                 {isCurrent && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-brand-primary/10 px-2.5 py-1 text-xs font-medium text-brand-primary">
@@ -102,6 +102,7 @@ export function PlanCards({
       </div>
 
       <CreatePaymentDialog
+        mode="plan"
         organizationId={organizationId}
         plan={selectedPlan}
         open={selectedPlan !== null}

@@ -7,6 +7,7 @@ import {
   createPayment,
   getCurrentSubscription,
   getPayment,
+  listAddOns,
   listPayments,
   listPlans,
   removeProof,
@@ -28,6 +29,15 @@ export function useCurrentSubscription(organizationId: string | undefined) {
     queryKey: queryKeys.subscription.current(organizationId ?? ""),
     queryFn: () => getCurrentSubscription(organizationId!),
     enabled: !!organizationId,
+  });
+}
+
+export function useAddOns(organizationId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.subscription.addOns(organizationId ?? ""),
+    queryFn: () => listAddOns(organizationId!),
+    enabled: !!organizationId,
+    staleTime: 10 * 60 * 1000,
   });
 }
 
