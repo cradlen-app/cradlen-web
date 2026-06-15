@@ -9,7 +9,9 @@ const mockRegisterOrg = vi.hoisted(() => vi.fn());
 const mockSelectProfile = vi.hoisted(() => vi.fn());
 const mockResolveAuthRedirect = vi.hoisted(() => vi.fn());
 const mockGetProfiles = vi.hoisted(() => vi.fn());
-const mockIsOnboardingRedirect = vi.hoisted(() => vi.fn(() => false));
+const mockIsOnboardingRedirect = vi.hoisted(() =>
+  vi.fn((..._args: unknown[]) => false),
+);
 const mockGetProfileBranches = vi.hoisted(() => vi.fn());
 const mockResolveDefaultRoute = vi.hoisted(() => vi.fn());
 const mockSetPendingProfileSelection = vi.hoisted(() => vi.fn());
