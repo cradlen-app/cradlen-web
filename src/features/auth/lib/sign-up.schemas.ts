@@ -1,9 +1,9 @@
 import { z } from "zod";
 import {
   EXECUTIVE_TITLE,
-  OWNER_JOB_ROLE,
+  JOB_ROLE,
   type ExecutiveTitleCode,
-  type OwnerJobRoleCode,
+  type JobRoleCode,
 } from "./auth.constants";
 
 const EXECUTIVE_TITLE_VALUES = Object.values(EXECUTIVE_TITLE) as [
@@ -11,9 +11,9 @@ const EXECUTIVE_TITLE_VALUES = Object.values(EXECUTIVE_TITLE) as [
   ...ExecutiveTitleCode[],
 ];
 
-const OWNER_JOB_ROLE_VALUES = Object.values(OWNER_JOB_ROLE) as [
-  OwnerJobRoleCode,
-  ...OwnerJobRoleCode[],
+const JOB_ROLE_VALUES = Object.values(JOB_ROLE) as [
+  JobRoleCode,
+  ...JobRoleCode[],
 ];
 
 const PHONE_NUMBER_REGEXES = [
@@ -76,7 +76,7 @@ export function makeStep3Schema(t: (key: string) => string = (k) => k) {
         .array(z.string())
         .min(1, { message: t("errors.specialtiesRequired") }),
       executiveTitle: z.enum(EXECUTIVE_TITLE_VALUES),
-      jobRole: z.enum(OWNER_JOB_ROLE_VALUES),
+      jobRole: z.enum(JOB_ROLE_VALUES),
       doctorSpecialty: z.string(),
       professionalTitle: z
         .string()
@@ -94,7 +94,7 @@ export function makeStep3Schema(t: (key: string) => string = (k) => k) {
       country: z.string().optional(),
     })
     .superRefine((data, ctx) => {
-      if (data.jobRole === OWNER_JOB_ROLE.DOCTOR && !data.doctorSpecialty) {
+      if (data.jobRole === JOB_ROLE.DOCTOR && !data.doctorSpecialty) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: t("errors.doctorSpecialtyRequired"),
