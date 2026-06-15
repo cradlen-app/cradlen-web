@@ -14,7 +14,7 @@ describe("resolveAuthRedirect", () => {
     ).toBe("/sign-up");
   });
 
-  it("routes onboarding complete responses to /sign-up to mint a fresh signup token", () => {
+  it("routes onboarding complete responses straight to step 3 (the cookie is already set)", () => {
     expect(
       resolveAuthRedirect({
         data: {
@@ -22,7 +22,7 @@ describe("resolveAuthRedirect", () => {
           step: "COMPLETE_ONBOARDING",
         },
       }),
-    ).toBe("/sign-up");
+    ).toBe("/sign-up/complete");
   });
 
   it("routes wrapped and unwrapped profile responses to profile selection", () => {
