@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/infrastructure/http/api";
+import { queryClient } from "@/infrastructure/query/queryClient";
+import { queryKeys } from "@/lib/queryKeys";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep2Schema } from "../lib/sign-up.schemas";
 import {
@@ -18,7 +20,10 @@ import {
   clearPendingSignupSession,
   getPendingSignupEmail,
 } from "../lib/registration-session";
-import type { Step2Data } from "../types/sign-up.types";
+import type {
+  Step2Data,
+  RegistrationStatusResponse,
+} from "../types/sign-up.types";
 
 type SignUpVerifyFormContentProps = {
   email: string | null;
@@ -153,6 +158,13 @@ function SignUpVerifyFormContent({
       await verifyEmail.mutateAsync({
         code: data.verificationCode,
       });
+      // The registration-status query is cached fresh (staleTime 60s). Without this,
+      // the complete page's guard re-reads the stale VERIFY_OTP value and bounces the
+      // user back here. Update the cache so the guard sees onboarding is now pending.
+      queryClient.setQueryData<RegistrationStatusResponse>(
+        queryKeys.registrationStatus(email ?? ""),
+        { step: "COMPLETE_ONBOARDING" },
+      );
       router.replace("/sign-up/complete");
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
