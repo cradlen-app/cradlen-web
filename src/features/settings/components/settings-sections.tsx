@@ -116,6 +116,10 @@ export function ProfileSection({
               }
             />
             <DetailRow
+              label={t("fields.professionalTitle")}
+              value={profile.professional_title ?? undefined}
+            />
+            <DetailRow
               label={t("fields.engagementType")}
               value={
                 profile.engagement_type

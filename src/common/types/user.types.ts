@@ -43,6 +43,8 @@ export type UserProfile = {
   staff_id: string;
   job_title?: string;
   executive_title?: ExecutiveTitle | null;
+  /** Free-text professional title (e.g. "استشاري النساء والتوليد"). Display only. */
+  professional_title?: string | null;
   engagement_type?: EngagementType | null;
   phone_number?: string | null;
   phone?: string | null;
