@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
@@ -22,6 +22,7 @@ import {
 } from "../lib/current-user";
 import { resolveDefaultRouteAfterAuth } from "../lib/redirect";
 import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
+import { EXECUTIVE_TITLE, DOCTOR_JOB_FUNCTIONS } from "../lib/auth.constants";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
@@ -66,12 +67,22 @@ export function SignUpCompleteForm() {
     defaultValues: {
       organizationName: "",
       specialties: [],
+      executiveTitle: EXECUTIVE_TITLE.CEO,
+      isPractitioner: false,
+      practitionerSpecialties: [],
+      jobFunction: undefined,
+      professionalTitle: "",
       city: "",
       address: "",
       governorate: "",
       country: "",
       branchName: "",
     },
+  });
+
+  const isPractitioner = useWatch({
+    control: form.control,
+    name: "isPractitioner",
   });
 
   const inputClass = cn(
@@ -194,7 +205,7 @@ export function SignUpCompleteForm() {
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm text-brand-black">
-            {t("specialtiesLabel")}
+            {t("organizationSpecialtiesLabel")}
           </label>
           <Controller
             control={form.control}
@@ -203,12 +214,116 @@ export function SignUpCompleteForm() {
               <SpecialtiesSelect
                 value={field.value}
                 onChange={field.onChange}
-                placeholder={t("specialtiesPlaceholder")}
+                placeholder={t("organizationSpecialtiesPlaceholder")}
                 hasError={!!form.formState.errors.specialties}
               />
             )}
           />
+          <p className="text-xs text-gray-400">
+            {t("organizationSpecialtiesHint")}
+          </p>
           {fieldError(form.formState.errors.specialties?.message as string | undefined)}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="executiveTitle" className="text-sm text-brand-black">
+            {t("executiveTitleLabel")}
+          </label>
+          <select
+            id="executiveTitle"
+            {...form.register("executiveTitle")}
+            className={cn(inputClass)}
+          >
+            {Object.values(EXECUTIVE_TITLE).map((title) => (
+              <option key={title} value={title}>
+                {t(`executiveTitles.${title}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-3 rounded-xl border border-gray-100 p-4">
+          <label className="flex items-center gap-2.5 text-sm text-brand-black">
+            <input
+              type="checkbox"
+              {...form.register("isPractitioner")}
+              className="size-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
+            />
+            {t("practitionerToggleLabel")}
+          </label>
+
+          {isPractitioner && (
+            <div className="flex flex-col gap-4 ps-1">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm text-brand-black">
+                  {t("practitionerSpecialtiesLabel")}
+                </label>
+                <Controller
+                  control={form.control}
+                  name="practitionerSpecialties"
+                  render={({ field }) => (
+                    <SpecialtiesSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={t("practitionerSpecialtiesPlaceholder")}
+                      hasError={!!form.formState.errors.practitionerSpecialties}
+                    />
+                  )}
+                />
+                {fieldError(
+                  form.formState.errors.practitionerSpecialties?.message as
+                    | string
+                    | undefined,
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="jobFunction" className="text-sm text-brand-black">
+                  {t("jobFunctionLabel")}
+                </label>
+                <select
+                  id="jobFunction"
+                  {...form.register("jobFunction")}
+                  className={cn(
+                    inputClass,
+                    errorInputClass(!!form.formState.errors.jobFunction),
+                  )}
+                >
+                  <option value="">{t("jobFunctionPlaceholder")}</option>
+                  {DOCTOR_JOB_FUNCTIONS.map((code) => (
+                    <option key={code} value={code}>
+                      {t(`jobFunctions.${code}`)}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-400">{t("jobFunctionHint")}</p>
+                {fieldError(form.formState.errors.jobFunction?.message)}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="professionalTitle"
+                  className="text-sm text-brand-black"
+                >
+                  {t("professionalTitleLabel")}
+                </label>
+                <input
+                  id="professionalTitle"
+                  type="text"
+                  placeholder={t("professionalTitlePlaceholder")}
+                  {...form.register("professionalTitle")}
+                  className={cn(
+                    inputClass,
+                    errorInputClass(!!form.formState.errors.professionalTitle),
+                  )}
+                />
+                <p className="text-xs text-gray-400">
+                  {t("professionalTitleHint")}
+                </p>
+                {fieldError(form.formState.errors.professionalTitle?.message)}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-4">
