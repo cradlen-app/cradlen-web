@@ -201,7 +201,7 @@ export function SettingsPage() {
         t={t}
       />
 
-      <div className="grid min-h-0 gap-4 md:grid-cols-[14rem_1fr]">
+      <div className="flex min-w-0 flex-col gap-4">
         <SettingsNav
           activeSection={activeSection}
           onSectionChange={setActiveSection}
@@ -303,34 +303,33 @@ function SettingsNav({
   t: ReturnType<typeof useTranslations>;
 }) {
   return (
-    <aside className="h-fit rounded-2xl border border-gray-100 bg-white p-2 shadow-sm shadow-gray-100/60 md:sticky md:top-0">
-      <nav
-        className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden md:flex-col md:overflow-visible"
-        aria-label={t("navLabel")}
-      >
-        {sections.map((section) => {
-          const Icon = section.icon;
-          const isActive = activeSection === section.key;
+    <nav
+      className="flex gap-1 overflow-x-auto border-b border-gray-200 [&::-webkit-scrollbar]:hidden"
+      aria-label={t("navLabel")}
+    >
+      {sections.map((section) => {
+        const Icon = section.icon;
+        const isActive = activeSection === section.key;
 
-          return (
-            <button
-              key={section.key}
-              type="button"
-              onClick={() => onSectionChange(section.key)}
-              className={cn(
-                "flex h-10 min-w-36 items-center gap-2 rounded-lg px-3 text-start text-sm font-medium transition md:min-w-0",
-                isActive
-                  ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
-                  : "text-gray-400 hover:bg-gray-50 hover:text-brand-black",
-              )}
-            >
-              <Icon className="size-4 shrink-0" />
-              <span className="truncate">{t(`tabs.${section.key}`)}</span>
-            </button>
-          );
-        })}
-      </nav>
-    </aside>
+        return (
+          <button
+            key={section.key}
+            type="button"
+            onClick={() => onSectionChange(section.key)}
+            aria-current={isActive ? "page" : undefined}
+            className={cn(
+              "-mb-px flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition",
+              isActive
+                ? "border-brand-primary text-brand-primary"
+                : "border-transparent text-gray-400 hover:text-brand-black",
+            )}
+          >
+            <Icon className="size-4 shrink-0" />
+            <span className="whitespace-nowrap">{t(`tabs.${section.key}`)}</span>
+          </button>
+        );
+      })}
+    </nav>
   );
 }
 
