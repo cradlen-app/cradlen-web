@@ -130,6 +130,7 @@ export function mapApiStaffToMember(api: ApiStaffMember, locale: string): StaffM
     jobFunctions: api.job_functions ?? [],
     specialties: api.specialties ?? [],
     executiveTitle: api.executive_title ?? null,
+    professionalTitle: api.professional_title ?? null,
     engagementType: api.engagement_type ?? null,
     schedule: api.schedule,
     workSchedule: formatBranchSchedule(api.schedule, locale),

@@ -23,7 +23,7 @@ import {
 import { resolveDefaultRouteAfterAuth } from "../lib/redirect";
 import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
 import { useSpecialtiesLookup } from "@/features/settings/hooks/useSettingsLookups";
-import { EXECUTIVE_TITLE, OWNER_JOB_ROLE } from "../lib/auth.constants";
+import { EXECUTIVE_TITLE, JOB_ROLE } from "../lib/auth.constants";
 import { StepIndicator } from "./StepIndicator";
 import { makeStep3Schema } from "../lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "../lib/register-organization";
@@ -69,7 +69,7 @@ export function SignUpCompleteForm() {
       organizationName: "",
       specialties: [],
       executiveTitle: EXECUTIVE_TITLE.CEO,
-      jobRole: OWNER_JOB_ROLE.NONE,
+      jobRole: JOB_ROLE.NONE,
       doctorSpecialty: "",
       professionalTitle: "",
       city: "",
@@ -81,7 +81,7 @@ export function SignUpCompleteForm() {
   });
 
   const jobRole = useWatch({ control: form.control, name: "jobRole" });
-  const isDoctor = jobRole === OWNER_JOB_ROLE.DOCTOR;
+  const isDoctor = jobRole === JOB_ROLE.DOCTOR;
   const specialtyLookup = useSpecialtiesLookup();
   const specialtyOptions = specialtyLookup.data?.data ?? [];
 
@@ -252,7 +252,7 @@ export function SignUpCompleteForm() {
               {...form.register("jobRole")}
               className={cn(inputClass)}
             >
-              {Object.values(OWNER_JOB_ROLE).map((role) => (
+              {Object.values(JOB_ROLE).map((role) => (
                 <option key={role} value={role}>
                   {t(`jobRoles.${role}`)}
                 </option>

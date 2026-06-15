@@ -18,9 +18,11 @@ import {
 import {
   ENGAGEMENT_TYPE,
   EXECUTIVE_TITLE,
+  JOB_ROLE,
   STAFF_API_ROLE,
   type EngagementTypeCode,
   type ExecutiveTitleCode,
+  type JobRoleCode,
   type StaffApiRole,
 } from "@/features/auth/lib/auth.constants";
 import { cn } from "@/common/utils/utils";
@@ -28,10 +30,7 @@ import {
   type StaffCreateDirectFormValues,
   type StaffInviteFormValues,
 } from "../lib/staff-invite.schemas";
-import type {
-  ApiStaffJobFunction,
-  ApiStaffSpecialty,
-} from "../types/staff.api.types";
+import type { ApiStaffSpecialty } from "../types/staff.api.types";
 import type { StaffMember, StaffRoleOption } from "../types/staff.types";
 import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
 
@@ -58,11 +57,9 @@ export type StaffFormFieldsProps = {
   /** Roles assignable by the current user (OWNER can assign anything except OWNER itself). */
   assignableRoles: Set<StaffApiRole>;
   selectedRoleId: string;
-  selectedJobFunctionCodes: string[];
-  selectedSpecialtyCodes: string[];
+  selectedJobRole: JobRoleCode;
   selectedEngagementType: EngagementTypeCode;
   selectedExecutiveTitle: ExecutiveTitleCode | null | undefined;
-  jobFunctionOptions: ApiStaffJobFunction[];
   specialtyOptions: ApiStaffSpecialty[];
   branchOptions: OrganizationBranch[];
   selectedBranchIds: string[];
@@ -127,11 +124,9 @@ export default function StaffFormFields({
   roles,
   assignableRoles,
   selectedRoleId,
-  selectedJobFunctionCodes,
-  selectedSpecialtyCodes,
+  selectedJobRole,
   selectedEngagementType,
   selectedExecutiveTitle,
-  jobFunctionOptions,
   specialtyOptions,
   branchOptions,
   selectedBranchIds,
@@ -149,7 +144,7 @@ export default function StaffFormFields({
   );
 
   function toggleArrayValue(
-    field: "jobFunctionCodes" | "specialtyCodes" | "branchIds",
+    field: "branchIds",
     current: string[],
     code: string,
   ) {
@@ -157,6 +152,18 @@ export default function StaffFormFields({
       ? current.filter((c) => c !== code)
       : [...current, code];
     setValue(field, next, { shouldDirty: true, shouldValidate: true });
+  }
+
+  const isDoctor = selectedJobRole === JOB_ROLE.DOCTOR;
+
+  function selectJobRole(role: JobRoleCode) {
+    setValue("jobRole", role, { shouldDirty: true, shouldValidate: true });
+    if (role !== JOB_ROLE.DOCTOR) {
+      // Doctor-only fields carry no meaning for the other roles — clear them so
+      // a stale specialty/title can't leak into the payload.
+      setValue("doctorSpecialty", "", { shouldDirty: true, shouldValidate: true });
+      setValue("professionalTitle", "", { shouldDirty: true });
+    }
   }
 
   return (
@@ -383,56 +390,52 @@ export default function StaffFormFields({
         </div>
       </section>
 
-      {/* Job functions */}
+      {/* Job function — coarse picker; Doctor drives a single specialty + title */}
       <section className="space-y-3">
-        <SectionTitle title={t("jobFunctions")} />
-        <input {...register("jobFunctionCodes" as never)} type="hidden" />
+        <SectionTitle title={t("jobRoleLabel")} />
+        <input {...register("jobRole" as never)} type="hidden" />
         <div className="flex flex-wrap gap-2">
-          {jobFunctionOptions.length === 0 ? (
-            <p className="text-[11px] text-gray-400">{t("noJobFunctions")}</p>
-          ) : (
-            jobFunctionOptions.map((fn) => (
-              <ChipToggle
-                key={fn.code}
-                label={fn.name}
-                selected={selectedJobFunctionCodes.includes(fn.code)}
-                onClick={() =>
-                  toggleArrayValue(
-                    "jobFunctionCodes",
-                    selectedJobFunctionCodes,
-                    fn.code,
-                  )
-                }
-              />
-            ))
-          )}
+          {Object.values(JOB_ROLE).map((role) => (
+            <ChipToggle
+              key={role}
+              label={t(`jobRoles.${role}`)}
+              selected={selectedJobRole === role}
+              onClick={() => selectJobRole(role)}
+            />
+          ))}
         </div>
-      </section>
 
-      {/* Specialties */}
-      <section className="space-y-3">
-        <SectionTitle title={t("specialties")} />
-        <input {...register("specialtyCodes" as never)} type="hidden" />
-        <div className="flex flex-wrap gap-2">
-          {specialtyOptions.length === 0 ? (
-            <p className="text-[11px] text-gray-400">{t("noSpecialties")}</p>
-          ) : (
-            specialtyOptions.map((sp) => (
-              <ChipToggle
-                key={sp.code}
-                label={sp.name}
-                selected={selectedSpecialtyCodes.includes(sp.code)}
-                onClick={() =>
-                  toggleArrayValue(
-                    "specialtyCodes",
-                    selectedSpecialtyCodes,
-                    sp.code,
-                  )
-                }
+        {isDoctor && (
+          <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-xs font-medium text-brand-black">
+                {t("doctorSpecialty")}
+              </span>
+              <select {...register("doctorSpecialty")} className={fieldClass}>
+                <option value="">{t("doctorSpecialtyPlaceholder")}</option>
+                {specialtyOptions.map((sp) => (
+                  <option key={sp.code} value={sp.code}>
+                    {sp.name}
+                  </option>
+                ))}
+              </select>
+              <FieldError message={errors.doctorSpecialty?.message} />
+            </label>
+
+            <label className="block">
+              <span className="text-xs font-medium text-brand-black">
+                {t("professionalTitle")}
+              </span>
+              <input
+                {...register("professionalTitle")}
+                className={fieldClass}
+                placeholder={t("professionalTitlePlaceholder")}
               />
-            ))
-          )}
-        </div>
+              <p className="pt-1 text-[11px] text-gray-400">{t("professionalTitleHint")}</p>
+              <FieldError message={errors.professionalTitle?.message} />
+            </label>
+          </div>
+        )}
       </section>
     </>
   );

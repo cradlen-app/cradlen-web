@@ -143,10 +143,18 @@
       "CFO": "المدير المالي",
       "CMO": "المدير الطبي"
     },
-    "jobFunctions": "المهام الوظيفية",
-    "specialties": "التخصصات",
-    "noJobFunctions": "جاري تحميل الخيارات…",
-    "noSpecialties": "جاري تحميل الخيارات…",
+    "jobRoleLabel": "المهمة الوظيفية",
+    "jobRoles": {
+      "DOCTOR": "طبيب",
+      "RECEPTIONIST": "موظف استقبال",
+      "ACCOUNTANT": "محاسب",
+      "NONE": "بدون / إداري"
+    },
+    "doctorSpecialty": "التخصص",
+    "doctorSpecialtyPlaceholder": "اختر التخصص",
+    "professionalTitle": "المسمى المهني",
+    "professionalTitlePlaceholder": "مثال: استشاري النساء والتوليد",
+    "professionalTitleHint": "نص حر يظهر في الملف الشخصي — للعرض فقط.",
     "apiRoles": {
       "OWNER": "مالك",
       "BRANCH_MANAGER": "مدير فرع",

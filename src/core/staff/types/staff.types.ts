@@ -36,6 +36,8 @@ export type StaffMember = {
   jobFunctions: ApiStaffJobFunction[];
   specialties: ApiStaffSpecialty[];
   executiveTitle?: ExecutiveTitleCode | null;
+  /** Free-text credential/seniority wording (e.g. "استشاري النساء والتوليد"). */
+  professionalTitle?: string | null;
   engagementType?: EngagementTypeCode | null;
   schedule?: ApiStaffBranchSchedule[];
   workSchedule?: string;
