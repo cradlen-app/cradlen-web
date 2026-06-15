@@ -89,6 +89,7 @@ export type ApiStaffMember = {
   email: string;
   phone_number?: string | null;
   executive_title?: ExecutiveTitleCode | null;
+  professional_title?: string | null;
   engagement_type?: EngagementTypeCode | null;
   roles: ApiStaffRole[];
   branches: ApiStaffBranch[];
@@ -113,6 +114,7 @@ export type InviteStaffRequest = {
   job_function_codes?: string[];
   specialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
+  professional_title?: string;
   engagement_type?: EngagementTypeCode;
 };
 
@@ -127,6 +129,7 @@ export type CreateStaffDirectRequest = {
   job_function_codes?: string[];
   specialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
+  professional_title?: string;
   engagement_type?: EngagementTypeCode;
   schedule?: ApiStaffBranchSchedule[];
 };
@@ -157,6 +160,7 @@ export type UpdateStaffRequest = {
   job_function_codes?: string[];
   specialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
+  professional_title?: string;
   engagement_type?: EngagementTypeCode;
   schedule?: ApiStaffBranchSchedule[];
 };

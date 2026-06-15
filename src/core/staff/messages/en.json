@@ -143,10 +143,18 @@
       "CFO": "CFO",
       "CMO": "CMO"
     },
-    "jobFunctions": "Job functions",
-    "specialties": "Specialties",
-    "noJobFunctions": "Loading job function options…",
-    "noSpecialties": "Loading specialty options…",
+    "jobRoleLabel": "Job function",
+    "jobRoles": {
+      "DOCTOR": "Doctor",
+      "RECEPTIONIST": "Receptionist",
+      "ACCOUNTANT": "Accountant",
+      "NONE": "None / administration"
+    },
+    "doctorSpecialty": "Specialty",
+    "doctorSpecialtyPlaceholder": "Select a specialty",
+    "professionalTitle": "Professional title",
+    "professionalTitlePlaceholder": "e.g. استشاري النساء والتوليد",
+    "professionalTitleHint": "Free text shown on the profile — display only.",
     "apiRoles": {
       "OWNER": "Owner",
       "BRANCH_MANAGER": "Branch Manager",

@@ -3,6 +3,8 @@ import {
   DEFAULT_ENGAGEMENT_TYPE,
   ENGAGEMENT_TYPE,
   EXECUTIVE_TITLE,
+  JOB_ROLE,
+  type JobRoleCode,
 } from "@/features/auth/lib/auth.constants";
 import type { ApiStaffDay } from "../types/staff.api.types";
 
@@ -43,18 +45,37 @@ const EXECUTIVE_VALUES = Object.values(EXECUTIVE_TITLE) as [
   ...(typeof EXECUTIVE_TITLE)[keyof typeof EXECUTIVE_TITLE][],
 ];
 
+const JOB_ROLE_VALUES = Object.values(JOB_ROLE) as [JobRoleCode, ...JobRoleCode[]];
+
 const staffBaseSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   /** Backend role UUID — at least one required. */
   roleId: z.string().min(1, "Role is required"),
   phone: z.string().trim().optional(),
-  jobFunctionCodes: z.array(z.string()),
-  specialtyCodes: z.array(z.string()),
+  /** Coarse job function: Doctor / Receptionist / Accountant / None. */
+  jobRole: z.enum(JOB_ROLE_VALUES),
+  /** Single specialty code, required when jobRole === DOCTOR (drives templates). */
+  doctorSpecialty: z.string(),
+  /** Free-text credential/seniority wording, doctor-only. */
+  professionalTitle: z.string().trim().max(120, "Professional title is too long").optional(),
   executiveTitle: z.enum(EXECUTIVE_VALUES).nullable(),
   engagementType: z.enum(ENGAGEMENT_VALUES),
   branchIds: z.array(z.string()).min(1, "At least one branch is required"),
   shifts: z.array(shiftSchema),
 });
+
+function validateDoctorSpecialty(
+  value: { jobRole: JobRoleCode; doctorSpecialty: string },
+  ctx: z.RefinementCtx,
+) {
+  if (value.jobRole === JOB_ROLE.DOCTOR && !value.doctorSpecialty) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["doctorSpecialty"],
+      message: "Select a specialty",
+    });
+  }
+}
 
 function validateName(value: { name: string }, ctx: z.RefinementCtx) {
   const parts = value.name.split(/\s+/).filter(Boolean);
@@ -99,6 +120,7 @@ export const staffInviteSchema = staffBaseSchema
   })
   .superRefine((value, ctx) => {
     validateName(value, ctx);
+    validateDoctorSpecialty(value, ctx);
     validateShiftTimes(value, ctx);
   });
 
@@ -108,6 +130,7 @@ export const staffEditSchema = staffBaseSchema
   })
   .superRefine((value, ctx) => {
     validateName(value, ctx);
+    validateDoctorSpecialty(value, ctx);
     validateShiftTimes(value, ctx);
   });
 
@@ -118,6 +141,7 @@ export const staffCreateDirectSchema = staffBaseSchema
   })
   .superRefine((value, ctx) => {
     validateName(value, ctx);
+    validateDoctorSpecialty(value, ctx);
     if (value.shifts.some((s) => s.enabled)) validateShiftTimes(value, ctx);
   });
 
@@ -140,8 +164,9 @@ export function getDefaultStaffInviteValues(branchIds: string[] = []): StaffInvi
     name: "",
     roleId: "",
     phone: "",
-    jobFunctionCodes: [],
-    specialtyCodes: [],
+    jobRole: JOB_ROLE.NONE,
+    doctorSpecialty: "",
+    professionalTitle: "",
     executiveTitle: null,
     engagementType: DEFAULT_ENGAGEMENT_TYPE,
     branchIds,
@@ -158,8 +183,9 @@ export function getDefaultStaffCreateDirectValues(
     roleId: "",
     phone: "",
     password: "",
-    jobFunctionCodes: [],
-    specialtyCodes: [],
+    jobRole: JOB_ROLE.NONE,
+    doctorSpecialty: "",
+    professionalTitle: "",
     executiveTitle: null,
     engagementType: DEFAULT_ENGAGEMENT_TYPE,
     branchIds,

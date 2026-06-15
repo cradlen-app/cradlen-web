@@ -1,6 +1,6 @@
 import type { UserProfile } from "@/common/types/user.types";
 import type { AuthTokens } from "./sign-in.types";
-import type { ExecutiveTitleCode, OwnerJobRoleCode } from "../lib/auth.constants";
+import type { ExecutiveTitleCode, JobRoleCode } from "../lib/auth.constants";
 
 export type Step1Data = {
   firstName: string;
@@ -19,7 +19,7 @@ export type Step3Data = {
   organizationName: string;
   specialties: string[];
   executiveTitle: ExecutiveTitleCode;
-  jobRole: OwnerJobRoleCode;
+  jobRole: JobRoleCode;
   doctorSpecialty: string;
   professionalTitle?: string;
   branchName: string;
