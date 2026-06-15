@@ -81,6 +81,7 @@ export function PaymentsListPage() {
                       {formatMoney(payment.amount, payment.currency, locale)}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-400">
+                      {t(`purpose.${payment.purpose}`)} ·{" "}
                       {t(`createDialog.providers.${payment.provider}`)} ·{" "}
                       {formatDate(payment.created_at, locale)}
                     </p>
