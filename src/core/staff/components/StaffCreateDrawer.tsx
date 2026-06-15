@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 import {
   DEFAULT_ENGAGEMENT_TYPE,
+  JOB_ROLE,
   STAFF_API_ROLE,
   type StaffApiRole,
 } from "@/features/auth/lib/auth.constants";
@@ -26,11 +27,7 @@ import { useCreateStaffDirect } from "../hooks/useCreateStaffDirect";
 import { useInviteStaff } from "../hooks/useInviteStaff";
 import { useUpdateStaff } from "../hooks/useManageStaff";
 import { useStaffRoles } from "../hooks/useStaffRoles";
-import {
-  useJobFunctions,
-  useOrgBranches,
-  useSpecialties,
-} from "../hooks/useStaffLookups";
+import { useOrgBranches, useSpecialties } from "../hooks/useStaffLookups";
 import {
   getDefaultStaffCreateDirectValues,
   getDefaultStaffInviteValues,
@@ -41,6 +38,10 @@ import {
   type StaffCreateDirectFormValues,
   type StaffInviteFormValues,
 } from "../lib/staff-invite.schemas";
+import {
+  buildStaffRoleFields,
+  deriveJobRoleFromMember,
+} from "../lib/staff-role-fields";
 import type { ApiStaffBranchSchedule } from "../types/staff.api.types";
 import type { StaffMember } from "../types/staff.types";
 import DirectCreationSuccessModal from "./DirectCreationSuccessModal";
@@ -89,8 +90,7 @@ function getDefaultsForMember(
     phone: member.phone === "-" ? "" : member.phone,
     roleId: member.roles[0]?.id ?? "",
     branchIds: memberBranchIds.length ? memberBranchIds : branchIds,
-    jobFunctionCodes: member.jobFunctions.map((fn) => fn.code),
-    specialtyCodes: member.specialties.map((s) => s.code),
+    ...deriveJobRoleFromMember(member),
     executiveTitle: member.executiveTitle ?? null,
     engagementType: member.engagementType ?? DEFAULT_ENGAGEMENT_TYPE,
     shifts: defaults.shifts.map((shift) => {
@@ -136,7 +136,6 @@ export function StaffCreateDrawer({
   const ownerCanEditRoles = usePermission("staff.editRoles");
 
   const { data: roleFilters = [] } = useStaffRoles(organizationId, open);
-  const { data: jobFunctionOptions = [] } = useJobFunctions(open);
   const { data: specialtyOptions = [] } = useSpecialties(open);
   const { data: branchListResponse } = useOrgBranches(organizationId, open);
   const branchOptions = useMemo(
@@ -192,8 +191,7 @@ export function StaffCreateDrawer({
   } = activeForm as unknown as ReturnType<typeof useForm<StaffInviteFormValues>>;
 
   const selectedRoleId = useWatch({ control, name: "roleId" }) ?? "";
-  const jobFunctionCodes = useWatch({ control, name: "jobFunctionCodes" }) ?? [];
-  const specialtyCodes = useWatch({ control, name: "specialtyCodes" }) ?? [];
+  const jobRole = useWatch({ control, name: "jobRole" }) ?? JOB_ROLE.NONE;
   const selectedBranchIds = useWatch({ control, name: "branchIds" }) ?? [];
   const engagementType =
     useWatch({ control, name: "engagementType" }) ?? DEFAULT_ENGAGEMENT_TYPE;
@@ -280,8 +278,7 @@ export function StaffCreateDrawer({
                 ? { role_ids: [values.roleId] }
                 : {}),
               branch_ids: values.branchIds,
-              job_function_codes: values.jobFunctionCodes,
-              specialty_codes: values.specialtyCodes,
+              ...buildStaffRoleFields(values),
               executive_title: values.executiveTitle ?? null,
               engagement_type: values.engagementType,
             },
@@ -305,8 +302,7 @@ export function StaffCreateDrawer({
               role_ids: [directValues.roleId],
               // Backend invariant: the path branchId must be in branch_ids.
               branch_ids: Array.from(new Set([branchId, ...directValues.branchIds])),
-              job_function_codes: directValues.jobFunctionCodes,
-              specialty_codes: directValues.specialtyCodes,
+              ...buildStaffRoleFields(directValues),
               executive_title: directValues.executiveTitle ?? null,
               engagement_type: directValues.engagementType,
               ...(enabledSchedule.length ? { schedule: enabledSchedule } : {}),
@@ -337,8 +333,7 @@ export function StaffCreateDrawer({
             branch_ids: Array.from(
               new Set([branchId, ...inviteValues.branchIds]),
             ),
-            job_function_codes: inviteValues.jobFunctionCodes,
-            specialty_codes: inviteValues.specialtyCodes,
+            ...buildStaffRoleFields(inviteValues),
             executive_title: inviteValues.executiveTitle ?? null,
             engagement_type: inviteValues.engagementType,
           },
@@ -463,11 +458,9 @@ export function StaffCreateDrawer({
                   roles={roleFilters}
                   assignableRoles={assignableRoles}
                   selectedRoleId={selectedRoleId}
-                  selectedJobFunctionCodes={jobFunctionCodes}
-                  selectedSpecialtyCodes={specialtyCodes}
+                  selectedJobRole={jobRole}
                   selectedEngagementType={engagementType}
                   selectedExecutiveTitle={executiveTitle ?? null}
-                  jobFunctionOptions={jobFunctionOptions}
                   specialtyOptions={specialtyOptions}
                   branchOptions={branchOptions}
                   selectedBranchIds={selectedBranchIds}

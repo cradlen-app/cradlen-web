@@ -70,18 +70,19 @@ export const EXECUTIVE_TITLE = {
 export type ExecutiveTitleCode = (typeof EXECUTIVE_TITLE)[keyof typeof EXECUTIVE_TITLE];
 
 /**
- * Coarse job-function categories an owner picks for themselves at signup.
- * DOCTOR fans out to a specific clinical job-function code via the chosen
- * specialty (see deriveDoctorJobFunction); NONE = purely administrative owner.
+ * Coarse job-function categories picked for a person (an owner at signup, or a
+ * staff member when invited / added / edited). DOCTOR fans out to a specific
+ * clinical job-function code via the chosen specialty (see
+ * deriveDoctorJobFunction); NONE = purely administrative.
  */
-export const OWNER_JOB_ROLE = {
+export const JOB_ROLE = {
   DOCTOR: "DOCTOR",
   RECEPTIONIST: "RECEPTIONIST",
   ACCOUNTANT: "ACCOUNTANT",
   NONE: "NONE",
 } as const;
 
-export type OwnerJobRoleCode = (typeof OWNER_JOB_ROLE)[keyof typeof OWNER_JOB_ROLE];
+export type JobRoleCode = (typeof JOB_ROLE)[keyof typeof JOB_ROLE];
 
 /**
  * Map a doctor's chosen specialty code to a clinical JobFunction code. The

@@ -2,7 +2,7 @@ import type {
   RegisterOrganizationRequest,
   Step3Data,
 } from "../types/sign-up.types";
-import { OWNER_JOB_ROLE, deriveDoctorJobFunction } from "./auth.constants";
+import { JOB_ROLE, deriveDoctorJobFunction } from "./auth.constants";
 
 export function buildRegisterOrganizationRequest(
   data: Step3Data,
@@ -23,7 +23,7 @@ export function buildRegisterOrganizationRequest(
   // the chosen specialty (which also drives examination templates); the other
   // roles map to a single code; NONE adds nothing (purely administrative owner).
   switch (data.jobRole) {
-    case OWNER_JOB_ROLE.DOCTOR: {
+    case JOB_ROLE.DOCTOR: {
       if (data.doctorSpecialty) {
         payload.practitioner_specialties = [data.doctorSpecialty];
         payload.job_function_codes = [
@@ -34,13 +34,13 @@ export function buildRegisterOrganizationRequest(
       if (title) payload.professional_title = title;
       break;
     }
-    case OWNER_JOB_ROLE.RECEPTIONIST:
+    case JOB_ROLE.RECEPTIONIST:
       payload.job_function_codes = ["RECEPTIONIST"];
       break;
-    case OWNER_JOB_ROLE.ACCOUNTANT:
+    case JOB_ROLE.ACCOUNTANT:
       payload.job_function_codes = ["ACCOUNTANT"];
       break;
-    case OWNER_JOB_ROLE.NONE:
+    case JOB_ROLE.NONE:
       break;
   }
 
