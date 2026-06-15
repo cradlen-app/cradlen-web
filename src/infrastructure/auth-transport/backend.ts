@@ -342,12 +342,14 @@ export async function proxyAuthenticatedRequest(
     if (!validToken.accessToken) {
       const fallback = await fallbackToSelectionToken(request);
       if (!fallback) {
-        const response = NextResponse.json(
+        // Do NOT clear cookies here: a sibling request racing the same refresh
+        // may have just rotated and set fresh cookies, and wiping them would log
+        // the whole session out over a recoverable race. Expired cookies fail
+        // closed on their own; the client redirects once on the 401.
+        return NextResponse.json(
           { message: "Authentication required" },
           { status: 401 },
         );
-        clearAuthCookies(response);
-        return response;
       }
       refreshedTokens = fallback;
       const retryResponse = await fetch(backendUrl(backendPath), {
@@ -393,9 +395,9 @@ export async function proxyAuthenticatedRequest(
     }
 
     if (!newTokens) {
-      const unauthorized = await forwardBackendResponse(response, null);
-      clearAuthCookies(unauthorized);
-      return unauthorized;
+      // Same rationale as above: forward the 401 but leave cookies intact so a
+      // concurrent successful refresh isn't clobbered by this race loser.
+      return forwardBackendResponse(response, null);
     }
 
     refreshedTokens = newTokens;
@@ -407,12 +409,14 @@ export async function proxyAuthenticatedRequest(
 
     return forwardBackendResponse(retryResponse, refreshedTokens);
   } catch {
-    const response = NextResponse.json(
+    // Never clear cookies on a transient failure (network blip, refresh race):
+    // doing so would log out a session another in-flight request may have just
+    // refreshed. Cookie clearing is reserved for explicit logout / the dedicated
+    // refresh route.
+    return NextResponse.json(
       { message: "Authentication required" },
       { status: 401 },
     );
-    clearAuthCookies(response);
-    return response;
   }
 }
 
@@ -430,9 +434,11 @@ async function forwardBackendResponse(
     setAuthCookies(response, tokens);
   }
 
-  if (backendResponse.status === 401) {
-    clearAuthCookies(response);
-  }
+  // Intentionally do NOT clear auth cookies on a 401 here. A 401 forwarded from
+  // the backend can be a race loser while a concurrent request just refreshed
+  // and set valid cookies; clearing would wipe that good session. Cookies are
+  // only cleared by explicit logout or when /auth/refresh definitively rejects
+  // the refresh token.
 
   // Pass through cache signals from the backend when present.
   // Fall back to a short private cache for successful GET responses so the
