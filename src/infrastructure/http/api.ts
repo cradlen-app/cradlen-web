@@ -189,7 +189,18 @@ function isPublicAuthPath(pathWithoutLocale: string) {
   );
 }
 
+// A burst of authenticated calls can all 401 at once (e.g. the dashboard's
+// query fan-out after the access token expired). Without a guard each failure
+// clears the stores and calls window.location.assign, and every repeated assign
+// restarts the still-pending /sign-in navigation — so it never settles while
+// more calls keep firing, producing a request/error storm. Make the teardown +
+// redirect single-flight: the first 401 wins, the rest no-op. The flag is never
+// reset because the hard navigation tears down this module anyway.
+let isRedirectingToSignIn = false;
+
 function clearSessionAndRedirect() {
+  if (isRedirectingToSignIn) return;
+
   useAuthStore.getState().clearSession();
   useAuthContextStore.getState().clearContext();
   useUserStore.getState().clearUser();
@@ -198,6 +209,8 @@ function clearSessionAndRedirect() {
   if (typeof window !== "undefined") {
     const pathWithoutLocale = getPathWithoutLocale(window.location.pathname);
     if (isPublicAuthPath(pathWithoutLocale)) return;
+
+    isRedirectingToSignIn = true;
 
     const locale = getClientLocale(window.location.pathname);
     const pathWithSearch = `${pathWithoutLocale}${window.location.search}`;
