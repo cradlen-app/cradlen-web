@@ -1,5 +1,6 @@
 import type { UserProfile } from "@/common/types/user.types";
 import type { AuthTokens } from "./sign-in.types";
+import type { ExecutiveTitleCode, JobFunctionCode } from "../lib/auth.constants";
 
 export type Step1Data = {
   firstName: string;
@@ -17,6 +18,11 @@ export type Step2Data = {
 export type Step3Data = {
   organizationName: string;
   specialties: string[];
+  executiveTitle: ExecutiveTitleCode;
+  isPractitioner: boolean;
+  practitionerSpecialties: string[];
+  jobFunction?: JobFunctionCode;
+  professionalTitle?: string;
   branchName: string;
   city: string;
   address: string;
@@ -47,6 +53,10 @@ export type VerifyEmailRequest = {
 export type RegisterOrganizationRequest = {
   organization_name: string;
   specialties: string[];
+  executive_title?: ExecutiveTitleCode;
+  practitioner_specialties?: string[];
+  job_function_codes?: string[];
+  professional_title?: string;
   branch_name: string;
   branch_address: string;
   branch_city: string;
