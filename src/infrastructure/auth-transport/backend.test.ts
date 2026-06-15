@@ -142,7 +142,7 @@ describe("proxyAuthenticatedRequest token rotation", () => {
     expect(setCookie).toContain(AUTH_REFRESH_TOKEN_COOKIE);
   });
 
-  it("returns 401 and clears cookies when no tokens are present", async () => {
+  it("returns 401 WITHOUT clearing cookies when no tokens are present", async () => {
     cookieGet.mockImplementation(() => undefined);
 
     const request = new NextRequest("http://app.test/api/backend/visits", {
@@ -152,11 +152,41 @@ describe("proxyAuthenticatedRequest token rotation", () => {
     const response = await proxyAuthenticatedRequest(request, "/visits");
 
     expect(response.status).toBe(401);
-    // No backend call is made at all, and both auth cookies are cleared.
+    // No backend call is made at all. Crucially, cookies are NOT cleared: a
+    // concurrent request racing the same refresh may have just set fresh tokens,
+    // and clearing here would clobber that good session into a full logout.
     expect(fetch).not.toHaveBeenCalled();
     const setCookie = response.headers.getSetCookie().join("; ");
-    expect(setCookie).toContain(`${AUTH_TOKEN_COOKIE}=`);
-    expect(setCookie).toContain(`${AUTH_REFRESH_TOKEN_COOKIE}=`);
-    expect(setCookie).toContain("Max-Age=0");
+    expect(setCookie).not.toContain("Max-Age=0");
+    expect(setCookie).not.toContain(AUTH_TOKEN_COOKIE);
+    expect(setCookie).not.toContain(AUTH_REFRESH_TOKEN_COOKIE);
+  });
+
+  it("does not clobber cookies when refresh + fallback are exhausted on a 401", async () => {
+    // A valid-looking token the backend rejects, the on-401 refresh fails, and
+    // there is no selection token to fall back to. This is the classic race
+    // loser: a sibling request may have already refreshed successfully, so this
+    // path must forward the 401 WITHOUT emitting any cookie-clearing headers.
+    cookieGet.mockImplementation((name: string) => {
+      if (name === AUTH_TOKEN_COOKIE) return { value: makeJwt(3600) };
+      if (name === AUTH_REFRESH_TOKEN_COOKIE) return { value: "refresh-loser" };
+      return undefined;
+    });
+
+    vi.mocked(fetch)
+      // 1. backend request with the valid-looking access token -> 401
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      // 2. on-401 refresh -> backend rejects (race loser, already rotated)
+      .mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const request = new NextRequest("http://app.test/api/backend/visits", {
+      method: "GET",
+    });
+
+    const response = await proxyAuthenticatedRequest(request, "/visits");
+
+    expect(response.status).toBe(401);
+    const setCookie = response.headers.getSetCookie().join("; ");
+    expect(setCookie).not.toContain("Max-Age=0");
   });
 });
