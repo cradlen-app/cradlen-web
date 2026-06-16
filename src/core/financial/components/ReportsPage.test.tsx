@@ -91,6 +91,9 @@ describe("ReportsPage — Overview", () => {
   });
 
   it("sorts top doctors by revenue and caps at five", () => {
+    // Top doctors is an org-only section (rendered only when !ownScope), so the
+    // viewer must be an owner/branch-manager for it to appear.
+    mockProfile({ isOwner: true });
     mockReports({
       revenue: REVENUE,
       "revenue-by-doctor": {

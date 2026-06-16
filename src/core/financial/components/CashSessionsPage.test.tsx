@@ -1,5 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { renderWithIntl } from "@/test/render";
 import type { CashSession } from "../types/financial.types";
@@ -23,6 +24,15 @@ vi.mock("@/features/auth/store/authContextStore", () => ({
 }));
 
 import { CashSessionsPage } from "./CashSessionsPage";
+
+function renderPage() {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return renderWithIntl(
+    <QueryClientProvider client={qc}>
+      <CashSessionsPage />
+    </QueryClientProvider>,
+  );
+}
 
 function session(overrides: Partial<CashSession>): CashSession {
   return {
@@ -60,7 +70,7 @@ describe("CashSessionsPage — opening float carry-forward", () => {
       isLoading: false,
     });
 
-    renderWithIntl(<CashSessionsPage />);
+    renderPage();
     fireEvent.click(screen.getByRole("button", { name: /open session/i }));
 
     expect(screen.getByRole("spinbutton")).toHaveValue(350);
@@ -75,7 +85,7 @@ describe("CashSessionsPage — opening float carry-forward", () => {
       isLoading: false,
     });
 
-    renderWithIntl(<CashSessionsPage />);
+    renderPage();
     fireEvent.click(screen.getByRole("button", { name: /open session/i }));
 
     expect(screen.getByRole("spinbutton")).toHaveValue(0);
@@ -103,7 +113,7 @@ describe("CashSessionsPage — opening float carry-forward", () => {
       isLoading: false,
     });
 
-    renderWithIntl(<CashSessionsPage />);
+    renderPage();
     fireEvent.click(screen.getByRole("button", { name: /open session/i }));
 
     expect(screen.getByRole("spinbutton")).toHaveValue(420);
