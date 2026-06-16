@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -501,6 +501,22 @@ function AcceptStep({ preview, token, invitationId, onBack }: AcceptStepProps) {
   );
 }
 
+// — Loading skeleton —
+
+function InviteSkeleton() {
+  return (
+    <div className="w-full max-w-xl space-y-4">
+      <div className="h-7 w-48 animate-pulse rounded-lg bg-gray-100 mx-auto" />
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-3">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-4 animate-pulse rounded bg-gray-100" />
+        ))}
+      </div>
+      <div className="h-11 animate-pulse rounded-full bg-gray-100" />
+    </div>
+  );
+}
+
 // — Root component —
 
 export function StaffInviteAcceptance() {
@@ -514,21 +530,10 @@ export function StaffInviteAcceptance() {
 
   const [step, setStep] = useState<"preview" | "accept">("preview");
 
-  // Only start the preview fetch after a stable client mount. The accept page
-  // reads `useSearchParams()`, which makes Next.js render this subtree on the
-  // client; gating the query on mount ensures the fetch is owned by a stable
-  // observer so its result is never orphaned (which left the page stuck on the
-  // loading skeleton).
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
   const previewQuery = useQuery({
     queryKey: staffQueryKeys.invitationPreview(invitationId, token),
     queryFn: () => getInvitationPreview(invitationId, token),
-    enabled: hasParams && mounted,
+    enabled: hasParams,
     retry: false,
   });
 
@@ -542,18 +547,8 @@ export function StaffInviteAcceptance() {
     );
   }
 
-  if (!mounted || previewQuery.isLoading) {
-    return (
-      <div className="w-full max-w-xl space-y-4">
-        <div className="h-7 w-48 animate-pulse rounded-lg bg-gray-100 mx-auto" />
-        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-4 animate-pulse rounded bg-gray-100" />
-          ))}
-        </div>
-        <div className="h-11 animate-pulse rounded-full bg-gray-100" />
-      </div>
-    );
+  if (previewQuery.isLoading) {
+    return <InviteSkeleton />;
   }
 
   if (previewQuery.isError || !previewQuery.data?.data) {

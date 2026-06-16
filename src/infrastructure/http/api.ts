@@ -201,15 +201,25 @@ let isRedirectingToSignIn = false;
 function clearSessionAndRedirect() {
   if (isRedirectingToSignIn) return;
 
+  // Public auth pages (sign-in, invitation accept, patient portal, …)
+  // legitimately have no session: an anonymous 401 — e.g. the `/auth/me` probe
+  // that `useCurrentUser` fires on every page — is expected there. Bail out
+  // before touching any shared state. Clearing the query cache here would wipe
+  // unrelated in-flight queries on the same page (notably the invitation
+  // preview), so its result is delivered to a detached query and the page stays
+  // stuck on its loading skeleton.
+  const pathWithoutLocale =
+    typeof window !== "undefined"
+      ? getPathWithoutLocale(window.location.pathname)
+      : null;
+  if (pathWithoutLocale !== null && isPublicAuthPath(pathWithoutLocale)) return;
+
   useAuthStore.getState().clearSession();
   useAuthContextStore.getState().clearContext();
   useUserStore.getState().clearUser();
   queryClient.clear();
 
-  if (typeof window !== "undefined") {
-    const pathWithoutLocale = getPathWithoutLocale(window.location.pathname);
-    if (isPublicAuthPath(pathWithoutLocale)) return;
-
+  if (pathWithoutLocale !== null) {
     isRedirectingToSignIn = true;
 
     const locale = getClientLocale(window.location.pathname);
