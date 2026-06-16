@@ -1,4 +1,4 @@
-export type BackendUserRole = "OWNER" | "BRANCH_MANAGER" | "STAFF" | "EXTERNAL";
+export type BackendUserRole = "OWNER" | "BRANCH_MANAGER" | "STAFF";
 
 export type UserRole = "owner" | "reception" | "doctor" | "patient" | "unknown";
 
@@ -50,8 +50,8 @@ export type UserProfile = {
   phone?: string | null;
   /** Short-lived presigned avatar URL from /auth/me, or null when none. */
   profile_image_url?: string | null;
-  /** /auth/me returns role objects; login/signup returns role name strings */
-  roles: (UserProfileRole | string)[];
+  /** Single role: an object ({id,name}) from /auth/me, or a code string from login/signup. */
+  role: UserProfileRole | string;
   organization: {
     id: string;
     name: string;
@@ -66,20 +66,16 @@ export type UserProfile = {
   branches: UserBranch[];
   /** Profile-level specialties (subset of org specialties) */
   specialties?: UserSpecialty[];
-  /** Profile-level job functions; `is_clinical` lives here, not at the profile root */
-  job_functions?: UserJobFunction[];
+  /** Profile-level job function (single); `is_clinical` lives here. Null/absent when none. */
+  job_function?: UserJobFunction | null;
   /** @deprecated login/signup response only — /auth/me uses staff_id */
   profile_id?: string;
   /** @deprecated login/signup response only — /auth/me uses organization.name */
   organization_name?: string;
   /** @deprecated login/signup response only — /auth/me uses organization.id */
   organization_id?: string;
-  /** @deprecated not returned by /auth/me; use roles[0] */
-  role?: { id?: string; name: UserRole | BackendUserRole | string };
   /** @deprecated not returned by /auth/me; use branches[0] */
   branch?: UserBranch;
-  /** @deprecated /auth/me nests this in job_functions[].is_clinical */
-  is_clinical?: boolean;
   /** @deprecated /auth/me uses specialties[]; staff endpoints still expose this */
   specialty?: string;
 };

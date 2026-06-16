@@ -75,7 +75,7 @@ function createCurrentUser(role: UserRole): CurrentUser {
         staff_id: "staff-1",
         executive_title: null,
         engagement_type: "FULL_TIME",
-        roles: [{ id: "role-1", name: role }],
+        role: { id: "role-1", name: role },
         organization: {
           id: "org-1",
           name: "Cradlen Clinic",
@@ -96,7 +96,7 @@ function createCurrentUser(role: UserRole): CurrentUser {
           },
         ],
         specialties: [{ id: "s1", code: "OBGYN", name: "OB-GYN" }],
-        job_functions: [],
+        job_function: null,
       },
     ],
   };

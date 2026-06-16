@@ -3,10 +3,7 @@ import type { CurrentUser, UserProfile, UserRole, UserSpecialty } from "@/common
 import { useAuthContextStore } from "../store/authContextStore";
 
 export function getProfileIsClinical(profile?: UserProfile): boolean {
-  if (profile?.job_functions?.length) {
-    return profile.job_functions.some((fn) => fn.is_clinical);
-  }
-  return profile?.is_clinical ?? false;
+  return profile?.job_function?.is_clinical ?? false;
 }
 
 function specialtyName(s: UserSpecialty | string): string {
@@ -83,18 +80,12 @@ export function getDefaultBranch(profile?: UserProfile, branchId?: string | null
 }
 
 export function getProfileRoles(profile?: UserProfile): UserRole[] {
-  const rawNames = profile?.roles?.length
-    ? profile.roles.map((r) => (typeof r === "string" ? r : r.name))
-    : profile?.role?.name
-      ? [profile.role.name]
-      : [];
-
-  const normalizedRoles = rawNames.map((name) => normalizeRoleName(name));
-  return normalizedRoles.length ? normalizedRoles : [STAFF_ROLE.UNKNOWN];
+  return [getProfilePrimaryRole(profile)];
 }
 
 export function getProfilePrimaryRole(profile?: UserProfile): UserRole {
-  return getProfileRoles(profile)[0];
+  const raw = getRawProfileRole(profile);
+  return raw ? normalizeRoleName(raw) : STAFF_ROLE.UNKNOWN;
 }
 
 export function getActiveProfile(user?: CurrentUser | null): UserProfile | undefined {
@@ -113,8 +104,7 @@ export function getActiveRole(user?: CurrentUser | null): UserRole | undefined {
 }
 
 export function getRawProfileRole(profile?: UserProfile): string | undefined {
-  if (!profile) return undefined;
-  const first = profile.roles?.[0];
-  if (first) return typeof first === "string" ? first : first.name;
-  return profile.role?.name;
+  const r = profile?.role;
+  if (!r) return undefined;
+  return typeof r === "string" ? r : r.name;
 }

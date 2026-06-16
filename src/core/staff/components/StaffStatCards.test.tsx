@@ -29,12 +29,6 @@ const STATS: ApiStaffStats = {
       current: 3,
       previous: 2,
     },
-    {
-      role_code: "EXTERNAL",
-      role_name: "External",
-      current: 5,
-      previous: 4,
-    },
   ],
 };
 
@@ -43,7 +37,7 @@ describe("StaffStatCards", () => {
     useStaffStatsMock.mockReset();
   });
 
-  it("renders total, clinical, administrative, and external — not per-role cards", () => {
+  it("renders total, clinical, administrative — not per-role cards", () => {
     mockStats(STATS);
     renderWithIntl(
       <StaffStatCards organizationId="o1" branchId="b1" />,
@@ -59,34 +53,9 @@ describe("StaffStatCards", () => {
     expect(screen.getByText("Administrative")).toBeInTheDocument();
     expect(screen.getByText("8")).toBeInTheDocument();
 
-    // External comes from the EXTERNAL role entry in by_role.
-    expect(screen.getByText("External")).toBeInTheDocument();
-    expect(screen.getByText("5")).toBeInTheDocument();
-
-    // The per-role breakdown is gone — non-external roles are not rendered.
+    // No External card and no per-role breakdown.
+    expect(screen.queryByText("External")).not.toBeInTheDocument();
     expect(screen.queryByText("Branch Manager")).not.toBeInTheDocument();
-  });
-
-  it("falls back to zero for external when no EXTERNAL role is present", () => {
-    mockStats({
-      total: { current: 4, previous: 4 },
-      clinical: { current: 4, previous: 4 },
-      by_role: [
-        {
-          role_code: "BRANCH_MANAGER",
-          role_name: "Branch Manager",
-          current: 1,
-          previous: 1,
-        },
-      ],
-    });
-    renderWithIntl(
-      <StaffStatCards organizationId="o1" branchId="b1" />,
-    );
-
-    expect(screen.getByText("External")).toBeInTheDocument();
-    // total − clinical = 0 (administrative) and external = 0 → two zero cards.
-    expect(screen.getAllByText("0").length).toBeGreaterThanOrEqual(2);
   });
 
   it("renders the skeleton while loading", () => {

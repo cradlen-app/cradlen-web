@@ -162,7 +162,7 @@ function PreviewStep({
               {t("role")}
             </dt>
             <dd className="text-xs text-brand-black">
-              {preview.roles.map((r) => r.name).join(", ")}
+              {preview.role?.name ?? "-"}
             </dd>
           </div>
 

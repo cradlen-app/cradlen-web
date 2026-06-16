@@ -60,10 +60,8 @@ function matchesSearch(invitation: ApiStaffInvitation, search: string) {
     [invitation.first_name, invitation.last_name].filter(Boolean).join(" "),
     invitation.email,
     invitation.phone_number,
-    invitation.roles?.[0]?.name,
     invitation.role?.name,
-    invitation.role_name,
-    ...(invitation.job_functions?.map((j) => j.name) ?? []),
+    ...(invitation.job_function ? [invitation.job_function.name] : []),
     ...(invitation.specialties?.map((s) => s.name) ?? []),
     getStatus(invitation),
   ]

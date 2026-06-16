@@ -225,11 +225,11 @@ describe("buildRegisterOrganizationRequest", () => {
   it("omits role fields when the owner has no job function (None)", () => {
     const result = buildRegisterOrganizationRequest(baseStep3Data);
     expect(result).not.toHaveProperty("practitioner_specialties");
-    expect(result).not.toHaveProperty("job_function_codes");
+    expect(result).not.toHaveProperty("job_function_code");
     expect(result).not.toHaveProperty("professional_title");
   });
 
-  it("maps a doctor's specialty to its clinical code and keeps the title", () => {
+  it("maps a doctor to the DOCTOR job function + chosen specialty and keeps the title", () => {
     const result = buildRegisterOrganizationRequest({
       ...baseStep3Data,
       jobRole: "DOCTOR",
@@ -238,18 +238,18 @@ describe("buildRegisterOrganizationRequest", () => {
     });
     expect(result).toMatchObject({
       practitioner_specialties: ["OBGYN"],
-      job_function_codes: ["OBGYN"],
+      job_function_code: "DOCTOR",
       professional_title: "استشاري النساء والتوليد",
     });
   });
 
-  it("falls back to OTHER_DOCTOR for a non-doctor specialty code", () => {
+  it("stores the coarse DOCTOR job function regardless of specialty", () => {
     const result = buildRegisterOrganizationRequest({
       ...baseStep3Data,
       jobRole: "DOCTOR",
       doctorSpecialty: "CARDIOLOGY",
     });
-    expect(result.job_function_codes).toEqual(["OTHER_DOCTOR"]);
+    expect(result.job_function_code).toBe("DOCTOR");
     expect(result.practitioner_specialties).toEqual(["CARDIOLOGY"]);
     expect(result).not.toHaveProperty("professional_title");
   });
@@ -259,13 +259,13 @@ describe("buildRegisterOrganizationRequest", () => {
       buildRegisterOrganizationRequest({
         ...baseStep3Data,
         jobRole: "RECEPTIONIST",
-      }).job_function_codes,
-    ).toEqual(["RECEPTIONIST"]);
+      }).job_function_code,
+    ).toBe("RECEPTIONIST");
     expect(
       buildRegisterOrganizationRequest({
         ...baseStep3Data,
         jobRole: "ACCOUNTANT",
-      }).job_function_codes,
-    ).toEqual(["ACCOUNTANT"]);
+      }).job_function_code,
+    ).toBe("ACCOUNTANT");
   });
 });
