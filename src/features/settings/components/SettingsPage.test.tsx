@@ -52,6 +52,10 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(""),
+}));
+
 vi.mock("sonner", () => ({
   toast: {
     error: vi.fn(),
