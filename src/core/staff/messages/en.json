@@ -307,6 +307,12 @@
   "overview": {
     "title": "Overview",
     "status": "Status",
+    "unnamed": "Unnamed staff",
+    "sections": {
+      "roleFunction": "Role & function",
+      "contact": "Contact",
+      "schedule": "Schedule"
+    },
     "role": "Role",
     "engagement": "Engagement",
     "jobFunctions": "Job function",

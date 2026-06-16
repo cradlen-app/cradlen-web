@@ -1,13 +1,26 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { KeyRound, Pencil, ShieldCheck, UserX } from "lucide-react";
+import {
+  Award,
+  BadgeCheck,
+  Briefcase,
+  CalendarDays,
+  KeyRound,
+  type LucideIcon,
+  Pencil,
+  Phone,
+  ShieldCheck,
+  Stethoscope,
+  UserCog,
+  UserX,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { JOB_ROLE } from "@/features/auth/lib/auth.constants";
 import {
   getRoleTranslationKey,
-  getStaffFullName,
+  getStaffDisplayName,
   getStaffSpecialtiesLabel,
 } from "../lib/staff.utils";
 import { deriveJobRoleFromCodes } from "../lib/staff-role-fields";
@@ -16,19 +29,38 @@ import { StaffAvatar } from "./StaffAvatar";
 import { StaffStatusBadge } from "./StaffStatusBadge";
 
 type RowProps = {
+  icon?: LucideIcon;
   label: string;
   value: ReactNode;
 };
 
-function DetailRow({ label, value }: RowProps) {
+function DetailRow({ icon: Icon, label, value }: RowProps) {
   return (
-    <div className="flex items-start gap-3 py-2.5 border-b border-gray-100 last:border-0">
-      <div className="flex flex-1 items-start justify-between gap-2 min-w-0">
-        <span className="text-xs text-gray-400 shrink-0 pt-0.5">{label}</span>
-        <span className="text-xs font-medium text-brand-black text-end leading-relaxed">
-          {value}
-        </span>
+    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-gray-100 last:border-0">
+      <div className="flex shrink-0 items-center gap-2 pt-0.5">
+        {Icon && (
+          <Icon
+            className="size-3.5 text-gray-400"
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+        )}
+        <span className="text-xs text-gray-400">{label}</span>
       </div>
+      <span className="min-w-0 text-xs font-medium text-brand-black text-end leading-relaxed">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="px-4">
+      <p className="pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+        {title}
+      </p>
+      {children}
     </div>
   );
 }
@@ -84,7 +116,7 @@ export function StaffOverview({
     );
   }
 
-  const fullName = getStaffFullName(member);
+  const displayName = getStaffDisplayName(member, t("unnamed"));
   const isSelf = !!currentUserStaffId && member.id === currentUserStaffId;
   const memberAssignedToCurrentBranch =
     !!currentBranchId && member.branches.some((b) => b.id === currentBranchId);
@@ -106,7 +138,7 @@ export function StaffOverview({
   return (
     <aside
       className={cn(
-        "w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:w-72",
+        "w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white pb-2 shadow-sm lg:w-72",
         className,
       )}
     >
@@ -114,18 +146,15 @@ export function StaffOverview({
         {t("title")}
       </p>
 
-      <div className="relative bg-brand-primary px-4 py-6 flex flex-col items-center gap-3 overflow-hidden rounded-b-2xl">
-        <span className="pointer-events-none absolute -top-6 -right-6 size-28 rounded-full bg-white/5" />
-        <span className="pointer-events-none absolute -bottom-10 -left-8 size-36 rounded-full bg-white/5" />
-
+      <div className="bg-brand-primary px-4 py-6 flex flex-col items-center gap-3 rounded-b-2xl">
         <StaffAvatar
-          name={fullName}
+          name={displayName}
           imageUrl={member.imageUrl}
-          className="z-10 size-16 bg-white/20 text-xl ring-2 ring-white/30"
+          className="size-16 bg-white/20 text-xl ring-2 ring-white/30"
         />
 
-        <div className="text-center z-10">
-          <p className="text-sm font-semibold text-white leading-tight">{fullName}</p>
+        <div className="text-center">
+          <p className="text-sm font-semibold text-white leading-tight">{displayName}</p>
           {member.executiveTitle && (
             <p className="text-[11px] font-medium uppercase tracking-wide text-white/80">
               {member.executiveTitle}
@@ -137,62 +166,73 @@ export function StaffOverview({
         <StaffStatusBadge status={member.status} variant="pill" />
       </div>
 
-      <div className="px-4 py-1 flex-1">
-        {canManage && (
-          <div className="flex items-center justify-center gap-2 border-b border-gray-100 py-3">
+      {canManage && (
+        <div className="flex items-center justify-center gap-2 border-b border-gray-100 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => onEdit?.(member)}
+            className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-brand-primary/8 hover:text-brand-primary"
+            aria-label={t("actions.edit")}
+          >
+            <Pencil className="size-4" aria-hidden="true" />
+          </button>
+          {showReset && (
             <button
               type="button"
-              onClick={() => onEdit?.(member)}
+              onClick={() => onResetPassword?.(member)}
               className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-brand-primary/8 hover:text-brand-primary"
-              aria-label={t("actions.edit")}
+              aria-label={t("actions.resetPassword")}
+              title={t("actions.resetPassword")}
             >
-              <Pencil className="size-4" aria-hidden="true" />
+              <KeyRound className="size-4" aria-hidden="true" />
             </button>
-            {showReset && (
-              <button
-                type="button"
-                onClick={() => onResetPassword?.(member)}
-                className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-brand-primary/8 hover:text-brand-primary"
-                aria-label={t("actions.resetPassword")}
-                title={t("actions.resetPassword")}
-              >
-                <KeyRound className="size-4" aria-hidden="true" />
-              </button>
-            )}
-            {showRemove && (
-              <button
-                type="button"
-                onClick={() => onRemoveFromBranch?.(member)}
-                className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                aria-label={t("actions.remove")}
-                title={t("actions.remove")}
-              >
-                <UserX className="size-4" aria-hidden="true" />
-              </button>
-            )}
-          </div>
-        )}
+          )}
+          {showRemove && (
+            <button
+              type="button"
+              onClick={() => onRemoveFromBranch?.(member)}
+              className="inline-flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              aria-label={t("actions.remove")}
+              title={t("actions.remove")}
+            >
+              <UserX className="size-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      )}
+
+      <Section title={t("sections.roleFunction")}>
         <DetailRow
+          icon={UserCog}
           label={t("role")}
           value={staffT(getRoleTranslationKey(member.role))}
         />
         {member.engagementType && (
           <DetailRow
+            icon={Briefcase}
             label={t("engagement")}
             value={staffT(`engagementTypes.${member.engagementType}`)}
           />
         )}
-        <DetailRow label={t("jobFunctions")} value={jobRoleLabel} />
-        <DetailRow label={t("specialty")} value={specialtiesLabel || "-"} />
+        <DetailRow icon={Stethoscope} label={t("jobFunctions")} value={jobRoleLabel} />
+        <DetailRow icon={Award} label={t("specialty")} value={specialtiesLabel || "-"} />
         {member.professionalTitle && (
           <DetailRow
+            icon={BadgeCheck}
             label={t("professionalTitle")}
             value={member.professionalTitle}
           />
         )}
-        <DetailRow label={t("phoneNumber")} value={member.phone} />
-        {member.workSchedule && (
+      </Section>
+
+      <Section title={t("sections.contact")}>
+        <DetailRow icon={Phone} label={t("phoneNumber")} value={member.phone} />
+      </Section>
+
+      {member.workSchedule && (
+        <Section title={t("sections.schedule")}>
           <DetailRow
+            icon={CalendarDays}
             label={t("workSchedule")}
             value={
               <span className="whitespace-pre-line text-end">
@@ -200,8 +240,8 @@ export function StaffOverview({
               </span>
             }
           />
-        )}
-      </div>
+        </Section>
+      )}
     </aside>
   );
 }
