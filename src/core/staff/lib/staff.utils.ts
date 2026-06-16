@@ -148,6 +148,22 @@ export function getStaffFullName(
   return `${member.firstName} ${member.lastName}`.trim();
 }
 
+/**
+ * Resolve a never-empty display name for a staff member. Falls back to the
+ * handle (without the leading `@`) when the name is blank, then to `fallback`,
+ * so headers/cards never collapse to just an avatar.
+ */
+export function getStaffDisplayName(
+  member: Pick<StaffMember, "firstName" | "lastName" | "handle">,
+  fallback: string,
+): string {
+  const fullName = getStaffFullName(member);
+  if (fullName) return fullName;
+
+  const handle = member.handle?.replace(/^@/, "").trim();
+  return handle || fallback;
+}
+
 export function getStaffInitials(name: string) {
   return name
     .split(" ")

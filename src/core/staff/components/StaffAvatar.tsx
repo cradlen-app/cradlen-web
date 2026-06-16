@@ -1,3 +1,4 @@
+import { User } from "lucide-react";
 import { cn } from "@/common/utils/utils";
 import { getStaffInitials } from "../lib/staff.utils";
 
@@ -19,6 +20,8 @@ export function StaffAvatar({ name, imageUrl, className }: StaffAvatarProps) {
     );
   }
 
+  const initials = getStaffInitials(name);
+
   return (
     <div
       className={cn(
@@ -26,7 +29,7 @@ export function StaffAvatar({ name, imageUrl, className }: StaffAvatarProps) {
         className,
       )}
     >
-      {getStaffInitials(name)}
+      {initials || <User className="size-[45%]" aria-hidden="true" strokeWidth={1.75} />}
     </div>
   );
 }
