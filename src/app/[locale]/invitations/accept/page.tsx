@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
 import Footer from "@/components/common/Footer";
@@ -28,7 +29,9 @@ export default async function InvitationAcceptPage({ params }: Props) {
       </header>
 
       <main className="flex min-h-[calc(100vh-5rem)] items-start justify-center px-4 py-10">
-        <StaffInviteAcceptance />
+        <Suspense fallback={null}>
+          <StaffInviteAcceptance />
+        </Suspense>
       </main>
       <Footer />
     </div>

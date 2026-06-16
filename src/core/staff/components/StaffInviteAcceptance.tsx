@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -514,10 +514,21 @@ export function StaffInviteAcceptance() {
 
   const [step, setStep] = useState<"preview" | "accept">("preview");
 
+  // Only start the preview fetch after a stable client mount. The accept page
+  // reads `useSearchParams()`, which makes Next.js render this subtree on the
+  // client; gating the query on mount ensures the fetch is owned by a stable
+  // observer so its result is never orphaned (which left the page stuck on the
+  // loading skeleton).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
   const previewQuery = useQuery({
     queryKey: staffQueryKeys.invitationPreview(invitationId, token),
     queryFn: () => getInvitationPreview(invitationId, token),
-    enabled: hasParams,
+    enabled: hasParams && mounted,
     retry: false,
   });
 
@@ -531,7 +542,7 @@ export function StaffInviteAcceptance() {
     );
   }
 
-  if (previewQuery.isLoading) {
+  if (!mounted || previewQuery.isLoading) {
     return (
       <div className="w-full max-w-xl space-y-4">
         <div className="h-7 w-48 animate-pulse rounded-lg bg-gray-100 mx-auto" />
