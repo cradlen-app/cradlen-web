@@ -2,7 +2,7 @@ import type {
   RegisterOrganizationRequest,
   Step3Data,
 } from "../types/sign-up.types";
-import { JOB_ROLE, deriveDoctorJobFunction } from "./auth.constants";
+import { JOB_FUNCTION_CODE, JOB_ROLE } from "./auth.constants";
 
 export function buildRegisterOrganizationRequest(
   data: Step3Data,
@@ -19,26 +19,24 @@ export function buildRegisterOrganizationRequest(
 
   if (data.country) payload.branch_country = data.country;
 
-  // Owner's own job function. DOCTOR fans out to a clinical code derived from
-  // the chosen specialty (which also drives examination templates); the other
-  // roles map to a single code; NONE adds nothing (purely administrative owner).
+  // Owner's own job function. DOCTOR maps to the single DOCTOR job function plus
+  // the chosen specialty (which drives examination templates); the other roles
+  // map to a single code; NONE adds nothing (purely administrative owner).
   switch (data.jobRole) {
     case JOB_ROLE.DOCTOR: {
       if (data.doctorSpecialty) {
         payload.practitioner_specialties = [data.doctorSpecialty];
-        payload.job_function_codes = [
-          deriveDoctorJobFunction(data.doctorSpecialty),
-        ];
+        payload.job_function_code = JOB_FUNCTION_CODE.DOCTOR;
       }
       const title = data.professionalTitle?.trim();
       if (title) payload.professional_title = title;
       break;
     }
     case JOB_ROLE.RECEPTIONIST:
-      payload.job_function_codes = ["RECEPTIONIST"];
+      payload.job_function_code = JOB_FUNCTION_CODE.RECEPTIONIST;
       break;
     case JOB_ROLE.ACCOUNTANT:
-      payload.job_function_codes = ["ACCOUNTANT"];
+      payload.job_function_code = JOB_FUNCTION_CODE.ACCOUNTANT;
       break;
     case JOB_ROLE.NONE:
       break;

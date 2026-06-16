@@ -43,7 +43,6 @@ const roleIcons: Record<string, LucideIcon> = {
   [STAFF_API_ROLE.OWNER]: UserRoundCog,
   [STAFF_API_ROLE.BRANCH_MANAGER]: ShieldCheck,
   [STAFF_API_ROLE.STAFF]: Stethoscope,
-  [STAFF_API_ROLE.EXTERNAL]: BriefcaseBusiness,
 };
 
 export type StaffFormFieldsProps = {

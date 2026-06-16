@@ -129,9 +129,7 @@ export function ProfileSection({
             />
             <DetailRow
               label={t("fields.jobFunctions")}
-              value={
-                profile.job_functions?.map((j) => j.name).join(", ") || undefined
-              }
+              value={profile.job_function?.name || undefined}
             />
             <DetailRow
               label={t("fields.specialties")}

@@ -12,6 +12,7 @@ import { getSubscriptionLimit } from "@/common/errors/subscription-errors";
 import { queryClient } from "@/infrastructure/query/queryClient";
 import { queryKeys } from "@/lib/queryKeys";
 import { staffQueryKeys } from "@/core/staff/api";
+import { isClinical } from "@/features/auth/lib/permissions";
 import { cn } from "@/common/utils/utils";
 import type { CurrentUser, UserProfile } from "@/common/types/user.types";
 import {
@@ -89,13 +90,16 @@ export function ProfileForm({
   t,
   user,
 }: SettingsFormProps) {
+  const showProfessionalTitle = isClinical(profile);
+
   const initial = useMemo<ProfileFormData>(
     () => ({
       first_name: user.first_name ?? "",
       last_name: user.last_name ?? "",
       phone_number: user.phone_number ?? user.phone ?? "",
+      professional_title: profile?.professional_title ?? "",
     }),
-    [user],
+    [user, profile],
   );
 
   const {
@@ -124,6 +128,11 @@ export function ProfileForm({
     if ("last_name" in dirty) payload.last_name = dirty.last_name;
     if ("phone_number" in dirty) {
       payload.phone_number = dirty.phone_number ? dirty.phone_number : undefined;
+    }
+    if (showProfessionalTitle && "professional_title" in dirty) {
+      payload.professional_title = dirty.professional_title
+        ? dirty.professional_title
+        : null;
     }
 
     try {
@@ -185,6 +194,23 @@ export function ProfileForm({
           {...register("phone_number")}
         />
       </div>
+
+      {showProfessionalTitle && (
+        <div className="grid gap-1">
+          <FieldLabel htmlFor="settings-professional-title">
+            {t("fields.professionalTitle")}
+          </FieldLabel>
+          <input
+            id="settings-professional-title"
+            className={fieldClass(errors.professional_title)}
+            placeholder={t("fields.professionalTitlePlaceholder")}
+            {...register("professional_title")}
+          />
+          <p className="text-[11px] text-gray-400">
+            {t("fields.professionalTitleHint")}
+          </p>
+        </div>
+      )}
 
       <DrawerActions cancelLabel={cancelLabel}>
         <Button

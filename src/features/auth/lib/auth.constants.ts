@@ -16,7 +16,6 @@ export const STAFF_API_ROLE = {
   OWNER: "OWNER",
   BRANCH_MANAGER: "BRANCH_MANAGER",
   STAFF: "STAFF",
-  EXTERNAL: "EXTERNAL",
 } as const;
 
 export type StaffApiRole = (typeof STAFF_API_ROLE)[keyof typeof STAFF_API_ROLE];
@@ -28,36 +27,26 @@ export const PRIVILEGED_API_ROLES: readonly StaffApiRole[] = [
 ];
 
 /**
- * JobFunction codes — what the staff member actually does day-to-day.
- * Drives is_clinical and gating for RECEPTIONIST view-staff permission.
+ * JobFunction codes — the coarse operational role a staff member performs.
+ * Exactly three: DOCTOR (clinical), RECEPTIONIST, ACCOUNTANT. The clinical
+ * detail (OB/GYN, etc.) lives in Specialty, which drives examination templates.
  */
 export const JOB_FUNCTION_CODE = {
-  OBGYN: "OBGYN",
-  ANESTHESIOLOGIST: "ANESTHESIOLOGIST",
-  PEDIATRICIAN: "PEDIATRICIAN",
-  OTHER_DOCTOR: "OTHER_DOCTOR",
-  NURSE: "NURSE",
-  ASSISTANT: "ASSISTANT",
+  DOCTOR: "DOCTOR",
   RECEPTIONIST: "RECEPTIONIST",
   ACCOUNTANT: "ACCOUNTANT",
 } as const;
 
 export type JobFunctionCode = (typeof JOB_FUNCTION_CODE)[keyof typeof JOB_FUNCTION_CODE];
 
+/** Job functions that count as clinical (drive the is_clinical flag). */
 export const CLINICAL_JOB_FUNCTIONS: readonly JobFunctionCode[] = [
-  JOB_FUNCTION_CODE.OBGYN,
-  JOB_FUNCTION_CODE.ANESTHESIOLOGIST,
-  JOB_FUNCTION_CODE.PEDIATRICIAN,
-  JOB_FUNCTION_CODE.OTHER_DOCTOR,
-  JOB_FUNCTION_CODE.NURSE,
+  JOB_FUNCTION_CODE.DOCTOR,
 ];
 
-/** Clinical job functions that are physicians (clinical minus NURSE/ASSISTANT). */
+/** Job functions that count as physicians (visit doctor-picker). */
 export const DOCTOR_JOB_FUNCTIONS: readonly JobFunctionCode[] = [
-  JOB_FUNCTION_CODE.OBGYN,
-  JOB_FUNCTION_CODE.ANESTHESIOLOGIST,
-  JOB_FUNCTION_CODE.PEDIATRICIAN,
-  JOB_FUNCTION_CODE.OTHER_DOCTOR,
+  JOB_FUNCTION_CODE.DOCTOR,
 ];
 
 export const EXECUTIVE_TITLE = {
@@ -70,10 +59,10 @@ export const EXECUTIVE_TITLE = {
 export type ExecutiveTitleCode = (typeof EXECUTIVE_TITLE)[keyof typeof EXECUTIVE_TITLE];
 
 /**
- * Coarse job-function categories picked for a person (an owner at signup, or a
- * staff member when invited / added / edited). DOCTOR fans out to a specific
- * clinical job-function code via the chosen specialty (see
- * deriveDoctorJobFunction); NONE = purely administrative.
+ * Coarse job-function picker for a person (an owner at signup, or a staff member
+ * when invited / added / edited): DOCTOR maps 1:1 to the DOCTOR job function
+ * (with a separately chosen Specialty driving templates); RECEPTIONIST /
+ * ACCOUNTANT map to their codes; NONE = purely administrative (no job function).
  */
 export const JOB_ROLE = {
   DOCTOR: "DOCTOR",
@@ -83,18 +72,6 @@ export const JOB_ROLE = {
 } as const;
 
 export type JobRoleCode = (typeof JOB_ROLE)[keyof typeof JOB_ROLE];
-
-/**
- * Map a doctor's chosen specialty code to a clinical JobFunction code. The
- * specialty itself drives examination templates/care-paths; this only sets the
- * coarse function used for the clinical flag, doctor picker, and staff filters.
- * OB/GYN (the dominant case) maps 1:1; anything else falls back to OTHER_DOCTOR.
- */
-export function deriveDoctorJobFunction(specialtyCode: string): JobFunctionCode {
-  return (DOCTOR_JOB_FUNCTIONS as readonly string[]).includes(specialtyCode)
-    ? (specialtyCode as JobFunctionCode)
-    : JOB_FUNCTION_CODE.OTHER_DOCTOR;
-}
 
 export const ENGAGEMENT_TYPE = {
   FULL_TIME: "FULL_TIME",

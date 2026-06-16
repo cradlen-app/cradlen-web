@@ -11,9 +11,10 @@ function profile(opts: {
   roles?: string[];
   jobFunctions?: { code: string; is_clinical: boolean }[];
 }): UserProfile {
+  const roleName = (opts.roles ?? ["STAFF"])[0];
   return {
-    roles: (opts.roles ?? []).map((name) => ({ id: name, name })),
-    job_functions: opts.jobFunctions ?? [],
+    role: { id: roleName, name: roleName },
+    job_function: (opts.jobFunctions ?? [])[0] ?? null,
   } as unknown as UserProfile;
 }
 
@@ -21,7 +22,7 @@ const owner = profile({ roles: ["OWNER"] });
 const branchManager = profile({ roles: ["BRANCH_MANAGER"] });
 const doctor = profile({
   roles: ["STAFF"],
-  jobFunctions: [{ code: "OTHER_DOCTOR", is_clinical: true }],
+  jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
 });
 const receptionist = profile({
   roles: ["STAFF"],
@@ -62,10 +63,8 @@ function specialtyProfile(opts: {
   jobFunctions?: { code: string; is_clinical: boolean }[];
 }): UserProfile {
   return {
-    roles: [{ id: "STAFF", name: "STAFF" }],
-    job_functions: opts.jobFunctions ?? [
-      { code: "OBGYN", is_clinical: true },
-    ],
+    role: { id: "STAFF", name: "STAFF" },
+    job_function: opts.jobFunctions?.[0] ?? { code: "DOCTOR", is_clinical: true },
     specialties: opts.staff,
     organization: { specialties: opts.org },
   } as unknown as UserProfile;

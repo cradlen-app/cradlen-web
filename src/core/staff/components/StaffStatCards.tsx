@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, Stethoscope, UserPlus, Users } from "lucide-react";
+import { Briefcase, Stethoscope, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   StatTrendCard,
@@ -15,8 +15,8 @@ type Props = {
 
 export function StaffStatCardsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
-      {Array.from({ length: 4 }).map((_, i) => (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-3">
+      {Array.from({ length: 3 }).map((_, i) => (
         <StatTrendCardSkeleton key={i} />
       ))}
     </div>
@@ -24,9 +24,9 @@ export function StaffStatCardsSkeleton() {
 }
 
 /**
- * Analytics cards above the staff table: a fixed set of four — total members,
- * clinical staff, administrative (non-clinical) staff, and external-role staff,
- * each with a month-over-month trend chip.
+ * Analytics cards above the staff table: a fixed set of three — total members,
+ * clinical staff, and administrative (non-clinical) staff, each with a
+ * month-over-month trend chip.
  */
 export function StaffStatCards({ organizationId, branchId }: Props) {
   const t = useTranslations("staff");
@@ -45,15 +45,8 @@ export function StaffStatCards({ organizationId, branchId }: Props) {
     previous: data.total.previous - data.clinical.previous,
   };
 
-  // External-role staff — read straight from the data-driven role breakdown.
-  const external =
-    data.by_role.find((r) => r.role_code === "EXTERNAL") ?? {
-      current: 0,
-      previous: 0,
-    };
-
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-3">
       <StatTrendCard
         icon={Users}
         label={t("stats.total")}
@@ -73,13 +66,6 @@ export function StaffStatCards({ organizationId, branchId }: Props) {
         icon={Briefcase}
         label={t("stats.administrative")}
         metric={administrative}
-        vsLastMonthLabel={vsLastMonth}
-        noPriorLabel={noPrior}
-      />
-      <StatTrendCard
-        icon={UserPlus}
-        label={t("stats.external")}
-        metric={external}
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
       />

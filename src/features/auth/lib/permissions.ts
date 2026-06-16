@@ -10,22 +10,16 @@ import type { UserProfile } from "@/common/types/user.types";
 
 function profileApiRoleNames(profile?: UserProfile): Set<string> {
   const names = new Set<string>();
-  if (!profile) return names;
-
-  for (const r of profile.roles ?? []) {
-    const raw = typeof r === "string" ? r : r.name;
-    if (raw) names.add(raw.toUpperCase());
-  }
-  if (profile.role?.name) names.add(profile.role.name.toUpperCase());
-
+  const r = profile?.role;
+  const raw = typeof r === "string" ? r : r?.name;
+  if (raw) names.add(raw.toUpperCase());
   return names;
 }
 
 function profileJobFunctionCodes(profile?: UserProfile): Set<string> {
   const codes = new Set<string>();
-  for (const fn of profile?.job_functions ?? []) {
-    if (fn.code) codes.add(fn.code.toUpperCase());
-  }
+  const code = profile?.job_function?.code;
+  if (code) codes.add(code.toUpperCase());
   return codes;
 }
 
@@ -71,10 +65,8 @@ export function isAccountant(profile?: UserProfile): boolean {
  * code list when the flag isn't populated.
  */
 export function isClinical(profile?: UserProfile): boolean {
+  if (profile?.job_function?.is_clinical) return true;
   const codes = profileJobFunctionCodes(profile);
-  for (const fn of profile?.job_functions ?? []) {
-    if (fn.is_clinical) return true;
-  }
   return CLINICAL_JOB_FUNCTIONS.some((c) => codes.has(c));
 }
 
