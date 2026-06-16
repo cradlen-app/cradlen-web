@@ -1,8 +1,18 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderWithIntl } from "@/test/render";
 import { ApiError } from "@/infrastructure/http/api";
 import { SignUpCompleteForm } from "./SignUpCompleteForm";
+
+function renderForm() {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return renderWithIntl(
+    <QueryClientProvider client={qc}>
+      <SignUpCompleteForm />
+    </QueryClientProvider>,
+  );
+}
 
 const mockRouter = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
 const mockRegisterOrg = vi.hoisted(() => vi.fn());
@@ -134,7 +144,7 @@ describe("SignUpCompleteForm", () => {
     });
     mockResolveDefaultRoute.mockResolvedValue("/org-1/branch-1/dashboard");
 
-    renderWithIntl(<SignUpCompleteForm />);
+    renderForm();
     fillForm();
     submit();
 
@@ -156,7 +166,7 @@ describe("SignUpCompleteForm", () => {
       { branch_id: "b2" },
     ]);
 
-    renderWithIntl(<SignUpCompleteForm />);
+    renderForm();
     fillForm();
     submit();
 
@@ -170,7 +180,7 @@ describe("SignUpCompleteForm", () => {
   it("redirects to sign-in to resume onboarding when completion returns 401", async () => {
     mockRegisterOrg.mockRejectedValue(new ApiError(401, "expired"));
 
-    renderWithIntl(<SignUpCompleteForm />);
+    renderForm();
     fillForm();
     submit();
 
