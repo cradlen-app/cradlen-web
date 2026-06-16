@@ -9,6 +9,12 @@ export const profileFormSchema = z.object({
     .max(32)
     .optional()
     .or(z.literal("")),
+  professional_title: z
+    .string()
+    .trim()
+    .max(120)
+    .optional()
+    .or(z.literal("")),
 });
 export type ProfileFormData = z.infer<typeof profileFormSchema>;
 

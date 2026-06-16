@@ -9,9 +9,10 @@ function ctx(opts: {
   staff?: { code: string }[];
   org?: { code: string }[];
 }): AuthContext {
+  const roleName = (opts.roles ?? ["STAFF"])[0];
   const profile = {
-    roles: (opts.roles ?? ["STAFF"]).map((name) => ({ id: name, name })),
-    job_functions: opts.jobFunctions ?? [],
+    role: { id: roleName, name: roleName },
+    job_function: (opts.jobFunctions ?? [])[0] ?? null,
     specialties: opts.staff,
     organization: { specialties: opts.org },
   } as unknown as UserProfile;

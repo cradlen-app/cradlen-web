@@ -52,7 +52,7 @@ describe("staff api helpers", () => {
       first_name: "Mona",
       last_name: "Amin",
       phone_number: "+201000000000",
-      job_function_codes: ["NURSE"],
+      job_function_code: "DOCTOR",
       specialty_codes: ["OBGYN"],
       executive_title: "COO",
       engagement_type: "FULL_TIME",
@@ -111,7 +111,7 @@ describe("staff api helpers", () => {
       email: "x@y.com",
       first_name: "X",
       last_name: "Y",
-      role_ids: ["role-1"],
+      role_id: "role-1",
       branch_ids: ["branch-1"],
     });
 

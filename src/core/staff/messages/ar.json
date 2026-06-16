@@ -14,7 +14,6 @@
     "total": "إجمالي الفريق",
     "clinical": "طاقم سريري",
     "administrative": "إداري",
-    "external": "خارجي",
     "vsLastMonth": "مقارنة بالشهر الماضي",
     "noPrior": "—"
   },
@@ -28,7 +27,6 @@
     "OWNER": "مالك",
     "BRANCH_MANAGER": "مدير فرع",
     "STAFF": "موظف",
-    "EXTERNAL": "خارجي",
     "UNKNOWN": "غير معروف"
   },
   "engagementTypes": {
@@ -159,7 +157,6 @@
       "OWNER": "مالك",
       "BRANCH_MANAGER": "مدير فرع",
       "STAFF": "موظف",
-      "EXTERNAL": "خارجي",
       "UNKNOWN": "غير معروف"
     },
     "edit": {
@@ -295,7 +292,8 @@
     },
     "fields": {
       "role": "الدور",
-      "jobFunctions": "المهام الوظيفية",
+      "jobFunctions": "المهمة الوظيفية",
+      "professionalTitle": "المسمى المهني",
       "phone": "الهاتف",
       "specialty": "التخصص",
       "invitedAt": "تاريخ الدعوة",
@@ -311,7 +309,8 @@
     "status": "الحالة",
     "role": "الدور",
     "engagement": "نوع التعاقد",
-    "jobFunctions": "المهام الوظيفية",
+    "jobFunctions": "المهمة الوظيفية",
+    "professionalTitle": "المسمى المهني",
     "specialty": "التخصص",
     "phoneNumber": "رقم الهاتف",
     "address": "العنوان",

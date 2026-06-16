@@ -103,12 +103,6 @@ export function normalizeApiRoleName(name?: string): StaffApiRole | "UNKNOWN" {
 }
 
 export function mapApiStaffToMember(api: ApiStaffMember, locale: string): StaffMember {
-  const roles = (api.roles ?? []).map((r) => ({
-    id: r.id,
-    name: r.name,
-    role: normalizeApiRoleName(r.name),
-  }));
-  const primary = roles[0]?.role ?? "UNKNOWN";
   const email = api.email;
   const id = api.staff_id ?? api.profile_id ?? api.user_id ?? "";
 
@@ -124,17 +118,18 @@ export function mapApiStaffToMember(api: ApiStaffMember, locale: string): StaffM
         : "@",
     phone: api.phone_number ?? "-",
     status: computeStaffStatus(api.schedule),
-    role: primary,
-    roles,
+    role: normalizeApiRoleName(api.role?.name),
+    roleId: api.role?.id ?? "",
+    roleName: api.role?.name ?? "",
     branches: api.branches ?? [],
-    jobFunctions: api.job_functions ?? [],
+    jobFunction: api.job_function ?? null,
     specialties: api.specialties ?? [],
     executiveTitle: api.executive_title ?? null,
     professionalTitle: api.professional_title ?? null,
     engagementType: api.engagement_type ?? null,
     schedule: api.schedule,
     workSchedule: formatBranchSchedule(api.schedule, locale),
-    isClinical: (api.job_functions ?? []).some((fn) => fn.is_clinical),
+    isClinical: api.job_function?.is_clinical ?? false,
     imageUrl: api.profile_image_url ?? null,
   };
 }
@@ -168,7 +163,7 @@ export function getRoleTranslationKey(role: StaffApiRole | "UNKNOWN") {
 
 export function matchesStaffFilter(member: StaffMember, filter: StaffFilter) {
   if (filter === "all") return true;
-  return member.roles.some((r) => r.role === filter);
+  return member.role === filter;
 }
 
 export function matchesStaffSearch(member: StaffMember, search: string) {
@@ -180,14 +175,14 @@ export function matchesStaffSearch(member: StaffMember, search: string) {
     member.handle,
     member.phone,
     ...member.specialties.map((s) => s.name),
-    ...member.jobFunctions.map((j) => j.name),
+    ...(member.jobFunction ? [member.jobFunction.name] : []),
   ].filter(Boolean);
 
   return haystacks.some((value) => value.toLowerCase().includes(query));
 }
 
 export function getStaffJobFunctionsLabel(member: StaffMember): string {
-  return member.jobFunctions.map((fn) => fn.name).join(", ");
+  return member.jobFunction?.name ?? "";
 }
 
 export function getStaffSpecialtiesLabel(member: StaffMember): string {

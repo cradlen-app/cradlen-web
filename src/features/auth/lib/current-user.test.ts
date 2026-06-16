@@ -13,7 +13,7 @@ function createProfile(roleName: string): UserProfile {
   return {
     staff_id: `${roleName}-staff`,
     job_title: `${roleName} title`,
-    roles: [{ id: `${roleName}-role`, name: roleName }],
+    role: { id: `${roleName}-role`, name: roleName },
     organization: {
       id: "org-1",
       name: "Test Clinic",
@@ -72,19 +72,19 @@ describe("current user helpers", () => {
       profile_id: "profile-1",
       organization_id: "org-1",
       organization_name: "Selection Clinic",
-      roles: ["OWNER", "DOCTOR"],
+      role: "OWNER",
       branches: [],
     } as unknown as UserProfile;
 
     expect(getProfileOrganizationName(profile)).toBe("Selection Clinic");
-    expect(getProfileRoles(profile)).toEqual(["owner", "doctor"]);
+    expect(getProfileRoles(profile)).toEqual(["owner"]);
   });
 
   it("supports branch_id when selecting and reading branches", () => {
     const profile = {
       profile_id: "profile-1",
       organization_id: "org-1",
-      roles: ["OWNER"],
+      role: "OWNER",
       branches: [
         { branch_id: "branch-1", name: "Main", is_main: true },
         { branch_id: "branch-2", name: "Second", is_main: false },

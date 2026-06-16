@@ -17,7 +17,7 @@ export function hasRequiredValues(
   return requiredFields.every((field) => getFormString(form, field));
 }
 
-const BACKEND_ROLE_KEYS = ["OWNER", "BRANCH_MANAGER", "STAFF", "EXTERNAL"] as const;
+const BACKEND_ROLE_KEYS = ["OWNER", "BRANCH_MANAGER", "STAFF"] as const;
 type BackendRoleKey = (typeof BACKEND_ROLE_KEYS)[number];
 
 export function formatRole(role: string | undefined, t: SettingsT) {

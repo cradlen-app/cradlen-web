@@ -16,7 +16,7 @@ export type StaffStatus = "available" | "notAvailable";
  * Frontend display model for a staff member. Maps 1:1 from the backend
  * StaffResponseDto with a few derived UI fields (handle, status, workSchedule).
  *
- * `role` here is the backend Role enum (OWNER/BRANCH_MANAGER/STAFF/EXTERNAL).
+ * `role` here is the backend Role enum (OWNER/BRANCH_MANAGER/STAFF).
  * `jobFunctions` and `specialties` come from the orthogonal JobFunction/Specialty
  * tables.
  */
@@ -28,12 +28,13 @@ export type StaffMember = {
   handle: string;
   phone: string;
   status: StaffStatus;
-  /** Primary role (first of `roles`), normalized to the backend enum. */
+  /** Role normalized to the backend enum (OWNER/BRANCH_MANAGER/STAFF). */
   role: StaffApiRole | "UNKNOWN";
-  /** Raw role objects (id + name) so OWNER edits can preserve role_ids. */
-  roles: { id: string; role: StaffApiRole | "UNKNOWN"; name: string }[];
+  /** Raw role identity so OWNER edits can preserve the role_id. */
+  roleId: string;
+  roleName: string;
   branches: ApiStaffBranch[];
-  jobFunctions: ApiStaffJobFunction[];
+  jobFunction: ApiStaffJobFunction | null;
   specialties: ApiStaffSpecialty[];
   executiveTitle?: ExecutiveTitleCode | null;
   /** Free-text credential/seniority wording (e.g. "استشاري النساء والتوليد"). */

@@ -5,8 +5,8 @@
  * The kernel never imports from auth — callers pass the context in.
  *
  * `profile` is intentionally permissive (index signature) because each
- * domain module reads different fields off it (`profile.roles`,
- * `profile.job_functions`, etc.). Modules cast to their concrete shape
+ * domain module reads different fields off it (`profile.role`,
+ * `profile.job_function`, etc.). Modules cast to their concrete shape
  * inside their predicates.
  */
 export interface AuthContext {
