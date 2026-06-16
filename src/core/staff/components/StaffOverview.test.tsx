@@ -65,6 +65,15 @@ describe("StaffOverview", () => {
     expect(screen.queryByLabelText("Remove from this branch")).not.toBeInTheDocument();
   });
 
+  it("falls back to the handle when the name is blank", () => {
+    renderWithIntl(
+      <StaffOverview member={{ ...member, firstName: "", lastName: "" }} />,
+    );
+
+    // No name -> show the handle without the leading "@".
+    expect(screen.getByText("mona")).toBeInTheDocument();
+  });
+
   it("calls action handlers with the selected member", () => {
     const onEdit = vi.fn();
     const onRemoveFromBranch = vi.fn();

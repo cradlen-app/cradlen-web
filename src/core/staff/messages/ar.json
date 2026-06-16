@@ -307,6 +307,12 @@
   "overview": {
     "title": "نظرة عامة",
     "status": "الحالة",
+    "unnamed": "موظف بدون اسم",
+    "sections": {
+      "roleFunction": "الدور والوظيفة",
+      "contact": "بيانات التواصل",
+      "schedule": "جدول العمل"
+    },
     "role": "الدور",
     "engagement": "نوع التعاقد",
     "jobFunctions": "المهمة الوظيفية",
