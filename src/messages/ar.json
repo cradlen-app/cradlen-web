@@ -347,6 +347,8 @@
       "address": "العنوان",
       "executiveTitle": "المنصب التنفيذي",
       "professionalTitle": "المسمى المهني",
+      "professionalTitlePlaceholder": "مثال: استشاري النساء والتوليد",
+      "professionalTitleHint": "نص حر يظهر في ملفك — للعرض فقط.",
       "engagementType": "نوع التعاقد",
       "jobFunctions": "المهام الوظيفية",
       "jobFunctionsPlaceholder": "اختر المهام الوظيفية",
