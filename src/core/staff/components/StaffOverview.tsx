@@ -138,14 +138,15 @@ export function StaffOverview({
   return (
     <aside
       className={cn(
-        "w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white pb-2 shadow-sm lg:w-72",
+        "w-full shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:w-72",
         className,
       )}
     >
-      <p className="px-4 py-3 text-lg font-medium text-brand-black border-b border-gray-100 text-center">
+      <p className="shrink-0 px-4 py-3 text-lg font-medium text-brand-black border-b border-gray-100 text-center">
         {t("title")}
       </p>
 
+      <div className="flex-1 min-h-0 overflow-y-auto pb-2">
       <div className="bg-brand-primary px-4 py-6 flex flex-col items-center gap-3 rounded-b-2xl">
         <StaffAvatar
           name={displayName}
@@ -242,6 +243,7 @@ export function StaffOverview({
           />
         </Section>
       )}
+      </div>
     </aside>
   );
 }
