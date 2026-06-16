@@ -347,6 +347,8 @@
       "address": "Address",
       "executiveTitle": "Executive title",
       "professionalTitle": "Professional title",
+      "professionalTitlePlaceholder": "e.g. استشاري النساء والتوليد",
+      "professionalTitleHint": "Free text shown on your profile — display only.",
       "engagementType": "Engagement type",
       "jobFunctions": "Job functions",
       "jobFunctionsPlaceholder": "Select job functions",

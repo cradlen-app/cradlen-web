@@ -39,6 +39,8 @@ export type UpdateProfileRequest = {
   last_name?: string;
   /** USER-LEVEL — shared across all the user's profiles. */
   phone_number?: string;
+  /** PROFILE-LEVEL — free-text display title; pass null/"" to clear. */
+  professional_title?: string | null;
   /** PROFILE-LEVEL — pass null to clear. */
   executive_title?: ExecutiveTitle | null;
   /** PROFILE-LEVEL — non-nullable on PATCH. */
