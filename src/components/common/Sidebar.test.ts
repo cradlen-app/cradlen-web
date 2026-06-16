@@ -16,12 +16,12 @@ function makeProfile(
   const { roleName, jobFunctionCode, ...rest } = overrides;
   return {
     staff_id: "staff-1",
-    roles: roleName ? [{ id: "r-1", name: roleName }] : [],
+    role: roleName ? { id: "r-1", name: roleName } : "",
     organization: { id: "org-1", name: "Org", status: "ACTIVE" },
     branches: [],
-    job_functions: jobFunctionCode
-      ? [{ id: "jf-1", code: jobFunctionCode, name: jobFunctionCode, is_clinical: false }]
-      : [],
+    job_function: jobFunctionCode
+      ? { id: "jf-1", code: jobFunctionCode, name: jobFunctionCode, is_clinical: false }
+      : null,
     engagement_type: ENGAGEMENT_TYPE.FULL_TIME,
     ...rest,
   };
@@ -41,7 +41,7 @@ describe("canUseSettings", () => {
         }),
       ),
     ).toBe(true);
-    expect(canUseSettings(makeProfile({ roleName: STAFF_API_ROLE.EXTERNAL }))).toBe(true);
+    expect(canUseSettings(makeProfile({ roleName: STAFF_API_ROLE.BRANCH_MANAGER }))).toBe(true);
   });
 
   it("denies non-staff (no role / undefined)", () => {

@@ -10,7 +10,6 @@ const STAFF_FILTERS = [
   STAFF_API_ROLE.OWNER,
   STAFF_API_ROLE.BRANCH_MANAGER,
   STAFF_API_ROLE.STAFF,
-  STAFF_API_ROLE.EXTERNAL,
 ] as const satisfies readonly StaffFilter[];
 
 type StaffToolbarProps = {

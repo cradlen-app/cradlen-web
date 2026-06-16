@@ -36,9 +36,10 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
 
     // Patient role is signalled separately on the profile shape; we keep the
     // legacy patient redirect for now.
-    const profileRoleNames = (profile?.roles ?? []).map((r) =>
-      typeof r === "string" ? r : r.name,
-    );
+    const roleRaw = profile?.role;
+    const profileRoleNames = roleRaw
+      ? [typeof roleRaw === "string" ? roleRaw : roleRaw.name]
+      : [];
     if (profileRoleNames.includes("patient")) {
       router.replace("/patient/dashboard");
       return;

@@ -88,7 +88,7 @@ function getDefaultsForMember(
     email: member.email ?? "",
     name: [member.firstName, member.lastName].filter(Boolean).join(" "),
     phone: member.phone === "-" ? "" : member.phone,
-    roleId: member.roles[0]?.id ?? "",
+    roleId: member.roleId,
     branchIds: memberBranchIds.length ? memberBranchIds : branchIds,
     ...deriveJobRoleFromMember(member),
     executiveTitle: member.executiveTitle ?? null,
@@ -206,10 +206,9 @@ export function StaffCreateDrawer({
         STAFF_API_ROLE.OWNER,
         STAFF_API_ROLE.BRANCH_MANAGER,
         STAFF_API_ROLE.STAFF,
-        STAFF_API_ROLE.EXTERNAL,
       ]);
     }
-    return new Set([STAFF_API_ROLE.STAFF, STAFF_API_ROLE.EXTERNAL]);
+    return new Set([STAFF_API_ROLE.STAFF]);
   }, [ownerCanEditRoles]);
 
   const hideRolePicker = isEditMode && !ownerCanEditRoles;
@@ -275,7 +274,7 @@ export function StaffCreateDrawer({
               last_name: lastName,
               ...(values.phone ? { phone_number: values.phone } : {}),
               ...(ownerCanEditRoles && values.roleId
-                ? { role_ids: [values.roleId] }
+                ? { role_id: values.roleId }
                 : {}),
               branch_ids: values.branchIds,
               ...buildStaffRoleFields(values),
@@ -299,7 +298,7 @@ export function StaffCreateDrawer({
               last_name: lastName,
               phone_number: directValues.phone,
               password: directValues.password,
-              role_ids: [directValues.roleId],
+              role_id: directValues.roleId,
               // Backend invariant: the path branchId must be in branch_ids.
               branch_ids: Array.from(new Set([branchId, ...directValues.branchIds])),
               ...buildStaffRoleFields(directValues),
@@ -329,7 +328,7 @@ export function StaffCreateDrawer({
             first_name: firstName,
             last_name: lastName,
             ...(inviteValues.phone ? { phone_number: inviteValues.phone } : {}),
-            role_ids: [inviteValues.roleId],
+            role_id: inviteValues.roleId,
             branch_ids: Array.from(
               new Set([branchId, ...inviteValues.branchIds]),
             ),

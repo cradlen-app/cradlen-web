@@ -6,13 +6,13 @@ import {
 import type { StaffMember } from "../types/staff.types";
 
 describe("buildStaffRoleFields", () => {
-  it("clears both arrays for None", () => {
+  it("clears the job function for None", () => {
     expect(
       buildStaffRoleFields({ jobRole: "NONE", doctorSpecialty: "" }),
-    ).toEqual({ job_function_codes: [], specialty_codes: [] });
+    ).toEqual({ job_function_code: null, specialty_codes: [] });
   });
 
-  it("maps a doctor's specialty to its clinical code and keeps the title", () => {
+  it("maps a doctor to the DOCTOR job function + chosen specialty and keeps the title", () => {
     expect(
       buildStaffRoleFields({
         jobRole: "DOCTOR",
@@ -20,18 +20,18 @@ describe("buildStaffRoleFields", () => {
         professionalTitle: "  استشاري النساء والتوليد  ",
       }),
     ).toEqual({
-      job_function_codes: ["OBGYN"],
+      job_function_code: "DOCTOR",
       specialty_codes: ["OBGYN"],
       professional_title: "استشاري النساء والتوليد",
     });
   });
 
-  it("falls back to OTHER_DOCTOR for a non-doctor specialty code", () => {
+  it("stores the coarse DOCTOR job function regardless of specialty", () => {
     const result = buildStaffRoleFields({
       jobRole: "DOCTOR",
       doctorSpecialty: "CARDIOLOGY",
     });
-    expect(result.job_function_codes).toEqual(["OTHER_DOCTOR"]);
+    expect(result.job_function_code).toBe("DOCTOR");
     expect(result.specialty_codes).toEqual(["CARDIOLOGY"]);
     expect(result).not.toHaveProperty("professional_title");
   });
@@ -39,18 +39,18 @@ describe("buildStaffRoleFields", () => {
   it("maps Receptionist and Accountant to a single job-function code", () => {
     expect(
       buildStaffRoleFields({ jobRole: "RECEPTIONIST", doctorSpecialty: "" })
-        .job_function_codes,
-    ).toEqual(["RECEPTIONIST"]);
+        .job_function_code,
+    ).toBe("RECEPTIONIST");
     expect(
       buildStaffRoleFields({ jobRole: "ACCOUNTANT", doctorSpecialty: "" })
-        .job_function_codes,
-    ).toEqual(["ACCOUNTANT"]);
+        .job_function_code,
+    ).toBe("ACCOUNTANT");
   });
 
-  it("omits codes for a doctor with no specialty chosen yet", () => {
+  it("clears the job function for a doctor with no specialty chosen yet", () => {
     expect(
       buildStaffRoleFields({ jobRole: "DOCTOR", doctorSpecialty: "" }),
-    ).toEqual({ job_function_codes: [], specialty_codes: [] });
+    ).toEqual({ job_function_code: null, specialty_codes: [] });
   });
 });
 
@@ -63,9 +63,10 @@ function makeMember(overrides: Partial<StaffMember>): StaffMember {
     phone: "-",
     status: "available",
     role: "STAFF",
-    roles: [],
+    roleId: "r-staff",
+    roleName: "STAFF",
     branches: [],
-    jobFunctions: [],
+    jobFunction: null,
     specialties: [],
     isClinical: false,
     ...overrides,
@@ -75,7 +76,7 @@ function makeMember(overrides: Partial<StaffMember>): StaffMember {
 describe("deriveJobRoleFromMember", () => {
   it("derives DOCTOR + specialty + title from a doctor member", () => {
     const member = makeMember({
-      jobFunctions: [{ id: "j", code: "OBGYN", name: "OB/GYN", is_clinical: true }],
+      jobFunction: { id: "j", code: "DOCTOR", name: "Doctor", is_clinical: true },
       specialties: [{ id: "s", code: "OBGYN", name: "OB/GYN" }],
       professionalTitle: "Consultant",
     });
@@ -90,18 +91,24 @@ describe("deriveJobRoleFromMember", () => {
     expect(
       deriveJobRoleFromMember(
         makeMember({
-          jobFunctions: [
-            { id: "j", code: "RECEPTIONIST", name: "Receptionist", is_clinical: false },
-          ],
+          jobFunction: {
+            id: "j",
+            code: "RECEPTIONIST",
+            name: "Receptionist",
+            is_clinical: false,
+          },
         }),
       ).jobRole,
     ).toBe("RECEPTIONIST");
     expect(
       deriveJobRoleFromMember(
         makeMember({
-          jobFunctions: [
-            { id: "j", code: "ACCOUNTANT", name: "Accountant", is_clinical: false },
-          ],
+          jobFunction: {
+            id: "j",
+            code: "ACCOUNTANT",
+            name: "Accountant",
+            is_clinical: false,
+          },
         }),
       ).jobRole,
     ).toBe("ACCOUNTANT");
@@ -111,7 +118,7 @@ describe("deriveJobRoleFromMember", () => {
     expect(
       deriveJobRoleFromMember(
         makeMember({
-          jobFunctions: [{ id: "j", code: "NURSE", name: "Nurse", is_clinical: true }],
+          jobFunction: { id: "j", code: "NURSE", name: "Nurse", is_clinical: true },
         }),
       ).jobRole,
     ).toBe("NONE");

@@ -54,7 +54,7 @@ export type RegisterOrganizationRequest = {
   specialties: string[];
   executive_title?: ExecutiveTitleCode;
   practitioner_specialties?: string[];
-  job_function_codes?: string[];
+  job_function_code?: string;
   professional_title?: string;
   branch_name: string;
   branch_address: string;

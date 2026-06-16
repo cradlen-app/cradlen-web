@@ -14,7 +14,6 @@
     "total": "Total Staff",
     "clinical": "Clinical",
     "administrative": "Administrative",
-    "external": "External",
     "vsLastMonth": "vs last month",
     "noPrior": "—"
   },
@@ -28,7 +27,6 @@
     "OWNER": "Owner",
     "BRANCH_MANAGER": "Branch Manager",
     "STAFF": "Staff",
-    "EXTERNAL": "External",
     "UNKNOWN": "Unknown"
   },
   "engagementTypes": {
@@ -159,7 +157,6 @@
       "OWNER": "Owner",
       "BRANCH_MANAGER": "Branch Manager",
       "STAFF": "Staff",
-      "EXTERNAL": "External",
       "UNKNOWN": "Unknown"
     },
     "edit": {
@@ -295,7 +292,8 @@
     },
     "fields": {
       "role": "Role",
-      "jobFunctions": "Job functions",
+      "jobFunctions": "Job function",
+      "professionalTitle": "Professional title",
       "phone": "Phone",
       "specialty": "Specialty",
       "invitedAt": "Invited at",
@@ -311,7 +309,8 @@
     "status": "Status",
     "role": "Role",
     "engagement": "Engagement",
-    "jobFunctions": "Job functions",
+    "jobFunctions": "Job function",
+    "professionalTitle": "Professional title",
     "specialty": "Specialty",
     "phoneNumber": "Phone Number",
     "address": "Address",

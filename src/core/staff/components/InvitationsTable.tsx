@@ -7,10 +7,12 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { JOB_ROLE } from "@/features/auth/lib/auth.constants";
 import {
   getRoleTranslationKey,
   normalizeApiRoleName,
 } from "../lib/staff.utils";
+import { deriveJobRoleFromCodes } from "../lib/staff-role-fields";
 import type { ApiStaffInvitation } from "../types/staff.api.types";
 import { cn } from "@/common/utils/utils";
 
@@ -81,7 +83,7 @@ export function getRoleLabel(
   invitation: ApiStaffInvitation,
   t: ReturnType<typeof useTranslations>,
 ) {
-  const raw = invitation.roles?.[0]?.name ?? invitation.role?.name ?? invitation.role_name;
+  const raw = invitation.role?.name;
   if (!raw) return "-";
 
   const normalized = normalizeApiRoleName(raw);
@@ -192,6 +194,13 @@ export default function InvitationsTable({
             const status = getStatus(invitation);
             const isSelected = selectedId === invitation.id;
             const isResending = resendingId === invitation.id;
+            const jobRole = deriveJobRoleFromCodes(
+              invitation.job_function ? [invitation.job_function.code] : [],
+            );
+            const jobRoleLabel =
+              jobRole === JOB_ROLE.NONE
+                ? "-"
+                : staffT(`create.jobRoles.${jobRole}`);
 
             return (
               <tr
@@ -224,7 +233,7 @@ export default function InvitationsTable({
                       {getRoleLabel(invitation, staffT)}
                     </span>
                     <span className="text-xs font-thin italic text-gray-400">
-                      {invitation.job_functions?.map((j) => j.name).join(", ") || "-"}
+                      {jobRoleLabel}
                     </span>
                   </div>
                 </td>

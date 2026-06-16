@@ -17,19 +17,17 @@ function makeProfile(
   const { roleName, jobFunctionCode, isClinical, ...rest } = overrides;
   return {
     staff_id: "staff-1",
-    roles: roleName ? [{ id: "r-1", name: roleName }] : [],
+    role: roleName ? { id: "r-1", name: roleName } : "",
     organization: { id: "org-1", name: "Org", status: "ACTIVE" },
     branches: [],
-    job_functions: jobFunctionCode
-      ? [
-          {
-            id: "jf-1",
-            code: jobFunctionCode,
-            name: jobFunctionCode,
-            is_clinical: !!isClinical,
-          },
-        ]
-      : [],
+    job_function: jobFunctionCode
+      ? {
+          id: "jf-1",
+          code: jobFunctionCode,
+          name: jobFunctionCode,
+          is_clinical: !!isClinical,
+        }
+      : null,
     engagement_type: ENGAGEMENT_TYPE.FULL_TIME,
     ...rest,
   };
@@ -58,7 +56,7 @@ describe("canAccessRoute", () => {
   it("allows STAFF + clinical job function to access /medicine but not /staff", () => {
     const clinical = makeProfile({
       roleName: STAFF_API_ROLE.STAFF,
-      jobFunctionCode: JOB_FUNCTION_CODE.OBGYN,
+      jobFunctionCode: JOB_FUNCTION_CODE.DOCTOR,
       isClinical: true,
     });
     expect(canAccessRoute(clinical, "/dashboard/medicine")).toBe(true);
@@ -89,7 +87,7 @@ describe("canAccessRoute", () => {
   it("denies clinical staff the billing front-desk surfaces", () => {
     const clinical = makeProfile({
       roleName: STAFF_API_ROLE.STAFF,
-      jobFunctionCode: JOB_FUNCTION_CODE.OBGYN,
+      jobFunctionCode: JOB_FUNCTION_CODE.DOCTOR,
       isClinical: true,
     });
     expect(canAccessRoute(clinical, "/dashboard/financial/invoices")).toBe(

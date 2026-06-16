@@ -45,8 +45,8 @@ export type UpdateProfileRequest = {
   executive_title?: ExecutiveTitle | null;
   /** PROFILE-LEVEL — non-nullable on PATCH. */
   engagement_type?: EngagementType;
-  /** PROFILE-LEVEL — replace semantics; [] clears. */
-  job_function_codes?: string[];
+  /** PROFILE-LEVEL — single job function; pass null to clear. */
+  job_function_code?: string | null;
   /** PROFILE-LEVEL — replace semantics; [] clears. */
   specialty_codes?: string[];
 };
