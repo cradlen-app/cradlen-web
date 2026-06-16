@@ -2,17 +2,21 @@ import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { useSectionVisibility } from "./section-visibility";
 
-function clearStorage() {
-  for (const key of Object.keys(window.localStorage)) {
-    if (key.startsWith("patientHistory.hiddenGroups.")) {
-      window.localStorage.removeItem(key);
-    }
-  }
-}
+// jsdom in this project has no functional localStorage; install a Map-backed
+// mock (same pattern as SignUpForm/SignInForm tests) so direct setItem works.
+const storage = new Map<string, string>();
 
 describe("useSectionVisibility", () => {
   beforeEach(() => {
-    clearStorage();
+    storage.clear();
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      value: {
+        getItem: (k: string) => storage.get(k) ?? null,
+        setItem: (k: string, v: string) => storage.set(k, v),
+        removeItem: (k: string) => storage.delete(k),
+      },
+    });
   });
 
   it("starts empty when no prior state is stored and no default groups given", () => {
