@@ -92,7 +92,7 @@ export function Navbar() {
 
   const profile = getActiveProfile(user);
   const displayName = user ? `${user.first_name} ${user.last_name}` : "—";
-  const jobFunctionName = profile?.job_functions?.[0]?.name;
+  const jobFunctionName = profile?.job_function?.name;
   const primaryRole = getProfilePrimaryRole(profile);
   const roleLabel =
     primaryRole && primaryRole !== "unknown" ? tRoles(primaryRole) : "";

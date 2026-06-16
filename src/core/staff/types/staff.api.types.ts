@@ -91,9 +91,9 @@ export type ApiStaffMember = {
   executive_title?: ExecutiveTitleCode | null;
   professional_title?: string | null;
   engagement_type?: EngagementTypeCode | null;
-  roles: ApiStaffRole[];
+  role: ApiStaffRole;
   branches: ApiStaffBranch[];
-  job_functions: ApiStaffJobFunction[];
+  job_function: ApiStaffJobFunction | null;
   specialties: ApiStaffSpecialty[];
   schedule?: ApiStaffBranchSchedule[];
   /** Short-lived presigned avatar URL, or null when none. */
@@ -109,9 +109,9 @@ export type InviteStaffRequest = {
   first_name: string;
   last_name: string;
   phone_number?: string;
-  role_ids: string[];
+  role_id: string;
   branch_ids: string[];
-  job_function_codes?: string[];
+  job_function_code?: string | null;
   specialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
   professional_title?: string;
@@ -124,9 +124,9 @@ export type CreateStaffDirectRequest = {
   last_name: string;
   phone_number: string;
   password: string;
-  role_ids: string[];
+  role_id: string;
   branch_ids: string[];
-  job_function_codes?: string[];
+  job_function_code?: string | null;
   specialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
   professional_title?: string;
@@ -155,9 +155,9 @@ export type UpdateStaffRequest = {
   last_name?: string;
   phone_number?: string;
   /** OWNER-only — backend 403s if a BRANCH_MANAGER sends this. */
-  role_ids?: string[];
+  role_id?: string;
   branch_ids?: string[];
-  job_function_codes?: string[];
+  job_function_code?: string | null;
   specialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
   professional_title?: string;
@@ -202,6 +202,7 @@ export type ApiStaffInvitation = {
   last_name?: string;
   phone_number?: string | null;
   executive_title?: ExecutiveTitleCode | null;
+  professional_title?: string | null;
   engagement_type?: EngagementTypeCode | null;
   status?: StaffInvitationStatus;
   invited_at?: string | null;
@@ -215,16 +216,12 @@ export type ApiStaffInvitation = {
     last_name?: string;
     email?: string;
   };
-  roles?: ApiStaffRole[];
+  role?: ApiStaffRole;
   branches?: ApiStaffBranch[];
-  job_functions?: ApiStaffJobFunction[];
+  job_function?: ApiStaffJobFunction | null;
   specialties?: ApiStaffSpecialty[];
   working_schedule?: ApiInvitationWorkingSchedule[] | null;
   user_exists?: boolean;
-  /** @deprecated some endpoints used to nest a single role here */
-  role?: ApiStaffRole;
-  /** @deprecated some endpoints used to nest a single role name */
-  role_name?: string;
 };
 
 export type StaffInvitationsMeta = {
@@ -255,12 +252,13 @@ export type InvitationPreview = {
   first_name: string;
   last_name: string;
   executive_title?: ExecutiveTitleCode | null;
+  professional_title?: string | null;
   engagement_type?: EngagementTypeCode | null;
   organization: { id: string; name: string };
   invited_by: { first_name: string; last_name: string };
-  roles: ApiStaffRole[];
+  role: ApiStaffRole;
   branches: ApiStaffBranch[];
-  job_functions?: ApiStaffJobFunction[];
+  job_function?: ApiStaffJobFunction | null;
   specialties?: ApiStaffSpecialty[];
 };
 

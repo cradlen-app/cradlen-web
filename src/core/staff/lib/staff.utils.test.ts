@@ -39,7 +39,7 @@ describe("staff utils", () => {
     expect(normalizeApiRoleName("OWNER")).toBe(STAFF_API_ROLE.OWNER);
     expect(normalizeApiRoleName("branch_manager")).toBe(STAFF_API_ROLE.BRANCH_MANAGER);
     expect(normalizeApiRoleName("STAFF")).toBe(STAFF_API_ROLE.STAFF);
-    expect(normalizeApiRoleName("EXTERNAL")).toBe(STAFF_API_ROLE.EXTERNAL);
+    expect(normalizeApiRoleName("EXTERNAL")).toBe("UNKNOWN");
     expect(normalizeApiRoleName("doctor")).toBe("UNKNOWN");
     expect(normalizeApiRoleName(undefined)).toBe("UNKNOWN");
   });
@@ -54,11 +54,9 @@ describe("staff utils", () => {
       phone_number: "+201000000000",
       executive_title: "COO",
       engagement_type: "FULL_TIME",
-      roles: [{ id: "role-1", name: "OWNER" }],
+      role: { id: "role-1", name: "OWNER" },
       branches: [],
-      job_functions: [
-        { id: "jf-1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
-      ],
+      job_function: { id: "jf-1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
       specialties: [{ id: "sp-1", code: "PEDS", name: "Pediatrics" }],
       schedule: [{ branch_id: "b-1", days: mondaySchedule.days }],
     };
@@ -85,11 +83,10 @@ describe("staff utils", () => {
       lastName: "Hassan",
       handle: "@nour",
       role: STAFF_API_ROLE.STAFF,
-      roles: [{ id: "r1", name: "STAFF", role: STAFF_API_ROLE.STAFF }],
+      roleId: "r1",
+      roleName: "STAFF",
       branches: [],
-      jobFunctions: [
-        { id: "jf-1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
-      ],
+      jobFunction: { id: "jf-1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
       specialties: [{ id: "sp-1", code: "CARD", name: "Cardiology" }],
       executiveTitle: null,
       engagementType: "FULL_TIME",

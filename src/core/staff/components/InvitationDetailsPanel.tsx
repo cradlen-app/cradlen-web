@@ -5,7 +5,9 @@ import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
+import { JOB_ROLE } from "@/features/auth/lib/auth.constants";
 import { STAFF_INVITE_DAY_LABELS } from "../lib/staff-invite.schemas";
+import { deriveJobRoleFromCodes } from "../lib/staff-role-fields";
 import type { ApiStaffInvitation } from "../types/staff.api.types";
 import {
   formatDate,
@@ -112,6 +114,13 @@ export default function InvitationDetailsPanel({
   const branchLabels =
     invitation?.branches?.map(getBranchLabel).filter(Boolean) ?? [];
   const schedule = invitation ? getScheduleLabel(invitation) : "";
+  const jobRole = invitation
+    ? deriveJobRoleFromCodes(
+        invitation.job_function ? [invitation.job_function.code] : [],
+      )
+    : JOB_ROLE.NONE;
+  const jobRoleLabel =
+    jobRole === JOB_ROLE.NONE ? undefined : staffT(`create.jobRoles.${jobRole}`);
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
@@ -176,10 +185,7 @@ export default function InvitationDetailsPanel({
                   />
                   <DetailRow
                     label={t("fields.jobFunctions")}
-                    value={
-                      invitation.job_functions?.map((j) => j.name).join(", ") ||
-                      undefined
-                    }
+                    value={jobRoleLabel}
                   />
                   <DetailRow
                     label={t("fields.phone")}
@@ -191,6 +197,10 @@ export default function InvitationDetailsPanel({
                       invitation.specialties?.map((s) => s.name).join(", ") ||
                       undefined
                     }
+                  />
+                  <DetailRow
+                    label={t("fields.professionalTitle")}
+                    value={invitation.professional_title ?? undefined}
                   />
                   <DetailRow
                     label={t("fields.invitedAt")}

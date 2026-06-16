@@ -58,9 +58,7 @@ export function StaffTable({ members, selectedId, onSelect }: StaffTableProps) {
             const fullName = getStaffFullName(member);
             const jobFunctionsLabel = getStaffJobFunctionsLabel(member);
             const specialtiesLabel = getStaffSpecialtiesLabel(member);
-            const rolesLabel = (member.roles.length ? member.roles : [{ role: member.role }])
-              .map((r) => t(getRoleTranslationKey(r.role)))
-              .join(", ");
+            const rolesLabel = t(getRoleTranslationKey(member.role));
 
             return (
               <tr

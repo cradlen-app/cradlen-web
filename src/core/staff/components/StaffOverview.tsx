@@ -4,12 +4,13 @@ import type { ReactNode } from "react";
 import { KeyRound, Pencil, ShieldCheck, UserX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
+import { JOB_ROLE } from "@/features/auth/lib/auth.constants";
 import {
   getRoleTranslationKey,
   getStaffFullName,
-  getStaffJobFunctionsLabel,
   getStaffSpecialtiesLabel,
 } from "../lib/staff.utils";
+import { deriveJobRoleFromCodes } from "../lib/staff-role-fields";
 import type { StaffMember } from "../types/staff.types";
 import { StaffAvatar } from "./StaffAvatar";
 import { StaffStatusBadge } from "./StaffStatusBadge";
@@ -95,7 +96,11 @@ export function StaffOverview({
     member.role === "OWNER" || member.role === "BRANCH_MANAGER";
   const showReset =
     canManage && !!onResetPassword && (isOwner || !targetPrivileged);
-  const jobFunctionsLabel = getStaffJobFunctionsLabel(member);
+  const jobRole = deriveJobRoleFromCodes(
+    member.jobFunction ? [member.jobFunction.code] : [],
+  );
+  const jobRoleLabel =
+    jobRole === JOB_ROLE.NONE ? "-" : staffT(`create.jobRoles.${jobRole}`);
   const specialtiesLabel = getStaffSpecialtiesLabel(member);
 
   return (
@@ -177,11 +182,14 @@ export function StaffOverview({
             value={staffT(`engagementTypes.${member.engagementType}`)}
           />
         )}
-        <DetailRow
-          label={t("jobFunctions")}
-          value={jobFunctionsLabel || "-"}
-        />
+        <DetailRow label={t("jobFunctions")} value={jobRoleLabel} />
         <DetailRow label={t("specialty")} value={specialtiesLabel || "-"} />
+        {member.professionalTitle && (
+          <DetailRow
+            label={t("professionalTitle")}
+            value={member.professionalTitle}
+          />
+        )}
         <DetailRow label={t("phoneNumber")} value={member.phone} />
         {member.workSchedule && (
           <DetailRow

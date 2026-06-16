@@ -32,20 +32,16 @@ type Profile = UserProfile | null | undefined;
 
 function profileApiRoleNames(profile: Profile): Set<string> {
   const names = new Set<string>();
-  if (!profile) return names;
-  for (const r of profile.roles ?? []) {
-    const raw = typeof r === "string" ? r : r.name;
-    if (raw) names.add(raw.toUpperCase());
-  }
-  if (profile.role?.name) names.add(profile.role.name.toUpperCase());
+  const r = profile?.role;
+  const raw = typeof r === "string" ? r : r?.name;
+  if (raw) names.add(raw.toUpperCase());
   return names;
 }
 
 function profileJobFunctionCodes(profile: Profile): Set<string> {
   const codes = new Set<string>();
-  for (const fn of profile?.job_functions ?? []) {
-    if (fn.code) codes.add(fn.code.toUpperCase());
-  }
+  const code = profile?.job_function?.code;
+  if (code) codes.add(code.toUpperCase());
   return codes;
 }
 
