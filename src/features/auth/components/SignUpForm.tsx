@@ -2,13 +2,14 @@
 
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/infrastructure/http/api";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { DateOfBirthPicker } from "./DateOfBirthPicker";
 import { PasswordInput } from "./PasswordInput";
 import { PhoneInput } from "./PhoneInput";
 import { StepIndicator } from "./StepIndicator";
@@ -58,6 +59,7 @@ export function SignUpForm() {
       firstName: "",
       lastName: "",
       phoneNumber: "",
+      dateOfBirth: "",
       email: resumeEmail,
       password: "",
       confirmPassword: "",
@@ -188,6 +190,23 @@ export function SignUpForm() {
           error={form.formState.errors.phoneNumber?.message}
           inputClassName={inputClass}
           errorInputClassName={errorInputClass(true)}
+        />
+
+        <Controller
+          control={form.control}
+          name="dateOfBirth"
+          render={({ field }) => (
+            <DateOfBirthPicker
+              id="dateOfBirth"
+              label={t("dateOfBirthLabel")}
+              placeholder={t("dateOfBirthPlaceholder")}
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              error={form.formState.errors.dateOfBirth?.message}
+              inputClassName={inputClass}
+              errorInputClassName={errorInputClass(true)}
+            />
+          )}
         />
 
         <PasswordInput

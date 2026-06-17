@@ -24,6 +24,7 @@ export function buildSignupStartRequest(data: Step1Data): RegisterPersonalReques
   };
 
   if (phoneNumber) payload.phone_number = phoneNumber;
+  if (data.dateOfBirth) payload.date_of_birth = data.dateOfBirth;
 
   return payload;
 }
