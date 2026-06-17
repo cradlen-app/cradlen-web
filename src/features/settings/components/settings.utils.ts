@@ -69,6 +69,18 @@ export function formatSettingsDateTime(
   }).format(date);
 }
 
+export function formatSettingsDate(
+  value: string | null | undefined,
+  locale: SettingsLocale,
+) {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(date);
+}
+
 /** Returns only the keys whose value differs between `next` and `prev`. */
 export function pickDirty<T extends Record<string, unknown>>(
   next: T,

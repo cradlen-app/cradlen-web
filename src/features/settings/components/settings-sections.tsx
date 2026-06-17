@@ -23,6 +23,7 @@ import {
   formatExecutiveTitle,
   formatOrgStatus,
   formatRole,
+  formatSettingsDate,
   formatSettingsDateTime,
   type SettingsLocale,
   type SettingsT,
@@ -102,6 +103,10 @@ export function ProfileSection({
             <DetailRow
               label={t("fields.phone")}
               value={user.phone_number ?? user.phone ?? undefined}
+            />
+            <DetailRow
+              label={t("fields.dateOfBirth")}
+              value={formatSettingsDate(user.date_of_birth, locale)}
             />
             <DetailRow
               label={t("fields.role")}
