@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -33,6 +33,7 @@ import {
   type OrganizationFormData,
   type ProfileFormData,
 } from "../lib/settings.schemas";
+import { DateOfBirthPicker } from "@/features/auth/components/DateOfBirthPicker";
 import { CodeMultiSelect } from "./CodeMultiSelect";
 import type { DrawerKey } from "./settings.types";
 import { pickDirty, type SettingsT } from "./settings.utils";
@@ -97,6 +98,7 @@ export function ProfileForm({
       first_name: user.first_name ?? "",
       last_name: user.last_name ?? "",
       phone_number: user.phone_number ?? user.phone ?? "",
+      date_of_birth: user.date_of_birth ?? "",
       professional_title: profile?.professional_title ?? "",
     }),
     [user, profile],
@@ -105,6 +107,7 @@ export function ProfileForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileFormSchema),
@@ -128,6 +131,9 @@ export function ProfileForm({
     if ("last_name" in dirty) payload.last_name = dirty.last_name;
     if ("phone_number" in dirty) {
       payload.phone_number = dirty.phone_number ? dirty.phone_number : undefined;
+    }
+    if ("date_of_birth" in dirty) {
+      payload.date_of_birth = dirty.date_of_birth ? dirty.date_of_birth : null;
     }
     if (showProfessionalTitle && "professional_title" in dirty) {
       payload.professional_title = dirty.professional_title
@@ -194,6 +200,22 @@ export function ProfileForm({
           {...register("phone_number")}
         />
       </div>
+
+      <Controller
+        control={control}
+        name="date_of_birth"
+        render={({ field }) => (
+          <DateOfBirthPicker
+            id="settings-date-of-birth"
+            label={t("fields.dateOfBirth")}
+            placeholder={t("fields.dateOfBirthPlaceholder")}
+            value={field.value ?? ""}
+            onChange={field.onChange}
+            error={errors.date_of_birth?.message}
+            inputClassName={fieldClass(errors.date_of_birth)}
+          />
+        )}
+      />
 
       {showProfessionalTitle && (
         <div className="grid gap-1">
