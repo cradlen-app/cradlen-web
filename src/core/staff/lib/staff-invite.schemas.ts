@@ -56,6 +56,8 @@ const staffBaseSchema = z.object({
   jobRole: z.enum(JOB_ROLE_VALUES),
   /** Single specialty code, required when jobRole === DOCTOR (drives templates). */
   doctorSpecialty: z.string(),
+  /** Subspecialty codes (doctor-only); each must belong to `doctorSpecialty`. */
+  doctorSubspecialties: z.array(z.string()),
   /** Free-text credential/seniority wording, doctor-only. */
   professionalTitle: z.string().trim().max(120, "Professional title is too long").optional(),
   executiveTitle: z.enum(EXECUTIVE_VALUES).nullable(),
@@ -166,6 +168,7 @@ export function getDefaultStaffInviteValues(branchIds: string[] = []): StaffInvi
     phone: "",
     jobRole: JOB_ROLE.NONE,
     doctorSpecialty: "",
+    doctorSubspecialties: [],
     professionalTitle: "",
     executiveTitle: null,
     engagementType: DEFAULT_ENGAGEMENT_TYPE,
@@ -185,6 +188,7 @@ export function getDefaultStaffCreateDirectValues(
     password: "",
     jobRole: JOB_ROLE.NONE,
     doctorSpecialty: "",
+    doctorSubspecialties: [],
     professionalTitle: "",
     executiveTitle: null,
     engagementType: DEFAULT_ENGAGEMENT_TYPE,

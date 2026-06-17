@@ -518,6 +518,8 @@
       },
       "doctorSpecialtyLabel": "Your specialty",
       "doctorSpecialtyPlaceholder": "Select your specialty",
+      "doctorSubspecialtyLabel": "Your subspecialties",
+      "doctorSubspecialtyPlaceholder": "Select your subspecialties",
       "professionalTitleLabel": "Title on your profile",
       "professionalTitlePlaceholder": "e.g. استشاري النساء والتوليد",
       "professionalTitleHint": "Free text shown on your profile — display only.",

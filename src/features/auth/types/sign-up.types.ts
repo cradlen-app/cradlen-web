@@ -22,6 +22,7 @@ export type Step3Data = {
   executiveTitle: ExecutiveTitleCode;
   jobRole: JobRoleCode;
   doctorSpecialty: string;
+  doctorSubspecialties: string[];
   professionalTitle?: string;
   branchName: string;
   city: string;
@@ -55,7 +56,8 @@ export type RegisterOrganizationRequest = {
   organization_name: string;
   specialties: string[];
   executive_title?: ExecutiveTitleCode;
-  practitioner_specialties?: string[];
+  practitioner_specialty_code?: string;
+  practitioner_subspecialty_codes?: string[];
   job_function_code?: string;
   professional_title?: string;
   branch_name: string;

@@ -92,6 +92,7 @@ export function makeStep3Schema(t: (key: string) => string = (k) => k) {
       executiveTitle: z.enum(EXECUTIVE_TITLE_VALUES),
       jobRole: z.enum(JOB_ROLE_VALUES),
       doctorSpecialty: z.string(),
+      doctorSubspecialties: z.array(z.string()),
       professionalTitle: z
         .string()
         .trim()
