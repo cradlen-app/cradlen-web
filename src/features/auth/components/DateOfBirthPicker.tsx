@@ -67,7 +67,7 @@ export function DateOfBirthPicker({
             <CalendarIcon className="size-4 shrink-0 text-gray-400" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0" align="start" portal={false}>
           <Calendar
             mode="single"
             captionLayout="dropdown"
