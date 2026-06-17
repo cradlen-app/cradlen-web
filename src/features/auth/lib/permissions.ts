@@ -103,7 +103,10 @@ export function specialtyMatchesOrg(profile?: UserProfile): boolean {
   const orgCodes = specialtyCodes(orgList);
   if (orgCodes.size === 0) return true;
 
-  const staffCodes = specialtyCodes(profile?.specialties);
+  // The doctor's single primary specialty must be one the org offers.
+  const staffCodes = specialtyCodes(
+    profile?.specialty ? [profile.specialty] : [],
+  );
   for (const code of staffCodes) {
     if (orgCodes.has(code)) return true;
   }

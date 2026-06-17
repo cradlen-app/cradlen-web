@@ -25,7 +25,10 @@ export function buildRegisterOrganizationRequest(
   switch (data.jobRole) {
     case JOB_ROLE.DOCTOR: {
       if (data.doctorSpecialty) {
-        payload.practitioner_specialties = [data.doctorSpecialty];
+        payload.practitioner_specialty_code = data.doctorSpecialty;
+        if (data.doctorSubspecialties.length) {
+          payload.practitioner_subspecialty_codes = data.doctorSubspecialties;
+        }
         payload.job_function_code = JOB_FUNCTION_CODE.DOCTOR;
       }
       const title = data.professionalTitle?.trim();

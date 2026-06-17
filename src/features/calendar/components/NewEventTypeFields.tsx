@@ -326,9 +326,7 @@ function AssistantsField({
                   return (
                     <option key={d.id} value={d.id} disabled={taken}>
                       {name}
-                      {d.specialties?.length
-                        ? ` — ${d.specialties.map((s) => s.name).join(", ")}`
-                        : ""}
+                      {d.specialty ? ` — ${d.specialty.name}` : ""}
                     </option>
                   );
                 })}

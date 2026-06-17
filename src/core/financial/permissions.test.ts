@@ -12,7 +12,7 @@ function profile(opts: {
   return {
     role: { id: roleName, name: roleName },
     job_function: (opts.jobFunctions ?? [])[0] ?? null,
-    specialties: opts.staff,
+    specialty: opts.staff?.[0],
     organization: { specialties: opts.org },
   } as unknown as UserProfile;
 }

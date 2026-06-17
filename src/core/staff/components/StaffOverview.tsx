@@ -22,6 +22,7 @@ import {
   getRoleTranslationKey,
   getStaffDisplayName,
   getStaffSpecialtiesLabel,
+  getStaffSubspecialtiesLabel,
 } from "../lib/staff.utils";
 import { deriveJobRoleFromCodes } from "../lib/staff-role-fields";
 import type { StaffMember } from "../types/staff.types";
@@ -134,6 +135,7 @@ export function StaffOverview({
   const jobRoleLabel =
     jobRole === JOB_ROLE.NONE ? "-" : staffT(`create.jobRoles.${jobRole}`);
   const specialtiesLabel = getStaffSpecialtiesLabel(member);
+  const subspecialtiesLabel = getStaffSubspecialtiesLabel(member);
 
   return (
     <aside
@@ -217,6 +219,9 @@ export function StaffOverview({
         )}
         <DetailRow icon={Stethoscope} label={t("jobFunctions")} value={jobRoleLabel} />
         <DetailRow icon={Award} label={t("specialty")} value={specialtiesLabel || "-"} />
+        {subspecialtiesLabel && (
+          <DetailRow icon={Award} label={t("subspecialty")} value={subspecialtiesLabel} />
+        )}
         {member.professionalTitle && (
           <DetailRow
             icon={BadgeCheck}
