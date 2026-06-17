@@ -123,7 +123,8 @@ export function mapApiStaffToMember(api: ApiStaffMember, locale: string): StaffM
     roleName: api.role?.name ?? "",
     branches: api.branches ?? [],
     jobFunction: api.job_function ?? null,
-    specialties: api.specialties ?? [],
+    specialty: api.specialty ?? null,
+    subspecialties: api.subspecialties ?? [],
     executiveTitle: api.executive_title ?? null,
     professionalTitle: api.professional_title ?? null,
     engagementType: api.engagement_type ?? null,
@@ -190,7 +191,8 @@ export function matchesStaffSearch(member: StaffMember, search: string) {
     getStaffFullName(member),
     member.handle,
     member.phone,
-    ...member.specialties.map((s) => s.name),
+    ...(member.specialty ? [member.specialty.name] : []),
+    ...member.subspecialties.map((s) => s.name),
     ...(member.jobFunction ? [member.jobFunction.name] : []),
   ].filter(Boolean);
 
@@ -202,5 +204,10 @@ export function getStaffJobFunctionsLabel(member: StaffMember): string {
 }
 
 export function getStaffSpecialtiesLabel(member: StaffMember): string {
-  return member.specialties.map((s) => s.name).join(", ");
+  return member.specialty?.name ?? "";
+}
+
+/** Comma-joined subspecialty names (empty string when none). */
+export function getStaffSubspecialtiesLabel(member: StaffMember): string {
+  return member.subspecialties.map((s) => s.name).join(", ");
 }

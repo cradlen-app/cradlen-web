@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -22,6 +22,7 @@ import {
 } from "../lib/current-user";
 import { resolveDefaultRouteAfterAuth } from "../lib/redirect";
 import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
+import { SubspecialtiesSelect } from "@/components/common/SubspecialtiesSelect";
 import { useSpecialtiesLookup } from "@/features/settings/hooks/useSettingsLookups";
 import { EXECUTIVE_TITLE, JOB_ROLE } from "../lib/auth.constants";
 import { StepIndicator } from "./StepIndicator";
@@ -71,6 +72,7 @@ export function SignUpCompleteForm() {
       executiveTitle: EXECUTIVE_TITLE.CEO,
       jobRole: JOB_ROLE.NONE,
       doctorSpecialty: "",
+      doctorSubspecialties: [],
       professionalTitle: "",
       city: "",
       address: "",
@@ -84,6 +86,23 @@ export function SignUpCompleteForm() {
   const isDoctor = jobRole === JOB_ROLE.DOCTOR;
   const specialtyLookup = useSpecialtiesLookup();
   const specialtyOptions = specialtyLookup.data?.data ?? [];
+
+  const selectedSpecialty = useWatch({
+    control: form.control,
+    name: "doctorSpecialty",
+  });
+  const subspecialtyOptions = useMemo(
+    () =>
+      specialtyOptions.find((s) => s.code === selectedSpecialty)
+        ?.subspecialties ?? [],
+    [specialtyOptions, selectedSpecialty],
+  );
+  // Clear any subspecialties when the parent specialty changes — stale codes
+  // would fail the server's parent-consistency check.
+  useEffect(() => {
+    form.setValue("doctorSubspecialties", []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSpecialty]);
 
   const inputClass = cn(
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
@@ -286,6 +305,27 @@ export function SignUpCompleteForm() {
                 </select>
                 {fieldError(form.formState.errors.doctorSpecialty?.message)}
               </div>
+
+              {subspecialtyOptions.length > 0 && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm text-brand-black">
+                    {t("doctorSubspecialtyLabel")}
+                  </label>
+                  <Controller
+                    control={form.control}
+                    name="doctorSubspecialties"
+                    render={({ field }) => (
+                      <SubspecialtiesSelect
+                        options={subspecialtyOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={!selectedSpecialty}
+                        placeholder={t("doctorSubspecialtyPlaceholder")}
+                      />
+                    )}
+                  />
+                </div>
+              )}
 
               <div className="flex flex-col gap-1.5">
                 <label

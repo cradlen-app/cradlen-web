@@ -32,6 +32,14 @@ export type UserSpecialty = {
   name: string;
 };
 
+export type UserSubspecialty = {
+  id: string;
+  code: string;
+  name: string;
+  /** Parent specialty code. */
+  specialty_code: string;
+};
+
 export type UserJobFunction = {
   id: string;
   code: string;
@@ -64,8 +72,10 @@ export type UserProfile = {
     logo_image_url?: string | null;
   };
   branches: UserBranch[];
-  /** Profile-level specialties (subset of org specialties) */
-  specialties?: UserSpecialty[];
+  /** Profile-level primary specialty (one per doctor), or null/absent when none. */
+  specialty?: UserSpecialty | null;
+  /** Profile-level subspecialties (fellowships); each belongs to `specialty`. */
+  subspecialties?: UserSubspecialty[];
   /** Profile-level job function (single); `is_clinical` lives here. Null/absent when none. */
   job_function?: UserJobFunction | null;
   /** @deprecated login/signup response only — /auth/me uses staff_id */
@@ -76,8 +86,6 @@ export type UserProfile = {
   organization_id?: string;
   /** @deprecated not returned by /auth/me; use branches[0] */
   branch?: UserBranch;
-  /** @deprecated /auth/me uses specialties[]; staff endpoints still expose this */
-  specialty?: string;
 };
 
 export type CurrentUser = {

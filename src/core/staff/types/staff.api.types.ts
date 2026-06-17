@@ -12,10 +12,20 @@ export type ApiStaffJobFunction = {
   is_clinical: boolean;
 };
 
+export type ApiStaffSubspecialty = {
+  id: string;
+  code: string;
+  name: string;
+  /** Parent specialty code. */
+  specialty_code: string;
+};
+
 export type ApiStaffSpecialty = {
   id: string;
   code: string;
   name: string;
+  /** Nested children, present on the specialty lookups (org `/specialties`). */
+  subspecialties?: { id: string; code: string; name: string }[];
 };
 
 /** A single staff metric with its current value and the value at start-of-month. */
@@ -94,7 +104,8 @@ export type ApiStaffMember = {
   role: ApiStaffRole;
   branches: ApiStaffBranch[];
   job_function: ApiStaffJobFunction | null;
-  specialties: ApiStaffSpecialty[];
+  specialty: ApiStaffSpecialty | null;
+  subspecialties: ApiStaffSubspecialty[];
   schedule?: ApiStaffBranchSchedule[];
   /** Short-lived presigned avatar URL, or null when none. */
   profile_image_url?: string | null;
@@ -112,7 +123,8 @@ export type InviteStaffRequest = {
   role_id: string;
   branch_ids: string[];
   job_function_code?: string | null;
-  specialty_codes?: string[];
+  specialty_code?: string | null;
+  subspecialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
   professional_title?: string;
   engagement_type?: EngagementTypeCode;
@@ -127,7 +139,8 @@ export type CreateStaffDirectRequest = {
   role_id: string;
   branch_ids: string[];
   job_function_code?: string | null;
-  specialty_codes?: string[];
+  specialty_code?: string | null;
+  subspecialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
   professional_title?: string;
   engagement_type?: EngagementTypeCode;
@@ -158,7 +171,8 @@ export type UpdateStaffRequest = {
   role_id?: string;
   branch_ids?: string[];
   job_function_code?: string | null;
-  specialty_codes?: string[];
+  specialty_code?: string | null;
+  subspecialty_codes?: string[];
   executive_title?: ExecutiveTitleCode | null;
   professional_title?: string;
   engagement_type?: EngagementTypeCode;
@@ -219,7 +233,8 @@ export type ApiStaffInvitation = {
   role?: ApiStaffRole;
   branches?: ApiStaffBranch[];
   job_function?: ApiStaffJobFunction | null;
-  specialties?: ApiStaffSpecialty[];
+  specialty?: ApiStaffSpecialty | null;
+  subspecialties?: ApiStaffSubspecialty[];
   working_schedule?: ApiInvitationWorkingSchedule[] | null;
   user_exists?: boolean;
 };
@@ -259,7 +274,8 @@ export type InvitationPreview = {
   role: ApiStaffRole;
   branches: ApiStaffBranch[];
   job_function?: ApiStaffJobFunction | null;
-  specialties?: ApiStaffSpecialty[];
+  specialty?: ApiStaffSpecialty | null;
+  subspecialties?: ApiStaffSubspecialty[];
 };
 
 export type AcceptStaffInviteRequest = {
