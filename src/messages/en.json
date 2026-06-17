@@ -335,6 +335,8 @@
       "jobTitle": "Job title",
       "verifiedAt": "Verified at",
       "phone": "Phone",
+      "dateOfBirth": "Date of birth",
+      "dateOfBirthPlaceholder": "Select your date of birth",
       "organization": "Organization",
       "organizationName": "Organization name",
       "specialties": "Specialties",
