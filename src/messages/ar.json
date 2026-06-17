@@ -335,6 +335,8 @@
       "jobTitle": "المسمى الوظيفي",
       "verifiedAt": "تم التحقق في",
       "phone": "الهاتف",
+      "dateOfBirth": "تاريخ الميلاد",
+      "dateOfBirthPlaceholder": "اختر تاريخ ميلادك",
       "organization": "المنظمة",
       "organizationName": "اسم المنظمة",
       "specialties": "التخصصات",
