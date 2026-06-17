@@ -95,6 +95,8 @@ export type CurrentUser = {
   email: string;
   phone?: string | null;
   phone_number?: string | null;
+  /** ISO date string (yyyy-MM-dd) or null. User-level, shared across profiles. */
+  date_of_birth?: string | null;
   is_active: boolean;
   verified_at: string | null;
   created_at: string;

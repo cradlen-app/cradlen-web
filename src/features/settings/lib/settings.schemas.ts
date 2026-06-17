@@ -9,6 +9,7 @@ export const profileFormSchema = z.object({
     .max(32)
     .optional()
     .or(z.literal("")),
+  date_of_birth: z.string().optional().or(z.literal("")),
   professional_title: z
     .string()
     .trim()
