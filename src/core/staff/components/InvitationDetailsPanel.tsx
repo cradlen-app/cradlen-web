@@ -193,8 +193,12 @@ export default function InvitationDetailsPanel({
                   />
                   <DetailRow
                     label={t("fields.specialty")}
+                    value={invitation.specialty?.name ?? undefined}
+                  />
+                  <DetailRow
+                    label={t("fields.subspecialty")}
                     value={
-                      invitation.specialties?.map((s) => s.name).join(", ") ||
+                      invitation.subspecialties?.map((s) => s.name).join(", ") ||
                       undefined
                     }
                   />

@@ -13,6 +13,8 @@ import type { StaffMember } from "../types/staff.types";
 export type StaffRoleFieldValues = {
   jobRole: JobRoleCode;
   doctorSpecialty: string;
+  /** Subspecialty codes; each must belong to `doctorSpecialty`. */
+  doctorSubspecialties: string[];
   professionalTitle?: string;
 };
 
@@ -20,7 +22,9 @@ export type StaffRoleFieldValues = {
 export type StaffRoleFieldPayload = {
   /** Single job-function code, or null to clear (NONE / doctor without specialty). */
   job_function_code: string | null;
-  specialty_codes: string[];
+  /** Single primary specialty code, or null to clear. */
+  specialty_code: string | null;
+  subspecialty_codes: string[];
   professional_title?: string;
 };
 
@@ -39,9 +43,10 @@ export function buildStaffRoleFields(
       const payload: StaffRoleFieldPayload = values.doctorSpecialty
         ? {
             job_function_code: JOB_FUNCTION_CODE.DOCTOR,
-            specialty_codes: [values.doctorSpecialty],
+            specialty_code: values.doctorSpecialty,
+            subspecialty_codes: values.doctorSubspecialties,
           }
-        : { job_function_code: null, specialty_codes: [] };
+        : { job_function_code: null, specialty_code: null, subspecialty_codes: [] };
       const title = values.professionalTitle?.trim();
       if (title) payload.professional_title = title;
       return payload;
@@ -49,16 +54,18 @@ export function buildStaffRoleFields(
     case JOB_ROLE.RECEPTIONIST:
       return {
         job_function_code: JOB_FUNCTION_CODE.RECEPTIONIST,
-        specialty_codes: [],
+        specialty_code: null,
+        subspecialty_codes: [],
       };
     case JOB_ROLE.ACCOUNTANT:
       return {
         job_function_code: JOB_FUNCTION_CODE.ACCOUNTANT,
-        specialty_codes: [],
+        specialty_code: null,
+        subspecialty_codes: [],
       };
     case JOB_ROLE.NONE:
     default:
-      return { job_function_code: null, specialty_codes: [] };
+      return { job_function_code: null, specialty_code: null, subspecialty_codes: [] };
   }
 }
 
@@ -81,7 +88,10 @@ export function deriveJobRoleFromCodes(codes: readonly string[]): JobRoleCode {
  * edit form.
  */
 export function deriveJobRoleFromMember(
-  member: Pick<StaffMember, "jobFunction" | "specialties" | "professionalTitle">,
+  member: Pick<
+    StaffMember,
+    "jobFunction" | "specialty" | "subspecialties" | "professionalTitle"
+  >,
 ): StaffRoleFieldValues {
   const jobRole = deriveJobRoleFromCodes(
     member.jobFunction ? [member.jobFunction.code] : [],
@@ -89,9 +99,10 @@ export function deriveJobRoleFromMember(
   if (jobRole === JOB_ROLE.DOCTOR) {
     return {
       jobRole,
-      doctorSpecialty: member.specialties[0]?.code ?? "",
+      doctorSpecialty: member.specialty?.code ?? "",
+      doctorSubspecialties: member.subspecialties.map((s) => s.code),
       professionalTitle: member.professionalTitle ?? "",
     };
   }
-  return { jobRole, doctorSpecialty: "", professionalTitle: "" };
+  return { jobRole, doctorSpecialty: "", doctorSubspecialties: [], professionalTitle: "" };
 }

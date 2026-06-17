@@ -8,6 +8,7 @@ import type {
   ApiStaffBranchSchedule,
   ApiStaffJobFunction,
   ApiStaffSpecialty,
+  ApiStaffSubspecialty,
 } from "./staff.api.types";
 
 export type StaffStatus = "available" | "notAvailable";
@@ -35,7 +36,10 @@ export type StaffMember = {
   roleName: string;
   branches: ApiStaffBranch[];
   jobFunction: ApiStaffJobFunction | null;
-  specialties: ApiStaffSpecialty[];
+  /** Primary specialty (one per doctor), or null for non-clinical staff. */
+  specialty: ApiStaffSpecialty | null;
+  /** Subspecialties (fellowships); each belongs to `specialty`. */
+  subspecialties: ApiStaffSubspecialty[];
   executiveTitle?: ExecutiveTitleCode | null;
   /** Free-text credential/seniority wording (e.g. "استشاري النساء والتوليد"). */
   professionalTitle?: string | null;

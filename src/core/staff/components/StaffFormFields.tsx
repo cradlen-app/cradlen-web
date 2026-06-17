@@ -30,6 +30,7 @@ import {
   type StaffCreateDirectFormValues,
   type StaffInviteFormValues,
 } from "../lib/staff-invite.schemas";
+import { SubspecialtiesSelect } from "@/components/common/SubspecialtiesSelect";
 import type { ApiStaffSpecialty } from "../types/staff.api.types";
 import type { StaffMember, StaffRoleOption } from "../types/staff.types";
 import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
@@ -60,6 +61,8 @@ export type StaffFormFieldsProps = {
   selectedEngagementType: EngagementTypeCode;
   selectedExecutiveTitle: ExecutiveTitleCode | null | undefined;
   specialtyOptions: ApiStaffSpecialty[];
+  selectedDoctorSpecialty: string;
+  selectedDoctorSubspecialties: string[];
   branchOptions: OrganizationBranch[];
   selectedBranchIds: string[];
   /** Branches the current user is allowed to assign (BRANCH_MANAGER scope). Empty = no scope restriction. */
@@ -127,6 +130,8 @@ export default function StaffFormFields({
   selectedEngagementType,
   selectedExecutiveTitle,
   specialtyOptions,
+  selectedDoctorSpecialty,
+  selectedDoctorSubspecialties,
   branchOptions,
   selectedBranchIds,
   assignableBranchIds,
@@ -155,12 +160,17 @@ export default function StaffFormFields({
 
   const isDoctor = selectedJobRole === JOB_ROLE.DOCTOR;
 
+  const subspecialtyOptions =
+    specialtyOptions.find((s) => s.code === selectedDoctorSpecialty)
+      ?.subspecialties ?? [];
+
   function selectJobRole(role: JobRoleCode) {
     setValue("jobRole", role, { shouldDirty: true, shouldValidate: true });
     if (role !== JOB_ROLE.DOCTOR) {
       // Doctor-only fields carry no meaning for the other roles — clear them so
       // a stale specialty/title can't leak into the payload.
       setValue("doctorSpecialty", "", { shouldDirty: true, shouldValidate: true });
+      setValue("doctorSubspecialties", [], { shouldDirty: true });
       setValue("professionalTitle", "", { shouldDirty: true });
     }
   }
@@ -410,7 +420,15 @@ export default function StaffFormFields({
               <span className="text-xs font-medium text-brand-black">
                 {t("doctorSpecialty")}
               </span>
-              <select {...register("doctorSpecialty")} className={fieldClass}>
+              <select
+                {...register("doctorSpecialty", {
+                  // Clearing the parent specialty invalidates any chosen
+                  // subspecialties — drop them so a stale code can't leak.
+                  onChange: () =>
+                    setValue("doctorSubspecialties", [], { shouldDirty: true }),
+                })}
+                className={fieldClass}
+              >
                 <option value="">{t("doctorSpecialtyPlaceholder")}</option>
                 {specialtyOptions.map((sp) => (
                   <option key={sp.code} value={sp.code}>
@@ -420,6 +438,28 @@ export default function StaffFormFields({
               </select>
               <FieldError message={errors.doctorSpecialty?.message} />
             </label>
+
+            {subspecialtyOptions.length > 0 && (
+              <label className="block">
+                <span className="text-xs font-medium text-brand-black">
+                  {t("doctorSubspecialty")}
+                </span>
+                <div className="pt-1">
+                  <SubspecialtiesSelect
+                    options={subspecialtyOptions}
+                    value={selectedDoctorSubspecialties}
+                    onChange={(v) =>
+                      setValue("doctorSubspecialties", v, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                    disabled={!selectedDoctorSpecialty}
+                    placeholder={t("doctorSubspecialtyPlaceholder")}
+                  />
+                </div>
+              </label>
+            )}
 
             <label className="block">
               <span className="text-xs font-medium text-brand-black">

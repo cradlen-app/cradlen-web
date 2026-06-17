@@ -19,6 +19,7 @@ const baseStep3Data: Step3Data = {
   executiveTitle: "CEO",
   jobRole: "NONE",
   doctorSpecialty: "",
+  doctorSubspecialties: [],
   branchName: "Main Branch",
   city: "Cairo",
   address: "123 Main St",
@@ -224,7 +225,7 @@ describe("buildRegisterOrganizationRequest", () => {
 
   it("omits role fields when the owner has no job function (None)", () => {
     const result = buildRegisterOrganizationRequest(baseStep3Data);
-    expect(result).not.toHaveProperty("practitioner_specialties");
+    expect(result).not.toHaveProperty("practitioner_specialty_code");
     expect(result).not.toHaveProperty("job_function_code");
     expect(result).not.toHaveProperty("professional_title");
   });
@@ -234,10 +235,12 @@ describe("buildRegisterOrganizationRequest", () => {
       ...baseStep3Data,
       jobRole: "DOCTOR",
       doctorSpecialty: "OBGYN",
+      doctorSubspecialties: ["REI"],
       professionalTitle: "  استشاري النساء والتوليد  ",
     });
     expect(result).toMatchObject({
-      practitioner_specialties: ["OBGYN"],
+      practitioner_specialty_code: "OBGYN",
+      practitioner_subspecialty_codes: ["REI"],
       job_function_code: "DOCTOR",
       professional_title: "استشاري النساء والتوليد",
     });
@@ -250,7 +253,7 @@ describe("buildRegisterOrganizationRequest", () => {
       doctorSpecialty: "CARDIOLOGY",
     });
     expect(result.job_function_code).toBe("DOCTOR");
-    expect(result.practitioner_specialties).toEqual(["CARDIOLOGY"]);
+    expect(result.practitioner_specialty_code).toBe("CARDIOLOGY");
     expect(result).not.toHaveProperty("professional_title");
   });
 

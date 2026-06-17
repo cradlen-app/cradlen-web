@@ -520,6 +520,8 @@
       },
       "doctorSpecialtyLabel": "تخصصك",
       "doctorSpecialtyPlaceholder": "اختر تخصصك",
+      "doctorSubspecialtyLabel": "تخصصاتك الدقيقة",
+      "doctorSubspecialtyPlaceholder": "اختر تخصصاتك الدقيقة",
       "professionalTitleLabel": "المسمى الظاهر في ملفك",
       "professionalTitlePlaceholder": "مثال: استشاري النساء والتوليد",
       "professionalTitleHint": "نص حر يظهر في ملفك — للعرض فقط.",

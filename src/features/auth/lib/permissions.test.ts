@@ -65,7 +65,8 @@ function specialtyProfile(opts: {
   return {
     role: { id: "STAFF", name: "STAFF" },
     job_function: opts.jobFunctions?.[0] ?? { code: "DOCTOR", is_clinical: true },
-    specialties: opts.staff,
+    // A doctor now has a single primary specialty — take the first provided.
+    specialty: opts.staff?.[0],
     organization: { specialties: opts.org },
   } as unknown as UserProfile;
 }

@@ -196,6 +196,9 @@ export function StaffCreateDrawer({
   const engagementType =
     useWatch({ control, name: "engagementType" }) ?? DEFAULT_ENGAGEMENT_TYPE;
   const executiveTitle = useWatch({ control, name: "executiveTitle" });
+  const doctorSpecialty = useWatch({ control, name: "doctorSpecialty" }) ?? "";
+  const doctorSubspecialties =
+    useWatch({ control, name: "doctorSubspecialties" }) ?? [];
   const shifts = useWatch({ control, name: "shifts" });
 
   // Roles a non-OWNER may not assign.
@@ -461,6 +464,8 @@ export function StaffCreateDrawer({
                   selectedEngagementType={engagementType}
                   selectedExecutiveTitle={executiveTitle ?? null}
                   specialtyOptions={specialtyOptions}
+                  selectedDoctorSpecialty={doctorSpecialty}
+                  selectedDoctorSubspecialties={doctorSubspecialties}
                   branchOptions={branchOptions}
                   selectedBranchIds={selectedBranchIds}
                   assignableBranchIds={callerBranchIds}

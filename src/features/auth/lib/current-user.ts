@@ -11,10 +11,12 @@ function specialtyName(s: UserSpecialty | string): string {
 }
 
 export function getProfileSpecialtyNames(profile?: UserProfile): string[] {
-  if (profile?.specialties?.length) {
-    return profile.specialties.map((s) => s.name);
+  const names: string[] = [];
+  if (profile?.specialty) names.push(profile.specialty.name);
+  if (profile?.subspecialties?.length) {
+    names.push(...profile.subspecialties.map((s) => s.name));
   }
-  return profile?.specialty ? [profile.specialty] : [];
+  return names;
 }
 
 export function getOrganizationSpecialtyNames(profile?: UserProfile): string[] {

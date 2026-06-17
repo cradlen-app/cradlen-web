@@ -57,7 +57,8 @@ describe("staff utils", () => {
       role: { id: "role-1", name: "OWNER" },
       branches: [],
       job_function: { id: "jf-1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
-      specialties: [{ id: "sp-1", code: "PEDS", name: "Pediatrics" }],
+      specialty: { id: "sp-1", code: "PEDS", name: "Pediatrics" },
+      subspecialties: [],
       schedule: [{ branch_id: "b-1", days: mondaySchedule.days }],
     };
 
@@ -87,7 +88,8 @@ describe("staff utils", () => {
       roleName: "STAFF",
       branches: [],
       jobFunction: { id: "jf-1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
-      specialties: [{ id: "sp-1", code: "CARD", name: "Cardiology" }],
+      specialty: { id: "sp-1", code: "CARD", name: "Cardiology" },
+      subspecialties: [],
       executiveTitle: null,
       engagementType: "FULL_TIME",
       phone: "+2012",
