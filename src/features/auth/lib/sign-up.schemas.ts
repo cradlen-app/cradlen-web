@@ -27,6 +27,14 @@ function isValidOptionalPhone(value: string | undefined) {
   return PHONE_NUMBER_REGEXES.some((regex) => regex.test(normalized));
 }
 
+function isValidOptionalDateOfBirth(value: string | undefined) {
+  if (!value) return true;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return false;
+  // Reject future dates — a birth date cannot be after today.
+  return parsed.getTime() <= Date.now();
+}
+
 export function makeStep1Schema(t: (key: string) => string = (k) => k) {
   return z
     .object({
@@ -36,6 +44,12 @@ export function makeStep1Schema(t: (key: string) => string = (k) => k) {
         .string()
         .optional()
         .refine(isValidOptionalPhone, { message: t("errors.invalidPhone") }),
+      dateOfBirth: z
+        .string()
+        .optional()
+        .refine(isValidOptionalDateOfBirth, {
+          message: t("errors.dateOfBirthInvalid"),
+        }),
       email: z
         .string()
         .min(1, { message: t("errors.emailRequired") })
