@@ -173,6 +173,19 @@ function Calendar({
             </td>
           )
         },
+        // The dropdown caption renders native <select>s without a name/id, which
+        // trips React 19's "form field should have an id or name" warning. Derive
+        // both from the select's aria-label (e.g. "Choose the Month").
+        Select: ({
+          "aria-label": ariaLabel,
+          ...props
+        }: React.ComponentProps<"select">) => {
+          const slug =
+            typeof ariaLabel === "string"
+              ? ariaLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+              : "rdp-dropdown"
+          return <select {...props} aria-label={ariaLabel} id={slug} name={slug} />
+        },
         ...components,
       }}
       {...props}
