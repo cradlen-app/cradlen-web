@@ -6,6 +6,7 @@ export type Step1Data = {
   firstName: string;
   lastName: string;
   phoneNumber?: string;
+  dateOfBirth?: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -43,6 +44,7 @@ export type RegisterPersonalRequest = {
   password: string;
   confirm_password: string;
   phone_number?: string;
+  date_of_birth?: string;
 };
 
 export type VerifyEmailRequest = {
