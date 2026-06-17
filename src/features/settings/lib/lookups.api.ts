@@ -1,7 +1,12 @@
 import { apiAuthFetch, apiFetch } from "@/infrastructure/http/api";
 import type { ApiResponse } from "@/common/types/api.types";
 
-export type SpecialtyLookup = { code: string; name: string };
+export type SpecialtySubLookup = { code: string; name: string };
+export type SpecialtyLookup = {
+  code: string;
+  name: string;
+  subspecialties?: SpecialtySubLookup[];
+};
 export type JobFunctionLookup = {
   code: string;
   name: string;

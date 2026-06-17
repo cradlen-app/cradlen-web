@@ -172,7 +172,8 @@ export type ApiVisit = {
   completed_at?: string;
   assigned_doctor?: {
     id: string;
-    specialty?: string;
+    /** Doctor's primary specialty (object), or null. */
+    specialty?: { id: string; code: string; name: string } | null;
     user: { id: string; first_name: string; last_name: string };
   };
   episode?: {
