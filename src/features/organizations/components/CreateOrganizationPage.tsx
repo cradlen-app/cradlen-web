@@ -76,7 +76,10 @@ function TextField({
   registration: UseFormRegisterReturn;
 }) {
   return (
-    <label className="flex flex-col gap-1.5 text-sm text-brand-black" htmlFor={id}>
+    <label
+      className="flex flex-col gap-1.5 text-sm text-brand-black"
+      htmlFor={id}
+    >
       <span className="font-medium">
         {label}
         {required && <span className="ms-0.5 text-brand-primary">*</span>}
@@ -180,12 +183,17 @@ export function CreateOrganizationPage() {
   return (
     <div className="w-full">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-semibold text-brand-black">{t("title")}</h1>
+        <h1 className="text-2xl font-semibold text-brand-black">
+          {t("title")}
+        </h1>
         <p className="mt-1.5 text-sm text-gray-400">{t("subtitle")}</p>
       </div>
 
       <form className="grid gap-4" onSubmit={handleSubmit}>
-        <FieldGroup icon={<Building2 className="size-4" />} title={t("groupOrganization")}>
+        <FieldGroup
+          icon={<Building2 className="size-4" />}
+          title={t("groupOrganization")}
+        >
           <TextField
             id="org-name"
             label={t("fields.organizationName")}
@@ -218,7 +226,10 @@ export function CreateOrganizationPage() {
           </label>
         </FieldGroup>
 
-        <FieldGroup icon={<UserCog className="size-4" />} title={t("groupRole")}>
+        <FieldGroup
+          icon={<UserCog className="size-4" />}
+          title={t("groupRole")}
+        >
           <label className="flex flex-col gap-1.5 text-sm text-brand-black">
             <span className="font-medium">{tAuth("executiveTitleLabel")}</span>
             <Controller
@@ -337,7 +348,10 @@ export function CreateOrganizationPage() {
           )}
         </FieldGroup>
 
-        <FieldGroup icon={<GitBranch className="size-4" />} title={t("groupBranch")}>
+        <FieldGroup
+          icon={<GitBranch className="size-4" />}
+          title={t("groupBranch")}
+        >
           <TextField
             id="branch-name"
             label={t("fields.branchName")}
@@ -384,12 +398,6 @@ export function CreateOrganizationPage() {
             {isSubmitting && <Loader2 className="size-4 animate-spin" />}
             {isSubmitting ? "" : t("submit")}
           </Button>
-          <Link
-            href="/select-profile"
-            className="text-center text-sm text-gray-400 hover:text-brand-black transition"
-          >
-            {t("backToProfiles")}
-          </Link>
         </div>
       </form>
     </div>
