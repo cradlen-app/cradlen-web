@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useOrgStatusGuard } from "@/features/auth/hooks/useOrgStatusGuard";
-import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { getActiveProfile, getProfileRoles } from "@/features/auth/lib/current-user";
 import { hasAnyStaffRole } from "@/features/auth/lib/permissions";
-import { buildDashboardUrl } from "@/infrastructure/http/routes";
+import { getDefaultRouteForRole } from "@/features/auth/lib/redirect";
 import type { CurrentUser } from "@/common/types/user.types";
 import { SubscriptionBanner } from "@/features/subscriptions/components/SubscriptionBanner";
 import { Navbar } from "../common/Navbar";
@@ -51,7 +51,8 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
     }
 
     if (!canAccessRoute(profile, getCanonicalDashboardPath(pathname))) {
-      router.replace(buildDashboardUrl(orgId, branchId));
+      const role = getProfileRoles(profile)[0];
+      router.replace(getDefaultRouteForRole(role, orgId, branchId, profile));
     }
   }, [isLoading, orgId, branchId, pathname, profile, router, user]);
 
