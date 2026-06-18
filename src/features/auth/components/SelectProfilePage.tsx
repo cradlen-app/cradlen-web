@@ -23,6 +23,10 @@ import {
 } from "../lib/current-user";
 import { resolveDefaultRouteAfterAuth, getSafeRedirectPath } from "../lib/redirect";
 import { useSelectProfile } from "../hooks/useSelectProfile";
+import {
+  getValidAvailableProfiles,
+  useAvailableProfilesStore,
+} from "../store/availableProfilesStore";
 import { useAuthStore } from "../store/authStore";
 import { useAuthContextStore } from "../store/authContextStore";
 import { useUserStore } from "../store/userStore";
@@ -168,7 +172,18 @@ export function SelectProfilePage() {
 
   // Read sessionStorage on mount — must not run during SSR to avoid hydration mismatch.
   useEffect(() => {
-    const data = getPendingProfileSelection();
+    // Prefer the just-written pending selection (sign-in / sign-up / invite /
+    // create-org flows). When it's absent — e.g. arriving here via the "Back to
+    // profiles" link or as a single-profile user who auto-selected and never
+    // populated it — fall back to the persisted available-profiles store, which
+    // mirrors the 30-min selection-token TTL.
+    let data = getPendingProfileSelection();
+    if (!data || data.profiles.length === 0) {
+      const cached = getValidAvailableProfiles(
+        useAvailableProfilesStore.getState(),
+      );
+      if (cached.length > 0) data = { profiles: cached };
+    }
     const sp = data && data.profiles.length === 1 ? data.profiles[0] : null;
     // One-time client-only read; React batches these into a single render.
     // eslint-disable-next-line react-hooks/set-state-in-effect
