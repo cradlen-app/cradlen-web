@@ -71,6 +71,7 @@ export function PatientStatCards({ branchId, orgWide, mine = false }: Props) {
         accent
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
+        newLabel={t("new", { count: data.total.current })}
       />
       <StatTrendCard
         icon={UserPlus}
@@ -78,6 +79,7 @@ export function PatientStatCards({ branchId, orgWide, mine = false }: Props) {
         metric={data.new_this_month}
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
+        newLabel={t("new", { count: data.new_this_month.current })}
       />
       {/* Top two care paths — `by_care_path` arrives sorted desc by count. */}
       {data.by_care_path.slice(0, 2).map((cp) => (
@@ -88,6 +90,7 @@ export function PatientStatCards({ branchId, orgWide, mine = false }: Props) {
           metric={cp}
           vsLastMonthLabel={vsLastMonth}
           noPriorLabel={noPrior}
+          newLabel={t("new", { count: cp.current })}
         />
       ))}
     </div>

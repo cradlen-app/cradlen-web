@@ -48,7 +48,7 @@ export function CreatableSelect({ value, onChange, options, placeholder, addOpti
             !value && "text-gray-400",
           )}
         >
-          <span className="flex-1 truncate text-start text-gray-700">{value || placeholder}</span>
+          <span className={cn("flex-1 truncate text-start", value ? "text-gray-700" : "text-gray-400")}>{value || placeholder}</span>
           <ChevronDown
             className={cn("size-4 shrink-0 text-gray-400 transition-transform", open && "rotate-180")}
             aria-hidden

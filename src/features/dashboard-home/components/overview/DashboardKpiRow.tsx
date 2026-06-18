@@ -96,6 +96,7 @@ export function DashboardKpiRow({
         accent
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
+        newLabel={t("new", { count: visits.data?.visits.current ?? 0 })}
       />
       <StatTrendCard
         icon={Repeat}
@@ -103,6 +104,7 @@ export function DashboardKpiRow({
         metric={visits.data?.follow_ups ?? { current: 0, previous: 0 }}
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
+        newLabel={t("new", { count: visits.data?.follow_ups.current ?? 0 })}
       />
       {showPatients && (
         <StatTrendCard
@@ -111,6 +113,7 @@ export function DashboardKpiRow({
           metric={patients.data?.total ?? { current: 0, previous: 0 }}
           vsLastMonthLabel={vsLastMonth}
           noPriorLabel={noPrior}
+          newLabel={t("new", { count: patients.data?.total.current ?? 0 })}
         />
       )}
       {showRevenue && (
