@@ -181,6 +181,7 @@
     "profileSwitcher": "تبديل الملف",
     "switchBranch": "تبديل الفرع",
     "switchWorkspace": "تبديل مساحة العمل",
+    "createOrganization": "إنشاء مؤسسة",
     "switchBranchError": "فشل تبديل الفرع",
     "branchLabel": "فرع {city}",
     "openMenu": "فتح قائمة التنقل",

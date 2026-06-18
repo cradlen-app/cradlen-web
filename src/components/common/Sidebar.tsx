@@ -10,6 +10,7 @@ import {
   Check,
   Loader2,
   MapPin,
+  Plus,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -50,7 +51,6 @@ export function Sidebar() {
     activeProfileId,
     groups,
     hasMultipleProfiles,
-    hasMultipleOptions,
     handleSelect,
   } = useSidebarBranchSwitch(profile);
 
@@ -124,19 +124,16 @@ export function Sidebar() {
             )}
           </div>
 
-          {!effectiveCollapsed &&
-            (hasMultipleOptions ? (
-              <button
-                type="button"
-                onClick={() => setBranchMenuOpen((o) => !o)}
-                disabled={isSwitching}
-                className="flex items-center gap-1 flex-1 min-w-0 text-start hover:opacity-70 transition-opacity"
-                aria-label={
-                  hasMultipleProfiles
-                    ? t("switchWorkspace")
-                    : t("switchBranch")
-                }
-              >
+          {!effectiveCollapsed && (
+            <button
+              type="button"
+              onClick={() => setBranchMenuOpen((o) => !o)}
+              disabled={isSwitching}
+              className="flex items-center gap-1 flex-1 min-w-0 text-start hover:opacity-70 transition-opacity"
+              aria-label={
+                hasMultipleProfiles ? t("switchWorkspace") : t("switchBranch")
+              }
+            >
                 <div className="flex flex-col leading-tight overflow-hidden flex-1 min-w-0">
                   <span className="text-sm text-gray-500 truncate">
                     {clinicName}
@@ -156,16 +153,7 @@ export function Sidebar() {
                   />
                 )}
               </button>
-            ) : (
-              <div className="flex flex-col leading-tight overflow-hidden flex-1 min-w-0">
-                <span className="text-sm text-gray-500 truncate">
-                  {clinicName}
-                </span>
-                <span className="text-[11px] text-gray-400 truncate">
-                  {clinicBranch}
-                </span>
-              </div>
-            ))}
+          )}
         </div>
 
         {branchMenuOpen && !effectiveCollapsed && (
@@ -265,6 +253,17 @@ export function Sidebar() {
                   </div>
                 </div>
               ))}
+            </div>
+            {/* Create organization */}
+            <div className="border-t border-gray-100 p-1">
+              <Link
+                href="/create-organization"
+                onClick={() => setBranchMenuOpen(false)}
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-start text-[13px] font-medium text-brand-primary transition-colors hover:bg-brand-primary/10"
+              >
+                <Plus className="size-3.5 shrink-0" />
+                <span className="truncate">{t("createOrganization")}</span>
+              </Link>
             </div>
           </div>
         )}
