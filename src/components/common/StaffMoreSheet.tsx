@@ -12,6 +12,7 @@ import {
   Loader2,
   LogOut,
   MapPin,
+  Plus,
   Settings,
   ShieldCheck,
   X,
@@ -69,7 +70,6 @@ export function StaffMoreSheet({
     activeProfileId,
     groups,
     hasMultipleProfiles,
-    hasMultipleOptions,
     handleSelect,
   } = useSidebarBranchSwitch(profile);
 
@@ -151,15 +151,14 @@ export function StaffMoreSheet({
             {t("organization")}
           </p>
 
-          {hasMultipleOptions ? (
-            <button
-              type="button"
-              onClick={() => setOrgOpen((o) => !o)}
-              disabled={isSwitching}
-              aria-haspopup="menu"
-              aria-expanded={orgOpen}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors hover:bg-gray-50"
-            >
+          <button
+            type="button"
+            onClick={() => setOrgOpen((o) => !o)}
+            disabled={isSwitching}
+            aria-haspopup="menu"
+            aria-expanded={orgOpen}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors hover:bg-gray-50"
+          >
               <div className="size-9 shrink-0 overflow-hidden rounded-full">
                 {organization?.logo_image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -199,40 +198,8 @@ export function StaffMoreSheet({
                 />
               )}
             </button>
-          ) : (
-            <div className="flex w-full items-center gap-3 px-3 py-2.5">
-              <div className="size-9 shrink-0 overflow-hidden rounded-full">
-                {organization?.logo_image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={organization.logo_image_url}
-                    alt={clinicName}
-                    width={36}
-                    height={36}
-                    className="size-9 object-cover"
-                  />
-                ) : (
-                  <Image
-                    src={LogoIcon}
-                    alt={clinicName}
-                    width={36}
-                    height={36}
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-brand-black">
-                  {clinicName}
-                </span>
-                <span className="block truncate text-xs text-gray-400">
-                  {clinicBranch}
-                </span>
-              </span>
-            </div>
-          )}
 
-          {orgOpen && hasMultipleOptions && (
+          {orgOpen && (
             <div className="mt-1 space-y-1 duration-150 animate-in fade-in-0 slide-in-from-top-1 motion-reduce:animate-none">
               {groups.map((group, groupIndex) => (
                 <div key={group.profileId}>
@@ -314,6 +281,17 @@ export function StaffMoreSheet({
                   </div>
                 </div>
               ))}
+              {/* Create organization */}
+              <div className="mt-1 border-t border-gray-100 pt-1">
+                <Link
+                  href="/create-organization"
+                  onClick={onClose}
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-start text-[13px] font-medium text-brand-primary transition-colors hover:bg-brand-primary/10"
+                >
+                  <Plus className="size-3.5 shrink-0" />
+                  <span className="truncate">{t("createOrganization")}</span>
+                </Link>
+              </div>
             </div>
           )}
         </div>
