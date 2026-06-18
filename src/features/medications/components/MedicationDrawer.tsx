@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { Dialog } from "radix-ui";
 import { X } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
@@ -48,8 +48,6 @@ export function MedicationDrawer({
       : list;
   }, [repsData, linkedRep]);
 
-  const codeManuallyEdited = useRef(false);
-
   const {
     register,
     handleSubmit,
@@ -71,7 +69,6 @@ export function MedicationDrawer({
 
   useEffect(() => {
     if (!open) return;
-    codeManuallyEdited.current = false;
     reset(
       isEdit
         ? {
@@ -107,7 +104,7 @@ export function MedicationDrawer({
   const watchedStrength = watch("strength");
 
   useEffect(() => {
-    if (isEdit || codeManuallyEdited.current) return;
+    if (isEdit) return;
     const code = generateMedicationCode(watchedName ?? "", watchedStrength ?? "");
     setValue("code", code);
   }, [watchedName, watchedStrength, isEdit, setValue]);
@@ -137,29 +134,6 @@ export function MedicationDrawer({
           {/* Form */}
           <form onSubmit={handleFormSubmit} className="flex flex-1 flex-col overflow-hidden">
             <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-
-              {/* Medicine / Code */}
-              <div>
-                <label className="mb-1.5 block text-sm font-semibold text-gray-700">
-                  {t("fields.medicine")} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("code", {
-                    onChange: () => { codeManuallyEdited.current = true; },
-                  })}
-                  disabled={isEdit}
-                  placeholder={t("fields.medicinePlaceholder")}
-                  className={cn(
-                    "w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors",
-                    "focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10",
-                    "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60",
-                    errors.code ? "border-red-300" : "border-gray-200",
-                  )}
-                />
-                {errors.code && (
-                  <p className="mt-1 text-xs text-red-500">{errors.code.message}</p>
-                )}
-              </div>
 
               {/* Name */}
               <div>

@@ -15,7 +15,8 @@
     "clinical": "Clinical",
     "administrative": "Administrative",
     "vsLastMonth": "vs last month",
-    "noPrior": "—"
+    "noPrior": "—",
+    "new": "+{count} new"
   },
   "roles": {
     "owner": "Owner",
