@@ -61,6 +61,16 @@ export type CreateOrganizationRequest = {
   branch_governorate: string;
   branch_country?: string;
   specialties: string[];
+  /** Owner's C-suite title at this org. Display/governance only. */
+  executive_title?: ExecutiveTitle;
+  /** Owner's own primary specialty — set only when they also practice. */
+  practitioner_specialty_code?: string;
+  /** Owner's subspecialties (must belong to practitioner_specialty_code). */
+  practitioner_subspecialty_codes?: string[];
+  /** Owner's JobFunction code (e.g. "DOCTOR"). */
+  job_function_code?: string;
+  /** Owner's free-text professional title. Display only. */
+  professional_title?: string;
 };
 
 export type UpdateOrganizationRequest = {
