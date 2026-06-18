@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import Footer from "@/components/common/Footer";
 import { Link } from "@/i18n/navigation";
+import { RedirectIfAuthenticated } from "@/features/auth/components/RedirectIfAuthenticated";
 import { SignUpForm } from "@/features/auth/components/SignUpForm";
 import LogoIcon from "@/public/Logo-icon.png";
 import Logo from "@/public/Logo.png";
@@ -17,6 +18,7 @@ export default async function SignUpPage({ params }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <RedirectIfAuthenticated />
       {/* Header */}
       <header className="flex items-center justify-between gap-3 px-4 py-4 sm:px-8 sm:py-5">
         <Link
