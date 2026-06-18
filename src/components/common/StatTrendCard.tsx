@@ -20,14 +20,32 @@ export function TrendChip({
   metric,
   vsLabel,
   noPriorLabel,
+  newLabel,
 }: {
   metric: StatMetric;
   /** Shown when there's no prior value (e.g. "no prior data"). */
   noPriorLabel: string;
   /** Trailing caption (e.g. "vs last month") — rendered by the card, not here. */
   vsLabel?: string;
+  /**
+   * Shown in place of the dash when there's no prior baseline but a value now
+   * (`previous <= 0 && current > 0`) — e.g. "+1 new". When omitted, that case
+   * falls back to {@link noPriorLabel}.
+   */
+  newLabel?: string;
 }) {
   const delta = deltaPercent(metric);
+
+  // No prior baseline but we have a value now → "new this period", not a neutral dash.
+  if (newLabel && metric.previous <= 0 && metric.current > 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-semibold tabular-nums text-emerald-600">
+        <TrendingUp className="size-3.5" aria-hidden="true" />
+        {newLabel}
+        {vsLabel ? <span className="sr-only"> {vsLabel}</span> : null}
+      </span>
+    );
+  }
 
   if (delta === null || Math.round(delta) === 0) {
     return (
@@ -68,6 +86,7 @@ export function StatTrendCard({
   accent,
   vsLastMonthLabel,
   noPriorLabel,
+  newLabel,
   value,
 }: {
   icon: LucideIcon;
@@ -76,6 +95,8 @@ export function StatTrendCard({
   accent?: boolean;
   vsLastMonthLabel: string;
   noPriorLabel: string;
+  /** Shown in place of the dash when there's no prior baseline but a value now (e.g. "+1 new"). */
+  newLabel?: string;
   /** Display override for the headline figure (e.g. formatted money). Defaults to `metric.current`. */
   value?: string;
 }) {
@@ -103,7 +124,11 @@ export function StatTrendCard({
         {value ?? metric.current}
       </div>
       <div className="flex items-center gap-1">
-        <TrendChip metric={metric} noPriorLabel={noPriorLabel} />
+        <TrendChip
+          metric={metric}
+          noPriorLabel={noPriorLabel}
+          newLabel={newLabel}
+        />
         <span className="truncate text-[11px] text-gray-400">
           {vsLastMonthLabel}
         </span>
