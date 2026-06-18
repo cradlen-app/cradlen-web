@@ -181,6 +181,7 @@
     "profileSwitcher": "Switch profile",
     "switchBranch": "Switch branch",
     "switchWorkspace": "Switch workspace",
+    "createOrganization": "Create organization",
     "switchBranchError": "Failed to switch branch",
     "branchLabel": "{city} branch",
     "openMenu": "Open navigation menu",
