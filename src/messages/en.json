@@ -263,7 +263,8 @@
       "total": "Total Patients",
       "newThisMonth": "New This Month",
       "vsLastMonth": "vs last month",
-      "noPrior": "—"
+      "noPrior": "—",
+      "new": "+{count} new"
     }
   },
   "patientNav": {
@@ -904,6 +905,7 @@
       "thisMonth": "This month",
       "vsLastMonth": "vs last month",
       "noPrior": "no prior data",
+      "new": "+{count} new",
       "viewFullReports": "View full reports",
       "empty": "No data yet",
       "scope": {

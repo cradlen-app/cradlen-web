@@ -15,7 +15,8 @@
     "clinical": "طاقم سريري",
     "administrative": "إداري",
     "vsLastMonth": "مقارنة بالشهر الماضي",
-    "noPrior": "—"
+    "noPrior": "—",
+    "new": "+{count} جديد"
   },
   "roles": {
     "owner": "مالك",
