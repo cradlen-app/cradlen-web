@@ -12,11 +12,21 @@ import { Button } from "@/components/ui/button";
 import { Link, useRouter } from "@/i18n/navigation";
 import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
 import { SubspecialtiesSelect } from "@/components/common/SubspecialtiesSelect";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSpecialtiesLookup } from "@/features/settings/hooks/useSettingsLookups";
 import { EXECUTIVE_TITLE, JOB_ROLE } from "@/features/auth/lib/auth.constants";
 import { makeStep3Schema } from "@/features/auth/lib/sign-up.schemas";
 import { buildRegisterOrganizationRequest } from "@/features/auth/lib/register-organization";
 import type { Step3Data } from "@/features/auth/types/sign-up.types";
+import { setPendingProfileSelection } from "@/features/auth/lib/profile-selection-session";
+import { useAvailableProfilesStore } from "@/features/auth/store/availableProfilesStore";
+import { getProfilesFromAuthResponse } from "@/lib/auth/redirect";
 import { createOrganizationSession } from "@/features/settings/lib/settings.api";
 import { getSubscriptionLimit } from "@/common/errors/subscription-errors";
 
@@ -115,6 +125,9 @@ export function CreateOrganizationPage() {
 
   const jobRole = useWatch({ control, name: "jobRole" });
   const isDoctor = jobRole === JOB_ROLE.DOCTOR;
+  const setAvailableProfiles = useAvailableProfilesStore(
+    (state) => state.setAvailableProfiles,
+  );
   const specialtyLookup = useSpecialtiesLookup();
   const specialtyOptions = useMemo(
     () => specialtyLookup.data?.data ?? [],
@@ -137,7 +150,16 @@ export function CreateOrganizationPage() {
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
-      await createOrganizationSession(buildRegisterOrganizationRequest(data));
+      const res = await createOrganizationSession(
+        buildRegisterOrganizationRequest(data),
+      );
+      // Seed the select-profile screen with the refreshed list (including the
+      // org just created) so it renders immediately instead of the empty state.
+      const profiles = getProfilesFromAuthResponse(res);
+      if (profiles.length > 0) {
+        setPendingProfileSelection({ profiles });
+        setAvailableProfiles(profiles);
+      }
       toast.success(t("createSuccess"));
       router.replace("/select-profile");
     } catch (error) {
@@ -197,66 +219,82 @@ export function CreateOrganizationPage() {
         </FieldGroup>
 
         <FieldGroup icon={<UserCog className="size-4" />} title={t("groupRole")}>
-          <label
-            className="flex flex-col gap-1.5 text-sm text-brand-black"
-            htmlFor="executiveTitle"
-          >
+          <label className="flex flex-col gap-1.5 text-sm text-brand-black">
             <span className="font-medium">{tAuth("executiveTitleLabel")}</span>
-            <select
-              id="executiveTitle"
-              className={cn(inputClass)}
-              {...register("executiveTitle")}
-            >
-              {Object.values(EXECUTIVE_TITLE).map((title) => (
-                <option key={title} value={title}>
-                  {tAuth(`executiveTitles.${title}`)}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="executiveTitle"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className={cn(inputClass, "h-auto w-full")}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(EXECUTIVE_TITLE).map((title) => (
+                      <SelectItem key={title} value={title}>
+                        {tAuth(`executiveTitles.${title}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </label>
 
-          <label
-            className="flex flex-col gap-1.5 text-sm text-brand-black"
-            htmlFor="jobRole"
-          >
+          <label className="flex flex-col gap-1.5 text-sm text-brand-black">
             <span className="font-medium">{tAuth("jobRoleLabel")}</span>
-            <select
-              id="jobRole"
-              className={cn(inputClass)}
-              {...register("jobRole")}
-            >
-              {Object.values(JOB_ROLE).map((role) => (
-                <option key={role} value={role}>
-                  {tAuth(`jobRoles.${role}`)}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="jobRole"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className={cn(inputClass, "h-auto w-full")}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(JOB_ROLE).map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {tAuth(`jobRoles.${role}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </label>
 
           {isDoctor && (
             <div className="flex flex-col gap-3 ps-1">
-              <label
-                className="flex flex-col gap-1.5 text-sm text-brand-black"
-                htmlFor="doctorSpecialty"
-              >
+              <label className="flex flex-col gap-1.5 text-sm text-brand-black">
                 <span className="font-medium">
                   {tAuth("doctorSpecialtyLabel")}
                 </span>
-                <select
-                  id="doctorSpecialty"
-                  className={cn(
-                    inputClass,
-                    errors.doctorSpecialty && errorInputClass,
+                <Controller
+                  control={control}
+                  name="doctorSpecialty"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        className={cn(
+                          inputClass,
+                          "h-auto w-full",
+                          errors.doctorSpecialty && errorInputClass,
+                        )}
+                      >
+                        <SelectValue
+                          placeholder={tAuth("doctorSpecialtyPlaceholder")}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {specialtyOptions.map(({ code, name }) => (
+                          <SelectItem key={code} value={code}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
-                  {...register("doctorSpecialty")}
-                >
-                  <option value="">{tAuth("doctorSpecialtyPlaceholder")}</option>
-                  {specialtyOptions.map(({ code, name }) => (
-                    <option key={code} value={code}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
+                />
                 {errors.doctorSpecialty && (
                   <span className="text-xs text-red-500">
                     {errors.doctorSpecialty.message}
