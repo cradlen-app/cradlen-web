@@ -58,6 +58,20 @@ describe("StaffStatCards", () => {
     expect(screen.queryByText("Branch Manager")).not.toBeInTheDocument();
   });
 
+  it("shows a '+N new' badge instead of a dash when there's no prior baseline", () => {
+    // A clinic created this month: previous is 0 everywhere, so a percentage
+    // can't be computed — the cards should read "new" rather than "—".
+    mockStats({
+      total: { current: 1, previous: 0 },
+      clinical: { current: 1, previous: 0 },
+      by_role: [],
+    });
+    renderWithIntl(<StaffStatCards organizationId="o1" branchId="b1" />);
+
+    // Total = +1 new, clinical = +1 new, administrative (1 − 1 = 0) stays a dash.
+    expect(screen.getAllByText("+1 new")).toHaveLength(2);
+  });
+
   it("renders the skeleton while loading", () => {
     mockStats(undefined, true);
     const { container } = renderWithIntl(

@@ -54,6 +54,7 @@ export function StaffStatCards({ organizationId, branchId }: Props) {
         accent
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
+        newLabel={t("stats.new", { count: data.total.current })}
       />
       <StatTrendCard
         icon={Stethoscope}
@@ -61,6 +62,7 @@ export function StaffStatCards({ organizationId, branchId }: Props) {
         metric={data.clinical}
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
+        newLabel={t("stats.new", { count: data.clinical.current })}
       />
       <StatTrendCard
         icon={Briefcase}
@@ -68,6 +70,7 @@ export function StaffStatCards({ organizationId, branchId }: Props) {
         metric={administrative}
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
+        newLabel={t("stats.new", { count: administrative.current })}
       />
     </div>
   );

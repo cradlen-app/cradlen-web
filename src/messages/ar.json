@@ -263,7 +263,8 @@
       "total": "إجمالي المرضى",
       "newThisMonth": "الجدد هذا الشهر",
       "vsLastMonth": "مقارنة بالشهر الماضي",
-      "noPrior": "—"
+      "noPrior": "—",
+      "new": "+{count} جديد"
     }
   },
   "patientNav": {
@@ -904,6 +905,7 @@
       "thisMonth": "هذا الشهر",
       "vsLastMonth": "مقارنة بالشهر الماضي",
       "noPrior": "لا توجد بيانات سابقة",
+      "new": "+{count} جديد",
       "viewFullReports": "عرض التقارير الكاملة",
       "empty": "لا توجد بيانات بعد",
       "scope": {

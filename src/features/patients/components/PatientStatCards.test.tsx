@@ -90,7 +90,7 @@ describe("PatientStatCards", () => {
     expect(screen.getByText("-20%")).toBeInTheDocument(); // acne, down
   });
 
-  it("renders the no-prior marker when there is no previous value", () => {
+  it("shows a '+N new' badge when there's a value but no prior baseline", () => {
     mockStats({
       total: { current: 5, previous: 0 },
       new_this_month: { current: 5, previous: 3 },
@@ -98,7 +98,20 @@ describe("PatientStatCards", () => {
     });
     renderWithIntl(<PatientStatCards branchId="b1" orgWide={false} />);
 
-    expect(screen.getByText("—")).toBeInTheDocument();
+    expect(screen.getByText("+5 new")).toBeInTheDocument();
+  });
+
+  it("renders the no-prior dash only when there's no value to compare", () => {
+    mockStats({
+      total: { current: 0, previous: 0 },
+      new_this_month: { current: 0, previous: 0 },
+      by_care_path: [],
+    });
+    renderWithIntl(<PatientStatCards branchId="b1" orgWide={false} />);
+
+    // Both cards (total + new this month) have nothing to compare → dashes, no badge.
+    expect(screen.getAllByText("—")).toHaveLength(2);
+    expect(screen.queryByText(/new$/)).not.toBeInTheDocument();
   });
 
   it("renders the skeleton while loading", () => {
