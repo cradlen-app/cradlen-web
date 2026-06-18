@@ -19,9 +19,10 @@ import type { UserProfile } from "@/common/types/user.types";
  * as features migrate.
  *
  * NOTE: these gate *sidebar visibility*. Route access is derived from the same
- * permission ids by `components/layout/dashboard-access.ts`, except for the
- * dashboard root, which stays reachable by every staff member because it is the
- * universal fallback redirect target.
+ * permission ids by `components/layout/dashboard-access.ts` — including the
+ * dashboard root, which is gated by `dashboard.home` (reception excluded). The
+ * redirect loop this would otherwise cause is avoided by routing denied users to
+ * their role-aware default (e.g. reception → `/visits`) instead of the root.
  */
 type Profile = UserProfile | null | undefined;
 
