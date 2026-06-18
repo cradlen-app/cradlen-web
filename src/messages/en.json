@@ -810,6 +810,7 @@
     "subtitle": "Set up a new clinic with its first branch and your role.",
     "backToProfiles": "Back to profiles",
     "groupOrganization": "Organization details",
+    "groupRole": "Your role",
     "groupBranch": "Main branch",
     "createSuccess": "Organization created. Please select your new profile.",
     "createError": "Failed to create organization. Please try again.",
