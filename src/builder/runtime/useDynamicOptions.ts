@@ -87,6 +87,17 @@ function pickMapper(url: string): Mapper {
     };
   }
 
+  if (/\/specialties\/subspecialties\/lookup(\?|$)/.test(url)) {
+    return {
+      finalizeUrl: (u) => u,
+      mapResponse: (payload) => {
+        const list =
+          (payload as { data?: Array<{ code: string; name: string }> })?.data ?? [];
+        return list.map((s) => ({ code: s.code, label: s.name, raw: s }));
+      },
+    };
+  }
+
   if (/\/care-paths(\?|$)/.test(url)) {
     return {
       finalizeUrl: (u) => u,

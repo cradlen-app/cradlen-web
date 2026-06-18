@@ -167,6 +167,8 @@ export type ApiVisit = {
   branch_id?: string;
   /** Specialty captured at booking; drives the patient-history template resolver. */
   specialty_code?: string | null;
+  /** Subspecialty captured at booking; the primary examination-template discriminator (falls back to specialty_code). */
+  subspecialty_code?: string | null;
   created_at?: string;
   started_at?: string;
   completed_at?: string;
