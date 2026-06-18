@@ -8,6 +8,7 @@ import {
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/common/Footer";
+import { RedirectIfAuthenticated } from "@/features/auth/components/RedirectIfAuthenticated";
 import { Link } from "@/i18n/navigation";
 import LogoIcon from "@/public/Logo-icon.png";
 import Logo from "@/public/Logo.png";
@@ -23,6 +24,7 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white text-brand-black">
+      <RedirectIfAuthenticated />
       <header className="flex items-center justify-between px-6 py-5 sm:px-8 lg:px-10">
         <Link
           href="/"
