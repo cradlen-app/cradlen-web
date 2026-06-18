@@ -1,4 +1,5 @@
 import { STAFF_ROLE } from "./auth.constants";
+import { isAccountant, isDoctor, isOwner, isReceptionist } from "./permissions";
 import type { CurrentUser, UserProfile, UserRole, UserSpecialty } from "@/common/types/user.types";
 import { useAuthContextStore } from "../store/authContextStore";
 
@@ -85,7 +86,19 @@ export function getProfileRoles(profile?: UserProfile): UserRole[] {
   return [getProfilePrimaryRole(profile)];
 }
 
+/**
+ * The display role for a profile. The authority tier (OWNER / BRANCH_MANAGER /
+ * STAFF) alone can't tell a doctor from a receptionist, so derive the label from
+ * the profile's job function first, with the authority role as a fallback. Owner
+ * wins over job function (an owner who is also a doctor still reads "Owner").
+ */
 export function getProfilePrimaryRole(profile?: UserProfile): UserRole {
+  if (!profile) return STAFF_ROLE.UNKNOWN;
+  if (isOwner(profile)) return STAFF_ROLE.OWNER;
+  if (isDoctor(profile)) return STAFF_ROLE.DOCTOR;
+  if (isReceptionist(profile)) return STAFF_ROLE.RECEPTION;
+  if (isAccountant(profile)) return "accountant";
+
   const raw = getRawProfileRole(profile);
   return raw ? normalizeRoleName(raw) : STAFF_ROLE.UNKNOWN;
 }
