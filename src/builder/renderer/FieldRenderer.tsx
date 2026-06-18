@@ -11,6 +11,7 @@ import { DateInput, DateTimeInput } from "../fields/inputs/DateInput";
 import { BooleanInput } from "../fields/inputs/BooleanInput";
 import { SelectInput } from "../fields/inputs/SelectInput";
 import { MultiSelectInput } from "../fields/inputs/MultiSelectInput";
+import { useDynamicOptions } from "../runtime/useDynamicOptions";
 import { ComputedInput } from "../fields/inputs/ComputedInput";
 import { EntitySearchInput } from "../fields/inputs/EntitySearchInput";
 import { ReadOnlyField } from "./ReadOnlyField";
@@ -138,15 +139,83 @@ export function FieldRenderer({ field, error, displayOnly = false }: Props) {
   };
 
   const span = resolveColSpan(field);
+  const spanClass = COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6];
+
+  // A SELECT flagged `ui.hideWhenNoOptions` disappears once its dynamic options
+  // resolve empty (e.g. a specialty with no subspecialties). Handled in a child
+  // component so the whole grid cell is omitted rather than left blank.
+  if (
+    field.type === "SELECT" &&
+    field.config?.ui?.hideWhenNoOptions === true &&
+    !field.config?.ui?.searchEntity
+  ) {
+    return (
+      <HideableSelectCell
+        field={field}
+        value={value}
+        onChange={onChange}
+        required={required}
+        disabled={!enabled}
+        error={error}
+        spanClass={spanClass}
+      />
+    );
+  }
 
   return (
-    <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>
+    <div className={spanClass}>
       <Input
         field={field}
         value={value}
         onChange={onChange}
         required={required}
         disabled={!enabled}
+        error={error}
+      />
+    </div>
+  );
+}
+
+/**
+ * Renders a dynamic SELECT but omits the entire grid cell when its options
+ * source has loaded zero results — for fields tagged `ui.hideWhenNoOptions`.
+ * Owns its own `useDynamicOptions` call so the emptiness check lives where the
+ * options are fetched (React Query dedupes with SelectInput's own call).
+ */
+function HideableSelectCell({
+  field,
+  value,
+  onChange,
+  required,
+  disabled,
+  error,
+  spanClass,
+}: {
+  field: FormFieldDto;
+  value: unknown;
+  onChange: (v: unknown) => void;
+  required: boolean;
+  disabled: boolean;
+  error?: string;
+  spanClass: string;
+}) {
+  const dynamic = useDynamicOptions(field);
+  if (
+    dynamic.enabled &&
+    !dynamic.isLoading &&
+    !dynamic.isError &&
+    dynamic.options.length === 0
+  ) {
+    return null;
+  }
+  return (
+    <div className={spanClass}>
+      <SelectInput
+        field={field}
+        value={value}
+        onChange={onChange}
+        required={required}
+        disabled={disabled}
         error={error}
       />
     </div>
