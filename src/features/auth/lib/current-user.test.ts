@@ -80,6 +80,19 @@ describe("current user helpers", () => {
     expect(getProfileRoles(profile)).toEqual(["owner"]);
   });
 
+  it("derives the display role from the job function for STAFF profiles", () => {
+    const receptionist = {
+      profile_id: "profile-1",
+      organization_id: "org-1",
+      organization_name: "Reception Clinic",
+      role: "STAFF",
+      job_function: { id: "jf-1", code: "RECEPTIONIST", name: "Receptionist", is_clinical: false },
+      branches: [],
+    } as unknown as UserProfile;
+
+    expect(getProfileRoles(receptionist)).toEqual(["reception"]);
+  });
+
   it("supports branch_id when selecting and reading branches", () => {
     const profile = {
       profile_id: "profile-1",

@@ -36,11 +36,20 @@ function toNavRelativePath(canonicalPathname: string): string {
  * source of truth — the same value that gates the sidebar entry. Adding or
  * regating a route is therefore a one-line change on its `NavItem`.
  *
- * Two surfaces stay always-on for any staff member regardless of sidebar
- * visibility:
- *  - the dashboard root (`""`), which is the universal fallback redirect target
- *    and must never be denied (denying it would loop the redirect), and
- *  - `/settings`, which has no nav entry.
+ * Settings access is split:
+ *  - the base `/settings` page stays always-on for any staff member; it
+ *    self-gates its sections internally so non-owners only see profile + account
+ *    (owner sections are filtered by `getVisibleSections` and rendered behind
+ *    `&& isOwner`), and
+ *  - deeper settings *routes* (`/settings/subscription/payments/...`) are
+ *    drill-downs of the owner-only subscription section, so they're owner-only.
+ *
+ * The dashboard root (`""`) is the universal fallback redirect target, but it is
+ * still gated by `dashboard.home` (reception is excluded). The redirect loop
+ * this would otherwise cause is avoided by `DashboardLayout` sending denied
+ * users to their role-aware default route (`getDefaultRouteForRole`, e.g.
+ * reception → `/visits`) rather than back to the root.
+ *
  * Routes not modeled in the nav at all are reachable by owners only.
  */
 export function canAccessRoute(
@@ -51,20 +60,26 @@ export function canAccessRoute(
 
   const rel = toNavRelativePath(canonicalPathname);
 
-  if (rel === "" || rel === "/settings" || rel.startsWith("/settings/")) {
-    return true;
-  }
+  // Base settings page self-gates its sections; deeper settings routes are owner-only.
+  if (rel === "/settings") return true;
+  if (rel.startsWith("/settings/")) return isOwner(profile);
 
   const registry = bootModules();
+  const ctx: AuthContext = {
+    user: null,
+    profile: (profile ?? null) as AuthProfile | null,
+    orgId: null,
+    branchId: null,
+  };
+
+  // Dashboard root: gated by `dashboard.home` (same id as the sidebar entry).
+  // `matchByPath("")` is intentionally undefined (root items are skipped), so we
+  // check the permission directly rather than via the nav registry.
+  if (rel === "") return registry.permissions.check("dashboard.home", ctx);
+
   const item = registry.nav.matchByPath(rel);
   if (item) {
     if (!item.requiresPermission) return true;
-    const ctx: AuthContext = {
-      user: null,
-      profile: (profile ?? null) as AuthProfile | null,
-      orgId: null,
-      branchId: null,
-    };
     return registry.permissions.check(item.requiresPermission, ctx);
   }
 

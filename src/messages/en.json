@@ -297,6 +297,7 @@
       "owner": "Owner",
       "doctor": "Doctor",
       "reception": "Reception",
+      "accountant": "Accountant",
       "patient": "Patient",
       "unknown": "Unknown"
     },
