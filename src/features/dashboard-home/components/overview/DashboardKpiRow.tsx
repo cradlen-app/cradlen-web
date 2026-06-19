@@ -63,6 +63,7 @@ export function DashboardKpiRow({
 
   const vsLastMonth = t("vsLastMonth");
   const noPrior = t("noPrior");
+  const empty = t("empty");
 
   const loading =
     visits.isLoading ||
@@ -97,6 +98,7 @@ export function DashboardKpiRow({
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
         newLabel={t("new", { count: visits.data?.visits.current ?? 0 })}
+        emptyLabel={empty}
       />
       <StatTrendCard
         icon={Repeat}
@@ -105,6 +107,7 @@ export function DashboardKpiRow({
         vsLastMonthLabel={vsLastMonth}
         noPriorLabel={noPrior}
         newLabel={t("new", { count: visits.data?.follow_ups.current ?? 0 })}
+        emptyLabel={empty}
       />
       {showPatients && (
         <StatTrendCard
@@ -114,6 +117,7 @@ export function DashboardKpiRow({
           vsLastMonthLabel={vsLastMonth}
           noPriorLabel={noPrior}
           newLabel={t("new", { count: patients.data?.total.current ?? 0 })}
+          emptyLabel={empty}
         />
       )}
       {showRevenue && (
@@ -124,6 +128,8 @@ export function DashboardKpiRow({
           value={formatMoney(collected.current)}
           vsLastMonthLabel={vsLastMonth}
           noPriorLabel={noPrior}
+          newLabel={t("newRevenue")}
+          emptyLabel={empty}
         />
       )}
     </div>
