@@ -35,6 +35,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/visits",
     labelKey: "nav.visits",
     icon: ClipboardList,
+    requiresPermission: "operations.view",
     order: 20,
   },
   {
@@ -42,6 +43,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/calendar",
     labelKey: "nav.calendar",
     icon: Calendar,
+    requiresPermission: "operations.view",
     order: 30,
   },
   {
@@ -49,6 +51,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/patients",
     labelKey: "nav.patients",
     icon: Users,
+    requiresPermission: "operations.view",
     order: 40,
   },
   {
