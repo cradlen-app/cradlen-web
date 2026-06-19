@@ -107,11 +107,14 @@ export function CashSessionsPage() {
 
   function handleClose() {
     if (!closeTarget) return;
+    // Require an explicit count — never silently submit 0, which would
+    // manufacture a phantom variance against the expected cash.
+    if (countedAmount.trim() === "") return;
     closeMutation.mutate(
       {
         id: closeTarget.id,
         payload: {
-          counted_amount: Number(countedAmount) || 0,
+          counted_amount: Number(countedAmount),
           notes: closeNotes || undefined,
         },
       },
@@ -234,6 +237,9 @@ export function CashSessionsPage() {
                       {t("columns.openingFloat")}
                     </th>
                     <th className="px-4 py-2.5 text-end font-medium">
+                      {t("columns.expected")}
+                    </th>
+                    <th className="px-4 py-2.5 text-end font-medium">
                       {t("columns.counted")}
                     </th>
                     <th className="px-4 py-2.5 text-end font-medium">
@@ -264,6 +270,9 @@ export function CashSessionsPage() {
                       </td>
                       <td className="px-4 py-3 text-end tabular-nums text-gray-700">
                         {money(s.opening_float)}
+                      </td>
+                      <td className="px-4 py-3 text-end tabular-nums text-gray-700">
+                        {money(s.expected_amount ?? s.summary?.expected_so_far ?? null)}
                       </td>
                       <td className="px-4 py-3 text-end tabular-nums text-gray-700">
                         {money(s.counted_amount)}
@@ -394,6 +403,7 @@ export function CashSessionsPage() {
               onChange={(e) => setCountedAmount(e.target.value)}
               className={inputClass}
             />
+            <p className="mt-1.5 text-xs text-gray-400">{t("countedHint")}</p>
             <label className="mt-3 mb-1.5 block text-xs font-medium text-gray-700">
               {t("closeNotes")}
             </label>
@@ -414,7 +424,7 @@ export function CashSessionsPage() {
               <Button
                 type="button"
                 onClick={handleClose}
-                disabled={closeMutation.isPending}
+                disabled={closeMutation.isPending || countedAmount.trim() === ""}
               >
                 {closeMutation.isPending ? (
                   <Loader2 className="size-4 animate-spin" aria-hidden="true" />

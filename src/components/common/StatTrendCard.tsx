@@ -21,6 +21,7 @@ export function TrendChip({
   vsLabel,
   noPriorLabel,
   newLabel,
+  emptyLabel,
 }: {
   metric: StatMetric;
   /** Shown when there's no prior value (e.g. "no prior data"). */
@@ -33,6 +34,12 @@ export function TrendChip({
    * falls back to {@link noPriorLabel}.
    */
   newLabel?: string;
+  /**
+   * Shown when there's nothing this month and no baseline either
+   * (`previous <= 0 && current <= 0`) — a true empty state, e.g. "No data yet".
+   * When omitted, that case falls back to {@link noPriorLabel}.
+   */
+  emptyLabel?: string;
 }) {
   const delta = deltaPercent(metric);
 
@@ -42,6 +49,17 @@ export function TrendChip({
       <span className="inline-flex items-center gap-1 text-xs font-semibold tabular-nums text-emerald-600">
         <TrendingUp className="size-3.5" aria-hidden="true" />
         {newLabel}
+        {vsLabel ? <span className="sr-only"> {vsLabel}</span> : null}
+      </span>
+    );
+  }
+
+  // Nothing this month and no baseline → a true empty state, not "no prior data".
+  if (emptyLabel && metric.previous <= 0 && metric.current <= 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-400">
+        <Minus className="size-3.5" aria-hidden="true" />
+        {emptyLabel}
         {vsLabel ? <span className="sr-only"> {vsLabel}</span> : null}
       </span>
     );
@@ -87,6 +105,7 @@ export function StatTrendCard({
   vsLastMonthLabel,
   noPriorLabel,
   newLabel,
+  emptyLabel,
   value,
 }: {
   icon: LucideIcon;
@@ -97,6 +116,8 @@ export function StatTrendCard({
   noPriorLabel: string;
   /** Shown in place of the dash when there's no prior baseline but a value now (e.g. "+1 new"). */
   newLabel?: string;
+  /** Shown when there's nothing this month and no baseline either (e.g. "No data yet"). */
+  emptyLabel?: string;
   /** Display override for the headline figure (e.g. formatted money). Defaults to `metric.current`. */
   value?: string;
 }) {
@@ -128,6 +149,7 @@ export function StatTrendCard({
           metric={metric}
           noPriorLabel={noPriorLabel}
           newLabel={newLabel}
+          emptyLabel={emptyLabel}
         />
         <span className="truncate text-[11px] text-gray-400">
           {vsLastMonthLabel}
