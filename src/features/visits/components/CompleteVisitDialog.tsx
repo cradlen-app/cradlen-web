@@ -39,12 +39,8 @@ function DialogBody({ visit, onOpenChange, onCompleted }: Props) {
   // and are written via the examination PATCH (If-Match the examination_version).
   const config = useMemo(
     () =>
-      resolveSpecialtyExamination(
-        visit?.subspecialtyCode ?? null,
-        visit?.specialtyCode ?? null,
-        visit?.id ?? "",
-      ),
-    [visit?.subspecialtyCode, visit?.specialtyCode, visit?.id],
+      resolveSpecialtyExamination(visit?.specialtyCode ?? null, visit?.id ?? ""),
+    [visit?.specialtyCode, visit?.id],
   );
 
   const examQuery = useVisitExamination(config?.endpointPath ?? null);

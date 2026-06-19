@@ -165,10 +165,8 @@ export type ApiVisit = {
   vitals?: ApiVitals | null;
   queue_number?: number;
   branch_id?: string;
-  /** Specialty captured at booking; drives the patient-history template resolver. */
+  /** Specialty captured at booking; drives the patient-history + examination template resolvers. */
   specialty_code?: string | null;
-  /** Subspecialty captured at booking; the primary examination-template discriminator (falls back to specialty_code). */
-  subspecialty_code?: string | null;
   created_at?: string;
   started_at?: string;
   completed_at?: string;
