@@ -44,3 +44,12 @@ next-env.d.ts
 
 # Playwright MCP snapshots/traces (may capture form input incl. credentials)
 .playwright-mcp/
+
+# AI assistant / tooling artifacts
+.agents/
+.claude/
+.superpowers/
+skills-lock.json
+AGENTS.md
+CLAUDE.md
+/docs/
