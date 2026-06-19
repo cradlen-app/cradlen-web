@@ -1,5 +1,6 @@
 import type { AuthContext, AuthProfile } from "@/common/kernel-contracts";
-import { hasAnyStaffRole, isDoctor, isOwner } from "@/features/auth/lib/permissions";
+import { PERMISSIONS } from "@/common/kernel-contracts";
+import { hasAnyStaffRole, isOwner } from "@/features/auth/lib/permissions";
 import { bootModules } from "@/kernel";
 import type { UserProfile } from "@/common/types/user.types";
 
@@ -60,16 +61,6 @@ export function canAccessRoute(
 
   const rel = toNavRelativePath(canonicalPathname);
 
-  // Base settings page self-gates its sections; deeper settings routes are owner-only.
-  if (rel === "/settings") return true;
-  if (rel.startsWith("/settings/")) return isOwner(profile);
-
-  // The patients *list* (`/patients`) stays at the nav permission (operations.view),
-  // but an individual patient's *detail* workspace (`/patients/<id>`) is the clinical
-  // record — owners and doctors only. A non-clinical branch manager sees the table
-  // but not a patient's clinical history.
-  if (rel.startsWith("/patients/")) return isOwner(profile) || isDoctor(profile);
-
   const registry = bootModules();
   const ctx: AuthContext = {
     user: null,
@@ -78,10 +69,24 @@ export function canAccessRoute(
     branchId: null,
   };
 
+  // Route-only gates (no owning nav item) resolve to a catalog permission id, so
+  // the rule lives once in the catalog and is covered by the matrix parity test:
+  //  - the base `/settings` page self-gates its sections (any staff),
+  //  - deeper org-settings drill-downs are owner-only, and
+  //  - an individual patient's *detail* workspace is the clinical record
+  //    (clinicians only — a non-clinical owner/branch manager sees the table but
+  //    not a patient's clinical history).
+  if (rel === "/settings")
+    return registry.permissions.check(PERMISSIONS.settingsView, ctx);
+  if (rel.startsWith("/settings/"))
+    return registry.permissions.check(PERMISSIONS.settingsManageOrg, ctx);
+  if (rel.startsWith("/patients/"))
+    return registry.permissions.check(PERMISSIONS.patientDetailView, ctx);
+
   // Dashboard root: gated by `dashboard.home` (same id as the sidebar entry).
   // `matchByPath("")` is intentionally undefined (root items are skipped), so we
   // check the permission directly rather than via the nav registry.
-  if (rel === "") return registry.permissions.check("dashboard.home", ctx);
+  if (rel === "") return registry.permissions.check(PERMISSIONS.dashboardHome, ctx);
 
   const item = registry.nav.matchByPath(rel);
   if (item) {

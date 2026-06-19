@@ -63,27 +63,34 @@ const doctorBranchManager = profile({
   jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
 });
 
+const doctorOwner = profile({
+  roles: ["OWNER"],
+  jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
+});
+
 describe("canAccessClinicalWorkspace (visits + calendar)", () => {
-  it("includes owners, receptionists, and clinical staff", () => {
-    expect(canAccessClinicalWorkspace(owner)).toBe(true);
+  it("includes receptionists and clinical staff", () => {
     expect(canAccessClinicalWorkspace(receptionist)).toBe(true);
     expect(canAccessClinicalWorkspace(doctor)).toBe(true);
   });
 
-  it("excludes a non-doctor branch manager but includes a doctor branch manager", () => {
+  it("excludes non-clinical authority (owner / branch manager) but includes them when also a doctor", () => {
+    expect(canAccessClinicalWorkspace(owner)).toBe(false);
     expect(canAccessClinicalWorkspace(branchManager)).toBe(false);
+    expect(canAccessClinicalWorkspace(doctorOwner)).toBe(true);
     expect(canAccessClinicalWorkspace(doctorBranchManager)).toBe(true);
   });
 });
 
 describe("canOpenPatientWorkspace (patient detail)", () => {
-  it("includes owners and doctors", () => {
-    expect(canOpenPatientWorkspace(owner)).toBe(true);
+  it("includes any clinician, regardless of authority tier", () => {
     expect(canOpenPatientWorkspace(doctor)).toBe(true);
+    expect(canOpenPatientWorkspace(doctorOwner)).toBe(true);
     expect(canOpenPatientWorkspace(doctorBranchManager)).toBe(true);
   });
 
-  it("excludes a non-doctor branch manager and a receptionist (table only)", () => {
+  it("excludes non-clinical owners, branch managers, and receptionists (table only)", () => {
+    expect(canOpenPatientWorkspace(owner)).toBe(false);
     expect(canOpenPatientWorkspace(branchManager)).toBe(false);
     expect(canOpenPatientWorkspace(receptionist)).toBe(false);
   });

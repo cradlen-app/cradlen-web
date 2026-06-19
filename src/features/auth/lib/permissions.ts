@@ -123,13 +123,15 @@ export function canPracticeSpecialty(profile?: UserProfile): boolean {
 }
 
 /**
- * Who may open the patient detail workspace (clinical history): owners and
- * doctors. A branch manager qualifies only through a clinical (doctor) job
- * function — a non-clinical branch manager sees the patients *table* but not an
- * individual patient's clinical record.
+ * Who may open the patient detail workspace (clinical history): any clinician.
+ * Authority (owner / branch manager) does *not* by itself grant access to a
+ * patient's clinical record — an owner or branch manager qualifies only when
+ * they also hold a clinical (doctor) job function. A non-clinical owner or
+ * branch manager sees the patients *table* but not an individual patient's
+ * clinical record.
  */
 export function canOpenPatientWorkspace(profile?: UserProfile): boolean {
-  return isOwner(profile) || isDoctor(profile);
+  return isClinical(profile);
 }
 
 /** Who may edit a patient's demographics/profile: owners and branch managers. */
@@ -232,13 +234,14 @@ export function canAccessOperations(profile?: UserProfile): boolean {
 }
 
 /**
- * The live clinical workspace — the visits queue and calendar. Owners, the
- * front-desk receptionist (who books/checks-in), and clinical staff. A branch
- * manager only qualifies through a clinical job function (i.e. a doctor branch
- * manager); a non-clinical branch manager is intentionally excluded.
+ * The live clinical workspace — the visits queue and calendar. The front-desk
+ * receptionist (who books/checks-in) and clinical staff. Authority alone does
+ * not grant it: an owner or branch manager qualifies only through a clinical
+ * (doctor) job function. A non-clinical owner or branch manager is intentionally
+ * excluded — they manage the practice but don't run the clinical queue.
  */
 export function canAccessClinicalWorkspace(profile?: UserProfile): boolean {
-  return isOwner(profile) || isReceptionist(profile) || isClinical(profile);
+  return isReceptionist(profile) || isClinical(profile);
 }
 
 /** Billing access — front-desk, accountants, branch managers, and owners can view and manage invoices/payments. */

@@ -2,6 +2,7 @@ import type {
   AuthContext,
   PermissionPredicate,
 } from "@/common/kernel-contracts";
+import { PERMISSIONS } from "@/common/kernel-contracts";
 import type { UserProfile } from "@/common/types/user.types";
 import {
   canAccessBilling,
@@ -130,15 +131,17 @@ const fromCtx =
     fn(ctx.profile as Profile);
 
 export const financialPermissions = {
-  "financial.read": fromCtx(_canRead),
-  "financial.collectPayment": fromCtx(_canCollectPayment),
-  "financial.manageCash": fromCtx(_canManageCash),
-  "financial.refund": fromCtx(_canRefund),
-  "financial.manageCatalog": fromCtx(_canManageCatalog),
-  "financial.managePricing": fromCtx(_canManagePricing),
-  "financial.manageProviderPricing": fromCtx(_canManageProviderPricing),
-  "financial.captureCharge": fromCtx(_canCaptureCharge),
-  "financial.viewReports": fromCtx(_canViewReports),
-  "financial.viewOwnReports": fromCtx(_canViewOwnReports),
-  "financial.viewReportsNav": fromCtx(_canViewReportsNav),
+  [PERMISSIONS.financialRead]: fromCtx(_canRead),
+  [PERMISSIONS.financialCollectPayment]: fromCtx(_canCollectPayment),
+  [PERMISSIONS.financialManageCash]: fromCtx(_canManageCash),
+  [PERMISSIONS.financialRefund]: fromCtx(_canRefund),
+  [PERMISSIONS.financialManageCatalog]: fromCtx(_canManageCatalog),
+  [PERMISSIONS.financialManagePricing]: fromCtx(_canManagePricing),
+  [PERMISSIONS.financialManageProviderPricing]: fromCtx(
+    _canManageProviderPricing,
+  ),
+  [PERMISSIONS.financialCaptureCharge]: fromCtx(_canCaptureCharge),
+  [PERMISSIONS.financialViewReports]: fromCtx(_canViewReports),
+  [PERMISSIONS.financialViewOwnReports]: fromCtx(_canViewOwnReports),
+  [PERMISSIONS.financialViewReportsNav]: fromCtx(_canViewReportsNav),
 } as const;

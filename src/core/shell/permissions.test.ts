@@ -65,13 +65,24 @@ describe("clinicalWorkspace.view (visits + calendar)", () => {
     ).toBe(true);
   });
 
-  it("includes owners, receptionists, and clinical staff", () => {
-    expect(clinicalWorkspace(ctx({ roles: ["OWNER"] }))).toBe(true);
+  it("includes receptionists and clinical staff", () => {
     expect(
       clinicalWorkspace(ctx({ jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }] })),
     ).toBe(true);
     expect(
       clinicalWorkspace(ctx({ jobFunctions: [{ code: "OBGYN", is_clinical: true }] })),
+    ).toBe(true);
+  });
+
+  it("excludes a non-clinical owner but includes a doctor owner", () => {
+    expect(clinicalWorkspace(ctx({ roles: ["OWNER"] }))).toBe(false);
+    expect(
+      clinicalWorkspace(
+        ctx({
+          roles: ["OWNER"],
+          jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
+        }),
+      ),
     ).toBe(true);
   });
 

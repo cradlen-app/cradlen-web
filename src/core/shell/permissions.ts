@@ -2,11 +2,14 @@ import type {
   AuthContext,
   PermissionPredicate,
 } from "@/common/kernel-contracts";
+import { PERMISSIONS } from "@/common/kernel-contracts";
 import {
   canAccessClinicalWorkspace,
   canAccessOperations,
   canOpenMedicalRepOverview,
+  canOpenPatientWorkspace,
   canPracticeSpecialty,
+  canUseSettings,
   hasAnyStaffRole,
   isAccountant,
   isBranchManager,
@@ -57,11 +60,23 @@ function _canAccessMedicine(profile: Profile): boolean {
 }
 
 export const shellPermissions = {
-  "dashboard.home": fromCtx(_canSeeDashboardHome),
-  "operations.view": fromCtx((p) => canAccessOperations(p ?? undefined)),
-  "clinicalWorkspace.view": fromCtx((p) =>
+  [PERMISSIONS.dashboardHome]: fromCtx(_canSeeDashboardHome),
+  [PERMISSIONS.operationsView]: fromCtx((p) =>
+    canAccessOperations(p ?? undefined),
+  ),
+  [PERMISSIONS.clinicalWorkspaceView]: fromCtx((p) =>
     canAccessClinicalWorkspace(p ?? undefined),
   ),
-  "medicine.read": fromCtx(_canAccessMedicine),
-  "medicalRep.view": fromCtx((p) => canOpenMedicalRepOverview(p ?? undefined)),
+  // Route-only gate (no nav item): the patient *detail* workspace.
+  [PERMISSIONS.patientDetailView]: fromCtx((p) =>
+    canOpenPatientWorkspace(p ?? undefined),
+  ),
+  [PERMISSIONS.medicineRead]: fromCtx(_canAccessMedicine),
+  [PERMISSIONS.medicalRepView]: fromCtx((p) =>
+    canOpenMedicalRepOverview(p ?? undefined),
+  ),
+  // Route-only gates (no nav item): the settings page self-gates its sections,
+  // while deeper org-settings drill-downs are owner-only.
+  [PERMISSIONS.settingsView]: fromCtx((p) => canUseSettings(p ?? undefined)),
+  [PERMISSIONS.settingsManageOrg]: fromCtx((p) => isOwner(p ?? undefined)),
 } as const;
