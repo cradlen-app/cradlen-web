@@ -8,6 +8,7 @@ import {
   canManageBillingAdmin,
   canManageOwnPrices,
   canPracticeSpecialty,
+  isAccountant,
   isBranchManager,
   isDoctor,
   isOwner,
@@ -77,9 +78,18 @@ function _canCaptureCharge(profile: Profile): boolean {
   return isDoctor(profile ?? undefined) || isOwner(profile ?? undefined);
 }
 
-/** View aggregated, org-wide financial reports. */
+/**
+ * View aggregated financial reports across providers. Owners get org-wide ("All
+ * Branches"); branch managers and back-office accountants get the same full
+ * report layout scoped to their assigned branch (the org-wide option and
+ * cross-branch analytics stay owner-only in `ReportsPage`).
+ */
 function _canViewReports(profile: Profile): boolean {
-  return isOwner(profile ?? undefined) || isBranchManager(profile ?? undefined);
+  return (
+    isOwner(profile ?? undefined) ||
+    isBranchManager(profile ?? undefined) ||
+    isAccountant(profile ?? undefined)
+  );
 }
 
 /**

@@ -1,5 +1,5 @@
 import type { AuthContext, AuthProfile } from "@/common/kernel-contracts";
-import { hasAnyStaffRole, isOwner } from "@/features/auth/lib/permissions";
+import { hasAnyStaffRole, isDoctor, isOwner } from "@/features/auth/lib/permissions";
 import { bootModules } from "@/kernel";
 import type { UserProfile } from "@/common/types/user.types";
 
@@ -63,6 +63,12 @@ export function canAccessRoute(
   // Base settings page self-gates its sections; deeper settings routes are owner-only.
   if (rel === "/settings") return true;
   if (rel.startsWith("/settings/")) return isOwner(profile);
+
+  // The patients *list* (`/patients`) stays at the nav permission (operations.view),
+  // but an individual patient's *detail* workspace (`/patients/<id>`) is the clinical
+  // record — owners and doctors only. A non-clinical branch manager sees the table
+  // but not a patient's clinical history.
+  if (rel.startsWith("/patients/")) return isOwner(profile) || isDoctor(profile);
 
   const registry = bootModules();
   const ctx: AuthContext = {

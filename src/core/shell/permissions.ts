@@ -3,7 +3,9 @@ import type {
   PermissionPredicate,
 } from "@/common/kernel-contracts";
 import {
+  canAccessClinicalWorkspace,
   canAccessOperations,
+  canOpenMedicalRepOverview,
   canPracticeSpecialty,
   hasAnyStaffRole,
   isAccountant,
@@ -57,8 +59,9 @@ function _canAccessMedicine(profile: Profile): boolean {
 export const shellPermissions = {
   "dashboard.home": fromCtx(_canSeeDashboardHome),
   "operations.view": fromCtx((p) => canAccessOperations(p ?? undefined)),
-  "medicine.read": fromCtx(_canAccessMedicine),
-  "medicalRep.view": fromCtx(
-    (p) => isOwner(p ?? undefined) || isBranchManager(p ?? undefined),
+  "clinicalWorkspace.view": fromCtx((p) =>
+    canAccessClinicalWorkspace(p ?? undefined),
   ),
+  "medicine.read": fromCtx(_canAccessMedicine),
+  "medicalRep.view": fromCtx((p) => canOpenMedicalRepOverview(p ?? undefined)),
 } as const;
