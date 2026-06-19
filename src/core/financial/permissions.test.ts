@@ -51,3 +51,26 @@ describe("financialCan.viewReports (org-wide only)", () => {
     expect(financialCan.viewReports(matchedDoctor)).toBe(false);
   });
 });
+
+const accountant = profile({
+  jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }],
+});
+const receptionist = profile({
+  jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }],
+});
+
+describe("financialCan.read (operational billing surface)", () => {
+  it("includes owners, receptionists, and accountants", () => {
+    expect(financialCan.read(owner)).toBe(true);
+    expect(financialCan.read(receptionist)).toBe(true);
+    expect(financialCan.read(accountant)).toBe(true);
+  });
+});
+
+describe("financialCan.manageCatalog (owner-only)", () => {
+  it("stays owner-only — branch managers and accountants are excluded", () => {
+    expect(financialCan.manageCatalog(owner)).toBe(true);
+    expect(financialCan.manageCatalog(branchManager)).toBe(false);
+    expect(financialCan.manageCatalog(accountant)).toBe(false);
+  });
+});

@@ -2,7 +2,7 @@ import type { CurrentUser, UserProfile, UserRole } from "@/common/types/user.typ
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import { buildDashboardUrl } from "@/infrastructure/http/routes";
 import type { ApiResponse } from "@/common/types/api.types";
-import { isReceptionist } from "./permissions";
+import { isAccountant, isReceptionist } from "./permissions";
 import { getProfileRoles } from "./current-user";
 
 export function getSafeRedirectPath(value: string | null) {
@@ -21,6 +21,11 @@ export function getDefaultRouteForRole(
 ): string {
   if (isReceptionist(profile)) {
     return buildDashboardUrl(orgId, branchId, "/visits");
+  }
+
+  // The back-office accountant's workspace is the financial section only.
+  if (isAccountant(profile)) {
+    return buildDashboardUrl(orgId, branchId, "/financial/invoices");
   }
 
   switch (role) {

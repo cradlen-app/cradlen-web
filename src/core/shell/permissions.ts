@@ -3,8 +3,10 @@ import type {
   PermissionPredicate,
 } from "@/common/kernel-contracts";
 import {
+  canAccessOperations,
   canPracticeSpecialty,
   hasAnyStaffRole,
+  isAccountant,
   isBranchManager,
   isOwner,
   isReceptionist,
@@ -26,10 +28,14 @@ import type { UserProfile } from "@/common/types/user.types";
  */
 type Profile = UserProfile | null | undefined;
 
-/** Home dashboard overview — every staff member except front-desk reception. */
+/**
+ * Home dashboard overview — every staff member except the front-desk receptionist
+ * and the back-office accountant, both of whom have their own default workspace
+ * (reception → /visits, accountant → /financial).
+ */
 function _canSeeDashboardHome(profile: Profile): boolean {
   const p = profile ?? undefined;
-  return hasAnyStaffRole(p) && !isReceptionist(p);
+  return hasAnyStaffRole(p) && !isReceptionist(p) && !isAccountant(p);
 }
 
 const fromCtx =
@@ -50,6 +56,9 @@ function _canAccessMedicine(profile: Profile): boolean {
 
 export const shellPermissions = {
   "dashboard.home": fromCtx(_canSeeDashboardHome),
+  "operations.view": fromCtx((p) => canAccessOperations(p ?? undefined)),
   "medicine.read": fromCtx(_canAccessMedicine),
-  "medicalRep.view": fromCtx((p) => isOwner(p ?? undefined)),
+  "medicalRep.view": fromCtx(
+    (p) => isOwner(p ?? undefined) || isBranchManager(p ?? undefined),
+  ),
 } as const;

@@ -210,6 +210,20 @@ export function canSearchPatients(profile?: UserProfile): boolean {
   );
 }
 
+/**
+ * The visit / calendar / patient operational surfaces — every staff member
+ * except the back-office accountant, whose workspace is the financial section
+ * only. Gates the previously-ungated shell nav items (and their routes).
+ */
+export function canAccessOperations(profile?: UserProfile): boolean {
+  return (
+    isOwner(profile) ||
+    isBranchManager(profile) ||
+    isReceptionist(profile) ||
+    isClinical(profile)
+  );
+}
+
 /** Billing access — front-desk, accountants, and owners can view and manage invoices/payments. */
 export function canAccessBilling(profile?: UserProfile): boolean {
   return isOwner(profile) || isReceptionist(profile) || isAccountant(profile);
