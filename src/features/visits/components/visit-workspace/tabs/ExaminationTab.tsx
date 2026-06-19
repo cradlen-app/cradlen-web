@@ -34,35 +34,15 @@ export function ExaminationTab({ visit, readOnly = false }: Props) {
   const t = useTranslations("examination.workspace");
   const config = useMemo(
     () =>
-      resolveSpecialtyExamination(
-        visit.subspecialtyCode ?? null,
-        visit.specialtyCode ?? null,
-        visit.id,
-      ),
-    [visit.subspecialtyCode, visit.specialtyCode, visit.id],
+      resolveSpecialtyExamination(visit.specialtyCode ?? null, visit.id),
+    [visit.specialtyCode, visit.id],
   );
 
   const templateQuery = useQuery({
     queryKey: config
-      ? queryKeys.formTemplates.byCode(
-          config.fallbackTemplateCode
-            ? `${config.templateCode}|${config.fallbackTemplateCode}`
-            : config.templateCode,
-          null,
-        )
+      ? queryKeys.formTemplates.byCode(config.templateCode, null)
       : (["form-template", "disabled"] as const),
-    // Prefer the subspecialty template; if it isn't published, degrade to the
-    // specialty template (the examination data endpoint is the same either way).
-    queryFn: async () => {
-      try {
-        return await fetchFormTemplate(config!.templateCode);
-      } catch (err) {
-        if (config!.fallbackTemplateCode && isNotFound(err)) {
-          return fetchFormTemplate(config!.fallbackTemplateCode);
-        }
-        throw err;
-      }
-    },
+    queryFn: () => fetchFormTemplate(config!.templateCode),
     enabled: !!config,
     staleTime: Infinity,
     retry: (failureCount, error) => {
