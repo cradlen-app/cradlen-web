@@ -906,6 +906,7 @@
       "vsLastMonth": "vs last month",
       "noPrior": "no prior data",
       "new": "+{count} new",
+      "newRevenue": "new this month",
       "viewFullReports": "View full reports",
       "empty": "No data yet",
       "scope": {
