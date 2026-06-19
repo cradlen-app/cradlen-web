@@ -25,6 +25,56 @@ function ctx(opts: {
 }
 
 const medicine = shellPermissions["medicine.read"];
+const dashboardHome = shellPermissions["dashboard.home"];
+const operations = shellPermissions["operations.view"];
+const medicalRep = shellPermissions["medicalRep.view"];
+
+describe("operations.view (visits / calendar / patients)", () => {
+  it("hides the operational surfaces from the back-office accountant", () => {
+    expect(
+      operations(ctx({ jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }] })),
+    ).toBe(false);
+  });
+
+  it("shows them to a receptionist", () => {
+    expect(
+      operations(ctx({ jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }] })),
+    ).toBe(true);
+  });
+
+  it("shows them to owners and branch managers", () => {
+    expect(operations(ctx({ roles: ["OWNER"] }))).toBe(true);
+    expect(operations(ctx({ roles: ["BRANCH_MANAGER"] }))).toBe(true);
+  });
+});
+
+describe("dashboard.home", () => {
+  it("hides the dashboard home from the accountant", () => {
+    expect(
+      dashboardHome(ctx({ jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }] })),
+    ).toBe(false);
+  });
+
+  it("hides it from the receptionist but shows it to owners", () => {
+    expect(
+      dashboardHome(ctx({ jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }] })),
+    ).toBe(false);
+    expect(dashboardHome(ctx({ roles: ["OWNER"] }))).toBe(true);
+  });
+});
+
+describe("medicalRep.view", () => {
+  it("shows the medical-rep overview to owners and branch managers", () => {
+    expect(medicalRep(ctx({ roles: ["OWNER"] }))).toBe(true);
+    expect(medicalRep(ctx({ roles: ["BRANCH_MANAGER"] }))).toBe(true);
+  });
+
+  it("hides it from the accountant", () => {
+    expect(
+      medicalRep(ctx({ jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }] })),
+    ).toBe(false);
+  });
+});
 
 describe("medicine.read", () => {
   it("shows the medicine catalogue to a specialty-matched doctor", () => {
