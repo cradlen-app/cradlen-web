@@ -57,14 +57,34 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-/** A single completed-visit card body (without the timeline rail). */
-function VisitCard({ visit }: { visit: PortalVisit }) {
+/**
+ * A single completed-visit card body (without the timeline rail). Shared by the
+ * date-rail history timeline (`VisitTimeline`) and the Journey → Episode → Visit
+ * timeline (`JourneyTimeline`). The latter has no date rail, so it passes
+ * `showDate` to surface the visit date inside the card header.
+ */
+export function VisitCard({
+  visit,
+  showDate = false,
+}: {
+  visit: PortalVisit;
+  showDate?: boolean;
+}) {
   const t = useTranslations("patientPortal");
+  const locale = useLocale();
   const priority = visit.priority ?? "normal";
   return (
     <article className="rounded-xl border border-gray-100 p-4">
       <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {showDate && (
+            <>
+              <span className="text-xs font-medium text-gray-700">
+                {formatDate(visit.date, locale)}
+              </span>
+              <span className="text-gray-400">·</span>
+            </>
+          )}
           <span className="text-xs font-medium text-gray-700">
             {t(`record.typeLabel.${visit.type ?? "VISIT"}`)}
           </span>

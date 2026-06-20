@@ -22,6 +22,8 @@ export const patientPortalQueryKeys = {
     ["patient-portal", "visit-history", patientId] as const,
   upcomingVisits: (patientId: string) =>
     ["patient-portal", "upcoming-visits", patientId] as const,
+  journeyTimeline: (patientId: string) =>
+    ["patient-portal", "journey-timeline", patientId] as const,
   history: (patientId: string) =>
     ["patient-portal", "history", patientId] as const,
   journey: (patientId: string) =>

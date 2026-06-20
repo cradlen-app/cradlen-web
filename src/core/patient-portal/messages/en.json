@@ -213,7 +213,18 @@
     "upcomingTitle": "Upcoming visits",
     "lastTitle": "Last visits",
     "noUpcoming": "No upcoming visits",
-    "followUp": "Follow-up"
+    "followUp": "Follow-up",
+    "journeyStarted": "Started {date}",
+    "episodeStarted": "Started {date}",
+    "episode": "Case {order}",
+    "noEpisodes": "No episodes yet",
+    "noVisitsInEpisode": "No visits in this episode yet",
+    "noJourneys": "No care journeys recorded yet",
+    "status": {
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    }
   },
   "profile": {
     "title": "Profile",

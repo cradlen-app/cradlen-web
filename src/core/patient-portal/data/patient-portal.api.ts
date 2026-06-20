@@ -14,6 +14,7 @@
 import { apiFetch } from "@/infrastructure/http/api";
 import { mapApiMedication } from "../lib/map-medication";
 import { mapApiJourney } from "../lib/map-journey";
+import { mapApiJourneyTimeline } from "../lib/map-journey-timeline";
 import { mapApiVisit } from "../lib/map-visit";
 import { mapApiUpcomingVisit } from "../lib/map-upcoming-visit";
 import { mapApiInvestigation } from "../lib/map-investigation";
@@ -23,6 +24,7 @@ import type {
   ApiPatientUpcomingVisitsResponse,
   ApiPatientVisitsResponse,
 } from "./patient-visits.api.types";
+import type { ApiPatientJourneyTimelineResponse } from "./patient-journey-timeline.api.types";
 import type {
   ApiPatientInvestigationsResponse,
   ApiResultUploadUrl,
@@ -44,6 +46,7 @@ import type {
   PatientProfile,
   PortalDocument,
   PortalJourney,
+  PortalJourneyTimelineEntry,
   PortalMedication,
   PortalTest,
   PortalUpcomingVisit,
@@ -194,6 +197,43 @@ export async function fetchUpcomingVisits({
 
   return {
     data: res.data.map(mapApiUpcomingVisit),
+    meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
+  };
+}
+
+/** One page of the journey timeline (paginated by journey). */
+export type JourneyTimelinePage = {
+  data: PortalJourneyTimelineEntry[];
+  meta: { page: number; limit: number; total: number };
+};
+
+/**
+ * Paginated Journey → Episode → Visit timeline for a patient (journeys newest
+ * first), from the live `/patient-portal/visits/journeys/timeline` endpoint.
+ * Cross-org and scoped server-side to the patients the caller may access; each
+ * nested visit is mapped to the same `PortalVisit` the flat history renders. An
+ * empty `patientId` lets the backend resolve the patients the caller may access.
+ */
+export async function fetchPatientJourneyTimeline({
+  patientId,
+  page = 1,
+  limit = 5,
+}: {
+  patientId: string;
+  page?: number;
+  limit?: number;
+}): Promise<JourneyTimelinePage> {
+  const search = new URLSearchParams();
+  if (patientId) search.set("patient_id", patientId);
+  search.set("page", String(page));
+  search.set("limit", String(limit));
+
+  const res = await apiFetch<ApiPatientJourneyTimelineResponse>(
+    `/api/patient-portal/visits/journeys/timeline?${search.toString()}`,
+  );
+
+  return {
+    data: res.data.map(mapApiJourneyTimeline),
     meta: { page: res.meta.page, limit: res.meta.limit, total: res.meta.total },
   };
 }
