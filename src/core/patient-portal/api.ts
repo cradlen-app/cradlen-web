@@ -20,11 +20,15 @@ export type {
   LabResult,
   PatientProfile,
   PortalDocument,
+  PortalJourney,
+  PortalJourneyStage,
   PortalMedication,
+  PortalPregnancy,
   PortalTest,
   PortalTestReview,
   PortalTestStatus,
   PortalVisit,
+  JourneyStageStatus,
   Reminder,
   UploadDocumentInput,
   UploadFile,
@@ -40,12 +44,15 @@ export {
   useHealthRecord,
   useMedications,
   usePatientHistory,
+  usePatientJourney,
+  useHomeSummary,
   useInvestigations,
   useLabOrders,
   useDocuments,
   useAppointments,
   useReminders,
 } from "./hooks/usePortalData";
+export type { HomeSummary } from "./hooks/usePortalData";
 export { useUploadDocument } from "./hooks/useUploadDocument";
 
 export {

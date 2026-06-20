@@ -349,6 +349,57 @@ export interface ActiveJourney {
   clinic?: Clinic;
 }
 
+/** Stepper state for one journey stage, mapped from the backend tri-state. */
+export type JourneyStageStatus = "done" | "current" | "upcoming";
+
+/** One stage of the patient's journey, shaped for the home stepper. */
+export interface PortalJourneyStage {
+  id: string;
+  name: string;
+  order: number;
+  status: JourneyStageStatus;
+}
+
+/**
+ * Pregnancy summary for an OB/GYN journey. GA + EDD are computed server-side, so
+ * the portal only displays them. Every field is nullable — a pregnancy may be
+ * recorded before a dating anchor (ultrasound or LMP) exists.
+ */
+export interface PortalPregnancy {
+  /** Current gestational age in whole weeks, e.g. 12 → "Week 12 of 40". */
+  weeks: number | null;
+  /** Remaining days of the current gestational week (0–6). */
+  days: number | null;
+  /** Estimated due date (ISO), or undefined when no dating anchor. */
+  dueDate?: string;
+  /** Number of fetuses, e.g. 2 for a twin pregnancy. */
+  fetusCount?: number;
+  /** Raw backend type, e.g. "singleton" | "twin" | "multiple". */
+  pregnancyType?: string;
+  /** Free-text fetal sex(es) as recorded, e.g. "Boy & Girl". */
+  fetalSexes?: string;
+  /** Raw backend risk level, e.g. "high". */
+  riskLevel?: string;
+}
+
+/**
+ * The patient's single active journey, backing the home dashboard hero +
+ * stepper. `carePathCode` lets the UI pick a hero variant (pregnancy is the
+ * first concrete one); `pregnancy` is present only for pregnancy care paths.
+ */
+export interface PortalJourney {
+  id: string;
+  /** Care-path discriminator, e.g. "OBGYN_PREGNANCY"; undefined when none. */
+  carePathCode?: string;
+  specialtyCode?: string;
+  /** Care-path display name, e.g. "Pregnancy". */
+  label?: string;
+  status: string;
+  startedAt: string;
+  stages: PortalJourneyStage[];
+  pregnancy?: PortalPregnancy;
+}
+
 /** Aggregated "my health" snapshot for a single patient profile. */
 export interface HealthRecord {
   patientId: string;
