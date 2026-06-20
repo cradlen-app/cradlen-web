@@ -175,6 +175,12 @@ interface ExecutionContextValue {
   template: FormTemplateDto;
   fieldNamespaceByCode: Record<string, string | null>;
   systemFieldCodes: ReadonlySet<string>;
+  /**
+   * Maps a fill-target field code → the entity-search field that fills it, but
+   * only for pickers flagged `searchEntity.lockFilled`. A target field is
+   * rendered read-only while its controller has a resolved entity.
+   */
+  lockFilledControllerByTarget: Record<string, string>;
   setFieldValue: (code: string, value: unknown) => void;
   patchSearch: (code: string, patch: Partial<SearchEntry>) => void;
   resetAfterDiscriminator: (preserveSystem: Record<string, unknown>) => void;
@@ -223,18 +229,30 @@ export function TemplateExecutionContextProvider({
     repeatableRows: initialRepeatableRows,
   }));
 
-  const { fieldNamespaceByCode, systemFieldCodes } = useMemo(() => {
-    const ns: Record<string, string | null> = {};
-    const sys = new Set<string>();
-    for (const section of template.sections) {
-      for (const field of section.fields) {
-        const namespace = field.binding?.namespace ?? null;
-        ns[field.code] = namespace;
-        if (namespace === "SYSTEM") sys.add(field.code);
+  const { fieldNamespaceByCode, systemFieldCodes, lockFilledControllerByTarget } =
+    useMemo(() => {
+      const ns: Record<string, string | null> = {};
+      const sys = new Set<string>();
+      const lockMap: Record<string, string> = {};
+      for (const section of template.sections) {
+        for (const field of section.fields) {
+          const namespace = field.binding?.namespace ?? null;
+          ns[field.code] = namespace;
+          if (namespace === "SYSTEM") sys.add(field.code);
+          const se = field.config?.ui?.searchEntity;
+          if (se?.lockFilled && se.fillFields) {
+            for (const targetCode of Object.keys(se.fillFields)) {
+              lockMap[targetCode] = field.code;
+            }
+          }
+        }
       }
-    }
-    return { fieldNamespaceByCode: ns, systemFieldCodes: sys };
-  }, [template]);
+      return {
+        fieldNamespaceByCode: ns,
+        systemFieldCodes: sys,
+        lockFilledControllerByTarget: lockMap,
+      };
+    }, [template]);
 
   const value = useMemo<ExecutionContextValue>(
     () => ({
@@ -242,6 +260,7 @@ export function TemplateExecutionContextProvider({
       template,
       fieldNamespaceByCode,
       systemFieldCodes,
+      lockFilledControllerByTarget,
       setFieldValue: (code, v) => {
         if (systemFieldCodes.has(code)) {
           dispatch({ type: "set_system", code, value: v });
@@ -279,7 +298,13 @@ export function TemplateExecutionContextProvider({
         dispatch({ type: "repeatable_replace_all", sectionCode, rows }),
       getRepeatableRows: (sectionCode) => state.repeatableRows[sectionCode] ?? [],
     }),
-    [state, template, fieldNamespaceByCode, systemFieldCodes],
+    [
+      state,
+      template,
+      fieldNamespaceByCode,
+      systemFieldCodes,
+      lockFilledControllerByTarget,
+    ],
   );
 
   return <ExecutionContext.Provider value={value}>{children}</ExecutionContext.Provider>;
