@@ -1,6 +1,6 @@
 export type BackendUserRole = "OWNER" | "BRANCH_MANAGER" | "STAFF";
 
-export type UserRole = "owner" | "reception" | "doctor" | "accountant" | "patient" | "unknown";
+export type UserRole = "owner" | "branch_manager" | "reception" | "doctor" | "accountant" | "patient" | "unknown";
 
 export type ExecutiveTitle = "CEO" | "COO" | "CFO" | "CMO";
 

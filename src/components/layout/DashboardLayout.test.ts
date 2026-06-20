@@ -48,7 +48,9 @@ describe("canAccessRoute", () => {
       roleName: STAFF_API_ROLE.STAFF,
       jobFunctionCode: JOB_FUNCTION_CODE.RECEPTIONIST,
     });
-    expect(canAccessRoute(recept, "/dashboard")).toBe(true);
+    // The dashboard *root* is gated by `dashboard.home`, which excludes the
+    // receptionist (they're redirected to their /visits default instead).
+    expect(canAccessRoute(recept, "/dashboard")).toBe(false);
     expect(canAccessRoute(recept, "/dashboard/staff")).toBe(true);
     expect(canAccessRoute(recept, "/dashboard/medicine")).toBe(false);
   });

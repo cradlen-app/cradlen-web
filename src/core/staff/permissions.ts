@@ -2,6 +2,7 @@ import type {
   AuthContext,
   PermissionPredicate,
 } from "@/common/kernel-contracts";
+import { PERMISSIONS } from "@/common/kernel-contracts";
 import {
   JOB_FUNCTION_CODE,
   STAFF_API_ROLE,
@@ -93,8 +94,8 @@ const fromCtx =
     fn(ctx.profile as Profile);
 
 export const staffPermissions = {
-  "staff.read": fromCtx(_canRead),
-  "staff.manage": fromCtx(_canManage),
-  "staff.editRoles": fromCtx(_canEditRoles),
-  "staff.delete": fromCtx(_canDelete),
+  [PERMISSIONS.staffRead]: fromCtx(_canRead),
+  [PERMISSIONS.staffManage]: fromCtx(_canManage),
+  [PERMISSIONS.staffEditRoles]: fromCtx(_canEditRoles),
+  [PERMISSIONS.staffDelete]: fromCtx(_canDelete),
 } as const;

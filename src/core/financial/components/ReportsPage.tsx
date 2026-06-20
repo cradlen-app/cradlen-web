@@ -41,6 +41,7 @@ import {
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 
 import { useFinancialReport } from "../hooks/useReports";
+import { financialCan } from "../permissions";
 import { formatDate, formatMoney, formatPercent } from "../lib/format";
 import type {
   ArAgingReport,
@@ -133,14 +134,15 @@ export function ReportsPage() {
     activeProfile,
     branchId: activeBranchId,
     isOwner,
-    isBranchManager,
     currentUserStaffId,
   } = useUserProfileContext();
   const branches = getProfileBranches(activeProfile);
 
-  // Org-wide viewers (owner / branch manager) get the full dashboard; any other
-  // permitted viewer (a matched-specialty doctor) sees only their own revenue.
-  const ownReportsOnly = !(isOwner || isBranchManager);
+  // Full-report viewers (owner / branch manager / accountant) get the full
+  // dashboard; any other permitted viewer (a matched-specialty doctor) sees only
+  // their own revenue. The org-wide "All Branches" option below stays owner-only,
+  // so managers and accountants get the full layout scoped to a single branch.
+  const ownReportsOnly = !financialCan.viewReports(activeProfile);
 
   const [tab, setTab] = useState<Tab>("overview");
   const [fromInput, setFromInput] = useState("");

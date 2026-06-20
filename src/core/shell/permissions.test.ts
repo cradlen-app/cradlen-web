@@ -27,24 +27,69 @@ function ctx(opts: {
 const medicine = shellPermissions["medicine.read"];
 const dashboardHome = shellPermissions["dashboard.home"];
 const operations = shellPermissions["operations.view"];
+const clinicalWorkspace = shellPermissions["clinicalWorkspace.view"];
 const medicalRep = shellPermissions["medicalRep.view"];
 
-describe("operations.view (visits / calendar / patients)", () => {
-  it("hides the operational surfaces from the back-office accountant", () => {
+describe("operations.view (patients table)", () => {
+  it("hides the patients table from the back-office accountant", () => {
     expect(
       operations(ctx({ jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }] })),
     ).toBe(false);
   });
 
-  it("shows them to a receptionist", () => {
+  it("shows it to a receptionist", () => {
     expect(
       operations(ctx({ jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }] })),
     ).toBe(true);
   });
 
-  it("shows them to owners and branch managers", () => {
+  it("shows it to owners and branch managers (incl. non-doctor managers)", () => {
     expect(operations(ctx({ roles: ["OWNER"] }))).toBe(true);
     expect(operations(ctx({ roles: ["BRANCH_MANAGER"] }))).toBe(true);
+  });
+});
+
+describe("clinicalWorkspace.view (visits + calendar)", () => {
+  it("excludes a non-doctor branch manager", () => {
+    expect(clinicalWorkspace(ctx({ roles: ["BRANCH_MANAGER"] }))).toBe(false);
+  });
+
+  it("includes a doctor branch manager (via clinical job function)", () => {
+    expect(
+      clinicalWorkspace(
+        ctx({
+          roles: ["BRANCH_MANAGER"],
+          jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("includes receptionists and clinical staff", () => {
+    expect(
+      clinicalWorkspace(ctx({ jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }] })),
+    ).toBe(true);
+    expect(
+      clinicalWorkspace(ctx({ jobFunctions: [{ code: "OBGYN", is_clinical: true }] })),
+    ).toBe(true);
+  });
+
+  it("excludes a non-clinical owner but includes a doctor owner", () => {
+    expect(clinicalWorkspace(ctx({ roles: ["OWNER"] }))).toBe(false);
+    expect(
+      clinicalWorkspace(
+        ctx({
+          roles: ["OWNER"],
+          jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("excludes the accountant", () => {
+    expect(
+      clinicalWorkspace(ctx({ jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }] })),
+    ).toBe(false);
   });
 });
 
@@ -69,9 +114,18 @@ describe("medicalRep.view", () => {
     expect(medicalRep(ctx({ roles: ["BRANCH_MANAGER"] }))).toBe(true);
   });
 
-  it("hides it from the accountant", () => {
+  it("shows it to a doctor (scoped to their own reps server-side)", () => {
+    expect(
+      medicalRep(ctx({ jobFunctions: [{ code: "DOCTOR", is_clinical: true }] })),
+    ).toBe(true);
+  });
+
+  it("hides it from the accountant and receptionist", () => {
     expect(
       medicalRep(ctx({ jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }] })),
+    ).toBe(false);
+    expect(
+      medicalRep(ctx({ jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }] })),
     ).toBe(false);
   });
 });

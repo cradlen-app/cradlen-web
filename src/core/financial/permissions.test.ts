@@ -30,10 +30,15 @@ const mismatchedDoctor = profile({
   org: [{ code: "OBGYN" }],
 });
 
+const accountant = profile({
+  jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }],
+});
+
 describe("financialCan.viewReportsNav", () => {
-  it("includes owners and branch managers (org-wide dashboard)", () => {
+  it("includes owners, branch managers, and accountants", () => {
     expect(financialCan.viewReportsNav(owner)).toBe(true);
     expect(financialCan.viewReportsNav(branchManager)).toBe(true);
+    expect(financialCan.viewReportsNav(accountant)).toBe(true);
   });
 
   it("includes a matched-specialty doctor (own-revenue view)", () => {
@@ -45,25 +50,35 @@ describe("financialCan.viewReportsNav", () => {
   });
 });
 
-describe("financialCan.viewReports (org-wide only)", () => {
-  it("stays restricted to owners and branch managers", () => {
+describe("financialCan.viewReports (full report layout)", () => {
+  it("includes owners, branch managers, and accountants", () => {
     expect(financialCan.viewReports(owner)).toBe(true);
+    expect(financialCan.viewReports(branchManager)).toBe(true);
+    expect(financialCan.viewReports(accountant)).toBe(true);
+  });
+
+  it("excludes a matched-specialty doctor (own-revenue view, not full)", () => {
     expect(financialCan.viewReports(matchedDoctor)).toBe(false);
   });
-});
-
-const accountant = profile({
-  jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }],
 });
 const receptionist = profile({
   jobFunctions: [{ code: "RECEPTIONIST", is_clinical: false }],
 });
 
 describe("financialCan.read (operational billing surface)", () => {
-  it("includes owners, receptionists, and accountants", () => {
+  it("includes owners, branch managers, receptionists, and accountants", () => {
     expect(financialCan.read(owner)).toBe(true);
+    expect(financialCan.read(branchManager)).toBe(true);
     expect(financialCan.read(receptionist)).toBe(true);
     expect(financialCan.read(accountant)).toBe(true);
+  });
+});
+
+describe("financialCan.manageCash (cash sessions)", () => {
+  it("includes branch managers (owner-equivalent, branch-scoped on the backend)", () => {
+    expect(financialCan.manageCash(owner)).toBe(true);
+    expect(financialCan.manageCash(branchManager)).toBe(true);
+    expect(financialCan.manageCash(accountant)).toBe(true);
   });
 });
 
