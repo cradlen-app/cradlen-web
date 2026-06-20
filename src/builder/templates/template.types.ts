@@ -77,6 +77,13 @@ export interface FieldConfig {
       fillFields?: Record<string, string>;
       allowCreate?: boolean;
       /**
+       * When true, the sibling fields named in `fillFields` become read-only
+       * once an entity is resolved (cleared again when the user clears the
+       * picker). Opt-in so pickers whose filled values are meant to be edited
+       * (e.g. a medication's default dose) stay editable.
+       */
+      lockFilled?: boolean;
+      /**
        * Resolves a sibling ENTITY_SEARCH field from the picked raw payload.
        * Keyed by the target search field's `code`. Used to pre-resolve a
        * dependent entity-search picker when a parent entity is selected.

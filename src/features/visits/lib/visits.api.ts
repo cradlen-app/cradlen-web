@@ -132,8 +132,13 @@ export function fetchTodaysSchedule({
 }
 
 export function searchPatients(search: string) {
+  // GLOBAL (cross-org) lookup so the book-visit autocomplete can find a patient
+  // first registered at another clinic. The org roster uses other endpoints, so
+  // it stays scoped to enrolled patients.
   const params = new URLSearchParams({ search, limit: "20" });
-  return apiAuthFetch<ApiPatientSearchResponse>(`/patients?${params.toString()}`);
+  return apiAuthFetch<ApiPatientSearchResponse>(
+    `/patients/search?${params.toString()}`,
+  );
 }
 
 export function fetchPatientVisitHistory({
