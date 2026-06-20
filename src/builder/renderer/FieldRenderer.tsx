@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { applyEffect } from "../rules/predicate.evaluator";
 import { useEvaluationContext, useTemplateExecution } from "../runtime/TemplateExecutionContext";
 import { useFieldValue, useSetFieldValue } from "../runtime/useFieldState";
+import { useSearchEntry } from "../runtime/useSearchState";
 import { TextInput } from "../fields/inputs/TextInput";
 import { TextareaInput } from "../fields/inputs/TextareaInput";
 import { NumberInput, DecimalInput } from "../fields/inputs/NumberInput";
@@ -82,7 +83,20 @@ export function FieldRenderer({ field, error, displayOnly = false }: Props) {
   const ctx = useEvaluationContext();
   const value = useFieldValue(field.code);
   const setFieldValue = useSetFieldValue();
-  const { patchSearch } = useTemplateExecution();
+  const { patchSearch, lockFilledControllerByTarget } = useTemplateExecution();
+
+  // A field prefilled by a `lockFilled` entity-search becomes read-only while
+  // that picker has a resolved entity (cleared again when the picker is
+  // cleared). Only lock when the field actually carries a prefilled value — a
+  // resolved entity with a minimal projection (e.g. a cross-org patient that
+  // only returns id + name) leaves the rest empty and editable, not locked-empty.
+  const lockController = lockFilledControllerByTarget[field.code];
+  const controllerSearch = useSearchEntry(lockController ?? "");
+  const lockedByFill =
+    !!lockController &&
+    !!controllerSearch.resolvedEntityId &&
+    value != null &&
+    value !== "";
 
   const visible = useMemo(
     () => applyEffect(field.config?.logic?.predicates, "visible", ctx, true),
@@ -155,7 +169,7 @@ export function FieldRenderer({ field, error, displayOnly = false }: Props) {
         value={value}
         onChange={onChange}
         required={required}
-        disabled={!enabled}
+        disabled={!enabled || lockedByFill}
         error={error}
         spanClass={spanClass}
       />
@@ -169,7 +183,7 @@ export function FieldRenderer({ field, error, displayOnly = false }: Props) {
         value={value}
         onChange={onChange}
         required={required}
-        disabled={!enabled}
+        disabled={!enabled || lockedByFill}
         error={error}
       />
     </div>
