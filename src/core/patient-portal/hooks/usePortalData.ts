@@ -11,6 +11,7 @@ import {
   fetchMedications,
   fetchObgynHistory,
   fetchPatientJourney,
+  fetchPatientJourneyTimeline,
   fetchReminders,
   fetchUpcomingVisits,
   fetchVisitHistory,
@@ -81,6 +82,42 @@ export function useUpcomingVisits() {
         patientId: patientId as string,
         page: pageParam,
         limit: 10,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.flatMap((p) => p.data).length;
+      return loaded < lastPage.meta.total ? allPages.length + 1 : undefined;
+    },
+    enabled: Boolean(patientId),
+  });
+
+  const entries = query.data?.pages.flatMap((p) => p.data) ?? [];
+
+  return {
+    entries,
+    isLoading: query.isLoading,
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore: query.hasNextPage,
+    loadMore: query.fetchNextPage,
+  };
+}
+
+/**
+ * Paginated Journey → Episode → Visit timeline for the patient currently in view
+ * (journeys newest first), as an infinite query against the live endpoint.
+ * Paginated by journey (5 per page). Scoped by the real backend patient id (see
+ * `useResolvedPatientId`) and gated until that id resolves, mirroring
+ * `useVisitHistory`.
+ */
+export function usePatientJourneyTimeline() {
+  const patientId = useResolvedPatientId();
+  const query = useInfiniteQuery({
+    queryKey: patientPortalQueryKeys.journeyTimeline(patientId ?? "none"),
+    queryFn: ({ pageParam }) =>
+      fetchPatientJourneyTimeline({
+        patientId: patientId as string,
+        page: pageParam,
+        limit: 5,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {

@@ -2,21 +2,22 @@
 
 import { useTranslations } from "next-intl";
 
-import { useUpcomingVisits, useVisitHistory } from "../hooks/usePortalData";
+import { useUpcomingVisits } from "../hooks/usePortalData";
 import type { PortalUpcomingVisit } from "../types/patient-portal.types";
+import { JourneyTimeline } from "./JourneyTimeline";
 import { ClinicTag, CollapsibleCard, EmptyState, ScreenHeader } from "./portal-ui";
 import {
   TimelineItem,
   TimelineLoadMore,
   TimelineSkeletonItem,
-  VisitTimeline,
 } from "./VisitTimeline";
 
 /**
- * Patient portal Visits page. Stacks two collapsible timelines: upcoming
+ * Patient portal Visits page. Stacks two collapsible sections: upcoming
  * recommended follow-ups (open by default) and the completed-visit history
- * (collapsed) — the latter reuses the exact {@link VisitTimeline} the Record
- * screen renders.
+ * (collapsed). The history mirrors the staff visit-workspace timeline —
+ * Journey → Episode → Visit — via {@link JourneyTimeline}, so a patient sees
+ * their care grouped by journey and episode rather than as a flat list.
  */
 export function VisitsScreen() {
   const t = useTranslations("patientPortal");
@@ -30,16 +31,10 @@ export function VisitsScreen() {
       </CollapsibleCard>
 
       <CollapsibleCard title={t("visits.lastTitle")}>
-        <LastVisitsTimeline />
+        <JourneyTimeline />
       </CollapsibleCard>
     </div>
   );
-}
-
-/** Completed-visit history, mirroring the Record screen's timeline. */
-function LastVisitsTimeline() {
-  const visits = useVisitHistory();
-  return <VisitTimeline {...visits} />;
 }
 
 /** Upcoming recommended follow-ups from the live endpoint, as a timeline. */

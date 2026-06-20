@@ -213,7 +213,18 @@
     "upcomingTitle": "الزيارات القادمة",
     "lastTitle": "الزيارات السابقة",
     "noUpcoming": "لا توجد زيارات قادمة",
-    "followUp": "متابعة"
+    "followUp": "متابعة",
+    "journeyStarted": "بدأت في {date}",
+    "episodeStarted": "بدأت في {date}",
+    "episode": "حالة {order}",
+    "noEpisodes": "لا توجد حالات بعد",
+    "noVisitsInEpisode": "لا توجد زيارات في هذه الحالة بعد",
+    "noJourneys": "لا توجد رحلات رعاية مسجلة بعد",
+    "status": {
+      "ACTIVE": "نشطة",
+      "COMPLETED": "مكتملة",
+      "CANCELLED": "ملغاة"
+    }
   },
   "profile": {
     "title": "الملف الشخصي",

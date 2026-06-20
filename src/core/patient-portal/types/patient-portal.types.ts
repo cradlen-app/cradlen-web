@@ -400,6 +400,38 @@ export interface PortalJourney {
   pregnancy?: PortalPregnancy;
 }
 
+/**
+ * One episode of a journey in the Visits-page timeline, carrying its completed
+ * visits (newest first). Mirrors the staff Overview timeline's episode group.
+ */
+export interface PortalJourneyTimelineEpisode {
+  id: string;
+  name: string;
+  order: number;
+  /** ACTIVE | COMPLETED | CANCELLED (raw backend value). */
+  status: string;
+  startedAt: string | null;
+  endedAt: string | null;
+  visits: PortalVisit[];
+}
+
+/**
+ * One journey in the Visits-page timeline: a Journey → Episode → Visit tree that
+ * mirrors the staff visit-workspace history. Paginated by journey.
+ */
+export interface PortalJourneyTimelineEntry {
+  id: string;
+  /** Journey display name, e.g. "Pregnancy". */
+  name: string;
+  /** Journey template type, e.g. "OBGYN_PREGNANCY". */
+  type: string;
+  /** ACTIVE | COMPLETED | CANCELLED (raw backend value). */
+  status: string;
+  startedAt: string;
+  endedAt: string | null;
+  episodes: PortalJourneyTimelineEpisode[];
+}
+
 /** Aggregated "my health" snapshot for a single patient profile. */
 export interface HealthRecord {
   patientId: string;
