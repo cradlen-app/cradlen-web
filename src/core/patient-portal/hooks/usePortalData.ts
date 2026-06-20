@@ -10,6 +10,7 @@ import {
   fetchInvestigations,
   fetchMedications,
   fetchObgynHistory,
+  fetchPatientJourney,
   fetchReminders,
   fetchUpcomingVisits,
   fetchVisitHistory,
@@ -205,6 +206,64 @@ export function usePatientHistory() {
     queryFn: () => fetchObgynHistory(patientId as string),
     enabled: Boolean(patientId),
   });
+}
+
+/**
+ * The patient's single active journey (care-path type, ordered stages, optional
+ * pregnancy block) for the home dashboard, scoped by the real backend patient
+ * id and gated until it resolves. `data` is null when the patient has no active
+ * journey — the home then renders its generic/empty states.
+ */
+export function usePatientJourney() {
+  const patientId = useResolvedPatientId();
+
+  return useQuery({
+    queryKey: patientPortalQueryKeys.journey(patientId ?? "none"),
+    queryFn: () => fetchPatientJourney(patientId as string),
+    enabled: Boolean(patientId),
+  });
+}
+
+/** Counts backing the home "Don't forget today" card. */
+export interface HomeSummary {
+  /** Active medications. */
+  medicines: number;
+  /** Tests awaiting a result/review (not yet reviewed). */
+  tests: number;
+  /** Upcoming recommended follow-ups (the backend returns future-only). */
+  nextVisit: number;
+  /** How many of the three rows have something to act on. */
+  needAttention: number;
+  isLoading: boolean;
+}
+
+/**
+ * Derives the home "Don't forget today" counts purely from the existing live
+ * endpoints (medications, investigations, upcoming visits) — no dedicated
+ * aggregate endpoint. The upcoming-visits endpoint already filters to future
+ * follow-ups, so its length is the actionable count. `needAttention` is how
+ * many of the three rows are non-empty, matching the "N need attention" header.
+ */
+export function useHomeSummary(): HomeSummary {
+  const meds = useMedications();
+  const tests = useInvestigations();
+  const visits = useUpcomingVisits();
+
+  const medicines = (meds.data ?? []).filter((m) => m.status === "active").length;
+  const pendingTests = tests.entries.filter((t) => t.status === "pending").length;
+  const nextVisit = visits.entries.length;
+
+  const needAttention = [medicines, pendingTests, nextVisit].filter(
+    (c) => c > 0,
+  ).length;
+
+  return {
+    medicines,
+    tests: pendingTests,
+    nextVisit,
+    needAttention,
+    isLoading: meds.isLoading || tests.isLoading || visits.isLoading,
+  };
 }
 
 export function useLabOrders() {
