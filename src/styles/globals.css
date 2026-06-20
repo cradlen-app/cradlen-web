@@ -129,6 +129,7 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
   :lang(ar) {
     --font-sans: var(--font-cairo), system-ui, sans-serif;
