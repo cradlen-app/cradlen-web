@@ -8,11 +8,15 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import {
   activateProviderService,
   authorizeProviderService,
+  authorizeProviderServices,
   deactivateProviderService,
   fetchProviderServices,
   revokeProviderService,
 } from "../lib/pricing.api";
-import type { AuthorizeServicePayload } from "../types/financial.types";
+import type {
+  AuthorizeServicePayload,
+  AuthorizeServicesPayload,
+} from "../types/financial.types";
 
 /** List a provider's service authorizations. */
 export function useProviderServices(profileId: string | null | undefined) {
@@ -63,6 +67,26 @@ export function useAuthorizeService(profileId: string) {
     },
     onError: (err) => {
       toast.error(getApiErrorMessage(err, "Failed to authorize service"));
+    },
+  });
+}
+
+/**
+ * Authorize a provider for multiple services at once (shared branch/duration).
+ * The success toast is left to the caller, which knows how many were created.
+ */
+export function useAuthorizeServices(profileId: string) {
+  const orgId = useAuthContextStore((s) => s.organizationId);
+  const invalidate = useInvalidateProviderServices(profileId);
+
+  return useMutation({
+    mutationFn: (payload: AuthorizeServicesPayload) =>
+      authorizeProviderServices(orgId!, profileId, payload),
+    onSuccess: () => {
+      invalidate();
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Failed to authorize services"));
     },
   });
 }
