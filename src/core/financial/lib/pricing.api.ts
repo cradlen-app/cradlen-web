@@ -2,6 +2,7 @@ import { apiAuthFetch } from "@/infrastructure/http/api";
 import type { ApiResponse } from "@/common/types/api.types";
 import type {
   AuthorizeServicePayload,
+  AuthorizeServicesPayload,
   BulkPriceListItemsPayload,
   CreatePriceListItemPayload,
   CreatePriceListPayload,
@@ -243,6 +244,18 @@ export function authorizeProviderService(
 ): Promise<ApiResponse<ProviderServiceAuthorization>> {
   return apiAuthFetch<ApiResponse<ProviderServiceAuthorization>>(
     `/organizations/${orgId}/providers/${profileId}/services`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+/** Authorize a provider for multiple services at once (shared branch/duration). */
+export function authorizeProviderServices(
+  orgId: string,
+  profileId: string,
+  payload: AuthorizeServicesPayload,
+): Promise<ApiResponse<ProviderServiceAuthorization[]>> {
+  return apiAuthFetch<ApiResponse<ProviderServiceAuthorization[]>>(
+    `/organizations/${orgId}/providers/${profileId}/services/batch`,
     { method: "POST", body: JSON.stringify(payload) },
   );
 }

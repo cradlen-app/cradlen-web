@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Dialog } from "radix-ui";
 import { X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
+import { MultiSelect } from "@/components/common/MultiSelect";
 import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
 import { useServices } from "../../hooks/useServices";
-import { useAuthorizeService } from "../../hooks/useAuthorizations";
+import { useAuthorizeServices } from "../../hooks/useAuthorizations";
 
 const inputClass = cn(
   "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900",
@@ -32,14 +34,19 @@ export function AuthorizeServiceDrawer({
   const t = useTranslations("financial.authorizations");
   const tCommon = useTranslations("financial.common");
   const { services } = useServices({ active: true });
-  const authorize = useAuthorizeService(profileId);
+  const authorize = useAuthorizeServices(profileId);
 
-  const [serviceId, setServiceId] = useState("");
+  const [serviceIds, setServiceIds] = useState<string[]>([]);
   const [branchId, setBranchId] = useState("");
   const [duration, setDuration] = useState("");
 
+  const serviceOptions = useMemo(
+    () => services.map((s) => ({ value: s.id, label: s.name })),
+    [services],
+  );
+
   function reset() {
-    setServiceId("");
+    setServiceIds([]);
     setBranchId("");
     setDuration("");
   }
@@ -51,16 +58,21 @@ export function AuthorizeServiceDrawer({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!serviceId) return;
+    if (serviceIds.length === 0) return;
     const durationNum = Number(duration);
     authorize.mutate(
       {
-        service_id: serviceId,
+        service_ids: serviceIds,
         branch_id: branchId || undefined,
         duration_minutes:
           duration.trim() !== "" && durationNum > 0 ? durationNum : undefined,
       },
-      { onSuccess: handleClose },
+      {
+        onSuccess: (res) => {
+          toast.success(t("authorizedCount", { count: res.data.length }));
+          handleClose();
+        },
+      },
     );
   }
 
@@ -91,23 +103,17 @@ export function AuthorizeServiceDrawer({
             className="flex flex-1 flex-col overflow-hidden"
           >
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
-              {/* Service */}
+              {/* Services */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-700">
                   {t("fields.service")} <span className="text-red-500">*</span>
                 </label>
-                <select
-                  value={serviceId}
-                  onChange={(e) => setServiceId(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">{t("selectService")}</option>
-                  {services.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
+                <MultiSelect
+                  options={serviceOptions}
+                  value={serviceIds}
+                  onChange={setServiceIds}
+                  placeholder={t("selectServices")}
+                />
               </div>
 
               {/* Branch — optional (empty = all branches) */}
@@ -158,7 +164,7 @@ export function AuthorizeServiceDrawer({
               </Button>
               <Button
                 type="submit"
-                disabled={!serviceId || authorize.isPending}
+                disabled={serviceIds.length === 0 || authorize.isPending}
               >
                 {authorize.isPending ? (
                   <>

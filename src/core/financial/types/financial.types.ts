@@ -193,6 +193,12 @@ export type AuthorizeServicePayload = {
   duration_minutes?: number;
 };
 
+export type AuthorizeServicesPayload = {
+  service_ids: string[];
+  branch_id?: string;
+  duration_minutes?: number;
+};
+
 export type ServiceCategory = {
   id: string;
   organization_id: string | null;
