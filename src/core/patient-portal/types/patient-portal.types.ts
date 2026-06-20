@@ -349,6 +349,89 @@ export interface ActiveJourney {
   clinic?: Clinic;
 }
 
+/** Stepper state for one journey stage, mapped from the backend tri-state. */
+export type JourneyStageStatus = "done" | "current" | "upcoming";
+
+/** One stage of the patient's journey, shaped for the home stepper. */
+export interface PortalJourneyStage {
+  id: string;
+  name: string;
+  order: number;
+  status: JourneyStageStatus;
+}
+
+/**
+ * Pregnancy summary for an OB/GYN journey. GA + EDD are computed server-side, so
+ * the portal only displays them. Every field is nullable — a pregnancy may be
+ * recorded before a dating anchor (ultrasound or LMP) exists.
+ */
+export interface PortalPregnancy {
+  /** Current gestational age in whole weeks, e.g. 12 → "Week 12 of 40". */
+  weeks: number | null;
+  /** Remaining days of the current gestational week (0–6). */
+  days: number | null;
+  /** Estimated due date (ISO), or undefined when no dating anchor. */
+  dueDate?: string;
+  /** Number of fetuses, e.g. 2 for a twin pregnancy. */
+  fetusCount?: number;
+  /** Raw backend type, e.g. "singleton" | "twin" | "multiple". */
+  pregnancyType?: string;
+  /** Free-text fetal sex(es) as recorded, e.g. "Boy & Girl". */
+  fetalSexes?: string;
+  /** Raw backend risk level, e.g. "high". */
+  riskLevel?: string;
+}
+
+/**
+ * The patient's single active journey, backing the home dashboard hero +
+ * stepper. `carePathCode` lets the UI pick a hero variant (pregnancy is the
+ * first concrete one); `pregnancy` is present only for pregnancy care paths.
+ */
+export interface PortalJourney {
+  id: string;
+  /** Care-path discriminator, e.g. "OBGYN_PREGNANCY"; undefined when none. */
+  carePathCode?: string;
+  specialtyCode?: string;
+  /** Care-path display name, e.g. "Pregnancy". */
+  label?: string;
+  status: string;
+  startedAt: string;
+  stages: PortalJourneyStage[];
+  pregnancy?: PortalPregnancy;
+}
+
+/**
+ * One episode of a journey in the Visits-page timeline, carrying its completed
+ * visits (newest first). Mirrors the staff Overview timeline's episode group.
+ */
+export interface PortalJourneyTimelineEpisode {
+  id: string;
+  name: string;
+  order: number;
+  /** ACTIVE | COMPLETED | CANCELLED (raw backend value). */
+  status: string;
+  startedAt: string | null;
+  endedAt: string | null;
+  visits: PortalVisit[];
+}
+
+/**
+ * One journey in the Visits-page timeline: a Journey → Episode → Visit tree that
+ * mirrors the staff visit-workspace history. Paginated by journey.
+ */
+export interface PortalJourneyTimelineEntry {
+  id: string;
+  /** Journey display name, e.g. "Pregnancy". */
+  name: string;
+  /** Journey template type, e.g. "OBGYN_PREGNANCY". */
+  type: string;
+  /** ACTIVE | COMPLETED | CANCELLED (raw backend value). */
+  status: string;
+  startedAt: string;
+  endedAt: string | null;
+  episodes: PortalJourneyTimelineEpisode[];
+}
+
 /** Aggregated "my health" snapshot for a single patient profile. */
 export interface HealthRecord {
   patientId: string;
