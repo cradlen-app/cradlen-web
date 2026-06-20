@@ -153,18 +153,293 @@
     "retry": "Try again"
   },
   "home": {
-    "eyebrowStart": "From the first moment",
-    "eyebrowEnd": "To the last",
-    "title": "A clear timeline for every patient, from the first visit to the last.",
-    "description": "Cradlen helps clinics organize appointments, staff, patient records, and daily follow-up in one calm workflow.",
-    "signIn": "Sign in",
-    "logIn": "Log in",
-    "joinFree": "Join Free Now",
-    "sameStory": "Everyone works on the same story.",
-    "workflow": "One system. Multiple roles. One clear workflow.",
-    "timeline": "Patient timeline",
-    "roles": "Team roles",
-    "records": "Clinical records"
+    "header": {
+      "features": "Features",
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "docs": "Docs",
+      "signIn": "Sign in",
+      "startFree": "Start free",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    },
+    "hero": {
+      "eyebrow": "For clinics, centers & networks",
+      "titlePre": "Care is a",
+      "titleHighlight": "journey",
+      "titlePost": ", not a list of visits.",
+      "description": "Cradlen gives every patient one continuous journey — each visit, examination and prescription connected on a single care path. Open a patient and pick up exactly where you left off, every time.",
+      "ctaPrimary": "Start free",
+      "ctaSecondary": "See how a journey works",
+      "trust1": "Free for 14 days",
+      "trust2": "No credit card",
+      "trust3": "Live in an afternoon",
+      "mediaNextLabel": "Next on the journey",
+      "mediaNextValue": "ANC follow-up · 24 Dec",
+      "patientName": "Sara Ahmed",
+      "patientMeta": "Antenatal care · Ep 2 of 5",
+      "statusActive": "Active",
+      "tri1Title": "1st trimester",
+      "tri1Meta": "2 visits · done",
+      "tri2Title": "2nd trimester",
+      "tri2Meta": "3 visits · now",
+      "tri3Title": "3rd trimester"
+    },
+    "strip": {
+      "item1": "Solo clinics to multi-branch networks",
+      "item2": "Bilingual · Arabic & English, RTL-ready",
+      "item3": "Role-based access for every staff member"
+    },
+    "whyJourneys": {
+      "sectionNo": "02",
+      "eyebrow": "Why journeys",
+      "headingPre": "It's 6 PM. The front desk has a paper file, two browser tabs and a WhatsApp thread open — and ",
+      "headingHighlight": "still can't say",
+      "headingPost": " what happened at Sara's last visit.",
+      "lead": "That's what software built around <b>visits</b> does — every appointment starts from zero. Cradlen is built around <j>journeys</j>, so the story is never lost.",
+      "oldWayLabel": "The visit-based way",
+      "oldWay": [
+        "A new blank chart for every appointment",
+        "Hunting through paper to find last time",
+        "Cash that never reconciles at close",
+        "All-or-nothing access for the whole team"
+      ],
+      "newWayLabel": "The Cradlen journey",
+      "newWay": [
+        "One journey that remembers every visit",
+        "The whole care path, readable at a glance",
+        "Cash sessions, invoices & reports built in",
+        "Permissions per role, per module"
+      ]
+    },
+    "whatsInside": {
+      "sectionNo": "03",
+      "eyebrow": "What's inside",
+      "heading": "Everything the clinic does, connected to the journey.",
+      "journeys": {
+        "title": "Patient journeys & care paths",
+        "description": "A journey groups every visit, examination, prescription and payment into one connected episode of care — built on care-path templates with ordered episodes. Open a patient and follow their whole path, instead of starting from scratch each time.",
+        "tag1": "Care paths",
+        "tag2": "Episodes",
+        "tag3": "Spans every visit",
+        "mockTitle": "Antenatal care · Sara Ahmed",
+        "mockEpisode": "Episode 2 / 5",
+        "step1": "Booking",
+        "step2": "1st tri",
+        "step3": "2nd tri",
+        "step4": "3rd tri",
+        "step5": "Delivery",
+        "mockNote": "3 visits recorded this episode · last 18 Dec"
+      },
+      "calendar": {
+        "title": "Calendar & live queue",
+        "description": "Day, week and queue views with no-show flags and reminders — the front desk always knows who's next.",
+        "row1Time": "09:00",
+        "row1Text": "Mariam K. · Follow-up",
+        "row2Time": "10:30",
+        "row2Text": "Sara A. · In room"
+      },
+      "prescriptions": {
+        "title": "Prescriptions & medicines",
+        "description": "A managed formulary with default doses and usage notes — prescribe in seconds, print a clean script.",
+        "mockTag": "Rx",
+        "mockName": "Amoxicillin 500 mg",
+        "mockDose": "1 tab / 8h · 7 days"
+      },
+      "staff": {
+        "title": "Staff & permissions",
+        "description": "Invite doctors, reception and managers, then set view, create, edit and delete access per module — everyone sees exactly their part of the journey, nothing more.",
+        "colAccess": "Access to",
+        "colView": "View",
+        "colCreate": "Create",
+        "colEdit": "Edit",
+        "colDelete": "Delete",
+        "row1": "Patients",
+        "row2": "Visits",
+        "row3": "Finance"
+      },
+      "cash": {
+        "title": "Cash sessions & finance",
+        "description": "Open and close cash sessions, issue invoices and read reports — the day closes balanced, on its own.",
+        "mockLabel": "Today's cash session",
+        "mockAmount": "EGP 12,400",
+        "mockStatus": "Reconciled"
+      },
+      "exams": {
+        "title": "Examinations & templates",
+        "description": "Structured exam templates per specialty keep clinical work consistent — and every entry lands on the journey.",
+        "tag1": "OB-GYN",
+        "tag2": "Pediatrics",
+        "tag3": "Internal med"
+      }
+    },
+    "testimonial": {
+      "quote": "I stopped flipping through old files. I open the patient's journey and the whole story is right there — what we tried, what worked, and what's next.",
+      "name": "Dr. Ibrahem Abo Deif",
+      "role": "OB-GYN · Cairo",
+      "dropPhoto": "Drop a doctor's photo",
+      "browse": "or browse files"
+    },
+    "patientPortal": {
+      "sectionNo": "04",
+      "eyebrow": "Patient portal",
+      "heading": "Patients follow their own journey.",
+      "description": "The same care path, from the patient's side. They sign in with their national ID and see every upcoming visit, manage their prescriptions, and follow lab tests and imaging — no app to install.",
+      "features": [
+        {
+          "title": "Sign in with national ID",
+          "description": "A 14-digit national ID and password — no new account to create."
+        },
+        {
+          "title": "Manage prescriptions",
+          "description": "Current medications, doses and schedules — always up to date."
+        },
+        {
+          "title": "View lab tests & imaging",
+          "description": "Follow results as they're ready, and upload outside reports to the journey."
+        }
+      ],
+      "phone": {
+        "welcomeBack": "Welcome back",
+        "patientName": "Sara Ahmed",
+        "careTitle": "Antenatal care",
+        "episode": "Ep 2 / 5",
+        "next": "Next: ANC follow-up · 24 Dec, 10:30",
+        "rxLabel": "Prescriptions",
+        "rx1": "Folic acid 5 mg",
+        "rx1Note": "1 tab daily · ongoing",
+        "rx2": "Iron + Vit C",
+        "rx2Note": "1 tab daily · 30 days",
+        "labsLabel": "Lab tests",
+        "lab1": "CBC · Complete blood count",
+        "lab1Note": "18 Dec · result ready",
+        "view": "View",
+        "tabHome": "Home",
+        "tabVisits": "Visits",
+        "tabMeds": "Meds",
+        "tabTests": "Tests",
+        "tabProfile": "Profile"
+      }
+    },
+    "howItWorks": {
+      "sectionNo": "05",
+      "eyebrow": "How it works",
+      "heading": "Live in an afternoon — not a quarter.",
+      "subheading": "No installs, no servers. Open Cradlen in the browser and start the first journey today.",
+      "steps": [
+        {
+          "title": "Create your clinic",
+          "description": "Set up your organization and branches in a few fields."
+        },
+        {
+          "title": "Invite your team",
+          "description": "Add doctors, reception and managers with the right roles."
+        },
+        {
+          "title": "Start the journey",
+          "description": "Book a visit, run the exam, prescribe — all on one path."
+        },
+        {
+          "title": "Track & grow",
+          "description": "Watch finances and outcomes on live dashboards."
+        }
+      ],
+      "docs": {
+        "eyebrow": "Documentation",
+        "heading": "A guide for every role, step by step.",
+        "description": "Onboarding walkthroughs and role playbooks — so reception, doctors and managers each learn just their part of the journey.",
+        "readDocs": "Read the docs",
+        "watchDemo": "Watch a demo"
+      }
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "heading": "From one clinic to a whole network.",
+      "subheadingPre": "Start free for 14 days. ",
+      "subheadingBold": "All plans billed yearly, no credit card.",
+      "popular": "Most popular",
+      "tiers": [
+        {
+          "name": "Free Trial",
+          "price": "Free",
+          "period": "",
+          "note": "14 days, no card",
+          "cta": "Start free",
+          "features": [
+            "1 clinic, 1 branch",
+            "Up to 5 staff",
+            "Full patient journeys"
+          ]
+        },
+        {
+          "name": "Individual Clinic",
+          "price": "8,000 EGP",
+          "period": "/year",
+          "note": "For solo doctors",
+          "cta": "Choose plan",
+          "features": [
+            "1 branch",
+            "Up to 2 staff",
+            "All clinical features",
+            "Cash sessions & invoices"
+          ]
+        },
+        {
+          "name": "Center",
+          "price": "22,000 EGP",
+          "period": "/year",
+          "note": "For growing centers",
+          "cta": "Choose Center",
+          "features": [
+            "1 branch, extra branches as add-ons",
+            "Up to 10 staff",
+            "Analytics dashboards",
+            "Medical Rep CRM"
+          ]
+        },
+        {
+          "name": "Network of Centers",
+          "price": "50,000 EGP",
+          "period": "/year",
+          "note": "For multi-site groups",
+          "cta": "Choose plan",
+          "features": [
+            "Up to 3 branches",
+            "Up to 25 staff",
+            "Priority support & SLA",
+            "Consolidated reporting"
+          ]
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Give every patient a journey worth remembering.",
+      "description": "Set up your clinic, invite your team, and start your first patient journey on Cradlen this afternoon.",
+      "cta": "Start free",
+      "ctaSecondary": "Talk to us"
+    },
+    "footer": {
+      "tagline": "One continuous journey for every patient — from the first visit to the last. The calm operating system for your clinic.",
+      "productLabel": "Product",
+      "companyLabel": "Company",
+      "legalLabel": "Legal",
+      "product": {
+        "features": "Features",
+        "pricing": "Pricing",
+        "howItWorks": "How it works",
+        "documentation": "Documentation"
+      },
+      "company": {
+        "about": "About",
+        "helpCenter": "Help Center",
+        "whyJourneys": "Why journeys"
+      },
+      "legal": {
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+      },
+      "copyright": "© 2026 Cradlen. All rights reserved."
+    }
   },
   "nav": {
     "dashboard": "Dashboard",

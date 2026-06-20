@@ -184,6 +184,12 @@ const PUBLIC_AUTH_PATH_PREFIXES = [
 ];
 
 function isPublicAuthPath(pathWithoutLocale: string) {
+  // The marketing landing page lives at the locale root ("/"). Anonymous
+  // visitors get an expected 401 from the global `/auth/me` probe there, so it
+  // must stay put — authenticated staff are sent to their dashboard separately
+  // by `RedirectIfAuthenticated`, not by this teardown path.
+  if (pathWithoutLocale === "/") return true;
+
   return PUBLIC_AUTH_PATH_PREFIXES.some(
     (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(p + "/"),
   );
