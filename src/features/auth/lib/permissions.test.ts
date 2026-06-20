@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { UserProfile } from "@/common/types/user.types";
 import {
+  canAccessClinicalWorkspace,
   canDriveClinicalVisit,
+  canOpenPatientWorkspace,
   canPracticeSpecialty,
   specialtyMatchesOrg,
 } from "./permissions";
@@ -53,6 +55,44 @@ describe("canDriveClinicalVisit", () => {
 
   it("blocks an undefined profile", () => {
     expect(canDriveClinicalVisit(undefined, "doc-1", "doc-1")).toBe(false);
+  });
+});
+
+const doctorBranchManager = profile({
+  roles: ["BRANCH_MANAGER"],
+  jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
+});
+
+const doctorOwner = profile({
+  roles: ["OWNER"],
+  jobFunctions: [{ code: "DOCTOR", is_clinical: true }],
+});
+
+describe("canAccessClinicalWorkspace (visits + calendar)", () => {
+  it("includes receptionists and clinical staff", () => {
+    expect(canAccessClinicalWorkspace(receptionist)).toBe(true);
+    expect(canAccessClinicalWorkspace(doctor)).toBe(true);
+  });
+
+  it("excludes non-clinical authority (owner / branch manager) but includes them when also a doctor", () => {
+    expect(canAccessClinicalWorkspace(owner)).toBe(false);
+    expect(canAccessClinicalWorkspace(branchManager)).toBe(false);
+    expect(canAccessClinicalWorkspace(doctorOwner)).toBe(true);
+    expect(canAccessClinicalWorkspace(doctorBranchManager)).toBe(true);
+  });
+});
+
+describe("canOpenPatientWorkspace (patient detail)", () => {
+  it("includes any clinician, regardless of authority tier", () => {
+    expect(canOpenPatientWorkspace(doctor)).toBe(true);
+    expect(canOpenPatientWorkspace(doctorOwner)).toBe(true);
+    expect(canOpenPatientWorkspace(doctorBranchManager)).toBe(true);
+  });
+
+  it("excludes non-clinical owners, branch managers, and receptionists (table only)", () => {
+    expect(canOpenPatientWorkspace(owner)).toBe(false);
+    expect(canOpenPatientWorkspace(branchManager)).toBe(false);
+    expect(canOpenPatientWorkspace(receptionist)).toBe(false);
   });
 });
 

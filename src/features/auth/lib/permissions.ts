@@ -122,9 +122,16 @@ export function canPracticeSpecialty(profile?: UserProfile): boolean {
   return isClinical(profile) && specialtyMatchesOrg(profile);
 }
 
-/** Who may open the read-only patient workspace: owners, branch managers, and doctors. */
+/**
+ * Who may open the patient detail workspace (clinical history): any clinician.
+ * Authority (owner / branch manager) does *not* by itself grant access to a
+ * patient's clinical record — an owner or branch manager qualifies only when
+ * they also hold a clinical (doctor) job function. A non-clinical owner or
+ * branch manager sees the patients *table* but not an individual patient's
+ * clinical record.
+ */
 export function canOpenPatientWorkspace(profile?: UserProfile): boolean {
-  return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);
+  return isClinical(profile);
 }
 
 /** Who may edit a patient's demographics/profile: owners and branch managers. */
@@ -211,9 +218,11 @@ export function canSearchPatients(profile?: UserProfile): boolean {
 }
 
 /**
- * The visit / calendar / patient operational surfaces — every staff member
- * except the back-office accountant, whose workspace is the financial section
- * only. Gates the previously-ungated shell nav items (and their routes).
+ * Operational surfaces shared across roles (the Patients directory/table) —
+ * every staff member except the back-office accountant. A non-clinical branch
+ * manager keeps the patient *list* here but not the clinical visit/calendar
+ * workspace (see `canAccessClinicalWorkspace`) nor the patient *detail* page
+ * (see `canOpenPatientWorkspace`).
  */
 export function canAccessOperations(profile?: UserProfile): boolean {
   return (
@@ -224,9 +233,25 @@ export function canAccessOperations(profile?: UserProfile): boolean {
   );
 }
 
-/** Billing access — front-desk, accountants, and owners can view and manage invoices/payments. */
+/**
+ * The live clinical workspace — the visits queue and calendar. The front-desk
+ * receptionist (who books/checks-in) and clinical staff. Authority alone does
+ * not grant it: an owner or branch manager qualifies only through a clinical
+ * (doctor) job function. A non-clinical owner or branch manager is intentionally
+ * excluded — they manage the practice but don't run the clinical queue.
+ */
+export function canAccessClinicalWorkspace(profile?: UserProfile): boolean {
+  return isReceptionist(profile) || isClinical(profile);
+}
+
+/** Billing access — front-desk, accountants, branch managers, and owners can view and manage invoices/payments. */
 export function canAccessBilling(profile?: UserProfile): boolean {
-  return isOwner(profile) || isReceptionist(profile) || isAccountant(profile);
+  return (
+    isOwner(profile) ||
+    isBranchManager(profile) ||
+    isReceptionist(profile) ||
+    isAccountant(profile)
+  );
 }
 
 /** Billing admin — only owners can manage price lists, services, and org-level pricing config. */

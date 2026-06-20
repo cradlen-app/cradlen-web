@@ -1,5 +1,5 @@
 import { STAFF_ROLE } from "./auth.constants";
-import { isAccountant, isDoctor, isOwner, isReceptionist } from "./permissions";
+import { isAccountant, isBranchManager, isDoctor, isOwner, isReceptionist } from "./permissions";
 import type { CurrentUser, UserProfile, UserRole, UserSpecialty } from "@/common/types/user.types";
 import { useAuthContextStore } from "../store/authContextStore";
 
@@ -40,6 +40,7 @@ export function normalizeRoleName(name?: string | null): UserRole {
 
   if (normalized === STAFF_ROLE.OWNER) return STAFF_ROLE.OWNER;
   if (normalized === STAFF_ROLE.DOCTOR) return STAFF_ROLE.DOCTOR;
+  if (normalized === "branch_manager") return "branch_manager";
   if (normalized === STAFF_ROLE.RECEPTION || normalized === "receptionist") {
     return STAFF_ROLE.RECEPTION;
   }
@@ -95,6 +96,7 @@ export function getProfileRoles(profile?: UserProfile): UserRole[] {
 export function getProfilePrimaryRole(profile?: UserProfile): UserRole {
   if (!profile) return STAFF_ROLE.UNKNOWN;
   if (isOwner(profile)) return STAFF_ROLE.OWNER;
+  if (isBranchManager(profile)) return "branch_manager";
   if (isDoctor(profile)) return STAFF_ROLE.DOCTOR;
   if (isReceptionist(profile)) return STAFF_ROLE.RECEPTION;
   if (isAccountant(profile)) return "accountant";

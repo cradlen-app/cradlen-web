@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import type { NavItem } from "@/common/kernel-contracts";
+import { PERMISSIONS } from "@/common/kernel-contracts";
 
 /**
  * Transitional "shell" nav — the top-level operational surfaces that haven't
@@ -27,7 +28,7 @@ export const shellNav: readonly NavItem[] = [
     path: "",
     labelKey: "nav.dashboard",
     icon: LayoutDashboard,
-    requiresPermission: "dashboard.home",
+    requiresPermission: PERMISSIONS.dashboardHome,
     order: 10,
   },
   {
@@ -35,7 +36,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/visits",
     labelKey: "nav.visits",
     icon: ClipboardList,
-    requiresPermission: "operations.view",
+    requiresPermission: PERMISSIONS.clinicalWorkspaceView,
     order: 20,
   },
   {
@@ -43,7 +44,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/calendar",
     labelKey: "nav.calendar",
     icon: Calendar,
-    requiresPermission: "operations.view",
+    requiresPermission: PERMISSIONS.clinicalWorkspaceView,
     order: 30,
   },
   {
@@ -51,7 +52,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/patients",
     labelKey: "nav.patients",
     icon: Users,
-    requiresPermission: "operations.view",
+    requiresPermission: PERMISSIONS.operationsView,
     order: 40,
   },
   {
@@ -59,7 +60,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/medicine",
     labelKey: "nav.medicine",
     icon: Pill,
-    requiresPermission: "medicine.read",
+    requiresPermission: PERMISSIONS.medicineRead,
     order: 60,
   },
   {
@@ -67,7 +68,7 @@ export const shellNav: readonly NavItem[] = [
     path: "/medical-rep",
     labelKey: "nav.medicalRep",
     icon: Briefcase,
-    requiresPermission: "medicalRep.view",
+    requiresPermission: PERMISSIONS.medicalRepView,
     order: 70,
   },
 ];
