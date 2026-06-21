@@ -164,11 +164,11 @@
       "closeMenu": "Close menu"
     },
     "hero": {
-      "eyebrow": "For clinics, centers & networks",
+      "eyebrow": "Built for OB-GYN & women's health clinics",
       "titlePre": "Care is a",
       "titleHighlight": "journey",
       "titlePost": ", not a list of visits.",
-      "description": "Cradlen gives every patient one continuous journey — each visit, examination and prescription connected on a single care path. Open a patient and pick up exactly where you left off, every time.",
+      "description": "Cradlen turns women's health care into one continuous journey — every visit, examination and prescription on a single, unified medical record. From the first antenatal visit to delivery, open a patient and pick up exactly where you left off.",
       "ctaPrimary": "Start free",
       "ctaSecondary": "See how a journey works",
       "trust1": "Free for 14 days",
@@ -215,7 +215,7 @@
     "whatsInside": {
       "sectionNo": "03",
       "eyebrow": "What's inside",
-      "heading": "Everything the clinic does, connected to the journey.",
+      "heading": "One unified record, connected to the journey.",
       "journeys": {
         "title": "Patient journeys & care paths",
         "description": "A journey groups every visit, examination, prescription and payment into one connected episode of care — built on care-path templates with ordered episodes. Open a patient and follow their whole path, instead of starting from scratch each time.",
@@ -246,17 +246,21 @@
         "mockName": "Amoxicillin 500 mg",
         "mockDose": "1 tab / 8h · 7 days"
       },
-      "staff": {
-        "title": "Staff & permissions",
-        "description": "Invite doctors, reception and managers, then set view, create, edit and delete access per module — everyone sees exactly their part of the journey, nothing more.",
-        "colAccess": "Access to",
-        "colView": "View",
-        "colCreate": "Create",
-        "colEdit": "Edit",
-        "colDelete": "Delete",
-        "row1": "Patients",
-        "row2": "Visits",
-        "row3": "Finance"
+      "medicalHistory": {
+        "title": "Unified medical history",
+        "description": "One record per patient that follows her across every visit, doctor and branch. Examinations, prescriptions, lab tests, imaging and notes all live in a single, searchable history — no duplicate files, no gaps, no starting over.",
+        "tag1": "One file per patient",
+        "tag2": "Across branches",
+        "tag3": "Fully searchable",
+        "patientName": "Sara Ahmed",
+        "patientMeta": "ID •••• 2841 · 32y · one unified record",
+        "allBranches": "All branches",
+        "row1Label": "Examination · 18 Dec",
+        "row1Branch": "Maadi branch",
+        "row2Label": "Prescription · Iron + Vit C",
+        "row2Branch": "Maadi branch",
+        "row3Label": "Lab · CBC result ready",
+        "row3Branch": "Nasr City branch"
       },
       "cash": {
         "title": "Cash sessions & finance",
@@ -268,9 +272,9 @@
       "exams": {
         "title": "Examinations & templates",
         "description": "Structured exam templates per specialty keep clinical work consistent — and every entry lands on the journey.",
-        "tag1": "OB-GYN",
-        "tag2": "Pediatrics",
-        "tag3": "Internal med"
+        "tag1": "Antenatal",
+        "tag2": "Postnatal",
+        "tag3": "Gynecology"
       }
     },
     "testimonial": {
