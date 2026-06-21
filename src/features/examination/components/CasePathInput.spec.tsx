@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NextIntlClientProvider } from "next-intl";
 import { CasePathInput } from "./CasePathInput";
+import enMessages from "@/messages/en.json";
 import type { FieldInputProps } from "@/builder/fields/input-props";
 import * as carePathsApi from "@/features/care-paths/lib/care-paths.api";
 
@@ -14,7 +16,11 @@ const MOCK_CARE_PATHS = [
 
 function wrapper({ children }: { children: React.ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+  return (
+    <NextIntlClientProvider locale="en" messages={enMessages}>
+      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+    </NextIntlClientProvider>
+  );
 }
 
 function makeProps(value: string | null, onChange = vi.fn()): FieldInputProps {
