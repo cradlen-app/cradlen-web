@@ -1770,6 +1770,27 @@
       "noTemplateBody": "لم يتم نشر نموذج سجل مرضي لتخصص {specialty} حتى الآن."
     }
   },
+  "pregnancy": {
+    "activateTitle": "تشير هذه الزيارة إلى حالة حمل",
+    "activatePrompt": "هل ترغب في إنشاء ملف حمل لهذه المريضة؟",
+    "create": "إنشاء",
+    "notNow": "ليس الآن",
+    "created": "تم إنشاء ملف الحمل",
+    "createError": "تعذّر إنشاء ملف الحمل",
+    "recordDelivery": "تسجيل الولادة",
+    "closeTitle": "تسجيل الولادة وإغلاق ملف الحمل",
+    "closeDescription": "إكمال الحمل يُنهي المسار. لا يمكن التراجع عن ذلك من هنا.",
+    "modeOfDelivery": "طريقة الولادة",
+    "modeVaginal": "طبيعية",
+    "modeCesarean": "قيصرية",
+    "modeAssisted": "بمساعدة",
+    "deliveryDate": "تاريخ الولادة",
+    "notes": "ملاحظات",
+    "cancel": "إلغاء",
+    "closePregnancy": "إغلاق الحمل",
+    "closed": "تم إغلاق الحمل",
+    "closeError": "تعذّر إغلاق الحمل"
+  },
   "examination": {
     "workspace": {
       "save": "حفظ",

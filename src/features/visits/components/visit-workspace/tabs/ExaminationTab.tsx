@@ -17,6 +17,7 @@ import {
 } from "@/features/examination/api/useVisitExamination";
 import { VisitExaminationFormShell } from "@/features/examination/components/VisitExaminationFormShell";
 import { OBGYN_EXAM_CONTAINERS } from "@/features/examination/lib/history-binding";
+import { PregnancyActivationContext } from "@/features/examination/lib/pregnancy-activation-context";
 
 import type { Visit } from "@/features/visits/types/visits.types";
 
@@ -111,26 +112,28 @@ export function ExaminationTab({ visit, readOnly = false }: Props) {
       initialSearchState={initial.searchState}
       initialRepeatableRows={initial.repeatableRows}
     >
-      <VisitExaminationFormShell
-        template={template}
-        patientId={visit.patient.id}
-        specialtyCode={visit.specialtyCode ?? null}
-        readOnly={readOnly}
-        saving={readOnly ? false : patchMut.isPending || dataQuery.isFetching}
-        onSave={async (body) => {
-          // Never invoked in read-only mode (the Save button is not rendered).
-          if (readOnly) return;
-          try {
-            await patchMut.mutateAsync({ body });
-            toast.success(t("saved"));
-          } catch (err) {
-            const message =
-              err instanceof Error ? err.message : t("saveError");
-            toast.error(message);
-            throw err;
-          }
-        }}
-      />
+      <PregnancyActivationContext.Provider value={{ visitId: visit.id }}>
+        <VisitExaminationFormShell
+          template={template}
+          patientId={visit.patient.id}
+          specialtyCode={visit.specialtyCode ?? null}
+          readOnly={readOnly}
+          saving={readOnly ? false : patchMut.isPending || dataQuery.isFetching}
+          onSave={async (body) => {
+            // Never invoked in read-only mode (the Save button is not rendered).
+            if (readOnly) return;
+            try {
+              await patchMut.mutateAsync({ body });
+              toast.success(t("saved"));
+            } catch (err) {
+              const message =
+                err instanceof Error ? err.message : t("saveError");
+              toast.error(message);
+              throw err;
+            }
+          }}
+        />
+      </PregnancyActivationContext.Provider>
     </TemplateExecutionContextProvider>
   );
 }

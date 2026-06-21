@@ -15,7 +15,10 @@ import {
   journeyClinicalKey,
 } from "../lib/useJourneyClinical";
 import { JourneyClinicalFormShell } from "./JourneyClinicalFormShell";
+import { PregnancyCloseAction } from "./PregnancyCloseAction";
 import type { JourneyDescriptorDto } from "../types/journey.types";
+
+const PREGNANCY_CODE = "OBGYN_PREGNANCY";
 
 interface Props {
   visitId: string;
@@ -87,37 +90,48 @@ export function JourneyClinicalTab({ visitId, descriptor }: Props) {
   const initial = toInitialFormState(envelope, template);
 
   return (
-    <TemplateExecutionContextProvider
-      key={envelope.version}
-      template={template}
-      initialFormValues={initial.formValues}
-      initialSearchState={initial.searchState}
-      initialRepeatableRows={initial.repeatableRows}
-    >
-      <JourneyClinicalFormShell
+    <div className="flex h-full min-w-0 flex-col">
+      {descriptor.care_path_code === PREGNANCY_CODE && (
+        <div className="flex items-center justify-end border-b border-gray-100 px-4 py-2">
+          <PregnancyCloseAction
+            visitId={visitId}
+            journeyStatus={descriptor.status}
+          />
+        </div>
+      )}
+      <TemplateExecutionContextProvider
+        key={envelope.version}
         template={template}
-        saving={patchMut.isPending || dataQuery.isFetching}
-        onSave={async (body) => {
-          try {
-            await patchMut.mutateAsync({
-              ifMatchVersion: envelope.version,
-              body,
-            });
-            toast.success(t("saved"));
-          } catch (err) {
-            if (isStaleVersion(err)) {
-              toast.warning(t("staleVersion"));
-              await qc.invalidateQueries({
-                queryKey: journeyClinicalKey(visitId, journeyId),
+        initialFormValues={initial.formValues}
+        initialSearchState={initial.searchState}
+        initialRepeatableRows={initial.repeatableRows}
+      >
+        <JourneyClinicalFormShell
+          template={template}
+          saving={patchMut.isPending || dataQuery.isFetching}
+          onSave={async (body) => {
+            try {
+              await patchMut.mutateAsync({
+                ifMatchVersion: envelope.version,
+                body,
               });
-              return;
+              toast.success(t("saved"));
+            } catch (err) {
+              if (isStaleVersion(err)) {
+                toast.warning(t("staleVersion"));
+                await qc.invalidateQueries({
+                  queryKey: journeyClinicalKey(visitId, journeyId),
+                });
+                return;
+              }
+              const message =
+                err instanceof Error ? err.message : t("saveError");
+              toast.error(message);
+              throw err;
             }
-            const message = err instanceof Error ? err.message : t("saveError");
-            toast.error(message);
-            throw err;
-          }
-        }}
-      />
-    </TemplateExecutionContextProvider>
+          }}
+        />
+      </TemplateExecutionContextProvider>
+    </div>
   );
 }
