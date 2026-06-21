@@ -1,10 +1,12 @@
 import {
+  Activity,
   CalendarCheck,
   CalendarDays,
   Check,
+  FilePlus,
+  FlaskConical,
   GitBranch,
   Pill,
-  ShieldCheck,
   Stethoscope,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -41,17 +43,10 @@ export default async function WhatsInside() {
     { label: t("journeys.step5"), state: "todo" },
   ] as const;
 
-  // view / create / edit / delete per row
-  const matrix: Array<{ label: string; cells: boolean[] }> = [
-    { label: t("staff.row1"), cells: [true, true, true, false] },
-    { label: t("staff.row2"), cells: [true, true, false, false] },
-    { label: t("staff.row3"), cells: [true, false, false, false] },
-  ];
-  const matrixCols = [
-    t("staff.colView"),
-    t("staff.colCreate"),
-    t("staff.colEdit"),
-    t("staff.colDelete"),
+  const records = [
+    { icon: Activity, label: t("medicalHistory.row1Label"), branch: t("medicalHistory.row1Branch") },
+    { icon: Pill, label: t("medicalHistory.row2Label"), branch: t("medicalHistory.row2Branch") },
+    { icon: FlaskConical, label: t("medicalHistory.row3Label"), branch: t("medicalHistory.row3Branch") },
   ];
 
   return (
@@ -191,54 +186,60 @@ export default async function WhatsInside() {
             </div>
           </div>
 
-          {/* Staff & permissions */}
+          {/* Unified medical history */}
           <div className={cn(cardBase, "grid gap-8 lg:grid-cols-2 lg:items-center")}>
             <div>
-              <IconBadge icon={ShieldCheck} />
+              <IconBadge icon={FilePlus} />
               <h3 className="mt-5 text-xl font-semibold text-brand-black sm:text-2xl">
-                {t("staff.title")}
+                {t("medicalHistory.title")}
               </h3>
               <p className="mt-3 max-w-md text-sm leading-6 text-brand-black/60 sm:text-base">
-                {t("staff.description")}
+                {t("medicalHistory.description")}
               </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Tag>{t("medicalHistory.tag1")}</Tag>
+                <Tag>{t("medicalHistory.tag2")}</Tag>
+                <Tag>{t("medicalHistory.tag3")}</Tag>
+              </div>
             </div>
 
-            {/* Permissions matrix mock */}
-            <div className="overflow-hidden rounded-2xl bg-[#F7F7F1] p-2 ring-1 ring-black/[0.04]">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="text-[10px] font-semibold uppercase tracking-wider text-brand-black/40">
-                    <th className="px-3 py-2.5 text-start font-semibold">
-                      {t("staff.colAccess")}
-                    </th>
-                    {matrixCols.map((col) => (
-                      <th key={col} className="px-2 py-2.5 text-center font-semibold">
-                        {col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {matrix.map((row) => (
-                    <tr key={row.label} className="border-t border-black/5">
-                      <td className="px-3 py-3 text-sm font-medium text-brand-black/75">
-                        {row.label}
-                      </td>
-                      {row.cells.map((on, i) => (
-                        <td key={i} className="px-2 py-3 text-center">
-                          <span className="inline-flex">
-                            {on ? (
-                              <span className="size-2.5 rounded-full bg-brand-primary" />
-                            ) : (
-                              <span className="size-2.5 rounded-full border border-black/15" />
-                            )}
-                          </span>
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Unified patient record mock */}
+            <div className="rounded-2xl bg-[#F7F7F1] p-5 ring-1 ring-black/[0.04]">
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-secondary/40 text-sm font-semibold text-brand-primary">
+                  SA
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-brand-black">
+                    {t("medicalHistory.patientName")}
+                  </span>
+                  <span className="block truncate text-xs text-brand-black/50">
+                    {t("medicalHistory.patientMeta")}
+                  </span>
+                </span>
+                <span className="shrink-0 rounded-full bg-brand-secondary/25 px-2.5 py-1 text-[11px] font-medium text-brand-primary">
+                  {t("medicalHistory.allBranches")}
+                </span>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {records.map((record) => (
+                  <div
+                    key={record.label}
+                    className="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5 ring-1 ring-black/[0.04]"
+                  >
+                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-secondary/20 text-brand-primary">
+                      <record.icon className="size-4" />
+                    </span>
+                    <span className="flex-1 truncate text-sm font-medium text-brand-black/75">
+                      {record.label}
+                    </span>
+                    <span className="shrink-0 text-xs text-brand-black/45">
+                      {record.branch}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
