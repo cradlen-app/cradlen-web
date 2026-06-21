@@ -1,17 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { FieldShell } from "@/builder/fields/field-shell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { useCarePaths } from "@/features/care-paths/lib/useCarePaths";
+import { activatePregnancy } from "@/features/journeys/lib/pregnancy.api";
+import { usePregnancyActivationContext } from "@/features/examination/lib/pregnancy-activation-context";
 import type { FieldInputProps } from "@/builder/fields/input-props";
 
-// Only GENERAL_GYN has a full profile implementation today.
-// Remove a code from this set when its profile tab is built.
-const IMPLEMENTED_PATHS = new Set(["OBGYN_GENERAL"]);
+const PREGNANCY_CODE = "OBGYN_PREGNANCY";
+
+// Care paths with a full profile implementation. OBGYN_PREGNANCY routes through
+// the activation drawer (creates the profile + reveals the Pregnancy tab); the
+// rest still surface the inert "coming soon" notice. Add a code here when its
+// profile tab is built.
+const IMPLEMENTED_PATHS = new Set(["OBGYN_GENERAL", PREGNANCY_CODE]);
 
 export function CasePathInput({
   field,
@@ -28,17 +37,49 @@ export function CasePathInput({
       : undefined;
 
   const { data: carePaths = [], isLoading, isError } = useCarePaths(specialtyCode);
+  const tPreg = useTranslations("pregnancy");
+  const pregnancyCtx = usePregnancyActivationContext();
+  const qc = useQueryClient();
 
   const current = (value as string | null | undefined) ?? "OBGYN_GENERAL";
   const [pending, setPending] = useState<string | null>(null);
+  const [pendingPregnancy, setPendingPregnancy] = useState(false);
+  const [activating, setActivating] = useState(false);
 
   const handleClick = (code: string) => {
     if (code === current || disabled) return;
+    // Pregnancy goes through the activation drawer (creates the profile +
+    // reveals the Pregnancy tab). Without a visit in scope, fall back to the
+    // inert "coming soon" notice rather than silently setting the care path.
+    if (code === PREGNANCY_CODE) {
+      if (pregnancyCtx) setPendingPregnancy(true);
+      else setPending(code);
+      return;
+    }
     if (!IMPLEMENTED_PATHS.has(code)) {
       setPending(code);
       return;
     }
     onChange(code);
+  };
+
+  const handleCreatePregnancy = async () => {
+    if (!pregnancyCtx) return;
+    setActivating(true);
+    try {
+      await activatePregnancy(pregnancyCtx.visitId);
+      onChange(PREGNANCY_CODE);
+      await qc.invalidateQueries({
+        queryKey: ["visit-journey", pregnancyCtx.visitId],
+      });
+      toast.success(tPreg("created"));
+      setPendingPregnancy(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : tPreg("createError");
+      toast.error(message);
+    } finally {
+      setActivating(false);
+    }
   };
 
   const pendingName = pending
@@ -107,6 +148,46 @@ export function CasePathInput({
                   Close
                 </Button>
               </Dialog.Close>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      <Dialog.Root
+        open={pendingPregnancy}
+        onOpenChange={(open) => {
+          if (!open && !activating) setPendingPregnancy(false);
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
+            <Dialog.Title className="flex items-center gap-2 text-sm font-medium text-teal-600">
+              {"\u{1F514}"} {tPreg("activateTitle")}
+            </Dialog.Title>
+            <Dialog.Description className="mt-2 text-sm text-gray-600">
+              {tPreg("activatePrompt")}
+            </Dialog.Description>
+            <div className="mt-5 flex justify-center gap-3">
+              <Button
+                size="sm"
+                className="bg-brand-primary"
+                disabled={activating}
+                onClick={handleCreatePregnancy}
+              >
+                {activating ? (
+                  <Loader2 size={14} className="mr-1 animate-spin" />
+                ) : null}
+                {tPreg("create")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={activating}
+                onClick={() => setPendingPregnancy(false)}
+              >
+                {tPreg("notNow")}
+              </Button>
             </div>
           </Dialog.Content>
         </Dialog.Portal>

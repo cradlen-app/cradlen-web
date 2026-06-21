@@ -1770,6 +1770,27 @@
       "noTemplateBody": "No patient-history form is published for the {specialty} specialty yet."
     }
   },
+  "pregnancy": {
+    "activateTitle": "This visit indicates a pregnancy case",
+    "activatePrompt": "Would you like to create a pregnancy profile for this patient?",
+    "create": "Create",
+    "notNow": "Not Now",
+    "created": "Pregnancy profile created",
+    "createError": "Failed to create the pregnancy profile",
+    "recordDelivery": "Record delivery",
+    "closeTitle": "Record delivery & close pregnancy",
+    "closeDescription": "Completing the pregnancy ends the journey. This can't be undone from here.",
+    "modeOfDelivery": "Mode of delivery",
+    "modeVaginal": "Vaginal",
+    "modeCesarean": "Cesarean",
+    "modeAssisted": "Assisted",
+    "deliveryDate": "Delivery date",
+    "notes": "Notes",
+    "cancel": "Cancel",
+    "closePregnancy": "Close pregnancy",
+    "closed": "Pregnancy closed",
+    "closeError": "Failed to close the pregnancy"
+  },
   "examination": {
     "workspace": {
       "save": "Save",
