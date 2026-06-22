@@ -1466,6 +1466,18 @@
         "provisional": "Provisional",
         "outcome": "Outcome"
       },
+      "pregnancyTimeline": {
+        "lmp": "LMP",
+        "edd": "EDD",
+        "trimester1": "Trimester 1",
+        "trimester2": "Trimester 2",
+        "trimester3": "Trimester 3",
+        "weekOf": "Week {week} of {total}",
+        "weeksToGo": "{count, plural, one {# week to go} other {# weeks to go}}",
+        "twins": "expecting twins",
+        "triplets": "expecting triplets",
+        "multiples": "expecting multiples"
+      },
       "rail": {
         "redFlags": {
           "title": "Red Flags",
