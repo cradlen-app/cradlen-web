@@ -11,7 +11,9 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import type {
   ApiInvestigationReview,
+  ApiPatientAttachmentItem,
   InvestigationReview,
+  PatientAttachmentGroup,
   SubmitInvestigationReviewInput,
 } from "../types/investigation-review.types";
 
@@ -64,4 +66,36 @@ export async function submitInvestigationReview({
     { method: "PATCH", body: JSON.stringify({ notes }) },
   );
   return toReview(res.data);
+}
+
+function toAttachmentGroup(
+  api: ApiPatientAttachmentItem,
+): PatientAttachmentGroup {
+  return {
+    id: api.id,
+    testName: api.test_name,
+    typeLabel: typeLabel(api.type),
+    status: api.status,
+    orderedAt: api.ordered_at,
+    visitId: api.visit_id,
+    attachments: api.result_attachments.map((a) => ({
+      id: a.id,
+      url: a.url,
+      contentType: a.content_type ?? undefined,
+    })),
+  };
+}
+
+/**
+ * Lists the patient's investigations that carry result files, for the visit
+ * workspace Overview "Attachments" section. Backend returns a paginated
+ * `{ data, meta }`; we request a generous page and surface `data`.
+ */
+export async function fetchPatientAttachments(
+  patientId: string,
+): Promise<PatientAttachmentGroup[]> {
+  const res = await apiAuthFetch<{ data: ApiPatientAttachmentItem[] }>(
+    `/investigations?patient_id=${encodeURIComponent(patientId)}&limit=100`,
+  );
+  return res.data.map(toAttachmentGroup);
 }

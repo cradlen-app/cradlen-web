@@ -67,3 +67,30 @@ export interface ApiInvestigationReview {
   doctor_notes: string | null;
   result_attachments: ApiInvestigationAttachment[];
 }
+
+// --- Patient attachments list (Overview tab) ----------------------------------
+
+/** Backend wire shape — mirrors `InvestigationAttachmentsItemDto`. */
+export interface ApiPatientAttachmentItem {
+  id: string;
+  test_name: string;
+  type: "LAB" | "IMAGING" | "OTHER" | null;
+  status: InvestigationStatus;
+  ordered_at: string;
+  visit_id: string;
+  visit_date: string;
+  result_attachments: ApiInvestigationAttachment[];
+}
+
+/** One investigation (with its files) in the Overview attachments section. */
+export interface PatientAttachmentGroup {
+  /** Investigation id — opens the review drawer. */
+  id: string;
+  testName: string;
+  typeLabel: string;
+  status: InvestigationStatus;
+  /** ISO order date. */
+  orderedAt: string;
+  visitId: string;
+  attachments: InvestigationAttachment[];
+}
