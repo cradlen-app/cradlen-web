@@ -1443,6 +1443,19 @@
         "mammography": "تصوير الثدي",
         "notDone": "لم يُجرَ"
       },
+      "currentJourney": {
+        "title": "الرحلة الحالية",
+        "statusActive": "نشطة",
+        "statusEnded": "منتهية",
+        "ga": "عمر الحمل",
+        "edd": "تاريخ الولادة المتوقع",
+        "risk": "الخطورة",
+        "fetuses": "عدد الأجنة",
+        "bloodGroup": "فصيلة الدم",
+        "complaint": "الشكوى الرئيسية",
+        "provisional": "تشخيص مبدئي",
+        "outcome": "النتيجة"
+      },
       "rail": {
         "redFlags": {
           "title": "تحذيرات",

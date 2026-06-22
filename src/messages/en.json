@@ -1443,6 +1443,19 @@
         "mammography": "Mammography",
         "notDone": "Not done"
       },
+      "currentJourney": {
+        "title": "Current Journey",
+        "statusActive": "Active",
+        "statusEnded": "Ended",
+        "ga": "GA",
+        "edd": "EDD",
+        "risk": "Risk",
+        "fetuses": "Fetuses",
+        "bloodGroup": "Blood group",
+        "complaint": "Chief complaint",
+        "provisional": "Provisional",
+        "outcome": "Outcome"
+      },
       "rail": {
         "redFlags": {
           "title": "Red Flags",
