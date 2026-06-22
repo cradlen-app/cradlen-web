@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,9 +27,28 @@ export function JourneyClinicalFormShell({ template, onSave, saving }: Props) {
     undefined,
   );
 
+  // Sections flagged `config.ui.readOnly` (e.g. the pregnancy Summary) render
+  // read-only AND are excluded from submission — their fields mirror the
+  // editable sections, which own the writes.
+  const readOnlySectionCodes = useMemo(
+    () =>
+      new Set(
+        template.sections
+          .filter(
+            (s) =>
+              (s.config?.ui as { readOnly?: boolean } | undefined)?.readOnly ===
+              true,
+          )
+          .map((s) => s.code),
+      ),
+    [template.sections],
+  );
+
   async function handleSave() {
     setErrors(undefined);
-    const body = buildTemplateSubmission(template, execution.state);
+    const body = buildTemplateSubmission(template, execution.state, {
+      excludeSectionCodes: readOnlySectionCodes,
+    });
     try {
       await onSave(body);
     } catch (err) {
@@ -60,7 +79,11 @@ export function JourneyClinicalFormShell({ template, onSave, saving }: Props) {
   return (
     <div className="flex h-full min-w-0 flex-col overflow-x-hidden">
       <div className="min-w-0 flex-1 overflow-y-auto px-1 pb-24">
-        <TemplateRenderer template={template} errors={errors} />
+        <TemplateRenderer
+          template={template}
+          errors={errors}
+          readOnlySectionCodes={readOnlySectionCodes}
+        />
       </div>
       <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
         <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
