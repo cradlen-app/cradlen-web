@@ -1142,6 +1142,15 @@
       "CANCELLED": "ملغى"
     }
   },
+  "patientAttachments": {
+    "title": "المرفقات والنتائج",
+    "status": {
+      "ORDERED": "مطلوب",
+      "RESULTED": "قيد الانتظار",
+      "REVIEWED": "تمت المراجعة",
+      "CANCELLED": "ملغى"
+    }
+  },
   "notifications": {
     "title": "الإشعارات",
     "markAllRead": "تحديد الكل كمقروء",

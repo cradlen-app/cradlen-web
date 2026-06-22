@@ -106,6 +106,9 @@ export const queryKeys = {
     /** Broad key — matches all investigation queries. */
     all: () => ["investigations"] as const,
     review: (id: string) => ["investigations", "review", id] as const,
+    /** Patient's investigations that carry result files (Overview attachments). */
+    patientAttachments: (patientId: string) =>
+      ["investigations", "patient-attachments", patientId] as const,
   },
 
   // ── Calendar ──────────────────────────────────────────────────────────────
