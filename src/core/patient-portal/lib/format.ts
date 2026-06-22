@@ -11,6 +11,25 @@ export function formatDate(iso: string | undefined, locale: string): string {
   }).format(d);
 }
 
+/**
+ * Split a date for the timeline date rail: "14 Jun" over "2026". Falls back to
+ * the raw string (in `dayMonth`) when the input can't be parsed.
+ */
+export function formatDateParts(
+  iso: string | undefined,
+  locale: string,
+): { dayMonth: string; year: string } {
+  if (!iso) return { dayMonth: "—", year: "" };
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return { dayMonth: iso, year: "" };
+  const dayMonth = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+  }).format(d);
+  const year = new Intl.DateTimeFormat(locale, { year: "numeric" }).format(d);
+  return { dayMonth, year };
+}
+
 export function formatDayMonth(
   iso: string | undefined,
   locale: string,
