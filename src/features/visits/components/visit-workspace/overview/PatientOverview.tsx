@@ -6,7 +6,6 @@ import { VisitsHistoryList } from "./VisitsHistoryList";
 import { ObgynHistorySummaryCard } from "./ObgynHistorySummaryCard";
 import { CurrentJourneySummaryCard } from "./CurrentJourneySummaryCard";
 import { PatientAttachmentsCard } from "./PatientAttachmentsCard";
-import { PregnancyTimeline } from "./PregnancyTimeline";
 
 type Props = {
   patientId: string;
@@ -42,7 +41,6 @@ export function PatientOverview({
           <PatientAttachmentsCard patientId={patientId} />
         </div>
         <div className="flex h-full flex-col gap-6 divide-y divide-gray-100 overflow-y-auto p-5">
-          {isObgyn && <PregnancyTimeline patientId={patientId} />}
           {isObgyn && (
             <ObgynHistorySummaryCard
               patientId={patientId}
