@@ -123,9 +123,12 @@ export function FieldRenderer({ field, error, displayOnly = false }: Props) {
     return null;
   }
 
-  // Read-only render — EXCEPT COMPUTED fields, which keep ComputedInput so
-  // their live derivation still runs (e.g. GA/EDD in the read-only Summary).
-  if (displayOnly && field.type !== "COMPUTED") {
+  // Read-only render — EXCEPT COMPUTED fields (keep ComputedInput so live
+  // derivation runs, e.g. GA/EDD) and fields whose custom variant manages its
+  // own interactivity (e.g. the pregnancy status select that opens the close
+  // drawer even inside the read-only Summary).
+  const selfManaged = field.config?.ui?.variant === "pregnancy-status";
+  if (displayOnly && field.type !== "COMPUTED" && !selfManaged) {
     const span = resolveColSpan(field);
     return (
       <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>

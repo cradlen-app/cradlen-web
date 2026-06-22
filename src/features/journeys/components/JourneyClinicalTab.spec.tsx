@@ -86,7 +86,7 @@ describe("JourneyClinicalTab", () => {
     expect(screen.getByDisplayValue("hello")).toBeInTheDocument();
   });
 
-  it("saves with If-Match version and the flattened body", async () => {
+  it("saves the flattened body (last-write-wins, no If-Match)", async () => {
     const spy = vi.spyOn(journeyClinicalApi, "patchJourneyClinical");
     render(<JourneyClinicalTab visitId="v1" descriptor={DESCRIPTOR} />, {
       wrapper,
@@ -99,7 +99,6 @@ describe("JourneyClinicalTab", () => {
       expect(spy).toHaveBeenCalledWith({
         visitId: "v1",
         journeyId: "j1",
-        ifMatchVersion: 3,
         body: { notes: "hello" },
       }),
     );

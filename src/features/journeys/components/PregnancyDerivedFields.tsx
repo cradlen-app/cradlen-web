@@ -19,9 +19,12 @@ const MULTIPLE_TYPES = new Set(["TWINS", "TRIPLETS", "HIGHER_ORDER"]);
  * doctor's explicit choice is never overridden. Renders nothing.
  */
 export function PregnancyDerivedFields() {
-  const { state, setFieldValue } = useTemplateExecution();
+  const { state, setFieldValue, getRepeatableRows, addRepeatableRow } =
+    useTemplateExecution();
   const pregnancyType = state.formValues.pregnancy_type as string | undefined;
+  const numberOfFetuses = state.formValues.number_of_fetuses;
 
+  // pregnancy_type → number_of_fetuses + risk nudge.
   useEffect(() => {
     if (!pregnancyType) return;
 
@@ -43,6 +46,16 @@ export function PregnancyDerivedFields() {
     // Fire only when the type changes; reads current count/risk from closure.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pregnancyType]);
+
+  // number_of_fetuses → open that many fetus rows. Add empties up to N; never
+  // remove (so typed biometrics are never lost when N shrinks).
+  useEffect(() => {
+    const n = Number.parseInt(String(numberOfFetuses ?? ""), 10);
+    if (!Number.isFinite(n) || n < 1) return;
+    const current = getRepeatableRows("fetuses").length;
+    for (let i = current; i < n; i += 1) addRepeatableRow("fetuses");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numberOfFetuses]);
 
   return null;
 }

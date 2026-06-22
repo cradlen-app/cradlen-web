@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
@@ -12,11 +12,10 @@ import { toInitialFormState } from "@/builder/templates/initial-values";
 import {
   useJourneyClinical,
   usePatchJourneyClinical,
-  journeyClinicalKey,
 } from "../lib/useJourneyClinical";
 import { JourneyClinicalFormShell } from "./JourneyClinicalFormShell";
-import { PregnancyStatusControl } from "./PregnancyStatusControl";
 import { PregnancyDerivedFields } from "./PregnancyDerivedFields";
+import { JourneyClinicalContext } from "../lib/journey-clinical-context";
 import type { JourneyDescriptorDto } from "../types/journey.types";
 
 const PREGNANCY_CODE = "OBGYN_PREGNANCY";
@@ -30,25 +29,14 @@ function isNotFound(err: unknown): boolean {
   return err instanceof ApiError && err.status === 404;
 }
 
-function isStaleVersion(err: unknown): boolean {
-  if (!(err instanceof ApiError)) return false;
-  if (err.status === 412) return true;
-  if (err.status === 409) {
-    const body = err.body as { error?: { code?: string } } | undefined;
-    return body?.error?.code === "STALE_VERSION";
-  }
-  return false;
-}
-
 /**
  * Generic clinical surface for the visit's active journey (e.g. pregnancy
- * profile + per-visit surveillance). Template-driven, with its own `version`
- * optimistic-lock token independent of `examination_version`. Dormant until a
- * care path declares a surface and the backend serves its endpoints.
+ * profile + per-visit surveillance). Template-driven. Last-write-wins on save
+ * (no If-Match), like the Examination tab; `version` is just the remount/cache
+ * token. Dormant until a care path declares a surface.
  */
 export function JourneyClinicalTab({ visitId, descriptor }: Props) {
   const t = useTranslations("examination.workspace");
-  const qc = useQueryClient();
   const surface = descriptor.clinical_surface;
   const journeyId = descriptor.journey_id;
 
@@ -91,15 +79,7 @@ export function JourneyClinicalTab({ visitId, descriptor }: Props) {
   const initial = toInitialFormState(envelope, template);
 
   return (
-    <div className="flex h-full min-w-0 flex-col">
-      {descriptor.care_path_code === PREGNANCY_CODE && (
-        <div className="flex items-center justify-end border-b border-gray-100 px-4 py-2">
-          <PregnancyStatusControl
-            visitId={visitId}
-            journeyStatus={descriptor.status}
-          />
-        </div>
-      )}
+    <JourneyClinicalContext.Provider value={{ visitId }}>
       <TemplateExecutionContextProvider
         key={envelope.version}
         template={template}
@@ -115,19 +95,9 @@ export function JourneyClinicalTab({ visitId, descriptor }: Props) {
           saving={patchMut.isPending || dataQuery.isFetching}
           onSave={async (body) => {
             try {
-              await patchMut.mutateAsync({
-                ifMatchVersion: envelope.version,
-                body,
-              });
+              await patchMut.mutateAsync({ body });
               toast.success(t("saved"));
             } catch (err) {
-              if (isStaleVersion(err)) {
-                toast.warning(t("staleVersion"));
-                await qc.invalidateQueries({
-                  queryKey: journeyClinicalKey(visitId, journeyId),
-                });
-                return;
-              }
               const message =
                 err instanceof Error ? err.message : t("saveError");
               toast.error(message);
@@ -136,6 +106,6 @@ export function JourneyClinicalTab({ visitId, descriptor }: Props) {
           }}
         />
       </TemplateExecutionContextProvider>
-    </div>
+    </JourneyClinicalContext.Provider>
   );
 }
