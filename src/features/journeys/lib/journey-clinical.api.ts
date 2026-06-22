@@ -20,7 +20,6 @@ export interface JourneyClinicalEnvelope {
 export interface PatchJourneyClinicalArgs {
   visitId: string;
   journeyId: string;
-  ifMatchVersion: number;
   body: Record<string, unknown>;
 }
 
@@ -43,15 +42,11 @@ export function getJourneyClinical(
 export function patchJourneyClinical({
   visitId,
   journeyId,
-  ifMatchVersion,
   body,
 }: PatchJourneyClinicalArgs): Promise<{ data: JourneyClinicalEnvelope }> {
+  // Last-write-wins (no If-Match), like the Examination tab.
   return apiAuthFetch<{ data: JourneyClinicalEnvelope }>(
     path(visitId, journeyId),
-    {
-      method: "PATCH",
-      headers: { "If-Match": `version:${ifMatchVersion}` },
-      body: JSON.stringify(body),
-    },
+    { method: "PATCH", body: JSON.stringify(body) },
   );
 }

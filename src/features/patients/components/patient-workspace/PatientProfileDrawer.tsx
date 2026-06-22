@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
 import { toast } from "sonner";
@@ -45,11 +45,24 @@ function ProfileForm({
   const [dateOfBirth, setDateOfBirth] = useState(toDateInput(patient.date_of_birth));
   const [phone, setPhone] = useState(patient.phone_number ?? "");
   const [address, setAddress] = useState(patient.address ?? "");
+  // National ID is a sensitive, globally-unique identity key. It stays locked
+  // until the user explicitly confirms an intent to correct it.
+  const [nationalId, setNationalId] = useState(patient.national_id ?? "");
+  const [idConfirming, setIdConfirming] = useState(false);
+  const [idUnlocked, setIdUnlocked] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!fullName.trim()) {
       toast.error(t("fullNameRequired"));
+      return;
+    }
+    // Only correct the national id when the user unlocked it AND actually
+    // changed it. Validate the digits/length the backend enforces.
+    const trimmedId = nationalId.trim();
+    const idChanged = idUnlocked && trimmedId !== (patient.national_id ?? "");
+    if (idChanged && !/^[0-9]{8,20}$/.test(trimmedId)) {
+      toast.error(t("nationalIdInvalid"));
       return;
     }
     try {
@@ -60,6 +73,7 @@ function ProfileForm({
           ...(dateOfBirth ? { date_of_birth: dateOfBirth } : {}),
           phone_number: phone.trim(),
           address: address.trim(),
+          ...(idChanged ? { national_id: trimmedId } : {}),
         },
       });
       toast.success(t("success"));
@@ -98,16 +112,61 @@ function ProfileForm({
             />
           </label>
 
-          <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-gray-500">{t("nationalId")}</span>
+          <div className="block space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-gray-500">{t("nationalId")}</span>
+              {!idUnlocked && !idConfirming && (
+                <button
+                  type="button"
+                  onClick={() => setIdConfirming(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-primary hover:underline"
+                >
+                  <Pencil className="size-3" aria-hidden="true" />
+                  {t("nationalIdEdit")}
+                </button>
+              )}
+            </div>
             <input
-              className={cn(inputClass, "cursor-not-allowed bg-gray-50 text-gray-400")}
-              value={patient.national_id ?? ""}
-              readOnly
-              disabled
+              className={cn(
+                inputClass,
+                !idUnlocked && "cursor-not-allowed bg-gray-50 text-gray-400",
+              )}
+              value={nationalId}
+              onChange={(e) => setNationalId(e.target.value)}
+              readOnly={!idUnlocked}
+              disabled={!idUnlocked}
+              inputMode="numeric"
             />
-            <span className="text-[11px] text-gray-400">{t("nationalIdReadonly")}</span>
-          </label>
+            {idConfirming ? (
+              <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5">
+                <p className="text-[11px] leading-relaxed text-amber-700">
+                  {t("nationalIdEditWarning")}
+                </p>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIdConfirming(false)}
+                  >
+                    {t("nationalIdEditCancel")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setIdConfirming(false);
+                      setIdUnlocked(true);
+                    }}
+                  >
+                    {t("nationalIdEditConfirm")}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <span className="text-[11px] text-gray-400">{t("nationalIdReadonly")}</span>
+            )}
+          </div>
 
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-gray-500">{t("dateOfBirth")}</span>

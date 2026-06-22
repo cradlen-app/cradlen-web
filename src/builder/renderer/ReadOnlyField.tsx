@@ -35,7 +35,11 @@ interface Props {
 }
 
 export function ReadOnlyField({ field }: Props) {
-  const value = useFieldValue(field.code);
+  // `mirrorOf` makes a read-only field reflect another (editable) field's LIVE
+  // value — used by the pregnancy Summary to mirror the Journey/Visit inputs.
+  const mirrorOf = (field.config?.ui as { mirrorOf?: string } | undefined)
+    ?.mirrorOf;
+  const value = useFieldValue(mirrorOf ?? field.code);
   return (
     <FieldShell label={field.label}>
       <p className="min-h-9 whitespace-pre-wrap py-2 text-xs text-brand-black">
