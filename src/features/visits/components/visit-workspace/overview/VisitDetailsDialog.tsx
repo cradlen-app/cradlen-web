@@ -3,6 +3,9 @@
 import { Loader2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Dialog } from "radix-ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useVisitJourney } from "@/features/journeys/lib/useVisitJourney";
+import { JourneyClinicalTab } from "@/features/journeys/components/JourneyClinicalTab";
 import { useVisit } from "../../../hooks/useVisit";
 import { ExaminationTab } from "../tabs/ExaminationTab";
 
@@ -40,6 +43,9 @@ function DialogBody({ visitId }: { visitId: string }) {
   const locale = useLocale();
   const visitQuery = useVisit(visitId);
   const visit = visitQuery.data ?? null;
+  const journeyQuery = useVisitJourney(visitId);
+  const descriptor = journeyQuery.data ?? null;
+  const surface = descriptor?.clinical_surface ?? null;
 
   const dateLabel = formatDate(
     visit?.completedAt ?? visit?.scheduledAt ?? visit?.createdAt,
@@ -86,6 +92,34 @@ function DialogBody({ visitId }: { visitId: string }) {
             <div className="flex flex-1 items-center justify-center py-12 text-xs text-red-500">
               {tExam("loadError")}
             </div>
+          ) : surface && descriptor ? (
+            <Tabs
+              defaultValue="examination"
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <TabsList className="shrink-0">
+                <TabsTrigger value="examination">
+                  {t("examinationTab")}
+                </TabsTrigger>
+                <TabsTrigger value="journey">{surface.label}</TabsTrigger>
+              </TabsList>
+              <TabsContent
+                value="examination"
+                className="mt-3 min-h-0 flex-1 overflow-y-auto"
+              >
+                <ExaminationTab visit={visit} readOnly />
+              </TabsContent>
+              <TabsContent
+                value="journey"
+                className="mt-3 min-h-0 flex-1 overflow-y-auto"
+              >
+                <JourneyClinicalTab
+                  visitId={visit.id}
+                  descriptor={descriptor}
+                  readOnly
+                />
+              </TabsContent>
+            </Tabs>
           ) : (
             <ExaminationTab visit={visit} readOnly />
           )}

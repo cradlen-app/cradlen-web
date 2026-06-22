@@ -1404,6 +1404,7 @@
         "empty": "لا توجد زيارات سابقة.",
         "visitDetails": "تفاصيل الزيارة",
         "detailsTitle": "تفاصيل الزيارة",
+        "examinationTab": "الفحص",
         "diagnosis": "التشخيص",
         "medications": "الأدوية",
         "investigations": "الفحوصات",
@@ -1849,7 +1850,22 @@
       "versionLabel": "نسخة {version}",
       "addRow": "+ إضافة صف",
       "removeRow": "إزالة",
-      "completeVisit": "إنهاء الزيارة"
+      "completeVisit": "إنهاء الزيارة",
+      "investigationsTitle": "الفحوصات",
+      "invNone": "لا توجد فحوصات مطلوبة.",
+      "invUnnamed": "فحص بدون اسم",
+      "invResult": "النتيجة",
+      "invNoResult": "لا توجد نتيجة بعد",
+      "invNotes": "ملاحظات",
+      "invLab": "المعمل",
+      "invFilesLabel": "ملفات",
+      "invFiles": "{count} ملف",
+      "invStatus": {
+        "ORDERED": "مطلوب",
+        "RESULTED": "صدرت النتيجة",
+        "REVIEWED": "تمت المراجعة",
+        "CANCELLED": "ملغاة"
+      }
     }
   },
   "medications": {

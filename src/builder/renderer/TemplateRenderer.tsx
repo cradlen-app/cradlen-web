@@ -154,6 +154,7 @@ export function TemplateRenderer({
                         section={section}
                         errors={errors}
                         displayOnly={sectionReadOnly}
+                        hardReadOnly={displayOnly}
                       />
                     ) : (
                       section.fields
@@ -166,6 +167,7 @@ export function TemplateRenderer({
                             field={field}
                             error={errors?.[field.code]}
                             displayOnly={sectionReadOnly}
+                            hardReadOnly={displayOnly}
                           />
                         ))
                     )}

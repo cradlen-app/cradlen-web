@@ -10,6 +10,8 @@ interface Props {
   errors?: Record<string, string>;
   /** Render rows as static text — no add/remove, no auto-append empty row. */
   displayOnly?: boolean;
+  /** The whole template is a frozen snapshot (forwarded to each field). */
+  hardReadOnly?: boolean;
 }
 
 function isEmptyValue(value: unknown): boolean {
@@ -42,6 +44,7 @@ export function RepeatableSectionRenderer({
   section,
   errors,
   displayOnly = false,
+  hardReadOnly = false,
 }: Props) {
   const { getRepeatableRows, addRepeatableRow, removeRepeatableRow } =
     useTemplateExecution();
@@ -117,6 +120,7 @@ export function RepeatableSectionRenderer({
                   key={field.id}
                   field={field}
                   displayOnly={displayOnly}
+                  hardReadOnly={hardReadOnly}
                   error={errors?.[`${section.code}.${idx}.${field.code}`]}
                 />
               ))}
