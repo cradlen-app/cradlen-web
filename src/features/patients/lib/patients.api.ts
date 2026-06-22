@@ -17,9 +17,15 @@ export type UpdatePatientRequest = {
   phone_number?: string;
   address?: string;
   marital_status?: ApiPatient["marital_status"];
+  /**
+   * Identity-key correction (fix a wrong national id). Restricted server-side
+   * to org managers (owner / branch manager); globally unique → a collision
+   * returns 409. Omit unless the user explicitly unlocked and changed it.
+   */
+  national_id?: string;
 };
 
-/** PATCH /patients/:id — edit global demographics (national_id is immutable). */
+/** PATCH /patients/:id — edit global demographics; national_id is manager-only. */
 export function updatePatient(id: string, data: UpdatePatientRequest) {
   return apiAuthFetch<{ data: ApiPatient }>(`/patients/${id}`, {
     method: "PATCH",

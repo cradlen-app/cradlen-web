@@ -7,6 +7,7 @@ import { FieldShell } from "../field-shell";
 import { useDynamicOptions } from "../../runtime/useDynamicOptions";
 import { useDefaultValue } from "../../runtime/useDefaultValue";
 import { CasePathInput } from "@/features/examination/components/CasePathInput";
+import { PregnancyStatusInput } from "@/features/journeys/components/PregnancyStatusInput";
 import type { FieldInputProps } from "../input-props";
 import type { FieldOption } from "../../templates/template.types";
 
@@ -258,6 +259,8 @@ function DropdownSelect({ field, value, onChange, required, disabled, error, fla
 export function SelectInput(props: FieldInputProps) {
   const variant = props.field.config?.ui?.variant as string | undefined;
   if (variant === "case-path") return <CasePathInput {...props} />;
+  if (variant === "pregnancy-status")
+    return <PregnancyStatusInput {...props} />;
   if (variant === "segmented") return <SegmentedSelect {...props} />;
   return <DropdownSelect {...props} />;
 }

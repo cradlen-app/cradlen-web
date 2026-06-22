@@ -7,13 +7,10 @@ import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { FieldShell } from "@/builder/fields/field-shell";
+import type { FieldInputProps } from "@/builder/fields/input-props";
 import { closePregnancy, type PregnancyOutcomeType } from "../lib/pregnancy.api";
-
-interface Props {
-  visitId: string;
-  /** Pregnancy lifecycle status from the descriptor (ACTIVE while ongoing). */
-  journeyStatus: string;
-}
+import { useJourneyClinicalContext } from "../lib/journey-clinical-context";
 
 const OUTCOME_TYPES: PregnancyOutcomeType[] = [
   "LIVE_BIRTH",
@@ -25,20 +22,21 @@ const OUTCOME_TYPES: PregnancyOutcomeType[] = [
   "LOST_TO_FOLLOWUP",
   "OTHER",
 ];
-
 const DELIVERY_MODES = ["VAGINAL", "CESAREAN", "ASSISTED"] as const;
 
 /**
- * Pregnancy status control in the tab header. Status is a SELECT; choosing
- * "Closed" opens the outcome drawer (works with or without a delivery) which
- * calls `POST /pregnancy/close` and completes the journey. Once closed, the
- * select is disabled. Replaces the old standalone "record delivery" button.
+ * Editable pregnancy status, rendered inside the read-only Summary (custom
+ * builder input, `config.ui.variant='pregnancy-status'`). The field value is the
+ * current status (ACTIVE/CLOSED). Choosing "Closed" opens the outcome drawer and
+ * calls `POST /pregnancy/close`; once closed the select is disabled. visitId
+ * comes from `JourneyClinicalContext`.
  */
-export function PregnancyStatusControl({ visitId, journeyStatus }: Props) {
+export function PregnancyStatusInput({ field, value, required }: FieldInputProps) {
   const t = useTranslations("pregnancy");
+  const ctx = useJourneyClinicalContext();
   const qc = useQueryClient();
-  const isActive = journeyStatus === "ACTIVE";
 
+  const isActive = (value ?? "ACTIVE") === "ACTIVE";
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [outcomeType, setOutcomeType] =
@@ -48,21 +46,21 @@ export function PregnancyStatusControl({ visitId, journeyStatus }: Props) {
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
 
-  function onStatusChange(value: string) {
-    if (value === "CLOSED" && isActive) setOpen(true);
+  function onStatusChange(next: string) {
+    if (next === "CLOSED" && isActive && ctx) setOpen(true);
   }
 
   async function handleConfirm() {
+    if (!ctx) return;
     setClosing(true);
     try {
-      await closePregnancy(visitId, {
+      await closePregnancy(ctx.visitId, {
         outcome_type: outcomeType,
-        delivery_mode:
-          outcomeType === "LIVE_BIRTH" ? deliveryMode : undefined,
+        delivery_mode: outcomeType === "LIVE_BIRTH" ? deliveryMode : undefined,
         date: date || undefined,
         notes: notes || undefined,
       });
-      await qc.invalidateQueries({ queryKey: ["visit-journey", visitId] });
+      await qc.invalidateQueries({ queryKey: ["visit-journey", ctx.visitId] });
       toast.success(t("closed"));
       setOpen(false);
     } catch (err) {
@@ -73,12 +71,11 @@ export function PregnancyStatusControl({ visitId, journeyStatus }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-gray-500">{t("statusLabel")}</span>
+    <FieldShell label={field.label} required={required}>
       <select
-        className="rounded border border-gray-200 px-2 py-1 text-xs"
+        className="w-full rounded border-b border-gray-200 bg-transparent py-2 text-xs text-brand-black focus:outline-none"
         value={isActive ? "ACTIVE" : "CLOSED"}
-        disabled={!isActive || closing}
+        disabled={!isActive || closing || !ctx}
         onChange={(e) => onStatusChange(e.target.value)}
       >
         <option value="ACTIVE">{t("statusActive")}</option>
@@ -88,7 +85,6 @@ export function PregnancyStatusControl({ visitId, journeyStatus }: Props) {
       <Dialog.Root
         open={open}
         onOpenChange={(next) => {
-          // Closing the drawer without confirming reverts to Active (no write).
           if (!closing) setOpen(next);
         }}
       >
@@ -182,6 +178,6 @@ export function PregnancyStatusControl({ visitId, journeyStatus }: Props) {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-    </div>
+    </FieldShell>
   );
 }
