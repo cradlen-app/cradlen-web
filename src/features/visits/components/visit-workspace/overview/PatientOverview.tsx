@@ -6,6 +6,7 @@ import { VisitsHistoryList } from "./VisitsHistoryList";
 import { ObgynHistorySummaryCard } from "./ObgynHistorySummaryCard";
 import { CurrentJourneySummaryCard } from "./CurrentJourneySummaryCard";
 import { PatientAttachmentsCard } from "./PatientAttachmentsCard";
+import { PregnancyTimeline } from "./PregnancyTimeline";
 
 type Props = {
   patientId: string;
@@ -33,11 +34,15 @@ export function PatientOverview({
   return (
     <section className="h-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       <div className="grid h-full grid-cols-1 md:grid-cols-[320px_minmax(0,1fr)] md:divide-x md:divide-gray-100 rtl:md:divide-x-reverse">
-        <PatientSummaryCard
-          patientId={patientId}
-          fallbackFullName={fallbackFullName}
-        />
+        <div className="flex h-full flex-col gap-4 overflow-y-auto p-3">
+          <PatientSummaryCard
+            patientId={patientId}
+            fallbackFullName={fallbackFullName}
+          />
+          <PatientAttachmentsCard patientId={patientId} />
+        </div>
         <div className="flex h-full flex-col gap-6 divide-y divide-gray-100 overflow-y-auto p-5">
+          {isObgyn && <PregnancyTimeline patientId={patientId} />}
           {isObgyn && (
             <ObgynHistorySummaryCard
               patientId={patientId}
@@ -45,7 +50,6 @@ export function PatientOverview({
             />
           )}
           {isObgyn && <CurrentJourneySummaryCard patientId={patientId} />}
-          <PatientAttachmentsCard patientId={patientId} />
           <VisitsHistoryList
             patientId={patientId}
             excludeVisitId={excludeVisitId}

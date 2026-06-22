@@ -1466,6 +1466,18 @@
         "provisional": "تشخيص مبدئي",
         "outcome": "النتيجة"
       },
+      "pregnancyTimeline": {
+        "lmp": "آخر دورة",
+        "edd": "موعد الولادة",
+        "trimester1": "الثلث الأول",
+        "trimester2": "الثلث الثاني",
+        "trimester3": "الثلث الثالث",
+        "weekOf": "الأسبوع {week} من {total}",
+        "weeksToGo": "{count, plural, zero {باقٍ # أسبوع} one {باقٍ أسبوع} two {باقٍ أسبوعان} few {باقٍ # أسابيع} many {باقٍ # أسبوعًا} other {باقٍ # أسبوع}}",
+        "twins": "توأم متوقع",
+        "triplets": "ثلاثة توائم متوقعة",
+        "multiples": "حمل متعدد"
+      },
       "rail": {
         "redFlags": {
           "title": "تحذيرات",
