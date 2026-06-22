@@ -144,7 +144,9 @@ export function FieldRenderer({
   // only template) both render as static text from the server-hydrated value.
   const keepComputedLive = field.type === "COMPUTED" && !hardReadOnly;
   const keepStatusInteractive =
-    field.config?.ui?.variant === "pregnancy-status" && !hardReadOnly;
+    (field.config?.ui?.variant === "pregnancy-status" ||
+      field.config?.ui?.variant === "surgical-status") &&
+    !hardReadOnly;
   if (displayOnly && !keepComputedLive && !keepStatusInteractive) {
     const span = resolveColSpan(field);
     return (
