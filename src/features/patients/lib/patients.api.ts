@@ -16,6 +16,7 @@ export type UpdatePatientRequest = {
   date_of_birth?: string; // ISO date (yyyy-mm-dd)
   phone_number?: string;
   address?: string;
+  marital_status?: ApiPatient["marital_status"];
 };
 
 /** PATCH /patients/:id — edit global demographics (national_id is immutable). */

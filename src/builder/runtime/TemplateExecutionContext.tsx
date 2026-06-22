@@ -240,8 +240,13 @@ export function TemplateExecutionContextProvider({
           ns[field.code] = namespace;
           if (namespace === "SYSTEM") sys.add(field.code);
           const se = field.config?.ui?.searchEntity;
-          if (se?.lockFilled && se.fillFields) {
-            for (const targetCode of Object.keys(se.fillFields)) {
+          if (se?.fillFields) {
+            // `lockFilledFields` (when present) narrows the lock to specific
+            // targets; otherwise `lockFilled: true` locks every filled sibling.
+            const lockTargets =
+              se.lockFilledFields ??
+              (se.lockFilled ? Object.keys(se.fillFields) : []);
+            for (const targetCode of lockTargets) {
               lockMap[targetCode] = field.code;
             }
           }
