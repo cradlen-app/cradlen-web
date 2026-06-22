@@ -1142,6 +1142,15 @@
       "CANCELLED": "Cancelled"
     }
   },
+  "patientAttachments": {
+    "title": "Attachments & results",
+    "status": {
+      "ORDERED": "Ordered",
+      "RESULTED": "Pending",
+      "REVIEWED": "Reviewed",
+      "CANCELLED": "Cancelled"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all as read",

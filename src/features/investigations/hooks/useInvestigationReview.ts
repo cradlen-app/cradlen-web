@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { queryKeys } from "@/lib/queryKeys";
 import {
   fetchInvestigationReview,
+  fetchPatientAttachments,
   submitInvestigationReview,
 } from "../data/investigation-review.api";
 import type { SubmitInvestigationReviewInput } from "../types/investigation-review.types";
@@ -17,6 +18,18 @@ export function useInvestigationReview(id: string | null) {
     queryKey: queryKeys.investigations.review(id ?? "none"),
     queryFn: () => fetchInvestigationReview(id as string),
     enabled: Boolean(id),
+  });
+}
+
+/**
+ * Lists the patient's investigations that carry result files (lab/imaging),
+ * for the visit-workspace Overview "Attachments" section.
+ */
+export function usePatientAttachments(patientId: string) {
+  return useQuery({
+    queryKey: queryKeys.investigations.patientAttachments(patientId),
+    queryFn: () => fetchPatientAttachments(patientId),
+    enabled: Boolean(patientId),
   });
 }
 
