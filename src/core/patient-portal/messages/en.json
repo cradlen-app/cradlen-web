@@ -119,6 +119,10 @@
       "normal": "Normal",
       "urgent": "Urgent",
       "emergency": "Emergency"
+    },
+    "status": {
+      "normal": "Normal",
+      "abnormal": "Abnormal"
     }
   },
   "medications": {
@@ -216,6 +220,10 @@
     "followUp": "Follow-up",
     "journeyStarted": "Started {date}",
     "episodeStarted": "Started {date}",
+    "ongoing": "Ongoing",
+    "completedOn": "Completed {date}",
+    "episodesCount": "{count, plural, one {# episode} other {# episodes}}",
+    "visitsCount": "{count, plural, one {# visit} other {# visits}}",
     "episode": "Case {order}",
     "noEpisodes": "No episodes yet",
     "noVisitsInEpisode": "No visits in this episode yet",

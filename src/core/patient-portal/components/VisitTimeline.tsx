@@ -4,15 +4,32 @@ import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { cn } from "@/common/utils/utils";
-import { formatDate } from "../lib/format";
+import { formatDate, formatDateParts } from "../lib/format";
 import type { PortalVisit, VisitPriority } from "../types/patient-portal.types";
 import { ClinicTag, EmptyState } from "./portal-ui";
 
-const PRIORITY_DOT: Record<VisitPriority, string> = {
-  normal: "bg-emerald-500",
-  urgent: "bg-amber-500",
-  emergency: "bg-red-500",
-};
+/** A visit is "abnormal" when its priority is anything other than normal. */
+function isAbnormal(priority: VisitPriority) {
+  return priority !== "normal";
+}
+
+/** Green "Normal" / amber "Abnormal" pill derived from the visit priority. */
+function StatusPill({ priority }: { priority: VisitPriority }) {
+  const t = useTranslations("patientPortal");
+  const abnormal = isAbnormal(priority);
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+      <span
+        className={cn(
+          "size-1.5 rounded-full",
+          abnormal ? "bg-amber-500" : "bg-emerald-500",
+        )}
+        aria-hidden="true"
+      />
+      {t(abnormal ? "record.status.abnormal" : "record.status.normal")}
+    </span>
+  );
+}
 
 /**
  * One row of the visit timeline: a left date rail with a connector line and a
@@ -51,7 +68,9 @@ export function TimelineItem({
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="mt-3">
-      <h4 className="text-xs font-semibold text-brand-primary">{title}</h4>
+      <h4 className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+        {title}
+      </h4>
       <div className="mt-1 space-y-0.5">{children}</div>
     </div>
   );
@@ -60,44 +79,19 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 /**
  * A single completed-visit card body (without the timeline rail). Shared by the
  * date-rail history timeline (`VisitTimeline`) and the Journey → Episode → Visit
- * timeline (`JourneyTimeline`). The latter has no date rail, so it passes
- * `showDate` to surface the visit date inside the card header.
+ * timeline (`JourneyTimeline`), both via {@link VisitRow}, which supplies the
+ * date rail and status dot.
  */
-export function VisitCard({
-  visit,
-  showDate = false,
-}: {
-  visit: PortalVisit;
-  showDate?: boolean;
-}) {
+export function VisitCard({ visit }: { visit: PortalVisit }) {
   const t = useTranslations("patientPortal");
-  const locale = useLocale();
   const priority = visit.priority ?? "normal";
   return (
     <article className="rounded-xl border border-gray-100 p-4">
       <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-        <div className="flex items-center gap-2">
-          {showDate && (
-            <>
-              <span className="text-xs font-medium text-gray-700">
-                {formatDate(visit.date, locale)}
-              </span>
-              <span className="text-gray-400">·</span>
-            </>
-          )}
-          <span className="text-xs font-medium text-gray-700">
-            {t(`record.typeLabel.${visit.type ?? "VISIT"}`)}
-          </span>
-        </div>
-        <div>
-          <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
-            <span
-              className={cn("size-1.5 rounded-full", PRIORITY_DOT[priority])}
-              aria-hidden="true"
-            />
-            {t(`record.priority.${priority}`)}
-          </span>
-        </div>
+        <span className="text-xs font-medium text-gray-700">
+          {t(`record.typeLabel.${visit.type ?? "VISIT"}`)}
+        </span>
+        <StatusPill priority={priority} />
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-gray-500">
             {visit.doctorName} · {visit.specialty}
@@ -108,7 +102,7 @@ export function VisitCard({
 
       {visit.diagnosis && (
         <Section title={t("record.diagnosis")}>
-          <p className="text-xs text-gray-700">{visit.diagnosis}</p>
+          <p className="text-xs text-brand-primary">{visit.diagnosis}</p>
         </Section>
       )}
 
@@ -116,7 +110,7 @@ export function VisitCard({
         <Section title={t("record.medications")}>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {visit.medications.map((m) => (
-              <span key={m} className="text-xs text-gray-700">
+              <span key={m} className="text-xs text-brand-primary">
                 {m}
               </span>
             ))}
@@ -127,13 +121,57 @@ export function VisitCard({
       {visit.investigations && visit.investigations.length > 0 && (
         <Section title={t("record.investigations")}>
           {visit.investigations.map((inv) => (
-            <p key={inv} className="text-xs text-gray-700">
+            <p key={inv} className="text-xs text-brand-primary">
               {inv}
             </p>
           ))}
         </Section>
       )}
     </article>
+  );
+}
+
+/**
+ * One completed-visit row: a left date rail ("14 Jun" over "2026") with a
+ * status-colored node and connector line, and the {@link VisitCard} on the
+ * right. Shared by the flat history timeline and the journey timeline so visits
+ * read identically in both.
+ */
+export function VisitRow({
+  visit,
+  isLast,
+}: {
+  visit: PortalVisit;
+  isLast: boolean;
+}) {
+  const locale = useLocale();
+  const { dayMonth, year } = formatDateParts(visit.date, locale);
+  const abnormal = isAbnormal(visit.priority ?? "normal");
+  return (
+    <li className="flex items-stretch gap-2">
+      <div className="flex w-14 flex-none flex-col items-end pt-1.5 text-end sm:w-16">
+        <span className="text-xs font-semibold text-gray-700">{dayMonth}</span>
+        <span className="text-[11px] text-gray-400">{year}</span>
+      </div>
+      <div className="relative flex w-3 flex-none justify-center pt-2.5">
+        {!isLast && (
+          <span
+            className="absolute inset-y-0 start-1/2 w-px -translate-x-1/2 bg-gray-200"
+            aria-hidden="true"
+          />
+        )}
+        <span
+          className={cn(
+            "relative z-10 size-2.5 rounded-full ring-4 ring-white",
+            abnormal ? "bg-amber-500" : "bg-emerald-500",
+          )}
+          aria-hidden="true"
+        />
+      </div>
+      <div className={cn("flex-1", isLast ? "" : "pb-5")}>
+        <VisitCard visit={visit} />
+      </div>
+    </li>
   );
 }
 
@@ -221,13 +259,11 @@ export function VisitTimeline({
           </li>
         ) : (
           entries.map((visit, index) => (
-            <TimelineItem
+            <VisitRow
               key={visit.id}
-              date={visit.date}
+              visit={visit}
               isLast={index === entries.length - 1 && !hasMore}
-            >
-              <VisitCard visit={visit} />
-            </TimelineItem>
+            />
           ))
         )}
       </ol>

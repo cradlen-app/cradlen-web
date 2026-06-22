@@ -22,15 +22,32 @@ type Props = {
   excludeVisitId: string;
 };
 
+function localeFor(locale: string) {
+  return locale.startsWith("en") ? "en-GB" : locale;
+}
+
 function formatDate(iso: string, locale: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  const formatLocale = locale.startsWith("en") ? "en-GB" : locale;
-  return new Intl.DateTimeFormat(formatLocale, {
+  return new Intl.DateTimeFormat(localeFor(locale), {
     day: "2-digit",
     month: "short",
     year: "numeric",
   }).format(d);
+}
+
+/** Split a date for the visit date rail: "14 Jun" over "2026". */
+function formatDateParts(iso: string, locale: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return { dayMonth: iso, year: "" };
+  const fl = localeFor(locale);
+  return {
+    dayMonth: new Intl.DateTimeFormat(fl, {
+      day: "2-digit",
+      month: "short",
+    }).format(d),
+    year: new Intl.DateTimeFormat(fl, { year: "numeric" }).format(d),
+  };
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -38,6 +55,12 @@ const STATUS_DOT: Record<string, string> = {
   COMPLETED: "bg-gray-400",
   CANCELLED: "bg-red-500",
 };
+
+/** Marker + connector primitives shared by the timeline rail. */
+const RAIL_LINE =
+  "pointer-events-none absolute inset-y-0 start-[10px] w-px bg-gray-200";
+const MARKER_SLOT =
+  "relative z-10 flex size-[21px] flex-none items-center justify-center";
 
 /** Seed the default expanded state: active (or newest) journey + its latest episode. */
 function computeDefaults(journeys: ApiJourneyTimelineEntry[]) {
@@ -63,7 +86,9 @@ function Section({
 }) {
   return (
     <div className="mt-3">
-      <h4 className="text-xs font-semibold text-brand-primary">{title}</h4>
+      <h4 className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+        {title}
+      </h4>
       <div className="mt-1 space-y-0.5">{children}</div>
     </div>
   );
@@ -89,77 +114,92 @@ function VisitCard({
   entry,
   locale,
   onView,
+  isLast,
 }: {
   entry: ApiVisitHistoryEntry;
   locale: string;
   onView: () => void;
+  isLast: boolean;
 }) {
   const t = useTranslations("visits.workspace.history");
   const medications = entry.medications.map((m) => `${m.name} ${m.dose}`);
   const diagnoses = entry.diagnosis ? [entry.diagnosis] : [];
+  const { dayMonth, year } = formatDateParts(entry.completed_at, locale);
 
   return (
-    <li>
-      <article className="rounded-xl border border-gray-100 p-4">
-        <header className="flex flex-wrap items-center justify-between gap-2">
-          <span className="flex items-center gap-2 text-xs">
-            <span className="font-medium text-gray-700">
-              {formatDate(entry.completed_at, locale)}
-            </span>
-            <span className="text-gray-400">·</span>
-            <span className="text-gray-600">
+    <li className="flex items-stretch gap-2">
+      <div className="flex w-14 flex-none flex-col items-end pt-1.5 text-end sm:w-16">
+        <span className="text-xs font-semibold text-gray-700">{dayMonth}</span>
+        <span className="text-[11px] text-gray-400">{year}</span>
+      </div>
+      <div className="relative flex w-3 flex-none justify-center pt-2.5">
+        {!isLast && (
+          <span
+            className="absolute inset-y-0 start-1/2 w-px -translate-x-1/2 bg-gray-200"
+            aria-hidden="true"
+          />
+        )}
+        <span
+          className="relative z-10 size-2.5 rounded-full bg-emerald-500 ring-4 ring-white"
+          aria-hidden="true"
+        />
+      </div>
+      <div className={cn("flex-1", isLast ? "" : "pb-5")}>
+        <article className="rounded-xl border border-gray-100 p-4">
+          <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+            <span className="text-xs font-medium text-gray-700">
               {t(`typeLabel.${entry.appointment_type}`)}
             </span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
-            <span
-              className="size-1.5 rounded-full bg-emerald-500"
-              aria-hidden="true"
-            />
-            {t("statusNormal")}
-          </span>
-          <button
-            type="button"
-            onClick={onView}
-            className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-primary/80"
-          >
-            <Eye className="size-3.5" aria-hidden="true" />
-            {t("visitDetails")}
-          </button>
-        </header>
+            <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+              <span
+                className="size-1.5 rounded-full bg-emerald-500"
+                aria-hidden="true"
+              />
+              {t("statusNormal")}
+            </span>
+            <button
+              type="button"
+              onClick={onView}
+              className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-primary/80"
+            >
+              <Eye className="size-3.5" aria-hidden="true" />
+              {t("visitDetails")}
+            </button>
+          </header>
 
-        {diagnoses.length > 0 && (
-          <Section title={t("diagnosis")}>
-            {diagnoses.map((d) => (
-              <p key={d} className="text-xs text-gray-700">
-                {d}
-              </p>
-            ))}
-          </Section>
-        )}
-
-        {medications.length > 0 && (
-          <Section title={t("medications")}>
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
-              {medications.map((m) => (
-                <span key={m} className="text-xs text-gray-700">
-                  {m}
-                </span>
+          {diagnoses.length > 0 && (
+            <Section title={t("diagnosis")}>
+              {diagnoses.map((d) => (
+                <p key={d} className="text-xs text-brand-primary">
+                  {d}
+                </p>
               ))}
-            </div>
-          </Section>
-        )}
+            </Section>
+          )}
 
-        {entry.investigations.length > 0 && (
-          <Section title={t("investigations")}>
-            {entry.investigations.map((inv) => (
-              <p key={inv} className="text-xs text-gray-700">
-                {inv}
-              </p>
-            ))}
-          </Section>
-        )}
-      </article>
+          {medications.length > 0 && (
+            <Section title={t("medications")}>
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {medications.map((m) => (
+                  <span key={m} className="text-xs text-brand-primary">
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {entry.investigations.length > 0 && (
+            <Section title={t("investigations")}>
+              {entry.investigations.map((inv) => (
+                <p key={inv} className="text-xs text-brand-primary">
+                  {inv}
+                </p>
+              ))}
+            </Section>
+          )}
+        </article>
+      </div>
     </li>
   );
 }
@@ -178,46 +218,60 @@ function EpisodeGroup({
   onViewVisit: (id: string) => void;
 }) {
   const t = useTranslations("visits.workspace.history");
+  const meta = episode.started_at
+    ? `${t("episodeStarted", { date: formatDate(episode.started_at, locale) })} · ${
+        episode.ended_at
+          ? t("completedOn", { date: formatDate(episode.ended_at, locale) })
+          : t("ongoing")
+      }`
+    : null;
 
   return (
-    <Collapsible
-      open={open}
-      onOpenChange={onOpenChange}
-      className="rounded-lg border border-gray-100 bg-gray-50/50"
-    >
-      <CollapsibleTrigger className="group flex w-full items-center gap-2 px-3 py-2.5 text-start">
+    <Collapsible open={open} onOpenChange={onOpenChange} className="relative">
+      <span className={RAIL_LINE} aria-hidden="true" />
+      <CollapsibleTrigger className="group relative flex w-full items-center gap-2 py-2 text-start">
+        <span className={MARKER_SLOT}>
+          <span
+            className="size-3 rounded-full border-2 border-brand-secondary bg-white"
+            aria-hidden="true"
+          />
+        </span>
         <ChevronDown
           className="size-4 flex-none text-gray-400 transition-transform group-data-[state=closed]:-rotate-90"
           aria-hidden="true"
         />
-        <span className="flex-1 truncate text-xs font-semibold text-brand-black">
-          {episode.name}
-          <span className="ms-2 font-normal text-gray-400">
-            {t("episode", { order: episode.order })}
+        <div className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <span className="flex flex-wrap items-baseline gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-primary">
+              {t("episode", { order: episode.order })}
+            </span>
+            <span className="text-xs font-medium text-brand-black">
+              {episode.name}
+            </span>
+            <span className="text-xs text-gray-400">
+              · {t("visitsCount", { count: episode.visits.length })}
+            </span>
           </span>
-        </span>
-        {episode.started_at && (
-          <span className="flex-none text-[11px] text-gray-500">
-            {t("episodeStarted", {
-              date: formatDate(episode.started_at, locale),
-            })}
-          </span>
-        )}
+          {meta && (
+            <span className="flex-none text-[11px] text-gray-500">{meta}</span>
+          )}
+        </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="px-3 pb-3">
+        <div className="ps-7 pt-1">
           {episode.visits.length === 0 ? (
             <p className="py-2 text-xs text-gray-400">
               {t("noVisitsInEpisode")}
             </p>
           ) : (
-            <ol className="space-y-2">
-              {episode.visits.map((visit) => (
+            <ol>
+              {episode.visits.map((visit, i) => (
                 <VisitCard
                   key={visit.id}
                   entry={visit}
                   locale={locale}
                   onView={() => onViewVisit(visit.id)}
+                  isLast={i === episode.visits.length - 1}
                 />
               ))}
             </ol>
@@ -246,37 +300,63 @@ function JourneyGroup({
   onViewVisit: (id: string) => void;
 }) {
   const t = useTranslations("visits.workspace.history");
+  const visitsCount = journey.episodes.reduce(
+    (n, e) => n + e.visits.length,
+    0,
+  );
+  const meta = `${t("journeyStarted", {
+    date: formatDate(journey.started_at, locale),
+  })} · ${
+    journey.ended_at
+      ? t("completedOn", { date: formatDate(journey.ended_at, locale) })
+      : t("ongoing")
+  }`;
 
   return (
     <Collapsible
       open={openJourney}
       onOpenChange={onJourneyOpenChange}
-      className="rounded-xl border border-gray-200"
+      className="relative"
     >
-      <CollapsibleTrigger className="group flex w-full items-center gap-2 px-4 py-3 text-start">
+      <span className={RAIL_LINE} aria-hidden="true" />
+      <CollapsibleTrigger className="group relative flex w-full items-center gap-2 py-2.5 text-start">
+        <span className={MARKER_SLOT}>
+          <span
+            className="size-3.5 rounded-full bg-brand-primary"
+            aria-hidden="true"
+          />
+        </span>
         <ChevronDown
           className="size-4 flex-none text-brand-primary transition-transform group-data-[state=closed]:-rotate-90"
           aria-hidden="true"
         />
-        <span className="flex-1 truncate text-sm font-semibold text-brand-primary">
-          {journey.name}
-        </span>
-        <span className="inline-flex flex-none items-center gap-1.5 text-[11px] text-gray-500">
-          <span
-            className={cn(
-              "size-1.5 rounded-full",
-              STATUS_DOT[journey.status] ?? "bg-gray-400",
-            )}
-            aria-hidden="true"
-          />
-          {t(`status.${journey.status}`)}
-        </span>
-        <span className="flex-none text-[11px] text-gray-500">
-          {t("journeyStarted", { date: formatDate(journey.started_at, locale) })}
-        </span>
+        <div className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <span className="flex flex-wrap items-baseline gap-2">
+            <span className="text-sm font-semibold text-brand-black">
+              {journey.name}
+            </span>
+            <span className="text-xs text-gray-400">
+              {t("episodesCount", { count: journey.episodes.length })} ·{" "}
+              {t("visitsCount", { count: visitsCount })}
+            </span>
+          </span>
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+            <span className="inline-flex flex-none items-center gap-1.5 text-[11px] text-gray-500">
+              <span
+                className={cn(
+                  "size-1.5 rounded-full",
+                  STATUS_DOT[journey.status] ?? "bg-gray-400",
+                )}
+                aria-hidden="true"
+              />
+              {t(`status.${journey.status}`)}
+            </span>
+            <span className="flex-none text-[11px] text-gray-500">{meta}</span>
+          </span>
+        </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="space-y-2 px-3 pb-3">
+        <div className="space-y-1 ps-7 pt-1">
           {journey.episodes.length === 0 ? (
             <p className="px-1 py-2 text-xs text-gray-400">
               {t("noEpisodes")}
@@ -348,7 +428,7 @@ export function VisitsHistoryList({ patientId, excludeVisitId }: Props) {
         ) : journeys.length === 0 ? (
           <p className="py-6 text-center text-xs text-gray-500">{t("empty")}</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-1">
             {journeys.map((journey) => (
               <JourneyGroup
                 key={journey.id}

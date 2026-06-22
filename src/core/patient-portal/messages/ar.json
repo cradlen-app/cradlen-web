@@ -119,6 +119,10 @@
       "normal": "عادية",
       "urgent": "عاجلة",
       "emergency": "طارئة"
+    },
+    "status": {
+      "normal": "طبيعي",
+      "abnormal": "غير طبيعي"
     }
   },
   "medications": {
@@ -216,6 +220,10 @@
     "followUp": "متابعة",
     "journeyStarted": "بدأت في {date}",
     "episodeStarted": "بدأت في {date}",
+    "ongoing": "مستمرة",
+    "completedOn": "اكتملت في {date}",
+    "episodesCount": "{count, plural, zero {# مرحلة} one {مرحلة واحدة} two {مرحلتان} few {# مراحل} many {# مرحلة} other {# مرحلة}}",
+    "visitsCount": "{count, plural, zero {# زيارة} one {زيارة واحدة} two {زيارتان} few {# زيارات} many {# زيارة} other {# زيارة}}",
     "episode": "حالة {order}",
     "noEpisodes": "لا توجد حالات بعد",
     "noVisitsInEpisode": "لا توجد زيارات في هذه الحالة بعد",
