@@ -44,15 +44,15 @@ export function PatientSummaryCard({ patientId, fallbackFullName }: Props) {
 
   return (
     <section className="overflow-hidden rounded-xl">
-      <div className="h-10 bg-brand-primary" aria-hidden="true" />
-      <div className="-mt-6 flex flex-col items-center px-5 pb-4">
+      <div className="h-16 bg-brand-primary" aria-hidden="true" />
+      <div className="-mt-8 flex flex-col items-center px-5 pb-4">
         <div
-          className="flex size-12 items-center justify-center rounded-full bg-brand-primary text-sm font-semibold text-white ring-4 ring-white"
+          className="flex size-16 items-center justify-center rounded-full bg-brand-primary text-base font-semibold text-white ring-4 ring-white"
           aria-hidden="true"
         >
           {initials(fullName)}
         </div>
-        <h2 className="mt-2 text-sm font-semibold text-brand-black">
+        <h2 className="mt-3 text-base font-semibold text-brand-black">
           {fullName || (isLoading ? "…" : t("unknown"))}
         </h2>
         <p className="text-xs text-gray-400">
