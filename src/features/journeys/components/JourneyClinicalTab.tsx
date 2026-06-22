@@ -15,7 +15,8 @@ import {
   journeyClinicalKey,
 } from "../lib/useJourneyClinical";
 import { JourneyClinicalFormShell } from "./JourneyClinicalFormShell";
-import { PregnancyCloseAction } from "./PregnancyCloseAction";
+import { PregnancyStatusControl } from "./PregnancyStatusControl";
+import { PregnancyDerivedFields } from "./PregnancyDerivedFields";
 import type { JourneyDescriptorDto } from "../types/journey.types";
 
 const PREGNANCY_CODE = "OBGYN_PREGNANCY";
@@ -93,7 +94,7 @@ export function JourneyClinicalTab({ visitId, descriptor }: Props) {
     <div className="flex h-full min-w-0 flex-col">
       {descriptor.care_path_code === PREGNANCY_CODE && (
         <div className="flex items-center justify-end border-b border-gray-100 px-4 py-2">
-          <PregnancyCloseAction
+          <PregnancyStatusControl
             visitId={visitId}
             journeyStatus={descriptor.status}
           />
@@ -106,6 +107,9 @@ export function JourneyClinicalTab({ visitId, descriptor }: Props) {
         initialSearchState={initial.searchState}
         initialRepeatableRows={initial.repeatableRows}
       >
+        {descriptor.care_path_code === PREGNANCY_CODE && (
+          <PregnancyDerivedFields />
+        )}
         <JourneyClinicalFormShell
           template={template}
           saving={patchMut.isPending || dataQuery.isFetching}

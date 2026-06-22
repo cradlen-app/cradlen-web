@@ -15,7 +15,6 @@ export interface PregnancyProfile {
 export interface ActivatePregnancyBody {
   risk_level?: string;
   lmp?: string;
-  blood_group_rh?: string;
   us_dating_date?: string;
   us_ga_weeks?: number;
   us_ga_days?: number;
@@ -23,8 +22,21 @@ export interface ActivatePregnancyBody {
   number_of_fetuses?: number;
 }
 
-export interface DeliveryOutcome {
-  mode?: string;
+export type PregnancyOutcomeType =
+  | "LIVE_BIRTH"
+  | "MISCARRIAGE"
+  | "STILLBIRTH"
+  | "ECTOPIC"
+  | "TERMINATION"
+  | "TRANSFERRED"
+  | "LOST_TO_FOLLOWUP"
+  | "OTHER";
+
+/** How the pregnancy ended (with or without a delivery). */
+export interface PregnancyOutcome {
+  outcome_type: PregnancyOutcomeType;
+  /** Only for LIVE_BIRTH. */
+  delivery_mode?: "VAGINAL" | "CESAREAN" | "ASSISTED";
   date?: string;
   notes?: string;
 }
@@ -41,15 +53,10 @@ export function activatePregnancy(
 
 export function closePregnancy(
   visitId: string,
-  deliveryOutcome?: DeliveryOutcome,
+  outcome: PregnancyOutcome,
 ): Promise<{ data: PregnancyProfile }> {
   return apiAuthFetch<{ data: PregnancyProfile }>(
     `/visits/${encodeURIComponent(visitId)}/pregnancy/close`,
-    {
-      method: "POST",
-      body: JSON.stringify(
-        deliveryOutcome ? { delivery_outcome: deliveryOutcome } : {},
-      ),
-    },
+    { method: "POST", body: JSON.stringify({ outcome }) },
   );
 }

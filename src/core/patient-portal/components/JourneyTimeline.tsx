@@ -17,7 +17,7 @@ import type {
   PortalJourneyTimelineEpisode,
 } from "../types/patient-portal.types";
 import { EmptyState } from "./portal-ui";
-import { TimelineLoadMore, VisitCard } from "./VisitTimeline";
+import { TimelineLoadMore, VisitRow } from "./VisitTimeline";
 
 /**
  * Patient-facing Journey → Episode → Visit timeline for the Visits page. Mirrors
@@ -32,6 +32,12 @@ const STATUS_DOT: Record<string, string> = {
   COMPLETED: "bg-gray-400",
   CANCELLED: "bg-red-500",
 };
+
+/** Marker + connector primitives shared by the timeline rail. */
+const RAIL_LINE =
+  "pointer-events-none absolute inset-y-0 start-[10px] w-px bg-gray-200";
+const MARKER_SLOT =
+  "relative z-10 flex size-[21px] flex-none items-center justify-center";
 
 /** Seed the default expanded state: active (or newest) journey + its latest episode. */
 function computeDefaults(journeys: PortalJourneyTimelineEntry[]) {
@@ -73,44 +79,63 @@ function EpisodeGroup({
   locale: string;
 }) {
   const t = useTranslations("patientPortal");
+  const meta = episode.startedAt
+    ? `${t("visits.episodeStarted", {
+        date: formatDate(episode.startedAt, locale),
+      })} · ${
+        episode.endedAt
+          ? t("visits.completedOn", {
+              date: formatDate(episode.endedAt, locale),
+            })
+          : t("visits.ongoing")
+      }`
+    : null;
 
   return (
-    <Collapsible
-      open={open}
-      onOpenChange={onOpenChange}
-      className="rounded-lg border border-gray-100 bg-gray-50/50"
-    >
-      <CollapsibleTrigger className="group flex w-full items-center gap-2 px-3 py-2.5 text-start">
+    <Collapsible open={open} onOpenChange={onOpenChange} className="relative">
+      <span className={RAIL_LINE} aria-hidden="true" />
+      <CollapsibleTrigger className="group relative flex w-full items-center gap-2 py-2 text-start">
+        <span className={MARKER_SLOT}>
+          <span
+            className="size-3 rounded-full border-2 border-brand-secondary bg-white"
+            aria-hidden="true"
+          />
+        </span>
         <ChevronDown
           className="size-4 flex-none text-gray-400 transition-transform group-data-[state=closed]:-rotate-90"
           aria-hidden="true"
         />
-        <span className="flex-1 truncate text-xs font-semibold text-brand-black">
-          {episode.name}
-          <span className="ms-2 font-normal text-gray-400">
-            {t("visits.episode", { order: episode.order })}
+        <div className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <span className="flex flex-wrap items-baseline gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-primary">
+              {t("visits.episode", { order: episode.order })}
+            </span>
+            <span className="text-xs font-medium text-brand-black">
+              {episode.name}
+            </span>
+            <span className="text-xs text-gray-400">
+              · {t("visits.visitsCount", { count: episode.visits.length })}
+            </span>
           </span>
-        </span>
-        {episode.startedAt && (
-          <span className="flex-none text-[11px] text-gray-500">
-            {t("visits.episodeStarted", {
-              date: formatDate(episode.startedAt, locale),
-            })}
-          </span>
-        )}
+          {meta && (
+            <span className="flex-none text-[11px] text-gray-500">{meta}</span>
+          )}
+        </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="px-3 pb-3">
+        <div className="ps-7 pt-1">
           {episode.visits.length === 0 ? (
             <p className="py-2 text-xs text-gray-400">
               {t("visits.noVisitsInEpisode")}
             </p>
           ) : (
-            <ol className="space-y-2">
-              {episode.visits.map((visit) => (
-                <li key={visit.id}>
-                  <VisitCard visit={visit} showDate />
-                </li>
+            <ol>
+              {episode.visits.map((visit, i) => (
+                <VisitRow
+                  key={visit.id}
+                  visit={visit}
+                  isLast={i === episode.visits.length - 1}
+                />
               ))}
             </ol>
           )}
@@ -136,30 +161,56 @@ function JourneyGroup({
   locale: string;
 }) {
   const t = useTranslations("patientPortal");
+  const visitsCount = journey.episodes.reduce(
+    (n, e) => n + e.visits.length,
+    0,
+  );
+  const meta = `${t("visits.journeyStarted", {
+    date: formatDate(journey.startedAt, locale),
+  })} · ${
+    journey.endedAt
+      ? t("visits.completedOn", {
+          date: formatDate(journey.endedAt, locale),
+        })
+      : t("visits.ongoing")
+  }`;
 
   return (
     <Collapsible
       open={openJourney}
       onOpenChange={onJourneyOpenChange}
-      className="rounded-xl border border-gray-200"
+      className="relative"
     >
-      <CollapsibleTrigger className="group flex w-full items-center gap-2 px-4 py-3 text-start">
+      <span className={RAIL_LINE} aria-hidden="true" />
+      <CollapsibleTrigger className="group relative flex w-full items-center gap-2 py-2.5 text-start">
+        <span className={MARKER_SLOT}>
+          <span
+            className="size-3.5 rounded-full bg-brand-primary"
+            aria-hidden="true"
+          />
+        </span>
         <ChevronDown
           className="size-4 flex-none text-brand-primary transition-transform group-data-[state=closed]:-rotate-90"
           aria-hidden="true"
         />
-        <span className="flex-1 truncate text-sm font-semibold text-brand-primary">
-          {journey.name}
-        </span>
-        <StatusBadge status={journey.status} />
-        <span className="flex-none text-[11px] text-gray-500">
-          {t("visits.journeyStarted", {
-            date: formatDate(journey.startedAt, locale),
-          })}
-        </span>
+        <div className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <span className="flex flex-wrap items-baseline gap-2">
+            <span className="text-sm font-semibold text-brand-black">
+              {journey.name}
+            </span>
+            <span className="text-xs text-gray-400">
+              {t("visits.episodesCount", { count: journey.episodes.length })} ·{" "}
+              {t("visits.visitsCount", { count: visitsCount })}
+            </span>
+          </span>
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+            <StatusBadge status={journey.status} />
+            <span className="flex-none text-[11px] text-gray-500">{meta}</span>
+          </span>
+        </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="space-y-2 px-3 pb-3">
+        <div className="space-y-1 ps-7 pt-1">
           {journey.episodes.length === 0 ? (
             <p className="px-1 py-2 text-xs text-gray-400">
               {t("visits.noEpisodes")}
@@ -240,7 +291,7 @@ export function JourneyTimeline() {
 
   return (
     <>
-      <div className="space-y-3">
+      <div className="space-y-1">
         {entries.map((journey) => (
           <JourneyGroup
             key={journey.id}

@@ -123,7 +123,9 @@ export function FieldRenderer({ field, error, displayOnly = false }: Props) {
     return null;
   }
 
-  if (displayOnly) {
+  // Read-only render — EXCEPT COMPUTED fields, which keep ComputedInput so
+  // their live derivation still runs (e.g. GA/EDD in the read-only Summary).
+  if (displayOnly && field.type !== "COMPUTED") {
     const span = resolveColSpan(field);
     return (
       <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>

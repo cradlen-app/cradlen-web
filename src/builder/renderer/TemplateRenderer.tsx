@@ -50,6 +50,13 @@ interface Props {
    * past visit's examination in a read-only modal.
    */
   displayOnly?: boolean;
+  /**
+   * Section codes rendered read-only while the rest of the template stays
+   * editable (e.g. the pregnancy "Summary" overview). COMPUTED fields inside
+   * still compute live. Pair with `excludeSectionCodes` in the submission
+   * builder so these mirror-fields are not written back.
+   */
+  readOnlySectionCodes?: ReadonlySet<string>;
 }
 
 export function TemplateRenderer({
@@ -62,6 +69,7 @@ export function TemplateRenderer({
   collapsedSections,
   hiddenSectionCodes,
   displayOnly: displayOnlyProp,
+  readOnlySectionCodes,
 }: Props) {
   // Read-only display mode: an explicit prop override (read-only modal) wins,
   // otherwise the template-level flag (e.g. the OB/GYN full-history tab). Every
@@ -123,42 +131,47 @@ export function TemplateRenderer({
             ) : null}
 
             {!groupCollapsed &&
-              group.sections.map((section) => (
-                <SectionContainer
-                  key={section.id}
-                  id={section.code}
-                  title={section.name}
-                  headerSlot={renderSectionHeaderSlot?.(section)}
-                  bottomSlot={
-                    !section.is_repeatable
-                      ? renderSectionBottomSlot?.(section)
-                      : undefined
-                  }
-                  collapsed={collapsedSections?.has(section.code)}
-                  layout={section.is_repeatable ? "stack" : "grid"}
-                >
-                  {section.is_repeatable ? (
-                    <RepeatableSectionRenderer
-                      section={section}
-                      errors={errors}
-                      displayOnly={displayOnly}
-                    />
-                  ) : (
-                    section.fields
-                      .slice()
-                      .filter((f) => !hiddenIdTargets.has(f.code))
-                      .sort((a, b) => a.order - b.order)
-                      .map((field) => (
-                        <FieldRenderer
-                          key={field.id}
-                          field={field}
-                          error={errors?.[field.code]}
-                          displayOnly={displayOnly}
-                        />
-                      ))
-                  )}
-                </SectionContainer>
-              ))}
+              group.sections.map((section) => {
+                const sectionReadOnly =
+                  displayOnly ||
+                  (readOnlySectionCodes?.has(section.code) ?? false);
+                return (
+                  <SectionContainer
+                    key={section.id}
+                    id={section.code}
+                    title={section.name}
+                    headerSlot={renderSectionHeaderSlot?.(section)}
+                    bottomSlot={
+                      !section.is_repeatable
+                        ? renderSectionBottomSlot?.(section)
+                        : undefined
+                    }
+                    collapsed={collapsedSections?.has(section.code)}
+                    layout={section.is_repeatable ? "stack" : "grid"}
+                  >
+                    {section.is_repeatable ? (
+                      <RepeatableSectionRenderer
+                        section={section}
+                        errors={errors}
+                        displayOnly={sectionReadOnly}
+                      />
+                    ) : (
+                      section.fields
+                        .slice()
+                        .filter((f) => !hiddenIdTargets.has(f.code))
+                        .sort((a, b) => a.order - b.order)
+                        .map((field) => (
+                          <FieldRenderer
+                            key={field.id}
+                            field={field}
+                            error={errors?.[field.code]}
+                            displayOnly={sectionReadOnly}
+                          />
+                        ))
+                    )}
+                  </SectionContainer>
+                );
+              })}
           </div>
         );
       })}
