@@ -11,16 +11,22 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { useCarePaths } from "@/features/care-paths/lib/useCarePaths";
 import { activatePregnancy } from "@/features/journeys/lib/pregnancy.api";
+import { activateSurgical } from "@/features/journeys/lib/surgical.api";
 import { usePregnancyActivationContext } from "@/features/examination/lib/pregnancy-activation-context";
 import type { FieldInputProps } from "@/builder/fields/input-props";
 
 const PREGNANCY_CODE = "OBGYN_PREGNANCY";
+const SURGICAL_CODE = "OBGYN_SURGICAL";
 
-// Care paths with a full profile implementation. OBGYN_PREGNANCY routes through
-// the activation drawer (creates the profile + reveals the Pregnancy tab); the
-// rest still surface the inert "coming soon" notice. Add a code here when its
-// profile tab is built.
-const IMPLEMENTED_PATHS = new Set(["OBGYN_GENERAL", PREGNANCY_CODE]);
+// Care paths with a full profile implementation. OBGYN_PREGNANCY and
+// OBGYN_SURGICAL route through their activation drawers (create the profile +
+// reveal the journey tab); the rest still surface the inert "coming soon"
+// notice. Add a code here when its profile tab is built.
+const IMPLEMENTED_PATHS = new Set([
+  "OBGYN_GENERAL",
+  PREGNANCY_CODE,
+  SURGICAL_CODE,
+]);
 
 export function CasePathInput({
   field,
@@ -38,21 +44,31 @@ export function CasePathInput({
 
   const { data: carePaths = [], isLoading, isError } = useCarePaths(specialtyCode);
   const tPreg = useTranslations("pregnancy");
+  const tSurg = useTranslations("surgical");
   const pregnancyCtx = usePregnancyActivationContext();
   const qc = useQueryClient();
 
   const current = (value as string | null | undefined) ?? "OBGYN_GENERAL";
+  // An active pregnancy on this journey means a Surgical activation must close it
+  // first (the cesarean handoff). Drives the surgical drawer's warning copy.
+  const pregnancyActive = current === PREGNANCY_CODE;
   const [pending, setPending] = useState<string | null>(null);
   const [pendingPregnancy, setPendingPregnancy] = useState(false);
+  const [pendingSurgical, setPendingSurgical] = useState(false);
   const [activating, setActivating] = useState(false);
 
   const handleClick = (code: string) => {
     if (code === current || disabled) return;
-    // Pregnancy goes through the activation drawer (creates the profile +
-    // reveals the Pregnancy tab). Without a visit in scope, fall back to the
-    // inert "coming soon" notice rather than silently setting the care path.
+    // Pregnancy and Surgical go through their activation drawers (create the
+    // profile + reveal the journey tab). Without a visit in scope, fall back to
+    // the inert "coming soon" notice rather than silently setting the care path.
     if (code === PREGNANCY_CODE) {
       if (pregnancyCtx) setPendingPregnancy(true);
+      else setPending(code);
+      return;
+    }
+    if (code === SURGICAL_CODE) {
+      if (pregnancyCtx) setPendingSurgical(true);
       else setPending(code);
       return;
     }
@@ -76,6 +92,37 @@ export function CasePathInput({
       setPendingPregnancy(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : tPreg("createError");
+      toast.error(message);
+    } finally {
+      setActivating(false);
+    }
+  };
+
+  const handleCreateSurgical = async () => {
+    if (!pregnancyCtx) return;
+    setActivating(true);
+    try {
+      // Cesarean handoff: an active pregnancy is closed as a Cesarean delivery in
+      // the same request that opens the surgical journey. Otherwise a plain open.
+      await activateSurgical(
+        pregnancyCtx.visitId,
+        pregnancyActive
+          ? {
+              pregnancy_outcome: {
+                outcome_type: "LIVE_BIRTH",
+                delivery_mode: "CESAREAN",
+              },
+            }
+          : {},
+      );
+      onChange(SURGICAL_CODE);
+      await qc.invalidateQueries({
+        queryKey: ["visit-journey", pregnancyCtx.visitId],
+      });
+      toast.success(tSurg("created"));
+      setPendingSurgical(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : tSurg("createError");
       toast.error(message);
     } finally {
       setActivating(false);
@@ -187,6 +234,51 @@ export function CasePathInput({
                 onClick={() => setPendingPregnancy(false)}
               >
                 {tPreg("notNow")}
+              </Button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      <Dialog.Root
+        open={pendingSurgical}
+        onOpenChange={(open) => {
+          if (!open && !activating) setPendingSurgical(false);
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl outline-none">
+            <Dialog.Title className="flex items-center gap-2 text-sm font-medium text-teal-600">
+              {pregnancyActive ? "\u{26A0}\u{FE0F}" : "\u{1FA7A}"}{" "}
+              {pregnancyActive
+                ? tSurg("pregnancyActiveTitle")
+                : tSurg("activateTitle")}
+            </Dialog.Title>
+            <Dialog.Description className="mt-2 text-sm text-gray-600">
+              {pregnancyActive
+                ? tSurg("pregnancyActivePrompt")
+                : tSurg("activatePrompt")}
+            </Dialog.Description>
+            <div className="mt-5 flex justify-center gap-3">
+              <Button
+                size="sm"
+                className="bg-brand-primary"
+                disabled={activating}
+                onClick={handleCreateSurgical}
+              >
+                {activating ? (
+                  <Loader2 size={14} className="mr-1 animate-spin" />
+                ) : null}
+                {pregnancyActive ? tSurg("closeAndCreate") : tSurg("create")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={activating}
+                onClick={() => setPendingSurgical(false)}
+              >
+                {tSurg("notNow")}
               </Button>
             </div>
           </Dialog.Content>

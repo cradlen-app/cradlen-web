@@ -8,6 +8,7 @@ import { useDynamicOptions } from "../../runtime/useDynamicOptions";
 import { useDefaultValue } from "../../runtime/useDefaultValue";
 import { CasePathInput } from "@/features/examination/components/CasePathInput";
 import { PregnancyStatusInput } from "@/features/journeys/components/PregnancyStatusInput";
+import { SurgicalStatusInput } from "@/features/journeys/components/SurgicalStatusInput";
 import type { FieldInputProps } from "../input-props";
 import type { FieldOption } from "../../templates/template.types";
 
@@ -261,6 +262,8 @@ export function SelectInput(props: FieldInputProps) {
   if (variant === "case-path") return <CasePathInput {...props} />;
   if (variant === "pregnancy-status")
     return <PregnancyStatusInput {...props} />;
+  if (variant === "surgical-status")
+    return <SurgicalStatusInput {...props} />;
   if (variant === "segmented") return <SegmentedSelect {...props} />;
   return <DropdownSelect {...props} />;
 }
