@@ -16,10 +16,18 @@ import {
   useVisitExamination,
 } from "@/features/examination/api/useVisitExamination";
 import { VisitExaminationFormShell } from "@/features/examination/components/VisitExaminationFormShell";
+import {
+  InvestigationsResultPanel,
+  type ExaminationInvestigation,
+} from "@/features/examination/components/InvestigationsResultPanel";
 import { OBGYN_EXAM_CONTAINERS } from "@/features/examination/lib/history-binding";
 import { PregnancyActivationContext } from "@/features/examination/lib/pregnancy-activation-context";
 
 import type { Visit } from "@/features/visits/types/visits.types";
+
+// Read-only viewing replaces the editable investigations ORDER section with the
+// results panel (status/result/notes), which the template can't render.
+const READONLY_HIDDEN_SECTIONS: ReadonlySet<string> = new Set(["investigations"]);
 
 interface Props {
   visit: Visit;
@@ -103,6 +111,11 @@ export function ExaminationTab({ visit, readOnly = false }: Props) {
   const initial = toInitialFormState(envelope, template, {
     namespaceContainers: OBGYN_EXAM_CONTAINERS,
   });
+  const investigations: ExaminationInvestigation[] = Array.isArray(
+    envelope.investigations,
+  )
+    ? (envelope.investigations as ExaminationInvestigation[])
+    : [];
 
   return (
     <TemplateExecutionContextProvider
@@ -118,6 +131,14 @@ export function ExaminationTab({ visit, readOnly = false }: Props) {
           patientId={visit.patient.id}
           specialtyCode={visit.specialtyCode ?? null}
           readOnly={readOnly}
+          extraHiddenSectionCodes={
+            readOnly ? READONLY_HIDDEN_SECTIONS : undefined
+          }
+          footerSlot={
+            readOnly ? (
+              <InvestigationsResultPanel investigations={investigations} />
+            ) : undefined
+          }
           saving={readOnly ? false : patchMut.isPending || dataQuery.isFetching}
           onSave={async (body) => {
             // Never invoked in read-only mode (the Save button is not rendered).

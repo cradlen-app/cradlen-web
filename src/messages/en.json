@@ -1404,6 +1404,7 @@
         "empty": "No previous visits found.",
         "visitDetails": "Visit Details",
         "detailsTitle": "Visit Details",
+        "examinationTab": "Examination",
         "diagnosis": "Diagnosis",
         "medications": "Medications",
         "investigations": "Investigations",
@@ -1849,7 +1850,22 @@
       "versionLabel": "v{version}",
       "addRow": "+ Add row",
       "removeRow": "Remove",
-      "completeVisit": "Complete Visit"
+      "completeVisit": "Complete Visit",
+      "investigationsTitle": "Investigations",
+      "invNone": "No investigations ordered.",
+      "invUnnamed": "Unnamed test",
+      "invResult": "Result",
+      "invNoResult": "No result yet",
+      "invNotes": "Notes",
+      "invLab": "Lab",
+      "invFilesLabel": "Files",
+      "invFiles": "{count} file(s)",
+      "invStatus": {
+        "ORDERED": "Ordered",
+        "RESULTED": "Resulted",
+        "REVIEWED": "Reviewed",
+        "CANCELLED": "Cancelled"
+      }
     }
   },
   "medications": {

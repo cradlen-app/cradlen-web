@@ -23,6 +23,10 @@ const PREGNANCY_CODE = "OBGYN_PREGNANCY";
 interface Props {
   visitId: string;
   descriptor: JourneyDescriptorDto;
+  /** Frozen snapshot (e.g. the visit-details drawer for a past visit): render
+   *  the whole surface read-only — no Save, no derived-field mutation, no
+   *  interactive status control. */
+  readOnly?: boolean;
 }
 
 function isNotFound(err: unknown): boolean {
@@ -35,7 +39,11 @@ function isNotFound(err: unknown): boolean {
  * (no If-Match), like the Examination tab; `version` is just the remount/cache
  * token. Dormant until a care path declares a surface.
  */
-export function JourneyClinicalTab({ visitId, descriptor }: Props) {
+export function JourneyClinicalTab({
+  visitId,
+  descriptor,
+  readOnly = false,
+}: Props) {
   const t = useTranslations("examination.workspace");
   const surface = descriptor.clinical_surface;
   const journeyId = descriptor.journey_id;
@@ -78,34 +86,43 @@ export function JourneyClinicalTab({ visitId, descriptor }: Props) {
   const envelope = dataQuery.data;
   const initial = toInitialFormState(envelope, template);
 
-  return (
-    <JourneyClinicalContext.Provider value={{ visitId }}>
-      <TemplateExecutionContextProvider
-        key={envelope.version}
+  const body = (
+    <TemplateExecutionContextProvider
+      key={envelope.version}
+      template={template}
+      initialFormValues={initial.formValues}
+      initialSearchState={initial.searchState}
+      initialRepeatableRows={initial.repeatableRows}
+    >
+      {!readOnly && descriptor.care_path_code === PREGNANCY_CODE && (
+        <PregnancyDerivedFields />
+      )}
+      <JourneyClinicalFormShell
         template={template}
-        initialFormValues={initial.formValues}
-        initialSearchState={initial.searchState}
-        initialRepeatableRows={initial.repeatableRows}
-      >
-        {descriptor.care_path_code === PREGNANCY_CODE && (
-          <PregnancyDerivedFields />
-        )}
-        <JourneyClinicalFormShell
-          template={template}
-          saving={patchMut.isPending || dataQuery.isFetching}
-          onSave={async (body) => {
-            try {
-              await patchMut.mutateAsync({ body });
-              toast.success(t("saved"));
-            } catch (err) {
-              const message =
-                err instanceof Error ? err.message : t("saveError");
-              toast.error(message);
-              throw err;
-            }
-          }}
-        />
-      </TemplateExecutionContextProvider>
+        readOnly={readOnly}
+        saving={patchMut.isPending || dataQuery.isFetching}
+        onSave={async (saveBody) => {
+          try {
+            await patchMut.mutateAsync({ body: saveBody });
+            toast.success(t("saved"));
+          } catch (err) {
+            const message =
+              err instanceof Error ? err.message : t("saveError");
+            toast.error(message);
+            throw err;
+          }
+        }}
+      />
+    </TemplateExecutionContextProvider>
+  );
+
+  // Read-only snapshot needs no visitId context — the status select renders
+  // static (no close drawer) under the template's hard read-only.
+  return readOnly ? (
+    body
+  ) : (
+    <JourneyClinicalContext.Provider value={{ visitId }}>
+      {body}
     </JourneyClinicalContext.Provider>
   );
 }
