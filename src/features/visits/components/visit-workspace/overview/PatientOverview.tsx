@@ -4,6 +4,7 @@ import { PatientSummaryCard } from "./PatientSummaryCard";
 import { VisitChartsPanel } from "./VisitChartsPanel";
 import { VisitsHistoryList } from "./VisitsHistoryList";
 import { ObgynHistorySummaryCard } from "./ObgynHistorySummaryCard";
+import { CurrentJourneySummaryCard } from "./CurrentJourneySummaryCard";
 
 type Props = {
   patientId: string;
@@ -42,6 +43,7 @@ export function PatientOverview({
               patientDateOfBirth={patientDateOfBirth}
             />
           )}
+          {isObgyn && <CurrentJourneySummaryCard patientId={patientId} />}
           <VisitsHistoryList
             patientId={patientId}
             excludeVisitId={excludeVisitId}

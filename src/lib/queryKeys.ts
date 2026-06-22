@@ -156,6 +156,12 @@ export const queryKeys = {
       ["obgyn-history-summary", patientId] as const,
   },
 
+  // ── Active journey summary (Overview "Current journey" card) ───────────────
+  journeySummary: {
+    byPatient: (patientId: string) =>
+      ["active-journey-summary", patientId] as const,
+  },
+
   // ── Lookups ───────────────────────────────────────────────────────────────
   // Seeded reference data — long staleTime in the consuming hook.
   lookups: {
