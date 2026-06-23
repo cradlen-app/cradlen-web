@@ -5,6 +5,9 @@ import type { ActiveJourneySummary } from "@/features/journeys/lib/active-journe
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+  // The pregnancy identifier path renders <PregnancyTimeline>, which reads the
+  // active locale for date formatting — stub it so the mock is complete.
+  useLocale: () => "en",
 }));
 
 const mockQuery = vi.fn();
