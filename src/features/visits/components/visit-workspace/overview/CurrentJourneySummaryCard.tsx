@@ -8,6 +8,7 @@ import type {
   JourneySummaryFlag,
   SummarySignalSeverity,
 } from "@/features/journeys/lib/active-journey-summary.api";
+import { PregnancyTimeline } from "./PregnancyTimeline";
 
 type Props = { patientId: string };
 
@@ -64,6 +65,11 @@ export function CurrentJourneySummaryCard({ patientId }: Props) {
         <Activity className="size-4 text-brand-primary" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-brand-black">{t("title")}</h2>
       </header>
+      {!isLoading && data?.identifier && (
+        <div className="mt-4">
+          <PregnancyTimeline patientId={patientId} />
+        </div>
+      )}
       {isLoading || !data ? <Skeleton /> : <SummaryView data={data} t={t} />}
     </section>
   );

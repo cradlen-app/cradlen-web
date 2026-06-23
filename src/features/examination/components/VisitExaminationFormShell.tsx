@@ -15,6 +15,7 @@ import {
   HISTORY_SECTION_PREFIX,
   OBGYN_EXAM_CONTAINERS,
 } from "@/features/examination/lib/history-binding";
+import type { ReactNode } from "react";
 import type { FormSectionDto, FormTemplateDto } from "@/builder/templates/template.types";
 
 const EXAMINATION_GROUP = "Examination";
@@ -42,6 +43,11 @@ interface Props {
   saving: boolean;
   /** Render the form static (no inputs, no Save) — viewing a past visit. */
   readOnly?: boolean;
+  /** Extra section codes to hide (merged with the care-path history hiding). */
+  extraHiddenSectionCodes?: ReadonlySet<string>;
+  /** Rendered at the end of the scroll area (e.g. the read-only investigations
+   *  results panel that replaces the hidden order section). */
+  footerSlot?: ReactNode;
 }
 
 export function VisitExaminationFormShell({
@@ -50,6 +56,8 @@ export function VisitExaminationFormShell({
   onSave,
   saving,
   readOnly = false,
+  extraHiddenSectionCodes,
+  footerSlot,
 }: Props) {
   const t = useTranslations("examination.workspace");
   const execution = useTemplateExecution();
@@ -82,8 +90,11 @@ export function VisitExaminationFormShell({
         hidden.add(section.code);
       }
     }
+    if (extraHiddenSectionCodes) {
+      for (const code of extraHiddenSectionCodes) hidden.add(code);
+    }
     return hidden;
-  }, [carePaths, selectedPath, template.sections]);
+  }, [carePaths, selectedPath, template.sections, extraHiddenSectionCodes]);
 
   function toggleSection(code: string) {
     setCollapsedSections((prev) => {
@@ -151,6 +162,7 @@ export function VisitExaminationFormShell({
           renderSectionHeaderSlot={renderSectionHeaderSlot}
           displayOnly={readOnly}
         />
+        {footerSlot}
       </div>
       {!readOnly && (
         <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">

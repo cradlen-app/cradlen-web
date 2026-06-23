@@ -13,6 +13,8 @@ interface Props {
   template: FormTemplateDto;
   onSave: (body: Record<string, unknown>) => Promise<void>;
   saving: boolean;
+  /** Frozen snapshot (e.g. a past visit's drawer): whole template static, no Save. */
+  readOnly?: boolean;
 }
 
 /**
@@ -20,7 +22,12 @@ interface Props {
  * binding to the envelope root (no namespace containers) — the backend demuxes
  * fields into the journey/episode/visit records by binding namespace.
  */
-export function JourneyClinicalFormShell({ template, onSave, saving }: Props) {
+export function JourneyClinicalFormShell({
+  template,
+  onSave,
+  saving,
+  readOnly = false,
+}: Props) {
   const t = useTranslations("examination.workspace");
   const execution = useTemplateExecution();
   const [errors, setErrors] = useState<Record<string, string> | undefined>(
@@ -78,19 +85,26 @@ export function JourneyClinicalFormShell({ template, onSave, saving }: Props) {
 
   return (
     <div className="flex h-full min-w-0 flex-col overflow-x-hidden">
-      <div className="min-w-0 flex-1 overflow-y-auto px-1 pb-24">
+      <div className="min-w-0 flex-1 overflow-y-auto px-1 pb-2">
         <TemplateRenderer
           template={template}
           errors={errors}
+          displayOnly={readOnly}
           readOnlySectionCodes={readOnlySectionCodes}
         />
       </div>
-      <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
-        <Button onClick={handleSave} disabled={saving} className="bg-brand-primary">
-          {saving ? <Loader2 size={14} className="animate-spin" /> : null}
-          <span className="ml-2">{t("save")}</span>
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="sticky bottom-0 left-0 right-0 mt-4 flex items-center justify-end gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-brand-primary"
+          >
+            {saving ? <Loader2 size={14} className="animate-spin" /> : null}
+            <span className="ml-2">{t("save")}</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -45,6 +45,15 @@ interface Props {
   error?: string;
   /** Render the field's value as static text instead of an input. */
   displayOnly?: boolean;
+  /**
+   * The WHOLE template is read-only (a frozen snapshot — a past-visit drawer or
+   * an `is_display_only` template), as opposed to a single section being read-
+   * only inside an otherwise-editable form. Under a hard snapshot, COMPUTED
+   * fields and the self-managed `pregnancy-status` select also render static
+   * (showing the server-hydrated value); under section-only read-only they stay
+   * live/interactive (the live pregnancy Summary).
+   */
+  hardReadOnly?: boolean;
 }
 
 /** Tailwind `col-span-N` class for every valid N (avoids dynamic class names). */
@@ -79,7 +88,12 @@ function resolveColSpan(field: FormFieldDto): number {
   return 6;
 }
 
-export function FieldRenderer({ field, error, displayOnly = false }: Props) {
+export function FieldRenderer({
+  field,
+  error,
+  displayOnly = false,
+  hardReadOnly = false,
+}: Props) {
   const ctx = useEvaluationContext();
   const value = useFieldValue(field.code);
   const setFieldValue = useSetFieldValue();
@@ -123,12 +137,17 @@ export function FieldRenderer({ field, error, displayOnly = false }: Props) {
     return null;
   }
 
-  // Read-only render — EXCEPT COMPUTED fields (keep ComputedInput so live
-  // derivation runs, e.g. GA/EDD) and fields whose custom variant manages its
-  // own interactivity (e.g. the pregnancy status select that opens the close
-  // drawer even inside the read-only Summary).
-  const selfManaged = field.config?.ui?.variant === "pregnancy-status";
-  if (displayOnly && field.type !== "COMPUTED" && !selfManaged) {
+  // Read-only render. In a section-only read-only context (e.g. the live
+  // pregnancy Summary inside an editable form) COMPUTED fields keep computing
+  // (GA/EDD) and the `pregnancy-status` select stays interactive (it opens the
+  // close drawer). In a HARD read-only snapshot (a past-visit drawer / display-
+  // only template) both render as static text from the server-hydrated value.
+  const keepComputedLive = field.type === "COMPUTED" && !hardReadOnly;
+  const keepStatusInteractive =
+    (field.config?.ui?.variant === "pregnancy-status" ||
+      field.config?.ui?.variant === "surgical-status") &&
+    !hardReadOnly;
+  if (displayOnly && !keepComputedLive && !keepStatusInteractive) {
     const span = resolveColSpan(field);
     return (
       <div className={COL_SPAN_CLASS[span] ?? COL_SPAN_CLASS[6]}>

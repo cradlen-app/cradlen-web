@@ -1,6 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NextIntlClientProvider } from "next-intl";
+import enMessages from "@/messages/en.json";
 import { SelectInput } from "./SelectInput";
 import { TemplateExecutionContextProvider } from "../../runtime/TemplateExecutionContext";
 import * as carePathsApi from "@/features/care-paths/lib/care-paths.api";
@@ -125,17 +127,19 @@ describe("SelectInput case-path variant", () => {
     const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const field = makeCasePathField();
     return render(
-      <QueryClientProvider client={qc}>
-        <TemplateExecutionContextProvider template={makeTemplate(field)}>
-          <SelectInput
-            field={field}
-            value={value}
-            onChange={onChange}
-            required={false}
-            disabled={false}
-          />
-        </TemplateExecutionContextProvider>
-      </QueryClientProvider>,
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        <QueryClientProvider client={qc}>
+          <TemplateExecutionContextProvider template={makeTemplate(field)}>
+            <SelectInput
+              field={field}
+              value={value}
+              onChange={onChange}
+              required={false}
+              disabled={false}
+            />
+          </TemplateExecutionContextProvider>
+        </QueryClientProvider>
+      </NextIntlClientProvider>,
     );
   }
 

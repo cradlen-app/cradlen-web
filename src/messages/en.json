@@ -1404,6 +1404,7 @@
         "empty": "No previous visits found.",
         "visitDetails": "Visit Details",
         "detailsTitle": "Visit Details",
+        "examinationTab": "Examination",
         "diagnosis": "Diagnosis",
         "medications": "Medications",
         "investigations": "Investigations",
@@ -1464,6 +1465,18 @@
         "complaint": "Chief complaint",
         "provisional": "Provisional",
         "outcome": "Outcome"
+      },
+      "pregnancyTimeline": {
+        "lmp": "LMP",
+        "edd": "EDD",
+        "trimester1": "Trimester 1",
+        "trimester2": "Trimester 2",
+        "trimester3": "Trimester 3",
+        "weekOf": "Week {week} of {total}",
+        "weeksToGo": "{count, plural, one {# week to go} other {# weeks to go}}",
+        "twins": "expecting twins",
+        "triplets": "expecting triplets",
+        "multiples": "expecting multiples"
       },
       "rail": {
         "redFlags": {
@@ -1836,6 +1849,34 @@
     "outcome_LOST_TO_FOLLOWUP": "Lost to follow-up",
     "outcome_OTHER": "Other"
   },
+  "surgical": {
+    "activateTitle": "Surgical care path",
+    "activatePrompt": "Would you like to create a surgical profile for this patient?",
+    "pregnancyActiveTitle": "This patient has an active pregnancy",
+    "pregnancyActivePrompt": "Opening a surgical journey will close the active pregnancy as a Cesarean delivery. Continue?",
+    "create": "Create",
+    "closeAndCreate": "Close pregnancy & create",
+    "notNow": "Not Now",
+    "created": "Surgical profile created",
+    "createError": "Failed to create the surgical profile",
+    "closeTitle": "Record outcome & close surgery",
+    "closeDescription": "Completing the surgery ends the journey. This can't be undone from here.",
+    "outcomeType": "Outcome",
+    "outcomeDate": "Outcome date",
+    "notes": "Notes",
+    "cancel": "Cancel",
+    "closeSurgical": "Close surgery",
+    "closed": "Surgical journey closed",
+    "closeError": "Failed to close the surgical journey",
+    "statusActive": "Active",
+    "statusClosed": "Closed",
+    "outcome_COMPLETED": "Completed",
+    "outcome_ABORTED": "Aborted",
+    "outcome_CONVERTED": "Converted",
+    "outcome_TRANSFERRED": "Transferred care",
+    "outcome_DECEASED": "Deceased",
+    "outcome_OTHER": "Other"
+  },
   "examination": {
     "workspace": {
       "save": "Save",
@@ -1849,7 +1890,22 @@
       "versionLabel": "v{version}",
       "addRow": "+ Add row",
       "removeRow": "Remove",
-      "completeVisit": "Complete Visit"
+      "completeVisit": "Complete Visit",
+      "investigationsTitle": "Investigations",
+      "invNone": "No investigations ordered.",
+      "invUnnamed": "Unnamed test",
+      "invResult": "Result",
+      "invNoResult": "No result yet",
+      "invNotes": "Notes",
+      "invLab": "Lab",
+      "invFilesLabel": "Files",
+      "invFiles": "{count} file(s)",
+      "invStatus": {
+        "ORDERED": "Ordered",
+        "RESULTED": "Resulted",
+        "REVIEWED": "Reviewed",
+        "CANCELLED": "Cancelled"
+      }
     }
   },
   "medications": {
