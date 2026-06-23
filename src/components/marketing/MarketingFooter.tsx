@@ -31,7 +31,7 @@ export default async function MarketingFooter() {
       label: t("legalLabel"),
       links: [
         { text: t("legal.privacy"), href: "#" },
-        { text: t("legal.terms"), href: "#" },
+        { text: t("legal.terms"), href: "/terms-of-service", internal: true },
       ],
     },
   ];
@@ -57,12 +57,21 @@ export default async function MarketingFooter() {
               <ul className="mt-4 space-y-3">
                 {column.links.map((link) => (
                   <li key={link.text}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
-                    >
-                      {link.text}
-                    </a>
+                    {"internal" in link && link.internal ? (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
+                      >
+                        {link.text}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
+                      >
+                        {link.text}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
