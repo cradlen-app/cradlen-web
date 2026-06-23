@@ -139,7 +139,7 @@ export function ExaminationTab({ visit, readOnly = false }: Props) {
               <InvestigationsResultPanel investigations={investigations} />
             ) : undefined
           }
-          saving={readOnly ? false : patchMut.isPending || dataQuery.isFetching}
+          saving={readOnly ? false : patchMut.isPending}
           onSave={async (body) => {
             // Never invoked in read-only mode (the Save button is not rendered).
             if (readOnly) return;

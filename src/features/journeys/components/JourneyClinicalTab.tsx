@@ -100,7 +100,7 @@ export function JourneyClinicalTab({
       <JourneyClinicalFormShell
         template={template}
         readOnly={readOnly}
-        saving={patchMut.isPending || dataQuery.isFetching}
+        saving={patchMut.isPending}
         onSave={async (saveBody) => {
           try {
             await patchMut.mutateAsync({ body: saveBody });
