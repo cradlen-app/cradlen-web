@@ -1,4 +1,124 @@
 {
+  "termsOfService": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: 24 June 2026",
+    "intro": "These Terms of Service (the \"Terms\") govern your access to and use of the Cradlen platform, websites, applications, and related services (together, the \"Platform\"). By creating an account, subscribing, or otherwise using the Platform, you agree to be bound by these Terms. If you are using the Platform on behalf of a clinic, hospital, or other organization, you accept these Terms on its behalf.",
+    "tocLabel": "On this page",
+    "sections": {
+      "introduction": {
+        "heading": "1. What is Cradlen?",
+        "body": [
+          "Cradlen is a software-as-a-service platform for women's health and OB-GYN clinics. It provides tools for managing appointments, clinical visits, examinations, patient medical records, care journeys, billing, and team collaboration.",
+          "In these Terms: \"Platform\" means the Cradlen software and services; \"Organization\" or \"Client\" means the clinic, hospital, or business that subscribes to the Platform; \"User\" means any staff member or person who accesses the Platform under an Organization's account; and \"Patient\" means an individual whose health information is recorded on the Platform. Cradlen provides the technology only and does not provide medical care or clinical advice."
+        ]
+      },
+      "acceptance": {
+        "heading": "2. Acceptance of these Terms",
+        "body": [
+          "By accessing or using the Platform you confirm that you have read, understood, and agree to these Terms and to our Privacy Policy. If you do not agree, you must not use the Platform.",
+          "If you accept these Terms on behalf of an Organization, you represent that you are authorized to bind that Organization, and \"you\" refers to both you and the Organization."
+        ]
+      },
+      "eligibility": {
+        "heading": "3. Accounts, eligibility, and rules of use",
+        "body": [
+          "You must be at least 18 years old and legally able to enter into a contract to use the Platform. Accounts are issued to a named Organization, which is responsible for the Users it invites and for the actions taken under its account.",
+          "You are responsible for keeping login credentials confidential, for all activity that occurs under your account, and for notifying us promptly of any unauthorized access. You agree to provide accurate account information and to keep it up to date. We may suspend or restrict access where reasonably necessary to protect the Platform, its users, or patient safety."
+        ]
+      },
+      "data-ownership": {
+        "heading": "4. Who owns the data",
+        "body": [
+          "The Platform records two different kinds of information, and ownership differs between them.",
+          "Patient medical history. A Patient owns their personal medical history — the longitudinal health record that follows them over time. This data belongs to the Patient, not to the clinic. An Organization and its clinicians access a Patient's history only under the care relationship and with the appropriate basis to do so, and the Patient retains rights in that history, including the ability to carry it across providers.",
+          "Clinical visit records. The clinical records produced during a specific visit — encounter notes, examinations, procedures, diagnoses, and the clinician's documentation of that encounter — belong to the Organization and the clinician who authored them, in line with applicable medical-records law.",
+          "Cradlen's role. Cradlen acts as the platform and data processor that stores and secures this information on behalf of Patients and Organizations. Cradlen does not own clinical content and will only use the data as needed to provide and support the Platform, or as permitted by these Terms and applicable law."
+        ]
+      },
+      "responsibilities": {
+        "heading": "5. Client and organization responsibilities",
+        "body": [
+          "As the Organization, you are responsible for using the Platform lawfully and for the conduct of your Users. This includes:",
+          "Obtaining any patient consent required by law before recording or processing health information; ensuring the accuracy of the records your team enters; maintaining the confidentiality of credentials and managing your Users' access and permissions appropriately; complying with all medical, privacy, and data-protection laws that apply to you; and exercising independent clinical judgment — the Platform supports your work but does not make clinical decisions for you."
+        ]
+      },
+      "prohibited": {
+        "heading": "6. Prohibited uses",
+        "body": [
+          "You agree not to, and not to permit any User or third party to:"
+        ],
+        "bullets": [
+          "Use the Platform for any unlawful purpose or in violation of any applicable law or regulation;",
+          "Access, store, or process patient data without a lawful basis or required consent;",
+          "Attempt to gain unauthorized access to the Platform, other accounts, or any system or network connected to it;",
+          "Reverse engineer, decompile, copy, resell, or create derivative works from the Platform except as permitted by law;",
+          "Upload malicious code, interfere with the Platform's operation, or place an unreasonable load on its infrastructure;",
+          "Use the Platform to harass, harm, or violate the rights or privacy of any patient or person;",
+          "Misrepresent your identity or authority, or share an account with unauthorized individuals."
+        ]
+      },
+      "subscriptions": {
+        "heading": "7. Subscriptions, billing, and payments",
+        "body": [
+          "Access to the Platform is provided on a subscription basis according to the plan you select. Fees, billing frequency, and included features are described at the point of purchase or in your order.",
+          "Unless stated otherwise, subscriptions renew automatically for successive periods until cancelled, and fees are charged in advance for each period. Fees are exclusive of taxes, which you are responsible for where applicable. Except where required by law, payments are non-refundable. We may change pricing on prior notice, with changes taking effect at your next renewal. Non-payment may result in suspension or termination of access."
+        ]
+      },
+      "intellectual-property": {
+        "heading": "8. Intellectual property",
+        "body": [
+          "The Platform, including its software, design, trademarks, and content provided by Cradlen, is owned by Cradlen or its licensors and is protected by intellectual-property laws. These Terms grant you a limited, non-exclusive, non-transferable right to use the Platform during your subscription, and no other rights.",
+          "This section does not affect ownership of the data you and your Patients put into the Platform, which is governed by the \"Who owns the data\" section above."
+        ]
+      },
+      "confidentiality": {
+        "heading": "9. Confidentiality and data protection",
+        "body": [
+          "We treat the data stored on the Platform as confidential and apply technical and organizational measures designed to protect it against unauthorized access, loss, or disclosure. Our handling of personal and health data is described in more detail in our Privacy Policy.",
+          "Each party will protect the other's confidential information and use it only as needed to perform under these Terms or as required by law."
+        ]
+      },
+      "disclaimers": {
+        "heading": "10. Disclaimers",
+        "body": [
+          "The Platform is provided \"as is\" and \"as available\" without warranties of any kind, whether express or implied, including any implied warranties of merchantability, fitness for a particular purpose, or non-infringement, to the maximum extent permitted by law.",
+          "Cradlen is a software tool and is not a medical device or a provider of medical care. It does not replace professional clinical judgment, diagnosis, or treatment. Decisions about patient care remain the sole responsibility of qualified healthcare professionals."
+        ]
+      },
+      "liability": {
+        "heading": "11. Limitation of liability",
+        "body": [
+          "To the maximum extent permitted by law, Cradlen will not be liable for any indirect, incidental, special, consequential, or punitive damages, or for any loss of profits, revenue, data, or goodwill, arising out of or related to your use of the Platform.",
+          "To the maximum extent permitted by law, Cradlen's total aggregate liability arising out of or related to these Terms will not exceed the amounts you paid to Cradlen for the Platform in the twelve months before the event giving rise to the claim. Nothing in these Terms excludes liability that cannot be excluded under applicable law."
+        ]
+      },
+      "termination": {
+        "heading": "12. Suspension and termination",
+        "body": [
+          "You may stop using the Platform and cancel your subscription at any time in accordance with your plan. We may suspend or terminate access if you breach these Terms, fail to pay fees, or where reasonably necessary to protect the Platform, its users, or patient safety.",
+          "On termination, your right to use the Platform ends. We will make the data associated with your account available for export for a reasonable period as described in our Privacy Policy, after which it may be deleted in line with our retention practices and applicable law."
+        ]
+      },
+      "changes": {
+        "heading": "13. Changes to these Terms",
+        "body": [
+          "We may update these Terms from time to time. When we make material changes, we will provide reasonable notice, for example by posting the updated Terms with a new \"last updated\" date or by notifying you through the Platform. Your continued use of the Platform after the changes take effect constitutes acceptance of the updated Terms."
+        ]
+      },
+      "governing-law": {
+        "heading": "14. Governing law and disputes",
+        "body": [
+          "These Terms are governed by the laws of the jurisdiction in which Cradlen is established, without regard to conflict-of-laws rules. The courts of that jurisdiction will have exclusive jurisdiction over any dispute arising out of or relating to these Terms, unless mandatory local law provides otherwise."
+        ]
+      },
+      "contact": {
+        "heading": "15. Contact us",
+        "body": [
+          "If you have questions about these Terms or the Platform, please contact us at support@cradlen.com."
+        ]
+      }
+    }
+  },
   "subscriptions": {
     "title": "Subscription",
     "description": "Manage your plan, renew, or upgrade.",
