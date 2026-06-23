@@ -113,6 +113,27 @@ async function searchDiagnosesByQuery(query: string): Promise<EntityResult[]> {
   }));
 }
 
+interface ProcedureListItem {
+  id: string;
+  code: string;
+  name: string;
+}
+
+async function searchProceduresByQuery(query: string): Promise<EntityResult[]> {
+  const params = new URLSearchParams({ search: query });
+  const res = await apiAuthFetch<{ data: ProcedureListItem[] }>(
+    `/procedures?${params.toString()}`,
+  );
+  // The picked UUID lands on the surgical journey's `procedure_id`; `code` is
+  // mirrored into the visible `procedure_code` field via `fillFields`.
+  return res.data.map((p) => ({
+    id: p.id,
+    label: p.name,
+    subtitle: p.code,
+    raw: p,
+  }));
+}
+
 interface LabTestListItem {
   id: string;
   code: string;
@@ -140,6 +161,7 @@ export const ENTITY_REGISTRY: Record<string, EntitySearchFn> = {
   medication: searchMedicationsByQuery,
   diagnosis: searchDiagnosesByQuery,
   lab_test: searchLabTestsByQuery,
+  procedure: searchProceduresByQuery,
 };
 
 export function getEntitySearchFn(kind: string): EntitySearchFn | undefined {

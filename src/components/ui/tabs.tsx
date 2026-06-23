@@ -183,18 +183,30 @@ type TabsContentProps = {
   value: string;
   children: React.ReactNode;
   className?: string;
+  /**
+   * Keep the panel mounted even when inactive (hidden via the `hidden`
+   * attribute), so children that hold transient state — e.g. an unsaved form —
+   * survive tab switches instead of being torn down and re-hydrated.
+   */
+  forceMount?: boolean;
 };
 
-export function TabsContent({ value, children, className }: TabsContentProps) {
+export function TabsContent({
+  value,
+  children,
+  className,
+  forceMount,
+}: TabsContentProps) {
   const ctx = useTabsContext("TabsContent");
   const selected = ctx.value === value;
-  if (!selected) return null;
+  if (!selected && !forceMount) return null;
   return (
     <div
       role="tabpanel"
       id={`${ctx.baseId}-panel-${value}`}
       aria-labelledby={`${ctx.baseId}-tab-${value}`}
-      tabIndex={0}
+      hidden={!selected}
+      tabIndex={selected ? 0 : -1}
       className={cn("focus-visible:outline-none", className)}
     >
       {children}

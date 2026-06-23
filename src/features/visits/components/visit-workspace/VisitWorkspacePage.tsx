@@ -159,6 +159,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
           </TabsContent>
           <TabsContent
             value="examination"
+            forceMount
             className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm p-6"
           >
             <ExaminationTab visit={visit} />
@@ -166,6 +167,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
           {journeyTab && journeyTabValue && (
             <TabsContent
               value={journeyTabValue}
+              forceMount
               className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm p-6"
             >
               <JourneyClinicalTab visitId={visit.id} descriptor={journeyTab} />
