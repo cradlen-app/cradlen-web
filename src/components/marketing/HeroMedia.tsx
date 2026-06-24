@@ -23,9 +23,18 @@ export default async function HeroMedia() {
       >
         {/* Window chrome */}
         <div className="flex items-center gap-1.5 border-b border-black/5 bg-gray-50 px-4 py-2.5">
-          <span className="size-2.5 rounded-full bg-gray-300" aria-hidden="true" />
-          <span className="size-2.5 rounded-full bg-gray-300" aria-hidden="true" />
-          <span className="size-2.5 rounded-full bg-gray-300" aria-hidden="true" />
+          <span
+            className="size-2.5 rounded-full bg-gray-300"
+            aria-hidden="true"
+          />
+          <span
+            className="size-2.5 rounded-full bg-gray-300"
+            aria-hidden="true"
+          />
+          <span
+            className="size-2.5 rounded-full bg-gray-300"
+            aria-hidden="true"
+          />
           <span className="ms-3 rounded-md bg-white px-3 py-1 text-[11px] text-gray-400 ring-1 ring-black/5">
             app.cradlen.com
           </span>
@@ -60,7 +69,7 @@ export default async function HeroMedia() {
       </div>
 
       {/* Floating: patient journey card */}
-      <div className="absolute -bottom-5 end-2 w-64 rounded-2xl bg-white p-4 shadow-xl shadow-black/10 ring-1 ring-black/5">
+      <div className="absolute -bottom-5 end-2 w-64 rounded-2xl bg-white p-4 shadow-xl shadow-black/10 ring-1 ring-black/5 z-10">
         <div className="flex items-center gap-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-secondary/40 text-xs font-semibold text-brand-primary">
             SA
