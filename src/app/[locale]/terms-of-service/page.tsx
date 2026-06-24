@@ -39,7 +39,9 @@ export default async function TermsOfServicePage({ params }: Props) {
     id,
     heading: t(`sections.${id}.heading`),
     body: t.raw(`sections.${id}.body`) as string[],
-    bullets: (t.raw(`sections.${id}.bullets`) as string[] | undefined) ?? null,
+    bullets: t.has(`sections.${id}.bullets`)
+      ? (t.raw(`sections.${id}.bullets`) as string[])
+      : null,
   }));
 
   const tocItems = sections.map((section) => ({
