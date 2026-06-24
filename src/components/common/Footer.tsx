@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "@/i18n/routing";
+import { Link } from "@/i18n/navigation";
 import LanguageSelect from "./LanguageSelect";
 
 export default function Footer() {
@@ -13,18 +14,18 @@ export default function Footer() {
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-gray-500">© {t("copyright")}</p>
         <nav className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <a
-            href="#"
+          <Link
+            href="/terms-of-service"
             className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
           >
             {t("termsOfService")}
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/privacy-policy"
             className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
           >
             {t("privacyPolicy")}
-          </a>
+          </Link>
           <a
             href="#"
             className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
