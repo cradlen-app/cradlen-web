@@ -532,7 +532,17 @@
       "trust1": "Free for 14 days",
       "trust2": "No credit card",
       "trust3": "Live in an afternoon",
-      "mediaAlt": "Cradlen visit workspace showing a patient's antenatal care journey"
+      "mediaAlt": "Cradlen visit workspace showing a patient's antenatal care journey",
+      "mediaNextLabel": "Next on the journey",
+      "mediaNextValue": "Antenatal · 32 weeks",
+      "patientName": "Sara Ahmed",
+      "patientMeta": "32 yrs · 2nd pregnancy",
+      "statusActive": "Active",
+      "tri1Title": "First trimester",
+      "tri1Meta": "Booking & dating scan done",
+      "tri2Title": "Second trimester",
+      "tri2Meta": "Anomaly scan today",
+      "tri3Title": "Third trimester"
     },
     "strip": {
       "item1": "Solo clinics to multi-branch networks",
