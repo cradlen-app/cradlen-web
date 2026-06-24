@@ -532,16 +532,7 @@
       "trust1": "Free for 14 days",
       "trust2": "No credit card",
       "trust3": "Live in an afternoon",
-      "mediaNextLabel": "Next on the journey",
-      "mediaNextValue": "ANC follow-up · 24 Dec",
-      "patientName": "Sara Ahmed",
-      "patientMeta": "Antenatal care · Ep 2 of 5",
-      "statusActive": "Active",
-      "tri1Title": "1st trimester",
-      "tri1Meta": "2 visits · done",
-      "tri2Title": "2nd trimester",
-      "tri2Meta": "3 visits · now",
-      "tri3Title": "3rd trimester"
+      "mediaAlt": "Cradlen visit workspace showing a patient's antenatal care journey"
     },
     "strip": {
       "item1": "Solo clinics to multi-branch networks",

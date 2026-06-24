@@ -57,9 +57,9 @@ export default async function WhatsInside() {
           {t("heading")}
         </h2>
 
-        <div className="mt-12 grid gap-5">
+        <div className="mt-12 grid grid-cols-1 gap-5">
           {/* Patient journeys & care paths */}
-          <div className={cn(cardBase, "grid gap-8 lg:grid-cols-2 lg:items-center")}>
+          <div className={cn(cardBase, "grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center")}>
             <div>
               <IconBadge icon={GitBranch} />
               <h3 className="mt-5 text-xl font-semibold text-brand-black sm:text-2xl">
@@ -130,7 +130,7 @@ export default async function WhatsInside() {
           </div>
 
           {/* Calendar + Prescriptions */}
-          <div className="grid gap-5 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <div className={cardBase}>
               <IconBadge icon={CalendarDays} />
               <h3 className="mt-5 text-lg font-semibold text-brand-black sm:text-xl">
@@ -187,7 +187,7 @@ export default async function WhatsInside() {
           </div>
 
           {/* Unified medical history */}
-          <div className={cn(cardBase, "grid gap-8 lg:grid-cols-2 lg:items-center")}>
+          <div className={cn(cardBase, "grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center")}>
             <div>
               <IconBadge icon={FilePlus} />
               <h3 className="mt-5 text-xl font-semibold text-brand-black sm:text-2xl">
@@ -244,7 +244,7 @@ export default async function WhatsInside() {
           </div>
 
           {/* Cash + Examinations */}
-          <div className="grid gap-5 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <div className={cardBase}>
               <IconBadge icon={CalendarCheck} />
               <h3 className="mt-5 text-lg font-semibold text-brand-black sm:text-xl">
