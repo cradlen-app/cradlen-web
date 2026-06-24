@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,7 +18,8 @@ import { financialCan, useVisitInvoice } from "@/core/financial/api";
 import { CompleteVisitDialog } from "../CompleteVisitDialog";
 import { PrescriptionPrintModal } from "../PrescriptionPrintModal";
 import { VisitWorkspaceHeader } from "./VisitWorkspaceHeader";
-import { VisitContextRail } from "./overview/VisitContextRail";
+// Context rail hidden until the Red Flags / Alerts / Comments features are built.
+// import { VisitContextRail } from "./overview/VisitContextRail";
 import { ExaminationTab } from "./tabs/ExaminationTab";
 import { HistoryTab } from "./tabs/HistoryTab";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -52,15 +53,16 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const [addChargeOpen, setAddChargeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
 
-  const handleNavigateToHistory = useCallback((sectionCode: string) => {
-    setActiveTab("history");
-    requestAnimationFrame(() => {
-      document.getElementById(sectionCode)?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-  }, [setActiveTab]);
+  // Used only by the (currently hidden) VisitContextRail. Restore alongside it.
+  // const handleNavigateToHistory = useCallback((sectionCode: string) => {
+  //   setActiveTab("history");
+  //   requestAnimationFrame(() => {
+  //     document.getElementById(sectionCode)?.scrollIntoView({
+  //       behavior: "smooth",
+  //       block: "start",
+  //     });
+  //   });
+  // }, [setActiveTab]);
 
   // Only the assigned doctor (or an owner/manager) may complete, and only once
   // the consultation has started (IN_CONSULTATION → COMPLETED) — mirrors the
@@ -122,7 +124,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
         onAddService={() => setAddChargeOpen(true)}
       />
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6">{/* xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] — restore when the context rail returns */}
         <Tabs
           value={activeTab}
           defaultValue="overview"
@@ -175,10 +177,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
           )}
         </Tabs>
 
+        {/* Context rail hidden until built:
         <VisitContextRail
           patientId={visit.patient.id}
           onNavigateToHistory={handleNavigateToHistory}
-        />
+        /> */}
       </div>
 
       <CompleteVisitDialog

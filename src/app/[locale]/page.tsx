@@ -4,7 +4,7 @@ import MarketingHeader from "@/components/marketing/MarketingHeader";
 import Hero from "@/components/marketing/Hero";
 import WhyJourneys from "@/components/marketing/WhyJourneys";
 import WhatsInside from "@/components/marketing/WhatsInside";
-import Testimonial from "@/components/marketing/Testimonial";
+// import Testimonial from "@/components/marketing/Testimonial";
 import PatientPortal from "@/components/marketing/PatientPortal";
 import HowItWorks from "@/components/marketing/HowItWorks";
 import Pricing from "@/components/marketing/Pricing";
@@ -27,7 +27,7 @@ export default async function HomePage({ params }: Props) {
         <Hero />
         <WhyJourneys />
         <WhatsInside />
-        <Testimonial />
+        {/* <Testimonial /> — temporarily hidden */}
         <PatientPortal />
         <HowItWorks />
         <Pricing />
