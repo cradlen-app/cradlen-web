@@ -1,5 +1,4 @@
 import { render } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CurrentUser } from "@/common/types/user.types";
 import {
@@ -17,23 +16,14 @@ vi.mock("../hooks/useCurrentUser", () => ({
 }));
 
 const FIRST_DELAY_MS = ACCESS_TOKEN_TTL_SECONDS * SILENT_REFRESH_RATIO * 1000;
+const RETRY_DELAY_MS = 20 * 1000;
+const MAX_CONSECUTIVE_FAILURES = 5;
 
 function refreshResponse(expiresIn: number) {
   return new Response(
     JSON.stringify({ data: { authenticated: true, expires_in: expiresIn }, meta: {} }),
     { status: 200, headers: { "Content-Type": "application/json" } },
   );
-}
-
-function renderProvider() {
-  const client = new QueryClient();
-  const invalidateSpy = vi.spyOn(client, "invalidateQueries");
-  render(
-    <QueryClientProvider client={client}>
-      <SilentRefreshProvider />
-    </QueryClientProvider>,
-  );
-  return { invalidateSpy };
 }
 
 const authed = {
@@ -55,7 +45,7 @@ describe("SilentRefreshProvider", () => {
   it("does not refresh for an anonymous visitor", async () => {
     mockCurrentUser.value = { data: undefined };
 
-    renderProvider();
+    render(<SilentRefreshProvider />);
     await vi.advanceTimersByTimeAsync(FIRST_DELAY_MS * 2);
 
     expect(fetch).not.toHaveBeenCalled();
@@ -65,9 +55,8 @@ describe("SilentRefreshProvider", () => {
     mockCurrentUser.value = authed;
     vi.mocked(fetch).mockResolvedValue(refreshResponse(ACCESS_TOKEN_TTL_SECONDS));
 
-    renderProvider();
+    render(<SilentRefreshProvider />);
 
-    // Nothing yet just before the scheduled tick.
     await vi.advanceTimersByTimeAsync(FIRST_DELAY_MS - 1000);
     expect(fetch).not.toHaveBeenCalled();
 
@@ -81,53 +70,45 @@ describe("SilentRefreshProvider", () => {
   it("reschedules using the expires_in returned by the refresh", async () => {
     mockCurrentUser.value = authed;
     // First refresh returns a short 60s TTL → next tick should be at 60*0.8 = 48s.
-    vi.mocked(fetch)
-      .mockResolvedValueOnce(refreshResponse(60))
-      .mockResolvedValue(refreshResponse(60));
+    vi.mocked(fetch).mockResolvedValue(refreshResponse(60));
 
-    renderProvider();
+    render(<SilentRefreshProvider />);
 
     await vi.advanceTimersByTimeAsync(FIRST_DELAY_MS);
     expect(fetch).toHaveBeenCalledTimes(1);
 
-    // Not yet at 48s.
     await vi.advanceTimersByTimeAsync(40_000);
     expect(fetch).toHaveBeenCalledTimes(1);
 
-    // Crossing 48s triggers the second refresh.
     await vi.advanceTimersByTimeAsync(10_000);
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
-  it("stops looping and invalidates the session on a 401 (dead refresh token)", async () => {
-    mockCurrentUser.value = authed;
-    vi.mocked(fetch).mockResolvedValue(new Response("", { status: 401 }));
-
-    const { invalidateSpy } = renderProvider();
-
-    await vi.advanceTimersByTimeAsync(FIRST_DELAY_MS);
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(invalidateSpy).toHaveBeenCalled();
-
-    // No further refreshes are scheduled after a dead session.
-    await vi.advanceTimersByTimeAsync(FIRST_DELAY_MS * 2);
-    expect(fetch).toHaveBeenCalledTimes(1);
-  });
-
-  it("retries (without logging out) after a transient network error", async () => {
+  it("treats a failed refresh as transient and retries (never logs out)", async () => {
     mockCurrentUser.value = authed;
     vi.mocked(fetch)
-      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce(new Response("", { status: 401 }))
       .mockResolvedValue(refreshResponse(ACCESS_TOKEN_TTL_SECONDS));
 
-    const { invalidateSpy } = renderProvider();
+    render(<SilentRefreshProvider />);
 
     await vi.advanceTimersByTimeAsync(FIRST_DELAY_MS);
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(invalidateSpy).not.toHaveBeenCalled();
 
-    // Retry fires after the short backoff window.
-    await vi.advanceTimersByTimeAsync(20_000);
+    // Retries after the short backoff and recovers.
+    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("gives up quietly after repeated consecutive failures", async () => {
+    mockCurrentUser.value = authed;
+    vi.mocked(fetch).mockResolvedValue(new Response("", { status: 500 }));
+
+    render(<SilentRefreshProvider />);
+
+    await vi.advanceTimersByTimeAsync(FIRST_DELAY_MS);
+    // Each subsequent failure retries after RETRY_DELAY_MS, up to the cap.
+    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS * (MAX_CONSECUTIVE_FAILURES + 2));
+    expect(fetch).toHaveBeenCalledTimes(MAX_CONSECUTIVE_FAILURES);
   });
 });

@@ -29,8 +29,6 @@ vi.mock("@/infrastructure/query/queryClient", () => ({
   queryClient: { clear: queryClientClear },
 }));
 
-import { apiAuthFetch } from "./api";
-
 const assign = vi.fn();
 
 function setLocation(pathname: string, search = "") {
@@ -40,25 +38,59 @@ function setLocation(pathname: string, search = "") {
   });
 }
 
-describe("apiAuthFetch 401 handling", () => {
-  beforeEach(() => {
+// fetch mock: every /api/backend/* call 401s (simulating an expired token); the
+// /api/auth/me liveness probe returns `meStatus` so we can drive both branches.
+function backendThenMe(meStatus: number) {
+  return vi.fn(async (input: RequestInfo | URL) => {
+    const url = typeof input === "string" ? input : String(input);
+    if (url.includes("/api/auth/me")) {
+      return new Response(meStatus === 200 ? JSON.stringify({ data: {} }) : null, {
+        status: meStatus,
+      });
+    }
+    return new Response(null, { status: 401 });
+  });
+}
+
+// api.ts keeps module-level single-flight guards (isRedirectingToSignIn /
+// isVerifyingSession); reset the module between tests so each starts clean.
+let apiAuthFetch: (path: string, options?: RequestInit) => Promise<unknown>;
+
+describe("apiAuthFetch 401 handling (verify-before-logout)", () => {
+  beforeEach(async () => {
     assign.mockClear();
     clearSession.mockClear();
     clearContext.mockClear();
     clearUser.mockClear();
     queryClientClear.mockClear();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => new Response(null, { status: 401 })),
-    );
+    setLocation("/en/org-1/branch-1/dashboard/patients");
+    vi.resetModules();
+    ({ apiAuthFetch } = await import("./api"));
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("redirects to sign-in exactly once across a burst of 401s on a protected page", async () => {
-    setLocation("/en/org-1/branch-1/dashboard/patients");
+  it("does NOT log out when the 401 is transient and /auth/me still succeeds", async () => {
+    vi.stubGlobal("fetch", backendThenMe(200));
+
+    await apiAuthFetch("/patients").catch(() => undefined);
+
+    // Wait for the background liveness probe to fire.
+    await vi.waitFor(() => {
+      const urls = vi.mocked(fetch).mock.calls.map((c) => String(c[0]));
+      expect(urls.some((u) => u.includes("/api/auth/me"))).toBe(true);
+    });
+    await Promise.resolve();
+
+    // Session is alive → no teardown, no redirect.
+    expect(assign).not.toHaveBeenCalled();
+    expect(clearSession).not.toHaveBeenCalled();
+  });
+
+  it("logs out once (after a single /auth/me probe) when the session is dead", async () => {
+    vi.stubGlobal("fetch", backendThenMe(401));
 
     // A dashboard query fan-out: many authenticated calls all 401 at once.
     await Promise.all(
@@ -67,11 +99,31 @@ describe("apiAuthFetch 401 handling", () => {
       ),
     );
 
-    // Single-flight guard: the teardown + navigation fire once, not per-failure,
-    // which is what otherwise restarts the pending /sign-in navigation in a loop.
-    expect(assign).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(assign).toHaveBeenCalledTimes(1));
     expect(assign).toHaveBeenCalledWith(
       "/en/sign-in?redirectTo=%2Forg-1%2Fbranch-1%2Fdashboard%2Fpatients",
     );
+    expect(clearSession).toHaveBeenCalledTimes(1);
+
+    // Single-flight: the burst triggers exactly one /auth/me probe.
+    const meProbes = vi
+      .mocked(fetch)
+      .mock.calls.filter((c) => String(c[0]).includes("/api/auth/me"));
+    expect(meProbes).toHaveLength(1);
+  });
+
+  it("never probes or redirects from a public auth page", async () => {
+    setLocation("/en/sign-in");
+    vi.stubGlobal("fetch", backendThenMe(401));
+
+    await apiAuthFetch("/patients").catch(() => undefined);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const meProbes = vi
+      .mocked(fetch)
+      .mock.calls.filter((c) => String(c[0]).includes("/api/auth/me"));
+    expect(meProbes).toHaveLength(0);
+    expect(assign).not.toHaveBeenCalled();
   });
 });
