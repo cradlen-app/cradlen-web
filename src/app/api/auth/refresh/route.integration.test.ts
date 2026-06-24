@@ -63,7 +63,12 @@ describe("POST /api/auth/refresh route handler", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toEqual({ data: { authenticated: true }, meta: {} });
+    // expires_in is surfaced (non-sensitive) so the client can schedule its
+    // proactive refresh; the raw tokens stay HttpOnly-cookie only.
+    expect(body).toEqual({
+      data: { authenticated: true, expires_in: 1800 },
+      meta: {},
+    });
 
     const setCookie = response.headers.getSetCookie().join("; ");
     expect(setCookie).toContain(AUTH_TOKEN_COOKIE);
