@@ -15,7 +15,7 @@ export default async function HeroMedia() {
 
   return (
     <div className="relative mx-auto w-fit max-w-full lg:mx-0 lg:ms-auto">
-      {/* App-window frame */}
+      {/* App-window frame (tall portrait) */}
       <div
         role="img"
         aria-label={t("mediaAlt")}
@@ -31,11 +31,16 @@ export default async function HeroMedia() {
           </span>
         </div>
 
-        {/* Scaled desktop canvas */}
-        <div className="overflow-hidden">
-          <div className="[zoom:0.3] sm:[zoom:0.42] lg:[zoom:0.46]">
+        {/* Scaled desktop canvas — top-aligned, cropped to a tall portrait */}
+        <div className="relative h-[330px] overflow-hidden sm:h-[410px] lg:h-[510px]">
+          <div className="origin-top [zoom:0.4] sm:[zoom:0.46] lg:[zoom:0.56]">
             <WorkspaceMockup />
           </div>
+          {/* Bottom fade */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white to-transparent"
+            aria-hidden="true"
+          />
         </div>
       </div>
 
