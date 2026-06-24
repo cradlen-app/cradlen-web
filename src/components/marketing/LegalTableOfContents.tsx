@@ -11,11 +11,11 @@ type Props = {
 };
 
 /**
- * Sticky table of contents for the Terms of Service page. Anchors jump to each
- * section (smooth-scroll is global) and the active section is highlighted as the
- * reader scrolls via an IntersectionObserver. Desktop only.
+ * Sticky table of contents for legal documents (Terms, Privacy). Anchors jump to
+ * each section (smooth-scroll is global) and the active section is highlighted as
+ * the reader scrolls via an IntersectionObserver. Desktop only.
  */
-export default function TermsTableOfContents({ items, label }: Props) {
+export default function LegalTableOfContents({ items, label }: Props) {
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
 
   useEffect(() => {

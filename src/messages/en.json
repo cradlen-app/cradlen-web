@@ -1,4 +1,114 @@
 {
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: 24 June 2026",
+    "intro": "This Privacy Policy explains what data Cradlen collects, how we use and protect it, and the choices you have. It applies to the Cradlen platform, websites, and applications (together, the \"Platform\"). Cradlen provides the Platform to clinics and hospitals (each an \"Organization\") and processes data on their behalf. If you are a patient, the Organization providing your care is the controller of your health records, and Cradlen acts as its processor.",
+    "tocLabel": "On this page",
+    "sections": {
+      "introduction": {
+        "heading": "1. Our commitment to privacy",
+        "body": [
+          "Protecting health information is central to what we do. This policy describes our practices for the personal data we handle when Organizations and their staff use the Platform, and when patient information is recorded in it.",
+          "Roles: For data an Organization enters about its patients and operations, the Organization is the data controller and Cradlen is the data processor acting on its instructions. For account and billing data about the Organization itself, Cradlen is the controller. This policy covers both."
+        ]
+      },
+      "data-we-collect": {
+        "heading": "2. What data we collect",
+        "body": [
+          "We collect the following categories of data:"
+        ],
+        "bullets": [
+          "Account and organization data: names, work email addresses, phone numbers, role and job function, and clinic/branch details for the staff who use the Platform.",
+          "Patient health data: demographics, contact details, and clinical information your team records — visits, examinations, procedures, diagnoses, medications, investigations, attachments, and care journeys.",
+          "Billing data: subscription plan, invoices, and payment status (we do not store full card numbers).",
+          "Communications: messages you send to support and the email addresses used for transactional mail (verification, password reset, notifications), delivered via Resend.",
+          "Usage and device data: log data such as IP address, browser/device type, pages viewed, and timestamps, used to operate and secure the Platform."
+        ]
+      },
+      "how-we-use": {
+        "heading": "3. How we use data",
+        "body": [
+          "We use data to provide and operate the Platform, including maintaining clinical and operational records on behalf of Organizations, processing subscriptions and billing, and sending transactional email such as verification, password-reset, and notification messages.",
+          "We also use data to secure the Platform and prevent abuse, to provide customer support, to improve reliability and performance, and to comply with legal obligations. We do not use patient health data for advertising, and we do not sell personal data."
+        ]
+      },
+      "data-storage": {
+        "heading": "4. Where data is stored",
+        "body": [
+          "The Platform runs on established cloud infrastructure. The web application is hosted on Vercel; the backend API is hosted on Railway; the primary database is a managed PostgreSQL database on Neon; and uploaded files and attachments are stored in Cloudflare object storage. Cloudflare also provides our domain, DNS, and content-delivery network.",
+          "Data is stored in the regions configured for these services [data-residency region to be confirmed]. Each provider maintains its own security and compliance certifications."
+        ]
+      },
+      "international-transfers": {
+        "heading": "5. International data transfers",
+        "body": [
+          "Because we rely on the cloud providers named above, your data may be processed in countries other than your own. Where data is transferred across borders, we rely on the safeguards offered by those providers, such as standard contractual clauses and their regional data-processing commitments [specific regions and safeguards to be confirmed]."
+        ]
+      },
+      "data-sharing": {
+        "heading": "6. Data sharing",
+        "body": [
+          "We do not sell personal data. We share data only as needed to run the Platform and as described here:"
+        ],
+        "bullets": [
+          "Sub-processors: Vercel (web hosting and analytics), Railway (backend hosting), Neon (database), Cloudflare (DNS, CDN, and file storage), and Resend (transactional email). Each processes data only to provide its service to us.",
+          "Within your Organization: authorized staff can access the data their role and permissions allow.",
+          "Legal and safety: we may disclose data where required by law, to enforce our agreements, or to protect the rights, safety, and security of patients, users, or the public.",
+          "Business transfers: if Cradlen is involved in a merger, acquisition, or asset sale, data may transfer as part of that transaction, subject to this policy."
+        ]
+      },
+      "security": {
+        "heading": "7. Security",
+        "body": [
+          "We apply technical and organizational measures to protect data. Connections are encrypted in transit using HTTPS/TLS, and data is encrypted at rest by our infrastructure providers. Access is restricted by role-based permissions, and authentication tokens are held in HttpOnly cookies that are not readable by browser scripts.",
+          "We monitor for unauthorized access and apply the principle of least privilege. No system is perfectly secure, but we work to protect your data and to respond promptly to any incident."
+        ]
+      },
+      "data-retention": {
+        "heading": "8. Data retention",
+        "body": [
+          "We retain data for as long as the Organization's account is active and as needed to provide the Platform. Clinical and billing records may be retained for longer where medical-records, tax, or other laws require it.",
+          "When data is no longer required, we delete or anonymize it in line with our retention practices. On account termination, we make data available for export for a reasonable period before deletion, as described in our agreement with the Organization."
+        ]
+      },
+      "your-rights": {
+        "heading": "9. Your rights",
+        "body": [
+          "Depending on where you live, you may have rights over your personal data, including to access it, correct it, delete it, restrict or object to its processing, receive it in a portable format, and withdraw consent. You may also have the right to complain to a data-protection authority.",
+          "Patients own their personal medical history and can request access to it or have it provided in a portable form so it can move with them across providers. To exercise any right, contact your Organization (the controller of your health records) or contact us using the details below and we will assist the relevant controller."
+        ]
+      },
+      "cookies": {
+        "heading": "10. Cookies and similar technologies",
+        "body": [
+          "We keep our use of cookies minimal:"
+        ],
+        "bullets": [
+          "Strictly necessary cookies: HttpOnly session cookies that keep you signed in (for example cradlen-auth-token and cradlen-refresh-token, plus short-lived cookies for sign-up and password-reset flows, and the equivalents for the patient portal). The Platform cannot function without these.",
+          "Preference cookies: a cookie that remembers your chosen language.",
+          "Analytics: we use Vercel Analytics and Vercel Speed Insights to measure aggregate, anonymous usage and performance. These are privacy-friendly and do not use cookies to track you across sites."
+        ]
+      },
+      "childrens-data": {
+        "heading": "11. Children's data",
+        "body": [
+          "The Platform is intended for use by healthcare organizations and their staff, not by children directly. Where a patient is a minor, their health information is recorded and processed by the treating Organization under its care relationship and with the consent of a parent or guardian as required by law. Cradlen processes such data only on the Organization's behalf."
+        ]
+      },
+      "changes": {
+        "heading": "12. Changes to this policy",
+        "body": [
+          "We may update this Privacy Policy from time to time. When we make material changes, we will provide reasonable notice — for example by posting the updated policy with a new \"last updated\" date or by notifying you through the Platform. Your continued use of the Platform after the changes take effect constitutes acceptance of the updated policy."
+        ]
+      },
+      "contact": {
+        "heading": "13. Contact us",
+        "body": [
+          "If you have questions about this Privacy Policy or how your data is handled, please contact us at privacy@cradlen.com. If you are a patient, you can also contact the clinic or hospital providing your care."
+        ]
+      }
+    }
+  },
   "termsOfService": {
     "title": "Terms of Service",
     "lastUpdated": "Last updated: 24 June 2026",

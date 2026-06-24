@@ -18,6 +18,7 @@ const PUBLIC_ROUTE_PREFIXES = [
   "/sign-up",
   "/forgot-password",
   "/terms-of-service",
+  "/privacy-policy",
   "/invitations/accept",
   "/patient/signin",
   "/patient/signup",

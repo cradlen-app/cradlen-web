@@ -30,7 +30,7 @@ export default async function MarketingFooter() {
     {
       label: t("legalLabel"),
       links: [
-        { text: t("legal.privacy"), href: "#" },
+        { text: t("legal.privacy"), href: "/privacy-policy", internal: true },
         { text: t("legal.terms"), href: "/terms-of-service", internal: true },
       ],
     },
