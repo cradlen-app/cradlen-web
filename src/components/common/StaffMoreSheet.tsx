@@ -339,30 +339,30 @@ export function StaffMoreSheet({
 
         {/* Legal / Help / Language */}
         <div className="border-t border-gray-100 px-3 py-3">
-          <a
-            href="#"
+          <Link
+            href="/terms-of-service"
             className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
           >
             <FileText className="size-5 shrink-0 text-gray-400" />
             <span className="flex-1 truncate">{tFooter("termsOfService")}</span>
             <ChevronRight className="size-4 shrink-0 text-gray-300 rtl:scale-x-[-1]" />
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/privacy-policy"
             className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
           >
             <ShieldCheck className="size-5 shrink-0 text-gray-400" />
             <span className="flex-1 truncate">{tFooter("privacyPolicy")}</span>
             <ChevronRight className="size-4 shrink-0 text-gray-300 rtl:scale-x-[-1]" />
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/help-center"
             className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
           >
             <LifeBuoy className="size-5 shrink-0 text-gray-400" />
             <span className="flex-1 truncate">{tFooter("helpCenter")}</span>
             <ChevronRight className="size-4 shrink-0 text-gray-300 rtl:scale-x-[-1]" />
-          </a>
+          </Link>
           <div className="flex items-center gap-3 px-3 py-3">
             <Globe className="size-5 shrink-0 text-gray-400" />
             <span className="flex-1 truncate text-sm font-medium text-gray-600">

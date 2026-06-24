@@ -1,4 +1,132 @@
 {
+  "helpCenter": {
+    "title": "Help Center",
+    "subtitle": "Answers to common questions about setting up and using Cradlen — for clinic teams and for patients. Can't find what you need? Reach out and we'll help.",
+    "contact": {
+      "heading": "Still need help?",
+      "body": "If you couldn't find an answer here, email our support team and we'll get back to you."
+    },
+    "categories": {
+      "getting-started": {
+        "title": "Getting started",
+        "items": [
+          {
+            "q": "How do I create my clinic on Cradlen?",
+            "a": "Sign up and follow the onboarding steps to register your organization. You'll set your clinic's name and details, then create your first branch and add the team members who need access."
+          },
+          {
+            "q": "How do I add branches?",
+            "a": "Owners can add and manage branches from Settings. Each branch has its own staff, schedule, and visits, while sharing the organization's patient records."
+          },
+          {
+            "q": "How do I invite staff?",
+            "a": "From the staff area, send an invitation by email and choose the person's role and job function. They'll receive a link to set a password and join your organization."
+          },
+          {
+            "q": "Which browsers are supported?",
+            "a": "Cradlen works best on the latest versions of Chrome, Edge, Safari, and Firefox on desktop, tablet, or mobile."
+          }
+        ]
+      },
+      "accounts-roles": {
+        "title": "Accounts & roles",
+        "items": [
+          {
+            "q": "What's the difference between a role and a job function?",
+            "a": "A role (owner, branch manager, or staff) sets what someone is allowed to manage. A job function (doctor, receptionist, or accountant) reflects what they actually do day to day and tailors the screens they see."
+          },
+          {
+            "q": "How do permissions work?",
+            "a": "Each person only sees and can do what their role and job function allow. For example, clinical screens are available to doctors, while billing screens are available to accountants and owners."
+          },
+          {
+            "q": "How do I switch between branches?",
+            "a": "If you have access to more than one branch, use the organization/branch switcher in the navigation to change the branch you're working in."
+          },
+          {
+            "q": "How do I update my profile?",
+            "a": "Open your profile from the account menu to update your name, photo, and contact details."
+          }
+        ]
+      },
+      "visits-patients": {
+        "title": "Visits & patients",
+        "items": [
+          {
+            "q": "How do I book a visit?",
+            "a": "Reception books a visit by choosing the specialty, sub-specialty, and doctor, then selecting or adding the patient. The right examination template loads automatically based on what was booked."
+          },
+          {
+            "q": "How do I find or add a patient?",
+            "a": "Search by name or national ID. If the patient doesn't exist yet, you can add them during booking and fill in their details."
+          },
+          {
+            "q": "Where are a patient's records and history?",
+            "a": "Open the patient to see their unified medical record — past visits, examinations, medications, investigations, and attachments — gathered in one place."
+          },
+          {
+            "q": "How do attachments and results get added?",
+            "a": "Upload files such as scans or lab results to the relevant visit or investigation; they're then available on the patient's record and, where shared, in their portal."
+          }
+        ]
+      },
+      "billing-subscriptions": {
+        "title": "Billing & subscriptions",
+        "items": [
+          {
+            "q": "How does subscription billing work?",
+            "a": "Your organization subscribes to a plan that renews automatically each period. You can see your plan and invoices in the billing area."
+          },
+          {
+            "q": "How do I record a patient payment?",
+            "a": "Charges are added to a patient's open invoice for a case, and you can record payments and installments against it as they're made."
+          },
+          {
+            "q": "Who can see billing and financial screens?",
+            "a": "Financial screens are available to owners and to staff with the accountant job function. Reads are open to authorized staff, while changes are restricted."
+          }
+        ]
+      },
+      "patient-portal": {
+        "title": "Patient portal",
+        "items": [
+          {
+            "q": "How do I sign in to the patient portal?",
+            "a": "Use the patient sign-in page with the credentials you created. If you've forgotten your password, use the forgot-password link to reset it."
+          },
+          {
+            "q": "Can I book my own appointments in the portal?",
+            "a": "No. Appointments are scheduled by your clinic's reception team. The portal is where you view your information, not where you book visits."
+          },
+          {
+            "q": "What can I see in the portal?",
+            "a": "You can view your visit history, investigation results, medications, and other parts of your medical record that your clinic shares with you."
+          },
+          {
+            "q": "How do I update my details?",
+            "a": "You can update your profile details from the portal. Some clinical information is maintained by your clinic and may need to be changed by them."
+          }
+        ]
+      },
+      "account-troubleshooting": {
+        "title": "Account & troubleshooting",
+        "items": [
+          {
+            "q": "I forgot my password — how do I reset it?",
+            "a": "Use the forgot-password link on the sign-in page. We'll email you a secure link to set a new password."
+          },
+          {
+            "q": "I'm not receiving emails from Cradlen.",
+            "a": "Check your spam or junk folder and confirm your email address is correct. If it still doesn't arrive, contact support and we'll help."
+          },
+          {
+            "q": "Who owns the data in Cradlen?",
+            "a": "Patients own their personal medical history, while the records created during a visit belong to the clinic that authored them. See our Privacy Policy for details on how data is handled."
+          }
+        ]
+      }
+    }
+  },
   "privacyPolicy": {
     "title": "Privacy Policy",
     "lastUpdated": "Last updated: 24 June 2026",
