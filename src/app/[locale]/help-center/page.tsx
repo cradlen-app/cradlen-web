@@ -20,7 +20,7 @@ const CATEGORY_IDS = [
   "account-troubleshooting",
 ] as const;
 
-const SUPPORT_EMAIL = "support@cradlen.com";
+const SUPPORT_EMAIL = "cradlen.app@gmail.com";
 
 export default async function HelpCenterPage({ params }: Props) {
   const { locale } = await params;
