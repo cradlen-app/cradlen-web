@@ -80,7 +80,7 @@ describe("POST /api/auth/refresh route handler", () => {
     expect(JSON.stringify(body)).not.toContain(REFRESH_TOKEN);
   });
 
-  it("forwards the backend error and clears cookies when refresh is rejected", async () => {
+  it("returns 401 WITHOUT clearing cookies when refresh is rejected (race-safe)", async () => {
     setRefreshCookie("revoked-refresh-token");
     vi.mocked(fetch).mockResolvedValueOnce(
       new Response(
@@ -92,13 +92,10 @@ describe("POST /api/auth/refresh route handler", () => {
     const response = await POST();
 
     expect(response.status).toBe(401);
-    await expect(response.json()).resolves.toEqual({
-      message: "Refresh token revoked or expired",
-    });
-
+    // A concurrent rotation may have just set fresh cookies and the recovery
+    // (selection) cookie must survive — so a failed refresh must NOT wipe
+    // cookies. The client verifies /auth/me before it logs the user out.
     const setCookie = response.headers.getSetCookie().join("; ");
-    expect(setCookie).toContain(`${AUTH_TOKEN_COOKIE}=`);
-    expect(setCookie).toContain(`${AUTH_REFRESH_TOKEN_COOKIE}=`);
-    expect(setCookie).toContain("Max-Age=0");
+    expect(setCookie).not.toContain("Max-Age=0");
   });
 });

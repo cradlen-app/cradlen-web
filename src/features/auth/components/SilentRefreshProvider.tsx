@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/queryKeys";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import {
   ACCESS_TOKEN_TTL_SECONDS,
@@ -12,26 +10,25 @@ import {
 // Floor/cap the scheduling delay so a misconfigured or tiny TTL can't busy-loop
 // the refresh endpoint, and a long TTL still leaves comfortable margin.
 const MIN_DELAY_MS = 15 * 1000;
-// After a transient network failure, retry soon rather than waiting a full TTL.
+// After a failed refresh, retry soon rather than waiting a full TTL.
 const RETRY_DELAY_MS = 20 * 1000;
+// Stop the proactive loop after this many consecutive failures. The session
+// isn't torn down here — the next user-driven request runs the authoritative
+// verify-before-logout check in apiAuthFetch. This just stops pointless polling.
+const MAX_CONSECUTIVE_FAILURES = 5;
 
-type RefreshResult =
-  | { ok: true; expiresInSeconds: number }
-  | { ok: false; dead: boolean };
+type RefreshOutcome = { ok: boolean; expiresInSeconds: number };
 
-async function postRefresh(): Promise<RefreshResult> {
-  // Plain fetch (not apiAuthFetch) so a 401 doesn't trigger the global
-  // clearSessionAndRedirect — we decide here whether the session is truly dead.
+async function postRefresh(): Promise<RefreshOutcome> {
+  // Plain fetch (not apiAuthFetch) so this never triggers the global
+  // session-teardown path; the proactive refresh is best-effort and must never
+  // log the user out on its own.
   const res = await fetch("/api/auth/refresh", {
     method: "POST",
     credentials: "include",
   });
 
-  if (!res.ok) {
-    // 401 = refresh token genuinely rejected (the route already cleared the
-    // cookies); anything else (5xx/network) is treated as transient.
-    return { ok: false, dead: res.status === 401 };
-  }
+  if (!res.ok) return { ok: false, expiresInSeconds: ACCESS_TOKEN_TTL_SECONDS };
 
   const body = (await res.json().catch(() => null)) as {
     data?: { expires_in?: number | null };
@@ -47,20 +44,19 @@ async function postRefresh(): Promise<RefreshResult> {
 /**
  * Keeps the staff session alive proactively: while a user is signed in (a
  * `/auth/me` query has resolved a user), it refreshes the access/refresh token
- * pair at ~80% of the access-token lifetime — well before the cookie expires.
+ * pair at ~80% of the access-token lifetime — well before the cookie expires —
+ * so an active user (e.g. a doctor in a long visit) stays signed in until they
+ * explicitly log out.
  *
- * This is the primary fix for the "forced re-login after the access token
- * expires" bug. The session previously refreshed only reactively (on the next
- * API call after expiry), which races the backend's refresh-token rotation and
- * could wipe the session. By refreshing ahead of expiry, the token is (almost)
- * never expired, so the racy path is rarely exercised and the user stays signed
- * in until they explicitly log out.
+ * Best-effort by design: a failed proactive refresh is treated as transient and
+ * never tears down the session. Session death is decided solely by the
+ * verify-before-logout path in `apiAuthFetch` (probe `/auth/me`), so a transient
+ * refresh-rotation race can't produce a false logout.
  *
  * Mounted once, globally, inside `Providers`. Renders nothing.
  */
 export function SilentRefreshProvider() {
   const { data: currentUser } = useCurrentUser();
-  const queryClient = useQueryClient();
   const isAuthenticated = Boolean(currentUser);
 
   // Mutable scheduling state kept in refs so the effect can manage a single
@@ -72,6 +68,7 @@ export function SilentRefreshProvider() {
     if (!isAuthenticated) return;
 
     let cancelled = false;
+    let consecutiveFailures = 0;
 
     const clearTimer = () => {
       if (timerRef.current !== null) {
@@ -94,24 +91,22 @@ export function SilentRefreshProvider() {
         if (cancelled) return;
 
         if (result.ok) {
+          consecutiveFailures = 0;
           schedule(result.expiresInSeconds * SILENT_REFRESH_RATIO * 1000);
           return;
         }
-
-        if (result.dead) {
-          // Session is genuinely over (refresh token revoked / 7-day window
-          // elapsed). Stop looping and let the app react: re-probing /auth/me
-          // will 401 and route the user out through the normal sign-out path.
-          clearTimer();
-          queryClient.invalidateQueries({ queryKey: queryKeys.currentUser() });
-          return;
-        }
-
-        // Transient failure (5xx) — retry soon without tearing down the session.
-        schedule(RETRY_DELAY_MS);
+        consecutiveFailures += 1;
       } catch {
-        // Network blip — retry soon; never wipe the session on a transient error.
-        if (!cancelled) schedule(RETRY_DELAY_MS);
+        if (cancelled) return;
+        consecutiveFailures += 1;
+      }
+
+      // Failure (HTTP error or network blip) — retry a few times, then give up
+      // quietly. Never wipe the session here.
+      if (consecutiveFailures < MAX_CONSECUTIVE_FAILURES) {
+        schedule(RETRY_DELAY_MS);
+      } else {
+        clearTimer();
       }
     }
 
@@ -136,7 +131,7 @@ export function SilentRefreshProvider() {
       clearTimer();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [isAuthenticated, queryClient]);
+  }, [isAuthenticated]);
 
   return null;
 }
