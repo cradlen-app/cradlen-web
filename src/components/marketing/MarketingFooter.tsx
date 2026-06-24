@@ -23,7 +23,7 @@ export default async function MarketingFooter() {
       label: t("companyLabel"),
       links: [
         { text: t("company.about"), href: "#" },
-        { text: t("company.helpCenter"), href: "#" },
+        { text: t("company.helpCenter"), href: "/help-center", internal: true },
         { text: t("company.whyJourneys"), href: "#" },
       ],
     },

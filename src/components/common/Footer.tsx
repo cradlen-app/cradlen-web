@@ -26,12 +26,12 @@ export default function Footer() {
           >
             {t("privacyPolicy")}
           </Link>
-          <a
-            href="#"
+          <Link
+            href="/help-center"
             className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
           >
             {t("helpCenter")}
-          </a>
+          </Link>
           <LanguageSelect currentLocale={locale as Locale} />
         </nav>
       </div>
