@@ -38,5 +38,15 @@ export async function POST() {
   }
 
   const tokens = extractTokens(body);
-  return sessionResponse({ data: { authenticated: true }, meta: {} }, tokens);
+  // Surface the (non-sensitive) access-token TTL so the client's proactive
+  // SilentRefreshProvider can schedule the next refresh accurately and
+  // self-correct if the backend changes JWT_ACCESS_EXPIRATION. Tokens stay
+  // HttpOnly-cookie only; only the duration is exposed.
+  return sessionResponse(
+    {
+      data: { authenticated: true, expires_in: tokens?.expires_in ?? null },
+      meta: {},
+    },
+    tokens,
+  );
 }
