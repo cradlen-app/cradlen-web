@@ -32,6 +32,7 @@ import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
 import { StaffStatCards } from "./StaffStatCards";
 import { StaffTable } from "./StaffTable";
+import { InactiveStaffPanel } from "./InactiveStaffPanel";
 import { StaffToolbar } from "./StaffToolbar";
 
 const PAGE_SIZE = 11;
@@ -262,6 +263,13 @@ export function StaffPage() {
               )}
             </div>
           </div>
+
+          {canManage && !hasNoBranch && (
+            <InactiveStaffPanel
+              organizationId={organizationId}
+              branchId={branchId}
+            />
+          )}
         </section>
 
         <StaffOverview

@@ -466,7 +466,8 @@
     },
     "purpose": {
       "PLAN": "Plan",
-      "ADD_ON": "Add-on"
+      "ADD_ON": "Add-on",
+      "COMBINED": "Plan + add-ons"
     },
     "planNames": {
       "free_trial": "Free Trial",
@@ -522,6 +523,23 @@
       "submit": "Continue to payment",
       "error": "Couldn't start the payment. Please try again."
     },
+    "planLimit": {
+      "title": "{plan} doesn't fit your usage yet",
+      "overview": "Cover the gap with add-ons, free up staff, or choose a larger plan.",
+      "resource": {
+        "staff": "Staff",
+        "branches": "Branches"
+      },
+      "branchesNote": "Branches can't be removed here. Keep them by adding branch bundles, or pick a larger plan.",
+      "freeUp": "Free up {count} more {count, plural, one {seat} other {seats}}",
+      "deactivate": "Deactivate",
+      "remove": "Remove",
+      "keepEverything": "Keep everything",
+      "addBranches": "+{count} {count, plural, one {branch} other {branches}}",
+      "addSeats": "+{count} {count, plural, one {seat} other {seats}}",
+      "continueToPayment": "Continue without add-ons",
+      "pickLargerPlan": "Pick a larger plan"
+    },
     "payments": {
       "title": "Payments",
       "description": "Your subscription payments and their status.",
@@ -536,6 +554,9 @@
       "loadError": "Couldn't load this payment",
       "instructions": "Payment instructions",
       "instructionsFallback": "Complete your transfer, then upload the receipt below. Reference: {reference}",
+      "lineItems": "What you're paying for",
+      "itemPlan": "Plan (1 year)",
+      "itemSeats": "{count} extra {count, plural, one {seat} other {seats}}",
       "payTo": "Pay to",
       "amount": "Amount",
       "reference": "Reference",

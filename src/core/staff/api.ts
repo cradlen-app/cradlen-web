@@ -9,6 +9,11 @@
  */
 
 export { useStaff } from "./hooks/useStaff";
+export {
+  useDeactivateStaff,
+  useReactivateStaff,
+  useRemoveStaffFromBranch,
+} from "./hooks/useManageStaff";
 export type { StaffMember } from "./types/staff.types";
 
 export { staffQueryKeys, STAFF_QUERY_KEY_ROOT } from "./queryKeys";

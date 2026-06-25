@@ -18,6 +18,7 @@ export const staffQueryKeys = {
       search?: string;
       branchId?: string;
       role?: string;
+      status?: string;
     },
   ) =>
     [
@@ -26,6 +27,7 @@ export const staffQueryKeys = {
       opts.search,
       opts.branchId,
       opts.role,
+      opts.status,
     ] as const,
   detail: (organizationId: string, branchId: string, staffId: string) =>
     ["staff", "detail", organizationId, branchId, staffId] as const,

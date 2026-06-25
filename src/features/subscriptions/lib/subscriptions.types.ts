@@ -82,7 +82,20 @@ export type PaymentProof = {
   created_at: string;
 };
 
-export type PaymentPurpose = "PLAN" | "ADD_ON";
+export type PaymentPurpose = "PLAN" | "ADD_ON" | "COMBINED";
+
+export type PaymentItemKind = "PLAN" | "ADD_ON";
+
+/** A line on a COMBINED checkout (plan + add-ons in one payment). */
+export type SubscriptionPaymentItem = {
+  id: string;
+  kind: PaymentItemKind;
+  subscription_plan_id: string | null;
+  add_on_id: string | null;
+  quantity: number;
+  unit_amount: string;
+  amount: string;
+};
 
 export type SubscriptionPayment = {
   id: string;
@@ -100,6 +113,7 @@ export type SubscriptionPayment = {
   verified_at: string | null;
   created_at: string;
   proofs?: PaymentProof[];
+  items?: SubscriptionPaymentItem[];
 };
 
 export type PaymentInstructions = {
@@ -119,10 +133,18 @@ export type CreatePaymentResponse = {
   redirect_url?: string;
 };
 
+export type CombinedAddOnLine = { code: string; quantity: number };
+
 export type CreatePaymentRequest = {
   plan: string;
   provider: PaymentProvider;
   /** When set, the payment is an add-on purchase (prorated server-side). */
   add_on_code?: string;
   quantity?: number;
+  /**
+   * When set alongside `plan`, the payment is a COMBINED checkout: the plan is
+   * activated AND these add-ons granted in one atomic, single-proof payment
+   * (e.g. switch to Individual while buying seats to keep all staff).
+   */
+  add_ons?: CombinedAddOnLine[];
 };
