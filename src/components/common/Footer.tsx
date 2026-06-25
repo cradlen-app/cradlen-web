@@ -8,6 +8,7 @@ import LanguageSelect from "./LanguageSelect";
 export default function Footer() {
   const locale = useLocale();
   const t = useTranslations("auth.signUp");
+  const tg = useTranslations("userGuide");
 
   return (
     <footer className="border-t border-gray-200 bg-inherit px-6 py-4 md:px-8">
@@ -25,6 +26,12 @@ export default function Footer() {
             className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
           >
             {t("privacyPolicy")}
+          </Link>
+          <Link
+            href="/guide"
+            className="text-sm text-gray-500 transition-colors hover:text-brand-primary"
+          >
+            {tg("navLabel")}
           </Link>
           <Link
             href="/help-center"

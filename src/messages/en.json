@@ -1,4 +1,53 @@
 {
+  "userGuide": {
+    "title": "User Guide",
+    "navLabel": "User Guide",
+    "heading": "Learn Cradlen",
+    "subtitle": "Everything you need to set up and run your clinic on Cradlen — from your first login to a paid visit.",
+    "overview": "Overview",
+    "onThisPage": "On this page",
+    "whatsNew": {
+      "title": "What's new",
+      "subtitle": "New features and improvements, newest first."
+    },
+    "helpCta": {
+      "heading": "Still need a hand?",
+      "body": "The Help Center answers the most common questions.",
+      "link": "Visit the Help Center"
+    },
+    "sections": {
+      "getting-started": {
+        "title": "Getting started",
+        "description": "Set up your clinic and reach your first paid visit."
+      },
+      "features": {
+        "title": "Features",
+        "description": "How each part of the workspace works, page by page."
+      },
+      "roles": {
+        "title": "Roles & access",
+        "description": "Who can see and do what across the clinic."
+      }
+    },
+    "articles": {
+      "getting-started": {
+        "title": "Getting started",
+        "description": "The full clinic setup flow, step by step."
+      },
+      "visits": {
+        "title": "Visits",
+        "description": "Booking, examinations, and charges."
+      },
+      "financial": {
+        "title": "Financial & billing",
+        "description": "Services, price lists, invoices, and payments."
+      },
+      "roles-and-permissions": {
+        "title": "Roles & permissions",
+        "description": "Roles, job functions, and what each persona can do."
+      }
+    }
+  },
   "helpCenter": {
     "title": "Help Center",
     "subtitle": "Answers to common questions about setting up and using Cradlen — for clinic teams and for patients. Can't find what you need? Reach out and we'll help.",

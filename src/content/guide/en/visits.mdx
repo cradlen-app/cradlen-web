@@ -1,0 +1,50 @@
+# Visits
+
+The **Visits** workspace is where reception books appointments and doctors run
+examinations. A visit carries everything about a single appointment: who the
+patient is, which doctor and specialty, the examination record, and the charges.
+
+## Booking a visit
+
+Open the booking drawer from the Visits page and work top to bottom:
+
+<Steps>
+  <Step title="Choose the specialty">
+    The list of doctors filters to those who practice the chosen specialty.
+  </Step>
+  <Step title="Pick the doctor and subspecialty">
+    Availability is checked against the doctor's weekly schedule for the date you
+    pick. The subspecialty determines which examination template loads later.
+  </Step>
+  <Step title="Select or create the patient">
+    Search existing patients, or add a new one inline without leaving the drawer.
+  </Step>
+  <Step title="Add a service and time">
+    Choose the booked service (its price resolves from the default price list)
+    and a date and time that fits the schedule.
+  </Step>
+</Steps>
+
+<Callout type="note" title="Prerequisites">
+You need a doctor with a specialty and an active schedule, plus a service catalog
+and a default price list. See **[Getting started](/guide/getting-started)** if you
+haven't set those up yet.
+</Callout>
+
+## Running the examination
+
+Opening a visit loads its examination workspace. The form is driven by the
+visit's subspecialty (falling back to the specialty), so each discipline sees the
+fields that matter to it. During the visit the care team can:
+
+- Record the examination and clinical notes.
+- Add extra charges as services are delivered — each new charge starts as pending.
+- Mark the visit completed when care is finished.
+
+## From visit to invoice
+
+Charges added during a visit stay pending until they're billed. Reception then
+groups a visit's pending charges into an invoice and collects payment — covered
+in **[Financial & billing](/guide/financial)**.
+
+<Figure alt="Visits workspace — booking drawer and examination" caption="The Visits workspace: book on the left, examine and charge on the right." />

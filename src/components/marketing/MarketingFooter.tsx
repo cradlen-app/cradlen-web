@@ -16,7 +16,7 @@ export default async function MarketingFooter() {
         { text: t("product.features"), href: "#features" },
         { text: t("product.pricing"), href: "#pricing" },
         { text: t("product.howItWorks"), href: "#how-it-works" },
-        { text: t("product.documentation"), href: "#docs" },
+        { text: t("product.documentation"), href: "/guide", internal: true },
       ],
     },
     {
