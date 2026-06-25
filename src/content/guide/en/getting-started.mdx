@@ -31,7 +31,8 @@ and a default price list → book a visit → run the visit → take payment.
   </Step>
   <Step title="Add your staff">
     Go to **Staff** and invite team members by email. For each person assign a
-    role (owner, doctor, or reception) and a job function. For doctors, set the
+    role (owner, staff, or branch manager) and a job function (doctor,
+    receptionist, or accountant). For staff with the doctor job function, set the
     specialty and subspecialties and a weekly schedule (the working days and
     hours). Invited staff accept from the email link and appear on the team.
   </Step>
@@ -39,7 +40,9 @@ and a default price list → book a visit → run the visit → take payment.
     In **Financial → Services**, build your service catalog (consultations,
     procedures, lab tests, imaging, and so on). Then create one **price list and
     mark it as the default** — bookings and invoices read their prices from it.
-    You can layer per-doctor or per-branch price overrides later.
+    Finally, on the **Authorizations** tab, authorize each doctor for the
+    services they deliver. You can layer per-doctor or per-branch price overrides
+    later.
   </Step>
   <Step title="Book a visit">
     From **Visits**, open the booking drawer and choose specialty → doctor →
@@ -59,7 +62,7 @@ and a default price list → book a visit → run the visit → take payment.
   </Step>
 </Steps>
 
-## Two things to set up before you can book
+## Before you can book
 
 <Callout type="warn" title="Services and a default price list come first">
 Booking looks up a price when you pick a service, so your service catalog and a
@@ -70,6 +73,12 @@ Booking looks up a price when you pick a service, so your service catalog and a
 Booking filters doctors by specialty and checks availability against their
 schedule. Add at least one doctor with a specialty and an active weekly schedule
 before booking.
+</Callout>
+
+<Callout type="warn" title="Doctors must be authorized for their services">
+A doctor can only be booked for a service they're authorized to deliver.
+Authorize each doctor for their services under **Financial → Services →
+Authorizations** before booking.
 </Callout>
 
 ## Where to go next
