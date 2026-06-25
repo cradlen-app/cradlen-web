@@ -12,7 +12,11 @@
  * and the `userGuide.articles.<slug>` message keys.
  */
 
-export type GuideSectionId = "getting-started" | "features" | "roles";
+export type GuideSectionId =
+  | "getting-started"
+  | "features"
+  | "patient-portal"
+  | "roles";
 
 export interface GuideSection {
   /** Doubles as the `userGuide.sections.<id>` message key. */
@@ -23,7 +27,22 @@ export interface GuideSection {
 
 export const GUIDE_SECTIONS: readonly GuideSection[] = [
   { id: "getting-started", articles: ["getting-started"] },
-  { id: "features", articles: ["visits", "financial"] },
+  {
+    id: "features",
+    // Order mirrors the in-app sidebar (src/core/shell/nav.ts + financial/staff
+    // nav order values) so the guide nav matches what users see in the product.
+    articles: [
+      "dashboard",
+      "visits",
+      "calendar",
+      "financial",
+      "patients",
+      "staff",
+      "medicine",
+      "settings",
+    ],
+  },
+  { id: "patient-portal", articles: ["patient-portal"] },
   { id: "roles", articles: ["roles-and-permissions"] },
 ] as const;
 
