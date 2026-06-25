@@ -1,0 +1,57 @@
+# Financial & billing
+
+The **Financial** area holds everything about money: the service catalog, price
+lists, invoices, payments, cash sessions, and reports. Set up the catalog and a
+default price list once, and the rest of the clinic prices itself automatically.
+
+## Services and price lists
+
+<Steps>
+  <Step title="Build the service catalog">
+    In **Financial → Services**, add each billable service with a type
+    (consultation, procedure, lab test, imaging, administrative, or other).
+  </Step>
+  <Step title="Create a default price list">
+    Set a unit price per service and mark one price list as the default. Bookings
+    and invoices read from it whenever a service is charged.
+  </Step>
+  <Step title="Add overrides where needed">
+    Optionally set per-doctor or per-branch prices. The most specific applicable
+    price wins when a charge is created.
+  </Step>
+</Steps>
+
+<Callout type="warn" title="A default price list is required for booking">
+Because booking resolves a price the moment you pick a service, the catalog and a
+default price list must exist before the first visit is booked.
+</Callout>
+
+<Callout type="note" title="Authorize doctors for services">
+The **Authorizations** tab links each doctor to the services they can deliver. A
+doctor can't be booked for a service until they're authorized for it — an
+eligibility gate, separate from pricing.
+</Callout>
+
+## Charges, invoices, and payments
+
+Money flows in three stages:
+
+- **Charges** are created when a visit is booked and as care is delivered. They
+  stay *pending* until billed.
+- **Invoices** group a visit's pending charges into line items. An invoice moves
+  through draft → issued → partially paid → paid.
+- **Payments** are recorded against an invoice (cash, card, bank transfer,
+  insurance, or other). Recording payment advances the invoice status and marks
+  the underlying charges as invoiced.
+
+## Cash sessions and reports
+
+Front-desk cash is tracked in **cash sessions** — open a session at the start of a
+shift and reconcile it at the end. **Reports** summarize revenue and collections
+so owners and accountants can see how each branch is performing.
+
+<Callout type="note" title="Who can do what">
+Reads are broadly available, but collecting payment, managing the catalog and
+pricing, and issuing refunds are permission-gated. See
+**[Roles & permissions](/guide/roles-and-permissions)**.
+</Callout>

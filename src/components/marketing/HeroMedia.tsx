@@ -1,22 +1,55 @@
-import { CalendarDays, Check, ImageIcon } from "lucide-react";
+import { CalendarDays, Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import WorkspaceMockup from "./WorkspaceMockup";
+
 /**
- * Hero visual: a soft photo panel (placeholder dropzone — swap the inner block
- * for a real <Image> from src/public/ later) with two floating journey cards
- * layered on top. Pure presentation, mirrors correctly in RTL.
+ * Hero visual: a faithful, static reproduction of the visit-workspace "Overview"
+ * screen, presented inside an app-window frame and scaled down with CSS `zoom`
+ * (which reflows the layout box so the frame shrink-wraps the scaled content),
+ * with two floating "journey" cards layered on top for depth. Pure presentation;
+ * the mockup uses fictional data only. Mirrors correctly in RTL.
  */
 export default async function HeroMedia() {
   const t = await getTranslations("home.hero");
 
   return (
-    <div className="relative mx-auto w-full max-w-lg lg:mx-0 lg:ms-auto">
-      {/* Photo panel placeholder */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[28px] border border-dashed border-brand-primary/25 bg-gradient-to-br from-brand-secondary/25 via-[#EDEDE3] to-brand-secondary/15">
-        <div className="absolute inset-0 grid place-items-center">
-          <div className="flex flex-col items-center gap-2 text-brand-black/40">
-            <ImageIcon className="size-7" />
+    <div className="relative mx-auto w-fit max-w-full lg:mx-0 lg:ms-auto">
+      {/* App-window frame (tall portrait) */}
+      <div
+        role="img"
+        aria-label={t("mediaAlt")}
+        className="max-w-full overflow-hidden rounded-[18px] bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5"
+      >
+        {/* Window chrome */}
+        <div className="flex items-center gap-1.5 border-b border-black/5 bg-gray-50 px-4 py-2.5">
+          <span
+            className="size-2.5 rounded-full bg-gray-300"
+            aria-hidden="true"
+          />
+          <span
+            className="size-2.5 rounded-full bg-gray-300"
+            aria-hidden="true"
+          />
+          <span
+            className="size-2.5 rounded-full bg-gray-300"
+            aria-hidden="true"
+          />
+          <span className="ms-3 rounded-md bg-white px-3 py-1 text-[11px] text-gray-400 ring-1 ring-black/5">
+            app.cradlen.com
+          </span>
+        </div>
+
+        {/* Scaled desktop canvas — top-aligned, cropped to a tall portrait */}
+        <div className="relative h-[330px] overflow-hidden sm:h-[410px] lg:h-[510px]">
+          <div className="origin-top [zoom:0.4] sm:[zoom:0.46] lg:[zoom:0.56]">
+            <WorkspaceMockup />
           </div>
+          {/* Bottom fade */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white to-transparent"
+            aria-hidden="true"
+          />
         </div>
       </div>
 
@@ -36,7 +69,7 @@ export default async function HeroMedia() {
       </div>
 
       {/* Floating: patient journey card */}
-      <div className="absolute -bottom-5 end-2 w-64 rounded-2xl bg-white p-4 shadow-xl shadow-black/10 ring-1 ring-black/5">
+      <div className="absolute -bottom-5 end-2 w-64 rounded-2xl bg-white p-4 shadow-xl shadow-black/10 ring-1 ring-black/5 z-10">
         <div className="flex items-center gap-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-secondary/40 text-xs font-semibold text-brand-primary">
             SA

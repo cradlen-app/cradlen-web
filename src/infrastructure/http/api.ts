@@ -146,7 +146,11 @@ export function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T>
 
   return apiFetch<T>(`/api/backend${path}`, { ...options, headers }).catch((error) => {
     if (error instanceof ApiError && error.status === 401) {
-      clearSessionAndRedirect();
+      // Don't tear down the session on a single 401 — it's often a transient
+      // race-loser while the proxy is silently refreshing the token. Verify the
+      // session is actually dead before logging out. (Fire-and-forget: the
+      // original error still propagates so React Query can retry.)
+      void handleUnauthorized();
     }
 
     throw error;
@@ -203,6 +207,51 @@ function isPublicAuthPath(pathWithoutLocale: string) {
 // redirect single-flight: the first 401 wins, the rest no-op. The flag is never
 // reset because the hard navigation tears down this module anyway.
 let isRedirectingToSignIn = false;
+
+// Single-flight guard so a burst of simultaneous 401s (the dashboard's query
+// fan-out after the access token expires) triggers exactly one /auth/me probe,
+// not one per failed request.
+let isVerifyingSession = false;
+
+// A 401 from an authenticated call is NOT proof the session is gone: after the
+// access token expires the proxy refreshes it on the next call, and the loser of
+// a refresh-rotation race can come back 401 while the session is perfectly
+// recoverable. So before logging out, probe /auth/me once — it runs through the
+// proxy, which performs the reactive refresh and rotates fresh cookies as a side
+// effect. Only a genuinely dead session (probe also 401s) logs the user out.
+// This makes the dashboard behave like the landing page, which already checks
+// /auth/me before treating the user as anonymous.
+async function handleUnauthorized() {
+  if (isRedirectingToSignIn || isVerifyingSession) return;
+
+  // Public auth pages legitimately have no session — never redirect from them.
+  const pathWithoutLocale =
+    typeof window !== "undefined"
+      ? getPathWithoutLocale(window.location.pathname)
+      : null;
+  if (pathWithoutLocale !== null && isPublicAuthPath(pathWithoutLocale)) return;
+
+  isVerifyingSession = true;
+  let sessionAlive = false;
+  try {
+    // Plain fetch (NOT apiAuthFetch) so a probe 401 doesn't recurse back here.
+    const res = await fetch("/api/auth/me", {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    // Treat a 200 as alive; treat a network error (caught below) as "don't know"
+    // and fail safe by NOT logging out.
+    sessionAlive = res.ok || res.status !== 401;
+  } catch {
+    // Couldn't reach the proxy — don't wipe a possibly-valid session over a blip.
+    sessionAlive = true;
+  } finally {
+    isVerifyingSession = false;
+  }
+
+  if (!sessionAlive) clearSessionAndRedirect();
+}
 
 function clearSessionAndRedirect() {
   if (isRedirectingToSignIn) return;

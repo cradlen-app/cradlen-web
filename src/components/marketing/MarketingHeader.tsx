@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { key: "features", href: "#features" },
   { key: "howItWorks", href: "#how-it-works" },
   { key: "pricing", href: "#pricing" },
-  { key: "docs", href: "#docs" },
+  { key: "docs", href: "/guide", internal: true },
 ] as const;
 
 export default function MarketingHeader() {
@@ -32,15 +32,25 @@ export default function MarketingHeader() {
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.key}
-              href={link.href}
-              className="text-sm font-medium text-brand-black/70 transition-colors hover:text-brand-primary"
-            >
-              {t(link.key)}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) =>
+            "internal" in link && link.internal ? (
+              <Link
+                key={link.key}
+                href={link.href}
+                className="text-sm font-medium text-brand-black/70 transition-colors hover:text-brand-primary"
+              >
+                {t(link.key)}
+              </Link>
+            ) : (
+              <a
+                key={link.key}
+                href={link.href}
+                className="text-sm font-medium text-brand-black/70 transition-colors hover:text-brand-primary"
+              >
+                {t(link.key)}
+              </a>
+            ),
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
@@ -76,16 +86,27 @@ export default function MarketingHeader() {
         )}
       >
         <div className="flex flex-col gap-1 px-5 py-4 sm:px-8">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.key}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-black/80 transition-colors hover:bg-black/5"
-            >
-              {t(link.key)}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) =>
+            "internal" in link && link.internal ? (
+              <Link
+                key={link.key}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-black/80 transition-colors hover:bg-black/5"
+              >
+                {t(link.key)}
+              </Link>
+            ) : (
+              <a
+                key={link.key}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-black/80 transition-colors hover:bg-black/5"
+              >
+                {t(link.key)}
+              </a>
+            ),
+          )}
           <div className="mt-2 flex items-center gap-3 border-t border-black/5 pt-4">
             <Button
               asChild

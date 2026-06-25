@@ -243,7 +243,10 @@ async function performRefresh(refreshToken: string) {
   return tokens;
 }
 
-async function refreshAuthTokens(refreshToken: string) {
+// Exported so the proactive `/api/auth/refresh` route shares this same in-flight
+// dedup as the reactive proxy path — a proactive refresh racing a reactive one
+// then collapses into a single backend rotation instead of double-rotating.
+export async function refreshAuthTokens(refreshToken: string) {
   const existing = inflightRefreshes.get(refreshToken);
   if (existing) return existing;
 

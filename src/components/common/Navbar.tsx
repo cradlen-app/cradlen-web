@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Mail, ChevronDown, LogOut, Settings } from "lucide-react";
+import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import {
@@ -60,28 +60,29 @@ function UserAvatar({
   );
 }
 
-function IconButton({
-  label,
-  badge,
-  children,
-}: {
-  label: string;
-  badge?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      className="relative size-9 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150"
-    >
-      {children}
-      {badge && (
-        <span className="absolute top-1.5 inset-e-1.5 size-2 rounded-full bg-brand-primary ring-2 ring-white" />
-      )}
-    </button>
-  );
-}
+// Only used by the (currently hidden) Messages icon. Restore alongside it.
+// function IconButton({
+//   label,
+//   badge,
+//   children,
+// }: {
+//   label: string;
+//   badge?: boolean;
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <button
+//       type="button"
+//       aria-label={label}
+//       className="relative size-9 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150"
+//     >
+//       {children}
+//       {badge && (
+//         <span className="absolute top-1.5 inset-e-1.5 size-2 rounded-full bg-brand-primary ring-2 ring-white" />
+//       )}
+//     </button>
+//   );
+// }
 
 export function Navbar() {
   const tRoles = useTranslations("settings.roles");
@@ -118,10 +119,10 @@ export function Navbar() {
         {/* Notification */}
         <NotificationDropdown />
 
-        {/* Messages */}
+        {/* Messages — hidden until the messaging feature is built:
         <IconButton label="Messages">
           <Mail className="size-5" />
-        </IconButton>
+        </IconButton> */}
 
         <div className="hidden lg:block w-px h-5 bg-gray-200 mx-1.5" />
 

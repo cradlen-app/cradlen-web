@@ -1,4 +1,443 @@
 {
+  "userGuide": {
+    "title": "User Guide",
+    "navLabel": "User Guide",
+    "heading": "Learn Cradlen",
+    "subtitle": "Everything you need to set up and run your clinic on Cradlen — from your first login to a paid visit.",
+    "overview": "Overview",
+    "onThisPage": "On this page",
+    "whatsNew": {
+      "title": "What's new",
+      "subtitle": "New features and improvements, newest first."
+    },
+    "helpCta": {
+      "heading": "Still need a hand?",
+      "body": "The Help Center answers the most common questions.",
+      "link": "Visit the Help Center"
+    },
+    "sections": {
+      "getting-started": {
+        "title": "Getting started",
+        "description": "Set up your clinic and reach your first paid visit."
+      },
+      "features": {
+        "title": "Features",
+        "description": "How each part of the workspace works, page by page."
+      },
+      "patient-portal": {
+        "title": "Patient portal",
+        "description": "The patient-facing app for following care."
+      },
+      "roles": {
+        "title": "Roles & access",
+        "description": "Who can see and do what across the clinic."
+      }
+    },
+    "articles": {
+      "getting-started": {
+        "title": "Getting started",
+        "description": "The full clinic setup flow, step by step."
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "description": "Your role-aware home screen and clinic overview."
+      },
+      "calendar": {
+        "title": "Calendar",
+        "description": "Scheduling, events, and event privacy."
+      },
+      "visits": {
+        "title": "Visits",
+        "description": "Booking, examinations, and charges."
+      },
+      "patients": {
+        "title": "Patients",
+        "description": "The patient directory and clinical workspace."
+      },
+      "staff": {
+        "title": "Staff",
+        "description": "Build your team, set roles and schedules, and manage invitations."
+      },
+      "medicine": {
+        "title": "Medicines",
+        "description": "Your clinic's medication catalog, used when prescribing."
+      },
+      "financial": {
+        "title": "Financial & billing",
+        "description": "Services, price lists, invoices, and payments."
+      },
+      "settings": {
+        "title": "Settings & subscription",
+        "description": "Profile, organization, branches, and your plan and add-ons."
+      },
+      "patient-portal": {
+        "title": "Overview",
+        "description": "Signing in and a tour of every patient page."
+      },
+      "roles-and-permissions": {
+        "title": "Roles & permissions",
+        "description": "Roles, job functions, and what each persona can do."
+      }
+    }
+  },
+  "helpCenter": {
+    "title": "Help Center",
+    "subtitle": "Answers to common questions about setting up and using Cradlen — for clinic teams and for patients. Can't find what you need? Reach out and we'll help.",
+    "contact": {
+      "heading": "Still need help?",
+      "body": "If you couldn't find an answer here, email our support team and we'll get back to you."
+    },
+    "categories": {
+      "getting-started": {
+        "title": "Getting started",
+        "items": [
+          {
+            "q": "How do I create my clinic on Cradlen?",
+            "a": "Sign up and follow the onboarding steps to register your organization. You'll set your clinic's name and details, then create your first branch and add the team members who need access."
+          },
+          {
+            "q": "How do I add branches?",
+            "a": "Owners can add and manage branches from Settings. Each branch has its own staff, schedule, and visits, while sharing the organization's patient records."
+          },
+          {
+            "q": "How do I invite staff?",
+            "a": "From the staff area, send an invitation by email and choose the person's role and job function. They'll receive a link to set a password and join your organization."
+          },
+          {
+            "q": "Which browsers are supported?",
+            "a": "Cradlen works best on the latest versions of Chrome, Edge, Safari, and Firefox on desktop, tablet, or mobile."
+          }
+        ]
+      },
+      "accounts-roles": {
+        "title": "Accounts & roles",
+        "items": [
+          {
+            "q": "What's the difference between a role and a job function?",
+            "a": "A role (owner, branch manager, or staff) sets what someone is allowed to manage. A job function (doctor, receptionist, or accountant) reflects what they actually do day to day and tailors the screens they see."
+          },
+          {
+            "q": "How do permissions work?",
+            "a": "Each person only sees and can do what their role and job function allow. For example, clinical screens are available to doctors, while billing screens are available to accountants and owners."
+          },
+          {
+            "q": "How do I switch between branches?",
+            "a": "If you have access to more than one branch, use the organization/branch switcher in the navigation to change the branch you're working in."
+          },
+          {
+            "q": "How do I update my profile?",
+            "a": "Open your profile from the account menu to update your name, photo, and contact details."
+          }
+        ]
+      },
+      "visits-patients": {
+        "title": "Visits & patients",
+        "items": [
+          {
+            "q": "How do I book a visit?",
+            "a": "Reception books a visit by choosing the specialty, sub-specialty, and doctor, then selecting or adding the patient. The right examination template loads automatically based on what was booked."
+          },
+          {
+            "q": "How do I find or add a patient?",
+            "a": "Search by name or national ID. If the patient doesn't exist yet, you can add them during booking and fill in their details."
+          },
+          {
+            "q": "Where are a patient's records and history?",
+            "a": "Open the patient to see their unified medical record — past visits, examinations, medications, investigations, and attachments — gathered in one place."
+          },
+          {
+            "q": "How do attachments and results get added?",
+            "a": "Upload files such as scans or lab results to the relevant visit or investigation; they're then available on the patient's record and, where shared, in their portal."
+          }
+        ]
+      },
+      "billing-subscriptions": {
+        "title": "Billing & subscriptions",
+        "items": [
+          {
+            "q": "How does subscription billing work?",
+            "a": "Your organization subscribes to a plan that renews automatically each period. You can see your plan and invoices in the billing area."
+          },
+          {
+            "q": "How do I record a patient payment?",
+            "a": "Charges are added to a patient's open invoice for a case, and you can record payments and installments against it as they're made."
+          },
+          {
+            "q": "Who can see billing and financial screens?",
+            "a": "Financial screens are available to owners and to staff with the accountant job function. Reads are open to authorized staff, while changes are restricted."
+          }
+        ]
+      },
+      "patient-portal": {
+        "title": "Patient portal",
+        "items": [
+          {
+            "q": "How do I sign in to the patient portal?",
+            "a": "Use the patient sign-in page with the credentials you created. If you've forgotten your password, use the forgot-password link to reset it."
+          },
+          {
+            "q": "Can I book my own appointments in the portal?",
+            "a": "No. Appointments are scheduled by your clinic's reception team. The portal is where you view your information, not where you book visits."
+          },
+          {
+            "q": "What can I see in the portal?",
+            "a": "You can view your visit history, investigation results, medications, and other parts of your medical record that your clinic shares with you."
+          },
+          {
+            "q": "How do I update my details?",
+            "a": "You can update your profile details from the portal. Some clinical information is maintained by your clinic and may need to be changed by them."
+          }
+        ]
+      },
+      "account-troubleshooting": {
+        "title": "Account & troubleshooting",
+        "items": [
+          {
+            "q": "I forgot my password — how do I reset it?",
+            "a": "Use the forgot-password link on the sign-in page. We'll email you a secure link to set a new password."
+          },
+          {
+            "q": "I'm not receiving emails from Cradlen.",
+            "a": "Check your spam or junk folder and confirm your email address is correct. If it still doesn't arrive, contact support and we'll help."
+          },
+          {
+            "q": "Who owns the data in Cradlen?",
+            "a": "Patients own their personal medical history, while the records created during a visit belong to the clinic that authored them. See our Privacy Policy for details on how data is handled."
+          }
+        ]
+      }
+    }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: 24 June 2026",
+    "intro": "This Privacy Policy explains what data Cradlen collects, how we use and protect it, and the choices you have. It applies to the Cradlen platform, websites, and applications (together, the \"Platform\"). Cradlen provides the Platform to clinics and hospitals (each an \"Organization\") and processes data on their behalf. If you are a patient, the Organization providing your care is the controller of your health records, and Cradlen acts as its processor.",
+    "tocLabel": "On this page",
+    "sections": {
+      "introduction": {
+        "heading": "1. Our commitment to privacy",
+        "body": [
+          "Protecting health information is central to what we do. This policy describes our practices for the personal data we handle when Organizations and their staff use the Platform, and when patient information is recorded in it.",
+          "Roles: For data an Organization enters about its patients and operations, the Organization is the data controller and Cradlen is the data processor acting on its instructions. For account and billing data about the Organization itself, Cradlen is the controller. This policy covers both."
+        ]
+      },
+      "data-we-collect": {
+        "heading": "2. What data we collect",
+        "body": [
+          "We collect the following categories of data:"
+        ],
+        "bullets": [
+          "Account and organization data: names, work email addresses, phone numbers, role and job function, and clinic/branch details for the staff who use the Platform.",
+          "Patient health data: demographics, contact details, and clinical information your team records — visits, examinations, procedures, diagnoses, medications, investigations, attachments, and care journeys.",
+          "Billing data: subscription plan, invoices, and payment status (we do not store full card numbers).",
+          "Communications: messages you send to support and the email addresses used for transactional mail (verification, password reset, notifications), delivered via Resend.",
+          "Usage and device data: log data such as IP address, browser/device type, pages viewed, and timestamps, used to operate and secure the Platform."
+        ]
+      },
+      "how-we-use": {
+        "heading": "3. How we use data",
+        "body": [
+          "We use data to provide and operate the Platform, including maintaining clinical and operational records on behalf of Organizations, processing subscriptions and billing, and sending transactional email such as verification, password-reset, and notification messages.",
+          "We also use data to secure the Platform and prevent abuse, to provide customer support, to improve reliability and performance, and to comply with legal obligations. We do not use patient health data for advertising, and we do not sell personal data."
+        ]
+      },
+      "data-storage": {
+        "heading": "4. Where data is stored",
+        "body": [
+          "The Platform runs on established cloud infrastructure. The web application is hosted on Vercel; the backend API is hosted on Railway; the primary database is a managed PostgreSQL database on Neon; and uploaded files and attachments are stored in Cloudflare object storage. Cloudflare also provides our domain, DNS, and content-delivery network.",
+          "Data is stored in the regions configured for these services [data-residency region to be confirmed]. Each provider maintains its own security and compliance certifications."
+        ]
+      },
+      "international-transfers": {
+        "heading": "5. International data transfers",
+        "body": [
+          "Because we rely on the cloud providers named above, your data may be processed in countries other than your own. Where data is transferred across borders, we rely on the safeguards offered by those providers, such as standard contractual clauses and their regional data-processing commitments [specific regions and safeguards to be confirmed]."
+        ]
+      },
+      "data-sharing": {
+        "heading": "6. Data sharing",
+        "body": [
+          "We do not sell personal data. We share data only as needed to run the Platform and as described here:"
+        ],
+        "bullets": [
+          "Sub-processors: Vercel (web hosting and analytics), Railway (backend hosting), Neon (database), Cloudflare (DNS, CDN, and file storage), and Resend (transactional email). Each processes data only to provide its service to us.",
+          "Within your Organization: authorized staff can access the data their role and permissions allow.",
+          "Legal and safety: we may disclose data where required by law, to enforce our agreements, or to protect the rights, safety, and security of patients, users, or the public.",
+          "Business transfers: if Cradlen is involved in a merger, acquisition, or asset sale, data may transfer as part of that transaction, subject to this policy."
+        ]
+      },
+      "security": {
+        "heading": "7. Security",
+        "body": [
+          "We apply technical and organizational measures to protect data. Connections are encrypted in transit using HTTPS/TLS, and data is encrypted at rest by our infrastructure providers. Access is restricted by role-based permissions, and authentication tokens are held in HttpOnly cookies that are not readable by browser scripts.",
+          "We monitor for unauthorized access and apply the principle of least privilege. No system is perfectly secure, but we work to protect your data and to respond promptly to any incident."
+        ]
+      },
+      "data-retention": {
+        "heading": "8. Data retention",
+        "body": [
+          "We retain data for as long as the Organization's account is active and as needed to provide the Platform. Clinical and billing records may be retained for longer where medical-records, tax, or other laws require it.",
+          "When data is no longer required, we delete or anonymize it in line with our retention practices. On account termination, we make data available for export for a reasonable period before deletion, as described in our agreement with the Organization."
+        ]
+      },
+      "your-rights": {
+        "heading": "9. Your rights",
+        "body": [
+          "Depending on where you live, you may have rights over your personal data, including to access it, correct it, delete it, restrict or object to its processing, receive it in a portable format, and withdraw consent. You may also have the right to complain to a data-protection authority.",
+          "Patients own their personal medical history and can request access to it or have it provided in a portable form so it can move with them across providers. To exercise any right, contact your Organization (the controller of your health records) or contact us using the details below and we will assist the relevant controller."
+        ]
+      },
+      "cookies": {
+        "heading": "10. Cookies and similar technologies",
+        "body": [
+          "We keep our use of cookies minimal:"
+        ],
+        "bullets": [
+          "Strictly necessary cookies: HttpOnly session cookies that keep you signed in (for example cradlen-auth-token and cradlen-refresh-token, plus short-lived cookies for sign-up and password-reset flows, and the equivalents for the patient portal). The Platform cannot function without these.",
+          "Preference cookies: a cookie that remembers your chosen language.",
+          "Analytics: we use Vercel Analytics and Vercel Speed Insights to measure aggregate, anonymous usage and performance. These are privacy-friendly and do not use cookies to track you across sites."
+        ]
+      },
+      "childrens-data": {
+        "heading": "11. Children's data",
+        "body": [
+          "The Platform is intended for use by healthcare organizations and their staff, not by children directly. Where a patient is a minor, their health information is recorded and processed by the treating Organization under its care relationship and with the consent of a parent or guardian as required by law. Cradlen processes such data only on the Organization's behalf."
+        ]
+      },
+      "changes": {
+        "heading": "12. Changes to this policy",
+        "body": [
+          "We may update this Privacy Policy from time to time. When we make material changes, we will provide reasonable notice — for example by posting the updated policy with a new \"last updated\" date or by notifying you through the Platform. Your continued use of the Platform after the changes take effect constitutes acceptance of the updated policy."
+        ]
+      },
+      "contact": {
+        "heading": "13. Contact us",
+        "body": [
+          "If you have questions about this Privacy Policy or how your data is handled, please contact us at cradlen.app@gmail.com. If you are a patient, you can also contact the clinic or hospital providing your care."
+        ]
+      }
+    }
+  },
+  "termsOfService": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: 24 June 2026",
+    "intro": "These Terms of Service (the \"Terms\") govern your access to and use of the Cradlen platform, websites, applications, and related services (together, the \"Platform\"). By creating an account, subscribing, or otherwise using the Platform, you agree to be bound by these Terms. If you are using the Platform on behalf of a clinic, hospital, or other organization, you accept these Terms on its behalf.",
+    "tocLabel": "On this page",
+    "sections": {
+      "introduction": {
+        "heading": "1. What is Cradlen?",
+        "body": [
+          "Cradlen is a software-as-a-service platform for women's health and OB-GYN clinics. It provides tools for managing appointments, clinical visits, examinations, patient medical records, care journeys, billing, and team collaboration.",
+          "In these Terms: \"Platform\" means the Cradlen software and services; \"Organization\" or \"Client\" means the clinic, hospital, or business that subscribes to the Platform; \"User\" means any staff member or person who accesses the Platform under an Organization's account; and \"Patient\" means an individual whose health information is recorded on the Platform. Cradlen provides the technology only and does not provide medical care or clinical advice."
+        ]
+      },
+      "acceptance": {
+        "heading": "2. Acceptance of these Terms",
+        "body": [
+          "By accessing or using the Platform you confirm that you have read, understood, and agree to these Terms and to our Privacy Policy. If you do not agree, you must not use the Platform.",
+          "If you accept these Terms on behalf of an Organization, you represent that you are authorized to bind that Organization, and \"you\" refers to both you and the Organization."
+        ]
+      },
+      "eligibility": {
+        "heading": "3. Accounts, eligibility, and rules of use",
+        "body": [
+          "You must be at least 18 years old and legally able to enter into a contract to use the Platform. Accounts are issued to a named Organization, which is responsible for the Users it invites and for the actions taken under its account.",
+          "You are responsible for keeping login credentials confidential, for all activity that occurs under your account, and for notifying us promptly of any unauthorized access. You agree to provide accurate account information and to keep it up to date. We may suspend or restrict access where reasonably necessary to protect the Platform, its users, or patient safety."
+        ]
+      },
+      "data-ownership": {
+        "heading": "4. Who owns the data",
+        "body": [
+          "The Platform records two different kinds of information, and ownership differs between them.",
+          "Patient medical history. A Patient owns their personal medical history — the longitudinal health record that follows them over time. This data belongs to the Patient, not to the clinic. An Organization and its clinicians access a Patient's history only under the care relationship and with the appropriate basis to do so, and the Patient retains rights in that history, including the ability to carry it across providers.",
+          "Clinical visit records. The clinical records produced during a specific visit — encounter notes, examinations, procedures, diagnoses, and the clinician's documentation of that encounter — belong to the Organization and the clinician who authored them, in line with applicable medical-records law.",
+          "Cradlen's role. Cradlen acts as the platform and data processor that stores and secures this information on behalf of Patients and Organizations. Cradlen does not own clinical content and will only use the data as needed to provide and support the Platform, or as permitted by these Terms and applicable law."
+        ]
+      },
+      "responsibilities": {
+        "heading": "5. Client and organization responsibilities",
+        "body": [
+          "As the Organization, you are responsible for using the Platform lawfully and for the conduct of your Users. This includes:",
+          "Obtaining any patient consent required by law before recording or processing health information; ensuring the accuracy of the records your team enters; maintaining the confidentiality of credentials and managing your Users' access and permissions appropriately; complying with all medical, privacy, and data-protection laws that apply to you; and exercising independent clinical judgment — the Platform supports your work but does not make clinical decisions for you."
+        ]
+      },
+      "prohibited": {
+        "heading": "6. Prohibited uses",
+        "body": [
+          "You agree not to, and not to permit any User or third party to:"
+        ],
+        "bullets": [
+          "Use the Platform for any unlawful purpose or in violation of any applicable law or regulation;",
+          "Access, store, or process patient data without a lawful basis or required consent;",
+          "Attempt to gain unauthorized access to the Platform, other accounts, or any system or network connected to it;",
+          "Reverse engineer, decompile, copy, resell, or create derivative works from the Platform except as permitted by law;",
+          "Upload malicious code, interfere with the Platform's operation, or place an unreasonable load on its infrastructure;",
+          "Use the Platform to harass, harm, or violate the rights or privacy of any patient or person;",
+          "Misrepresent your identity or authority, or share an account with unauthorized individuals."
+        ]
+      },
+      "subscriptions": {
+        "heading": "7. Subscriptions, billing, and payments",
+        "body": [
+          "Access to the Platform is provided on a subscription basis according to the plan you select. Fees, billing frequency, and included features are described at the point of purchase or in your order.",
+          "Unless stated otherwise, subscriptions renew automatically for successive periods until cancelled, and fees are charged in advance for each period. Fees are exclusive of taxes, which you are responsible for where applicable. Except where required by law, payments are non-refundable. We may change pricing on prior notice, with changes taking effect at your next renewal. Non-payment may result in suspension or termination of access."
+        ]
+      },
+      "intellectual-property": {
+        "heading": "8. Intellectual property",
+        "body": [
+          "The Platform, including its software, design, trademarks, and content provided by Cradlen, is owned by Cradlen or its licensors and is protected by intellectual-property laws. These Terms grant you a limited, non-exclusive, non-transferable right to use the Platform during your subscription, and no other rights.",
+          "This section does not affect ownership of the data you and your Patients put into the Platform, which is governed by the \"Who owns the data\" section above."
+        ]
+      },
+      "confidentiality": {
+        "heading": "9. Confidentiality and data protection",
+        "body": [
+          "We treat the data stored on the Platform as confidential and apply technical and organizational measures designed to protect it against unauthorized access, loss, or disclosure. Our handling of personal and health data is described in more detail in our Privacy Policy.",
+          "Each party will protect the other's confidential information and use it only as needed to perform under these Terms or as required by law."
+        ]
+      },
+      "disclaimers": {
+        "heading": "10. Disclaimers",
+        "body": [
+          "The Platform is provided \"as is\" and \"as available\" without warranties of any kind, whether express or implied, including any implied warranties of merchantability, fitness for a particular purpose, or non-infringement, to the maximum extent permitted by law.",
+          "Cradlen is a software tool and is not a medical device or a provider of medical care. It does not replace professional clinical judgment, diagnosis, or treatment. Decisions about patient care remain the sole responsibility of qualified healthcare professionals."
+        ]
+      },
+      "liability": {
+        "heading": "11. Limitation of liability",
+        "body": [
+          "To the maximum extent permitted by law, Cradlen will not be liable for any indirect, incidental, special, consequential, or punitive damages, or for any loss of profits, revenue, data, or goodwill, arising out of or related to your use of the Platform.",
+          "To the maximum extent permitted by law, Cradlen's total aggregate liability arising out of or related to these Terms will not exceed the amounts you paid to Cradlen for the Platform in the twelve months before the event giving rise to the claim. Nothing in these Terms excludes liability that cannot be excluded under applicable law."
+        ]
+      },
+      "termination": {
+        "heading": "12. Suspension and termination",
+        "body": [
+          "You may stop using the Platform and cancel your subscription at any time in accordance with your plan. We may suspend or terminate access if you breach these Terms, fail to pay fees, or where reasonably necessary to protect the Platform, its users, or patient safety.",
+          "On termination, your right to use the Platform ends. We will make the data associated with your account available for export for a reasonable period as described in our Privacy Policy, after which it may be deleted in line with our retention practices and applicable law."
+        ]
+      },
+      "changes": {
+        "heading": "13. Changes to these Terms",
+        "body": [
+          "We may update these Terms from time to time. When we make material changes, we will provide reasonable notice, for example by posting the updated Terms with a new \"last updated\" date or by notifying you through the Platform. Your continued use of the Platform after the changes take effect constitutes acceptance of the updated Terms."
+        ]
+      },
+      "governing-law": {
+        "heading": "14. Governing law and disputes",
+        "body": [
+          "These Terms are governed by the laws of the jurisdiction in which Cradlen is established, without regard to conflict-of-laws rules. The courts of that jurisdiction will have exclusive jurisdiction over any dispute arising out of or relating to these Terms, unless mandatory local law provides otherwise."
+        ]
+      },
+      "contact": {
+        "heading": "15. Contact us",
+        "body": [
+          "If you have questions about these Terms or the Platform, please contact us at cradlen.app@gmail.com."
+        ]
+      }
+    }
+  },
   "subscriptions": {
     "title": "Subscription",
     "description": "Manage your plan, renew, or upgrade.",
@@ -174,16 +613,17 @@
       "trust1": "Free for 14 days",
       "trust2": "No credit card",
       "trust3": "Live in an afternoon",
+      "mediaAlt": "Cradlen visit workspace showing a patient's antenatal care journey",
       "mediaNextLabel": "Next on the journey",
-      "mediaNextValue": "ANC follow-up · 24 Dec",
+      "mediaNextValue": "Antenatal · 32 weeks",
       "patientName": "Sara Ahmed",
-      "patientMeta": "Antenatal care · Ep 2 of 5",
+      "patientMeta": "32 yrs · 2nd pregnancy",
       "statusActive": "Active",
-      "tri1Title": "1st trimester",
-      "tri1Meta": "2 visits · done",
-      "tri2Title": "2nd trimester",
-      "tri2Meta": "3 visits · now",
-      "tri3Title": "3rd trimester"
+      "tri1Title": "First trimester",
+      "tri1Meta": "Booking & dating scan done",
+      "tri2Title": "Second trimester",
+      "tri2Meta": "Anomaly scan today",
+      "tri3Title": "Third trimester"
     },
     "strip": {
       "item1": "Solo clinics to multi-branch networks",
@@ -352,8 +792,7 @@
         "eyebrow": "Documentation",
         "heading": "A guide for every role, step by step.",
         "description": "Onboarding walkthroughs and role playbooks — so reception, doctors and managers each learn just their part of the journey.",
-        "readDocs": "Read the docs",
-        "watchDemo": "Watch a demo"
+        "readDocs": "Read the docs"
       }
     },
     "pricing": {

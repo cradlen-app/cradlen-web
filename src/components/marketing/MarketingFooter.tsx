@@ -16,22 +16,22 @@ export default async function MarketingFooter() {
         { text: t("product.features"), href: "#features" },
         { text: t("product.pricing"), href: "#pricing" },
         { text: t("product.howItWorks"), href: "#how-it-works" },
-        { text: t("product.documentation"), href: "#docs" },
+        { text: t("product.documentation"), href: "/guide", internal: true },
       ],
     },
     {
       label: t("companyLabel"),
       links: [
         { text: t("company.about"), href: "#" },
-        { text: t("company.helpCenter"), href: "#" },
+        { text: t("company.helpCenter"), href: "/help-center", internal: true },
         { text: t("company.whyJourneys"), href: "#" },
       ],
     },
     {
       label: t("legalLabel"),
       links: [
-        { text: t("legal.privacy"), href: "#" },
-        { text: t("legal.terms"), href: "#" },
+        { text: t("legal.privacy"), href: "/privacy-policy", internal: true },
+        { text: t("legal.terms"), href: "/terms-of-service", internal: true },
       ],
     },
   ];
@@ -57,12 +57,21 @@ export default async function MarketingFooter() {
               <ul className="mt-4 space-y-3">
                 {column.links.map((link) => (
                   <li key={link.text}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
-                    >
-                      {link.text}
-                    </a>
+                    {"internal" in link && link.internal ? (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
+                      >
+                        {link.text}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
+                      >
+                        {link.text}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

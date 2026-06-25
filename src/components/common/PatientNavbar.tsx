@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import { Mail } from "lucide-react";
+// Messages icon hidden until the messaging feature is built.
+// import { Mail } from "lucide-react";
 
 import Logo from "@/public/Logo.png";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -10,28 +11,29 @@ import { usePatientMe } from "@/features/auth/hooks/usePatientAuth";
 import { PatientNotificationBell } from "@/core/patient-portal";
 import { PatientProfileSwitcher } from "./PatientProfileSwitcher";
 
-function IconButton({
-  label,
-  badge,
-  children,
-}: {
-  label: string;
-  badge?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      className="relative size-9 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150"
-    >
-      {children}
-      {badge && (
-        <span className="absolute top-1.5 inset-e-1.5 size-2 rounded-full bg-brand-primary ring-2 ring-white" />
-      )}
-    </button>
-  );
-}
+// Only used by the (currently hidden) Messages icon. Restore alongside it.
+// function IconButton({
+//   label,
+//   badge,
+//   children,
+// }: {
+//   label: string;
+//   badge?: boolean;
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <button
+//       type="button"
+//       aria-label={label}
+//       className="relative size-9 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-primary hover:bg-brand-primary/8 transition-all duration-150"
+//     >
+//       {children}
+//       {badge && (
+//         <span className="absolute top-1.5 inset-e-1.5 size-2 rounded-full bg-brand-primary ring-2 ring-white" />
+//       )}
+//     </button>
+//   );
+// }
 
 /**
  * Patient portal top bar — mirrors the staff `Navbar`. On md+ the right side
@@ -64,12 +66,12 @@ export function PatientNavbar() {
       <div className="ms-auto flex items-center gap-1">
         <PatientNotificationBell />
 
-        {/* Messages — md+ only */}
+        {/* Messages — hidden until the messaging feature is built:
         <div className="hidden md:flex">
           <IconButton label="Messages">
             <Mail className="size-5" />
           </IconButton>
-        </div>
+        </div> */}
 
         {/* Account control (switch profile + logout) — md+ only */}
         <div className="hidden md:flex items-center gap-1">
