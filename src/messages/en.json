@@ -792,8 +792,7 @@
         "eyebrow": "Documentation",
         "heading": "A guide for every role, step by step.",
         "description": "Onboarding walkthroughs and role playbooks — so reception, doctors and managers each learn just their part of the journey.",
-        "readDocs": "Read the docs",
-        "watchDemo": "Watch a demo"
+        "readDocs": "Read the docs"
       }
     },
     "pricing": {

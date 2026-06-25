@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import SectionLabel from "./SectionLabel";
 
 const STEP_ICONS = [Building2, Users, GitBranch, LineChart];
@@ -82,19 +83,12 @@ export default async function HowItWorks() {
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
             <Button
               asChild
-              className="h-11 rounded-full bg-brand-secondary px-6 text-sm text-brand-black hover:bg-brand-secondary/90"
+              className="h-11 rounded-full bg-brand-secondary px-6 text-sm text-brand-black hover:bg-brand-secondary/90 hover:text-white"
             >
-              <a href="#docs">
+              <Link href="/guide">
                 {t("docs.readDocs")}
                 <ArrowRight className="ms-1 size-4 rtl:rotate-180" />
-              </a>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="h-11 rounded-full border-white/25 bg-transparent px-6 text-sm text-white hover:bg-white/10 hover:text-white"
-            >
-              <a href="#features">{t("docs.watchDemo")}</a>
+              </Link>
             </Button>
           </div>
         </div>
