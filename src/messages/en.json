@@ -24,6 +24,10 @@
         "title": "Features",
         "description": "How each part of the workspace works, page by page."
       },
+      "patient-portal": {
+        "title": "Patient portal",
+        "description": "The patient-facing app for following care."
+      },
       "roles": {
         "title": "Roles & access",
         "description": "Who can see and do what across the clinic."
@@ -34,13 +38,41 @@
         "title": "Getting started",
         "description": "The full clinic setup flow, step by step."
       },
+      "dashboard": {
+        "title": "Dashboard",
+        "description": "Your role-aware home screen and clinic overview."
+      },
+      "calendar": {
+        "title": "Calendar",
+        "description": "Scheduling, events, and event privacy."
+      },
       "visits": {
         "title": "Visits",
         "description": "Booking, examinations, and charges."
       },
+      "patients": {
+        "title": "Patients",
+        "description": "The patient directory and clinical workspace."
+      },
+      "staff": {
+        "title": "Staff",
+        "description": "Build your team, set roles and schedules, and manage invitations."
+      },
+      "medicine": {
+        "title": "Medicines",
+        "description": "Your clinic's medication catalog, used when prescribing."
+      },
       "financial": {
         "title": "Financial & billing",
         "description": "Services, price lists, invoices, and payments."
+      },
+      "settings": {
+        "title": "Settings & subscription",
+        "description": "Profile, organization, branches, and your plan and add-ons."
+      },
+      "patient-portal": {
+        "title": "Overview",
+        "description": "Signing in and a tour of every patient page."
       },
       "roles-and-permissions": {
         "title": "Roles & permissions",
@@ -760,8 +792,7 @@
         "eyebrow": "Documentation",
         "heading": "A guide for every role, step by step.",
         "description": "Onboarding walkthroughs and role playbooks — so reception, doctors and managers each learn just their part of the journey.",
-        "readDocs": "Read the docs",
-        "watchDemo": "Watch a demo"
+        "readDocs": "Read the docs"
       }
     },
     "pricing": {

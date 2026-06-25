@@ -1,0 +1,52 @@
+# Patients
+
+The **Patients** page is your branch's patient directory — search the people on
+file, see their journey status at a glance, and (for clinicians) open a patient's
+full clinical workspace.
+
+## The patient list
+
+Each row shows the patient's **name**, **phone**, **address**, **last visit**,
+their **journey** type, and a **status** badge. You can:
+
+- **Search** by name or contact details.
+- **Filter** by journey status: All, Active, Completed, or Cancelled.
+- **Switch scope** between **This branch** (the default) and **All patients**
+  (org-wide — available to owners).
+
+Doctors see **their own** patients by default; owners and branch managers see the
+whole branch directory and a few summary stats.
+
+## Opening a patient
+
+A patient row responds to two interactions:
+
+- **Single-click** — selects (highlights) the row.
+- **Double-click** — opens that patient's **clinical workspace**.
+
+<Callout type="note" title="Opening the workspace is for clinicians">
+Only staff with the **doctor** job function can open a patient's record, so
+double-click opens the workspace for them. Reception and non-clinical owners or
+branch managers still see the patient list, but double-clicking a row does
+nothing — opening a clinical record requires a clinical job function. See
+**[Roles & permissions](/guide/roles-and-permissions)**.
+</Callout>
+
+## Inside the patient workspace
+
+The workspace has two tabs:
+
+- **Overview** — the patient's demographics and attachments, a timeline of past
+  visits, and — for OB/GYN — the OB/GYN history, current pregnancy journey, and
+  vitals charts.
+- **History** — the specialty medical history.
+
+Owners and branch managers also get an **Edit profile** action to update
+demographics (name, date of birth, phone, address). The **national ID is locked**
+by default and takes an explicit confirmation to change.
+
+## Adding patients
+
+There's no "add patient" button here — patients are created during the **booking
+flow**, where reception can add a new patient inline while booking a visit. See
+**[Visits](/guide/visits)**.

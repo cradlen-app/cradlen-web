@@ -6,11 +6,11 @@ with the same title can see different screens.
 
 ## Roles vs. job functions
 
-- **Role** is the kind of account: **owner**, **doctor**, or **reception**. It
-  sets the broad shape of what someone can do.
-- **Job function** describes what they actually do day to day — clinical (a
-  practitioner) or non-clinical (administrative, financial). It refines access
-  on top of the role.
+- **Role** is the kind of account: **owner**, **staff**, or **branch manager**.
+  It sets the broad shape of what someone can do.
+- **Job function** is what they actually do day to day: **doctor**,
+  **receptionist**, or **accountant**. It refines access on top of the role, and
+  the **doctor** job function is the clinical one.
 
 This pairing produces the personas the app recognizes — for example an *owner who
 is also a doctor* sees clinical workspaces, while an *owner who doesn't practice*
@@ -22,19 +22,24 @@ gated on a clinical job function, not just the role. An owner without one manage
 the clinic but won't open exam screens.
 </Callout>
 
-## What each persona focuses on
+## The roles
 
 - **Owner** — full clinic setup: organization and branch settings, staff, the
-  service catalog and pricing, and reports. Clinical screens only with a clinical
-  job function.
-- **Doctor** — the clinical workspace: their schedule, visits, examinations, and
-  patient history.
-- **Reception** — day-to-day operations: booking visits, checking patients in,
-  creating invoices, and collecting payment.
-- **Accountant** *(non-clinical financial)* — invoices, payments, cash sessions,
-  and financial reports.
-- **Branch manager** — operational oversight of a branch; clinical access again
-  depends on whether they hold a clinical job function.
+  service catalog and pricing, and reports.
+- **Branch manager** — operational oversight of a branch.
+- **Staff** — a team member who works within their job function and permissions.
+
+## The job functions
+
+- **Doctor** *(clinical)* — the examination workspace: schedule, visits,
+  examinations, and patient history.
+- **Receptionist** — day-to-day operations: booking visits, checking patients
+  in, creating invoices, and collecting payment.
+- **Accountant** — invoices, payments, cash sessions, and financial reports.
+
+Role and job function combine: an owner or branch manager who also holds the
+**doctor** job function gets the clinical workspace on top of their management
+access — while the same role without it stays purely operational.
 
 ## How this shows up in the app
 
