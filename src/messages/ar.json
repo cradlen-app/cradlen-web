@@ -524,14 +524,20 @@
       "error": "تعذّر بدء عملية الدفع. حاول مرة أخرى."
     },
     "planLimit": {
-      "title": "خطة {plan} لا تتّسع لفريقك بعد",
-      "subtitle": "تدعم هذه الخطة {limit} من الموظفين، ولديك {current}.",
-      "freeUp": "حرِّر {count} {count, plural, one {مقعدًا} other {مقاعد}} إضافية للمتابعة، أو احتفظ بالجميع بإضافة مقاعد.",
-      "fits": "أصبحت الآن ضمن حدود هذه الخطة. تابع إلى الدفع.",
+      "title": "خطة {plan} لا تتّسع لاستخدامك بعد",
+      "overview": "غطِّ الفارق بالإضافات، أو حرِّر موظفين، أو اختر خطة أكبر.",
+      "resource": {
+        "staff": "الموظفون",
+        "branches": "الفروع"
+      },
+      "branchesNote": "لا يمكن حذف الفروع من هنا. احتفظ بها بإضافة حزم الفروع، أو اختر خطة أكبر.",
+      "freeUp": "حرِّر {count} {count, plural, one {مقعدًا} other {مقاعد}} إضافية",
       "deactivate": "إلغاء التفعيل",
       "remove": "إزالة",
-      "continueToPayment": "المتابعة إلى الدفع",
-      "addSeatsAndKeep": "أضف {count} {count, plural, one {مقعدًا} other {مقاعد}} واحتفظ بالجميع",
+      "keepEverything": "احتفظ بكل شيء",
+      "addBranches": "+{count} {count, plural, one {فرع} other {فروع}}",
+      "addSeats": "+{count} {count, plural, one {مقعد} other {مقاعد}}",
+      "continueToPayment": "المتابعة بدون إضافات",
       "pickLargerPlan": "اختر خطة أكبر"
     },
     "payments": {

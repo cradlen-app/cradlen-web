@@ -524,14 +524,20 @@
       "error": "Couldn't start the payment. Please try again."
     },
     "planLimit": {
-      "title": "{plan} doesn't fit your team yet",
-      "subtitle": "This plan supports {limit} staff, but you have {current}.",
-      "freeUp": "Free up {count} more {count, plural, one {seat} other {seats}} to continue, or keep everyone by adding seats.",
-      "fits": "You now fit this plan. Continue to payment.",
+      "title": "{plan} doesn't fit your usage yet",
+      "overview": "Cover the gap with add-ons, free up staff, or choose a larger plan.",
+      "resource": {
+        "staff": "Staff",
+        "branches": "Branches"
+      },
+      "branchesNote": "Branches can't be removed here. Keep them by adding branch bundles, or pick a larger plan.",
+      "freeUp": "Free up {count} more {count, plural, one {seat} other {seats}}",
       "deactivate": "Deactivate",
       "remove": "Remove",
-      "continueToPayment": "Continue to payment",
-      "addSeatsAndKeep": "Add {count} {count, plural, one {seat} other {seats}} & keep everyone",
+      "keepEverything": "Keep everything",
+      "addBranches": "+{count} {count, plural, one {branch} other {branches}}",
+      "addSeats": "+{count} {count, plural, one {seat} other {seats}}",
+      "continueToPayment": "Continue without add-ons",
       "pickLargerPlan": "Pick a larger plan"
     },
     "payments": {

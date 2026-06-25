@@ -34,10 +34,19 @@ export type PlanLimitOverage = {
   excess: number;
 };
 
+export type SuggestedAddOn = {
+  code: string;
+  quantity: number;
+  resource: "branches" | "staff";
+};
+
 export type PlanChangeOverLimit = {
   over: PlanLimitOverage[];
-  /** The seat add-on the FE can offer to buy together with the plan. */
-  suggested_add_on?: { code: string; quantity: number };
+  /**
+   * The add-on set (branch bundles + extra seats) the FE can buy together with
+   * the plan to cover the whole overage in one combined payment.
+   */
+  suggested_add_ons?: SuggestedAddOn[];
 };
 
 /**
@@ -48,23 +57,13 @@ export type PlanChangeOverLimit = {
  */
 export function getPlanChangeOverLimit(error: unknown): PlanChangeOverLimit | null {
   if (!(error instanceof ApiError) || error.status !== 403) return null;
+  type Details = {
+    reason?: string;
+    over?: PlanLimitOverage[];
+    suggested_add_ons?: SuggestedAddOn[];
+  };
   const body = error.body as
-    | {
-        code?: string;
-        details?: {
-          reason?: string;
-          over?: PlanLimitOverage[];
-          suggested_add_on?: { code: string; quantity: number };
-        };
-        error?: {
-          code?: string;
-          details?: {
-            reason?: string;
-            over?: PlanLimitOverage[];
-            suggested_add_on?: { code: string; quantity: number };
-          };
-        };
-      }
+    | { code?: string; details?: Details; error?: { code?: string; details?: Details } }
     | null
     | undefined;
   const code = body?.code ?? body?.error?.code;
@@ -76,7 +75,7 @@ export function getPlanChangeOverLimit(error: unknown): PlanChangeOverLimit | nu
   ) {
     return null;
   }
-  return { over: details.over, suggested_add_on: details.suggested_add_on };
+  return { over: details.over, suggested_add_ons: details.suggested_add_ons };
 }
 
 /**
