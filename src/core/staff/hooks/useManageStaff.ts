@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { getApiErrorMessage } from "@/common/errors/error";
 import { staffQueryKeys } from "../queryKeys";
 import {
+  deactivateStaff,
+  reactivateStaff,
   removeStaffFromBranch,
   resetStaffPassword,
   updateStaff,
@@ -65,6 +67,45 @@ export function useRemoveStaffFromBranch() {
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, "Failed to remove staff from branch"));
+    },
+  });
+}
+
+/**
+ * Deactivate a staff member: frees their seat (keeps the record) so the org can
+ * fit a smaller plan. Cannot target yourself or the last active OWNER.
+ */
+export function useDeactivateStaff() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ organizationId, branchId, staffId }: RemoveStaffVariables) =>
+      deactivateStaff(organizationId, branchId, staffId),
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: staffQueryKeys.byOrg(variables.organizationId),
+      });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Failed to deactivate staff member"));
+    },
+  });
+}
+
+/** Reactivate a deactivated staff member (re-occupies a seat; plan-limit gated). */
+export function useReactivateStaff() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ organizationId, branchId, staffId }: RemoveStaffVariables) =>
+      reactivateStaff(organizationId, branchId, staffId),
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: staffQueryKeys.byOrg(variables.organizationId),
+      });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Failed to reactivate staff member"));
     },
   });
 }

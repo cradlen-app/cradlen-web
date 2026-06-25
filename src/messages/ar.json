@@ -466,7 +466,8 @@
     },
     "purpose": {
       "PLAN": "خطة",
-      "ADD_ON": "إضافة"
+      "ADD_ON": "إضافة",
+      "COMBINED": "خطة + إضافات"
     },
     "planNames": {
       "free_trial": "تجربة مجانية",
@@ -522,6 +523,23 @@
       "submit": "المتابعة إلى الدفع",
       "error": "تعذّر بدء عملية الدفع. حاول مرة أخرى."
     },
+    "planLimit": {
+      "title": "خطة {plan} لا تتّسع لاستخدامك بعد",
+      "overview": "غطِّ الفارق بالإضافات، أو حرِّر موظفين، أو اختر خطة أكبر.",
+      "resource": {
+        "staff": "الموظفون",
+        "branches": "الفروع"
+      },
+      "branchesNote": "لا يمكن حذف الفروع من هنا. احتفظ بها بإضافة حزم الفروع، أو اختر خطة أكبر.",
+      "freeUp": "حرِّر {count} {count, plural, one {مقعدًا} other {مقاعد}} إضافية",
+      "deactivate": "إلغاء التفعيل",
+      "remove": "إزالة",
+      "keepEverything": "احتفظ بكل شيء",
+      "addBranches": "+{count} {count, plural, one {فرع} other {فروع}}",
+      "addSeats": "+{count} {count, plural, one {مقعد} other {مقاعد}}",
+      "continueToPayment": "المتابعة بدون إضافات",
+      "pickLargerPlan": "اختر خطة أكبر"
+    },
     "payments": {
       "title": "المدفوعات",
       "description": "مدفوعات اشتراكك وحالتها.",
@@ -536,6 +554,9 @@
       "loadError": "تعذّر تحميل هذه الدفعة",
       "instructions": "تعليمات الدفع",
       "instructionsFallback": "أكمل التحويل ثم ارفع الإيصال أدناه. المرجع: {reference}",
+      "lineItems": "ما الذي تدفع مقابله",
+      "itemPlan": "الخطة (سنة واحدة)",
+      "itemSeats": "{count} {count, plural, one {مقعد إضافي} other {مقاعد إضافية}}",
       "payTo": "حوّل إلى",
       "amount": "المبلغ",
       "reference": "المرجع",

@@ -31,6 +31,8 @@ type FetchStaffOptions = {
   page?: number;
   search?: string;
   role?: string;
+  /** Activation state filter: "active" (default), "inactive", or "all". */
+  status?: "active" | "inactive" | "all";
 };
 
 export type FetchStaffInvitationsOptions = {
@@ -66,12 +68,13 @@ export async function fetchSpecialties(): Promise<ApiStaffSpecialty[]> {
 export function fetchStaff(
   organizationId: string,
   branchId: string,
-  { page = 1, limit = 100, search, role }: FetchStaffOptions,
+  { page = 1, limit = 100, search, role, status }: FetchStaffOptions,
 ) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   const trimmedSearch = search?.trim();
   if (trimmedSearch) params.set("search", trimmedSearch);
   if (role) params.set("role", role);
+  if (status) params.set("status", status);
   return apiAuthFetch<ApiStaffListResponse>(
     `/organizations/${organizationId}/branches/${branchId}/staff?${params}`,
   );
@@ -160,6 +163,37 @@ export function removeStaffFromBranch(
   return apiAuthFetch<void>(
     `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}`,
     { method: "DELETE" },
+  );
+}
+
+/**
+ * POST /v1/organizations/:orgId/branches/:branchId/staff/:staffId/deactivate
+ * Frees the staff member's seat without deleting them (sets the profile inactive
+ * and revokes its sessions). The gentle way to fit a smaller plan.
+ */
+export function deactivateStaff(
+  organizationId: string,
+  branchId: string,
+  staffId: string,
+) {
+  return apiAuthFetch<void>(
+    `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}/deactivate`,
+    { method: "POST" },
+  );
+}
+
+/**
+ * POST /v1/organizations/:orgId/branches/:branchId/staff/:staffId/reactivate
+ * Re-occupies a seat — gated by the plan's staff limit server-side.
+ */
+export function reactivateStaff(
+  organizationId: string,
+  branchId: string,
+  staffId: string,
+) {
+  return apiAuthFetch<void>(
+    `/organizations/${organizationId}/branches/${branchId}/staff/${staffId}/reactivate`,
+    { method: "POST" },
   );
 }
 

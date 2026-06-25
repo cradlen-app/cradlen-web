@@ -8,6 +8,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
 import { ApiError } from "@/infrastructure/http/api";
+import {
+  getPlanChangeOverLimit,
+  type PlanChangeOverLimit,
+} from "@/common/errors/subscription-errors";
 import { useRouter } from "@/i18n/navigation";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { useCreatePayment } from "../hooks/useSubscription";
@@ -39,6 +43,12 @@ type CreatePaymentDialogProps = {
   organizationId: string | undefined;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * Called (plan mode only) when the purchase is blocked because the org is over
+   * the target plan's limits. The parent opens the resolution drawer with the
+   * selected plan + provider so the owner can free seats or buy them.
+   */
+  onOverLimit?: (info: PlanChangeOverLimit, provider: PaymentProvider) => void;
 } & (PlanMode | AddOnMode);
 
 export function CreatePaymentDialog(props: CreatePaymentDialogProps) {
@@ -121,6 +131,14 @@ export function CreatePaymentDialog(props: CreatePaymentDialogProps) {
   }
 
   function onError(error: unknown) {
+    // A blocked plan downgrade hands off to the resolution drawer instead of a
+    // toast — the owner can free seats, buy seats, or pick a larger plan.
+    const overLimit = !isAddOn ? getPlanChangeOverLimit(error) : null;
+    if (overLimit && props.onOverLimit) {
+      onOpenChange(false);
+      props.onOverLimit(overLimit, provider);
+      return;
+    }
     toast.error(
       error instanceof ApiError
         ? (error.messages[0] ?? t("createDialog.error"))
