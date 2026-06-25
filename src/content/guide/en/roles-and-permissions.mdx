@@ -1,0 +1,48 @@
+# Roles & permissions
+
+Access in Cradlen is decided by two things working together: a person's **role**
+and their **job function**. Understanding the difference explains why two people
+with the same title can see different screens.
+
+## Roles vs. job functions
+
+- **Role** is the kind of account: **owner**, **doctor**, or **reception**. It
+  sets the broad shape of what someone can do.
+- **Job function** describes what they actually do day to day — clinical (a
+  practitioner) or non-clinical (administrative, financial). It refines access
+  on top of the role.
+
+This pairing produces the personas the app recognizes — for example an *owner who
+is also a doctor* sees clinical workspaces, while an *owner who doesn't practice*
+does not.
+
+<Callout type="note" title="Why a clinical job function matters">
+Clinical surfaces — examination workspaces and patient clinical detail — are
+gated on a clinical job function, not just the role. An owner without one manages
+the clinic but won't open exam screens.
+</Callout>
+
+## What each persona focuses on
+
+- **Owner** — full clinic setup: organization and branch settings, staff, the
+  service catalog and pricing, and reports. Clinical screens only with a clinical
+  job function.
+- **Doctor** — the clinical workspace: their schedule, visits, examinations, and
+  patient history.
+- **Reception** — day-to-day operations: booking visits, checking patients in,
+  creating invoices, and collecting payment.
+- **Accountant** *(non-clinical financial)* — invoices, payments, cash sessions,
+  and financial reports.
+- **Branch manager** — operational oversight of a branch; clinical access again
+  depends on whether they hold a clinical job function.
+
+## How this shows up in the app
+
+The sidebar only lists what your persona can reach — there are no dead links to
+screens you can't open. The same permission rules are enforced again on the
+server, so the menu is a convenience, not the security boundary.
+
+<Callout type="tip" title="Setting roles">
+Assign roles and job functions when you invite or edit a team member under
+**Staff**. See **[Getting started](/guide/getting-started)** for the invite flow.
+</Callout>
