@@ -9,12 +9,14 @@ import { staffQueryKeys } from "../queryKeys";
 type UseStaffOptions = {
   search?: string;
   role?: string;
+  /** Activation state filter: "active" (default), "inactive", or "all". */
+  status?: "active" | "inactive" | "all";
 };
 
 export function useStaff(
   organizationId: string | undefined,
   branchId: string | undefined,
-  { search, role }: UseStaffOptions = {},
+  { search, role, status }: UseStaffOptions = {},
 ) {
   const locale = useLocale();
   return useQuery({
@@ -22,11 +24,13 @@ export function useStaff(
       search,
       branchId,
       role,
+      status,
     }),
     queryFn: async () => {
       const staff = await fetchAllStaff(organizationId!, branchId!, {
         search,
         role,
+        status,
       });
       return staff.map((member) => mapApiStaffToMember(member, locale));
     },

@@ -8,7 +8,9 @@ import { cn } from "@/common/utils/utils";
 import { usePlans } from "../hooks/useSubscription";
 import { formatMoney } from "../lib/format";
 import { CreatePaymentDialog } from "./CreatePaymentDialog";
-import type { Plan } from "../lib/subscriptions.types";
+import { PlanLimitDrawer } from "./PlanLimitDrawer";
+import type { PaymentProvider, Plan } from "../lib/subscriptions.types";
+import type { PlanChangeOverLimit } from "@/common/errors/subscription-errors";
 
 export function PlanCards({
   organizationId,
@@ -21,6 +23,11 @@ export function PlanCards({
   const locale = useLocale();
   const { data, isLoading } = usePlans();
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [overLimit, setOverLimit] = useState<{
+    info: PlanChangeOverLimit;
+    plan: Plan;
+    provider: PaymentProvider;
+  } | null>(null);
 
   if (isLoading) {
     return (
@@ -109,6 +116,20 @@ export function PlanCards({
         onOpenChange={(open) => {
           if (!open) setSelectedPlan(null);
         }}
+        onOverLimit={(info, provider) => {
+          if (selectedPlan) setOverLimit({ info, plan: selectedPlan, provider });
+        }}
+      />
+
+      <PlanLimitDrawer
+        organizationId={organizationId}
+        open={overLimit !== null}
+        onOpenChange={(open) => {
+          if (!open) setOverLimit(null);
+        }}
+        plan={overLimit?.plan ?? null}
+        provider={overLimit?.provider ?? "INSTAPAY"}
+        info={overLimit?.info ?? null}
       />
     </>
   );

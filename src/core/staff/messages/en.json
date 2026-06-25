@@ -10,6 +10,12 @@
   "noOrganization": "No organization is linked to this account.",
   "noBranch": "No organization or branch is linked to this account.",
   "loadError": "Failed to load staff. Please try again.",
+  "inactive": {
+    "title": "Deactivated members",
+    "description": "These members don't occupy a staff seat. Reactivate one to bring them back (subject to your plan's staff limit).",
+    "reactivate": "Reactivate",
+    "reactivated": "Member reactivated"
+  },
   "stats": {
     "total": "Total Staff",
     "clinical": "Clinical",

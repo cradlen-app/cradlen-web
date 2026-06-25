@@ -103,6 +103,31 @@ export function PaymentDetailPage({ paymentId }: { paymentId: string }) {
             )}
           </header>
 
+          {payment.items && payment.items.length > 1 && (
+            <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm shadow-gray-100/60">
+              <h2 className="text-base font-medium text-brand-black">
+                {t("detail.lineItems")}
+              </h2>
+              <ul className="mt-3 divide-y divide-gray-100">
+                {payment.items.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center justify-between gap-3 py-2.5 text-sm"
+                  >
+                    <span className="text-brand-black">
+                      {item.kind === "PLAN"
+                        ? t("detail.itemPlan")
+                        : t("detail.itemSeats", { count: item.quantity })}
+                    </span>
+                    <span className="font-medium tabular-nums text-brand-black">
+                      {formatMoney(item.amount, payment.currency, locale)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {isOpen && (
             <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm shadow-gray-100/60">
               <h2 className="text-base font-medium text-brand-black">

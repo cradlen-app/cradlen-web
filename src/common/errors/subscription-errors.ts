@@ -27,6 +27,58 @@ export function getSubscriptionLimit(error: unknown): SubscriptionLimitInfo | nu
   return details;
 }
 
+export type PlanLimitOverage = {
+  resource: "staff" | "branches";
+  limit: number;
+  current: number;
+  excess: number;
+};
+
+export type PlanChangeOverLimit = {
+  over: PlanLimitOverage[];
+  /** The seat add-on the FE can offer to buy together with the plan. */
+  suggested_add_on?: { code: string; quantity: number };
+};
+
+/**
+ * Parses a blocked plan purchase: the backend returns 403
+ * `SUBSCRIPTION_LIMIT_REACHED` with `details.reason = 'PLAN_CHANGE_OVER_LIMIT'`,
+ * the per-resource overage, and a suggested seat add-on. Returns null for any
+ * other error (callers fall back to a toast).
+ */
+export function getPlanChangeOverLimit(error: unknown): PlanChangeOverLimit | null {
+  if (!(error instanceof ApiError) || error.status !== 403) return null;
+  const body = error.body as
+    | {
+        code?: string;
+        details?: {
+          reason?: string;
+          over?: PlanLimitOverage[];
+          suggested_add_on?: { code: string; quantity: number };
+        };
+        error?: {
+          code?: string;
+          details?: {
+            reason?: string;
+            over?: PlanLimitOverage[];
+            suggested_add_on?: { code: string; quantity: number };
+          };
+        };
+      }
+    | null
+    | undefined;
+  const code = body?.code ?? body?.error?.code;
+  const details = body?.details ?? body?.error?.details;
+  if (
+    code !== "SUBSCRIPTION_LIMIT_REACHED" ||
+    details?.reason !== "PLAN_CHANGE_OVER_LIMIT" ||
+    !Array.isArray(details.over)
+  ) {
+    return null;
+  }
+  return { over: details.over, suggested_add_on: details.suggested_add_on };
+}
+
 /**
  * True when a write was blocked because the org's subscription has lapsed. The
  * backend `SubscriptionGuard` returns 403 with `error.code` SUBSCRIPTION_EXPIRED.
