@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
+import { isExpiredJwt } from "./jwt";
 import {
   AUTH_REFRESH_TOKEN_COOKIE,
   AUTH_REFRESH_TOKEN_MAX_AGE,
@@ -42,20 +43,10 @@ export function backendUrl(path: string) {
   return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-export function isExpiredJwt(token: string) {
-  const [, payload] = token.split(".");
-  if (!payload) return false;
-
-  try {
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
-    const decoded = JSON.parse(atob(padded)) as { exp?: number };
-
-    return typeof decoded.exp === "number" && decoded.exp * 1000 <= Date.now();
-  } catch {
-    return false;
-  }
-}
+// Re-exported (imported above) from the shared, dependency-free helper so existing
+// `@/infrastructure/auth-transport/backend` importers keep working while the
+// implementation (and clock-skew leeway) lives in one place.
+export { isExpiredJwt };
 
 export function extractTokens(body: unknown): AuthTokens | null {
   if (!body || typeof body !== "object") return null;
@@ -270,8 +261,16 @@ async function getValidAccessToken() {
     return { accessToken: null, refreshedTokens: null };
   }
 
-  const refreshedTokens = await refreshAuthTokens(refreshToken);
-  return { accessToken: refreshedTokens.access_token, refreshedTokens };
+  try {
+    const refreshedTokens = await refreshAuthTokens(refreshToken);
+    return { accessToken: refreshedTokens.access_token, refreshedTokens };
+  } catch {
+    // Proactive refresh failed (rotated/stale refresh token, refresh race, or a
+    // backend blip). Degrade to "no token" so the caller falls through to the
+    // selection-token fallback instead of dead-ending on a generic
+    // "Authentication required" 401 — mirroring the reactive 401 path's recovery.
+    return { accessToken: null, refreshedTokens: null };
+  }
 }
 
 // Last-resort recovery when refresh fails but the selection_token is still
