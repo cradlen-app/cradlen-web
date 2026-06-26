@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import {
   AUTH_REFRESH_TOKEN_COOKIE,
+  AUTH_SELECTION_TOKEN_COOKIE,
   AUTH_TOKEN_COOKIE,
 } from "@/features/auth/lib/auth.constants";
 
@@ -160,6 +161,83 @@ describe("proxyAuthenticatedRequest token rotation", () => {
     expect(setCookie).not.toContain("Max-Age=0");
     expect(setCookie).not.toContain(AUTH_TOKEN_COOKIE);
     expect(setCookie).not.toContain(AUTH_REFRESH_TOKEN_COOKIE);
+  });
+
+  it("recovers via the selection token when a proactive refresh throws", async () => {
+    // The cancel-payment bug: the access token expired while the user read the
+    // page, so getValidAccessToken refreshes proactively — but that refresh
+    // throws (rotated/stale refresh token, race, or a backend blip). The proxy
+    // must NOT dead-end on "Authentication required"; it must fall through to the
+    // selection-token fallback and complete the request.
+    cookieGet.mockImplementation((name: string) => {
+      if (name === AUTH_TOKEN_COOKIE) return { value: makeJwt(-60) };
+      if (name === AUTH_REFRESH_TOKEN_COOKIE)
+        return { value: "refresh-throws" };
+      if (name === AUTH_SELECTION_TOKEN_COOKIE)
+        return { value: "selection-alive" };
+      return undefined;
+    });
+
+    vi.mocked(fetch)
+      // 1. proactive refresh in getValidAccessToken -> throws (network/backend)
+      .mockRejectedValueOnce(new Error("refresh exploded"))
+      // 2. selection-token fallback -> mints a fresh pair
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(tokenBody("refresh-from-selection")), {
+          status: 200,
+        }),
+      )
+      // 3. backend request with the minted token -> 200
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: { ok: true }, meta: {} }), {
+          status: 200,
+        }),
+      );
+
+    const request = new NextRequest(
+      "http://app.test/api/backend/organizations/o1/subscription/payments/p1/cancel",
+      { method: "POST", headers: { "x-profile-id": "profile-1" } },
+    );
+
+    const response = await proxyAuthenticatedRequest(
+      request,
+      "/organizations/o1/subscription/payments/p1/cancel",
+    );
+
+    expect(response.status).toBe(200);
+    const selectCalls = vi
+      .mocked(fetch)
+      .mock.calls.filter(([url]) => String(url).includes("/auth/profiles/select"));
+    expect(selectCalls).toHaveLength(1);
+    // Fresh cookies from the selection mint are persisted.
+    const setCookie = response.headers.getSetCookie().join("; ");
+    expect(setCookie).toContain(AUTH_TOKEN_COOKIE);
+  });
+
+  it("returns 401 when a proactive refresh throws and no selection token exists", async () => {
+    // Genuine session death: expired access token, the proactive refresh throws,
+    // and there is no selection token to recover from. The generic 401 is correct
+    // here (the client then re-verifies /auth/me and redirects).
+    cookieGet.mockImplementation((name: string) => {
+      if (name === AUTH_TOKEN_COOKIE) return { value: makeJwt(-60) };
+      if (name === AUTH_REFRESH_TOKEN_COOKIE) return { value: "refresh-dead" };
+      return undefined;
+    });
+
+    vi.mocked(fetch).mockRejectedValueOnce(new Error("refresh exploded"));
+
+    const request = new NextRequest("http://app.test/api/backend/visits", {
+      method: "GET",
+    });
+
+    const response = await proxyAuthenticatedRequest(request, "/visits");
+
+    expect(response.status).toBe(401);
+    const body = (await response.json()) as { message?: string };
+    expect(body.message).toBe("Authentication required");
+    // No cookies are cleared on this race-prone path.
+    const setCookie = response.headers.getSetCookie().join("; ");
+    expect(setCookie).not.toContain("Max-Age=0");
   });
 
   it("does not clobber cookies when refresh + fallback are exhausted on a 401", async () => {
