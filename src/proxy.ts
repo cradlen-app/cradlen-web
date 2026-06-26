@@ -8,6 +8,7 @@ import {
   PATIENT_AUTH_REFRESH_TOKEN_COOKIE,
   PATIENT_AUTH_TOKEN_COOKIE,
 } from "./features/auth/lib/auth.constants";
+import { isExpiredJwt } from "./infrastructure/auth-transport/jwt";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -77,21 +78,6 @@ function getLocale(pathname: string) {
   return routing.locales.includes(maybeLocale as (typeof routing.locales)[number])
     ? maybeLocale
     : routing.defaultLocale;
-}
-
-function isExpiredJwt(token: string) {
-  const [, payload] = token.split(".");
-  if (!payload) return false;
-
-  try {
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
-    const decoded = JSON.parse(atob(padded)) as { exp?: number };
-
-    return typeof decoded.exp === "number" && decoded.exp * 1000 <= Date.now();
-  } catch {
-    return false;
-  }
 }
 
 // Routes a logged-in-but-not-yet-profiled user (selection token only) can reach.
