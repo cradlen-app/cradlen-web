@@ -5,8 +5,6 @@ import {
   AUTH_REFRESH_TOKEN_COOKIE,
   AUTH_SELECTION_TOKEN_COOKIE,
   AUTH_TOKEN_COOKIE,
-  PATIENT_AUTH_REFRESH_TOKEN_COOKIE,
-  PATIENT_AUTH_TOKEN_COOKIE,
 } from "./features/auth/lib/auth.constants";
 import { isExpiredJwt } from "./infrastructure/auth-transport/jwt";
 
@@ -23,31 +21,7 @@ const PUBLIC_ROUTE_PREFIXES = [
   "/help-center",
   "/guide",
   "/invitations/accept",
-  "/patient/signin",
-  "/patient/signup",
-  "/patient/forgot-password",
 ];
-
-// Patient portal pages — gated behind the patient session (separate from staff).
-const PATIENT_PUBLIC_PATHS = [
-  "/patient/signin",
-  "/patient/signup",
-  "/patient/forgot-password",
-];
-
-function isPatientPortalPath(pathWithoutLocale: string) {
-  if (
-    PATIENT_PUBLIC_PATHS.some(
-      (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(p + "/"),
-    )
-  ) {
-    return false;
-  }
-
-  return (
-    pathWithoutLocale === "/patient" || pathWithoutLocale.startsWith("/patient/")
-  );
-}
 
 function getPathWithoutLocale(pathname: string) {
   const segments = pathname.split("/");
@@ -85,29 +59,6 @@ function getLocale(pathname: string) {
 const SELECTION_TOKEN_ALLOWED_PATHS = ["/create-organization", "/select-profile"];
 
 export default function proxy(request: NextRequest) {
-  const pathWithoutLocale = getPathWithoutLocale(request.nextUrl.pathname);
-
-  // Patient portal gating runs first and independently of staff auth, so an
-  // unauthenticated portal visit lands on the patient sign-in (never staff).
-  if (isPatientPortalPath(pathWithoutLocale)) {
-    const patientToken = request.cookies.get(PATIENT_AUTH_TOKEN_COOKIE)?.value;
-    const patientRefresh = request.cookies.get(
-      PATIENT_AUTH_REFRESH_TOKEN_COOKIE,
-    )?.value;
-    const hasPatientAccess =
-      Boolean(patientToken && !isExpiredJwt(patientToken)) ||
-      Boolean(patientRefresh);
-
-    if (!hasPatientAccess) {
-      const locale = getLocale(request.nextUrl.pathname);
-      return NextResponse.redirect(
-        new URL(`/${locale}/patient/signin`, request.url),
-      );
-    }
-
-    return intlMiddleware(request);
-  }
-
   if (isProtectedPath(request.nextUrl.pathname)) {
     const authToken = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
     const refreshToken = request.cookies.get(AUTH_REFRESH_TOKEN_COOKIE)?.value;
