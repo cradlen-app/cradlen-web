@@ -18,9 +18,6 @@ const SESSION_ENDPOINTS: Record<string, string> = {
   "/auth/forgot-password/resend": "/api/auth/forgot-password/resend",
   "/auth/forgot-password/reset": "/api/auth/forgot-password/reset",
   "/auth/registration/status": "/api/auth/registration/status",
-  "/patient-auth/login": "/api/patient-auth/login",
-  "/patient-auth/signup/start": "/api/patient-auth/signup/start",
-  "/patient-auth/signup/complete": "/api/patient-auth/signup/complete",
   "/auth/register/organization": "/api/auth/register-organization",
   "/auth/reset-password": "/api/auth/reset-password",
   "/staff/invite/accept": "/api/staff/invite/accept",
@@ -184,7 +181,6 @@ const PUBLIC_AUTH_PATH_PREFIXES = [
   "/sign-up",
   "/forgot-password",
   "/invitations/accept",
-  "/patient",
 ];
 
 function isPublicAuthPath(pathWithoutLocale: string) {

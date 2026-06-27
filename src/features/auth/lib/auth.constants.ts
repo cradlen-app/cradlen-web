@@ -109,12 +109,3 @@ export const SILENT_REFRESH_RATIO = 0.8;
 export const AUTH_SELECTION_TOKEN_MAX_AGE = 60 * 30;
 export const SIGNUP_TOKEN_MAX_AGE = 60 * 10;
 export const RESET_TOKEN_MAX_AGE = 60 * 30;
-
-// Patient portal auth — a session fully separate from staff (the backend rejects
-// cross-use of patient vs staff tokens), so it gets its own HttpOnly cookies.
-export const PATIENT_AUTH_TOKEN_COOKIE = "cradlen-patient-token";
-export const PATIENT_AUTH_REFRESH_TOKEN_COOKIE = "cradlen-patient-refresh-token";
-export const PATIENT_SIGNUP_TOKEN_COOKIE = "cradlen-patient-signup-token";
-export const PATIENT_SIGNUP_TOKEN_MAX_AGE = 60 * 30; // 30 min (backend expires_in 1800)
-export const PATIENT_RESET_TOKEN_COOKIE = "cradlen-patient-reset-token";
-export const PATIENT_RESET_TOKEN_MAX_AGE = 60 * 30; // 30 min (backend expires_in 1800)

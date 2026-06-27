@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { PATIENT_APP_URL } from "@/common/constants/external-urls";
 import { cn } from "@/common/utils/utils";
 import { queryClient } from "@/infrastructure/query/queryClient";
 import {
@@ -243,13 +244,13 @@ export function SignInForm() {
         <span className="h-px flex-1 bg-gray-200" />
       </div>
 
-      {/* Sign in as a patient */}
-      <Link
-        href="/patient/signin"
+      {/* Sign in as a patient — the portal is a separate app on its own domain. */}
+      <a
+        href={`${PATIENT_APP_URL}/patient/signin`}
         className="w-full rounded-full border border-brand-primary py-3.5 text-center text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary/5"
       >
         {t("patientSignIn.cta")}
-      </Link>
+      </a>
     </form>
   );
 }
