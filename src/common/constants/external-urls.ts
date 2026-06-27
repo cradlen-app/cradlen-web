@@ -4,4 +4,4 @@
  * Override per environment with NEXT_PUBLIC_PATIENT_APP_URL.
  */
 export const PATIENT_APP_URL =
-  process.env.NEXT_PUBLIC_PATIENT_APP_URL ?? "https://my.cradlen.com";
+  process.env.NEXT_PUBLIC_PATIENT_APP_URL ?? "https://cradlen-patient.cradlen.com";
