@@ -33,8 +33,6 @@ export function getDefaultRouteForRole(
       return buildDashboardUrl(orgId, branchId, "/dashboard");
     case "reception":
       return buildDashboardUrl(orgId, branchId, "/visits");
-    case "patient":
-      return "/patient/dashboard";
     default:
       return buildDashboardUrl(orgId, branchId);
   }
