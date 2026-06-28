@@ -1,4 +1,4 @@
-import { ApiError } from "@/infrastructure/http/api";
+import { ApiError } from "@/common/errors/api-error";
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError) {
