@@ -33,7 +33,7 @@ export function FieldShell({
       {flagged && (
         <AlertTriangle
           size={10}
-          className="inline ml-1 text-red-600 align-middle"
+          className="inline ms-1 text-red-600 align-middle"
           aria-label="Flagged"
         />
       )}

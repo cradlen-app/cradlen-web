@@ -67,6 +67,22 @@ export function PatientWorkspacePage({ patientId }: Props) {
       ? `/${organizationId}/${branchId}/dashboard/patients`
       : "#";
 
+  if (isError) {
+    return (
+      <main className="space-y-4 p-6">
+        <Breadcrumbs
+          items={[
+            { label: t("back"), href: patientsHref },
+            { label: t("title") },
+          ]}
+        />
+        <p className="rounded-xl border border-red-100 bg-red-50/50 px-4 py-3 text-xs text-red-600">
+          {t("loadError")}
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="flex h-full flex-col gap-6 overflow-hidden p-6">
       <header className="flex items-center justify-between gap-2">
