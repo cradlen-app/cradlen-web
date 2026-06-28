@@ -262,11 +262,16 @@ export function InvoiceDrawer({
 
   // `editMode` is seeded from `invoiceId` at mount, but this drawer is mounted
   // persistently (InvoicePanel) — invoiceId arrives via props after mount. Re-sync
-  // the mode each time the drawer opens so an existing invoice opens in view mode
-  // (create/draft default to edit) instead of falling through to a blank body.
-  useEffect(() => {
+  // the mode each time the drawer opens (or the invoice changes while open) so an
+  // existing invoice opens in view mode (create/draft default to edit) instead of
+  // falling through to a blank body. Done during render rather than in an effect to
+  // avoid the cascading re-render that setState-in-effect triggers.
+  const openSyncKey = `${open ? "1" : "0"}|${invoiceId ?? ""}`;
+  const [lastOpenSyncKey, setLastOpenSyncKey] = useState(openSyncKey);
+  if (openSyncKey !== lastOpenSyncKey) {
+    setLastOpenSyncKey(openSyncKey);
     if (open) setEditMode(!invoiceId);
-  }, [open, invoiceId]);
+  }
 
   // Single field array owned here so imports/auto-stage and the editor share
   // one instance (two useFieldArray on the same name don't re-render in sync).
