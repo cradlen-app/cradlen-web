@@ -27,6 +27,7 @@ describe("Button", () => {
   it("renders as the child element when asChild is set (Slot)", () => {
     render(
       <Button asChild>
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- testing Slot/asChild composition, not real navigation */}
         <a href="/go">Go</a>
       </Button>,
     );
