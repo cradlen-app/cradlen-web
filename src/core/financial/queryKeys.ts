@@ -101,6 +101,10 @@ export const financialQueryKeys = {
       ["financial", "cash-sessions", "detail", id] as const,
   },
 
+  // ── Settings reference data ───────────────────────────────────────────────
+  /** Org branch list shared by the price-list and authorization settings editors. */
+  branches: (orgId: string) => ["financial", "branches", orgId] as const,
+
   // ── Reporting ─────────────────────────────────────────────────────────────
   reports: {
     all: () => ["financial", "reports"] as const,

@@ -17,6 +17,7 @@ import {
   useRevokeProviderService,
   useToggleProviderServiceActive,
 } from "../../hooks/useAuthorizations";
+import { financialQueryKeys } from "../../queryKeys";
 import type { ProviderServiceAuthorization } from "../../types/financial.types";
 import { AuthorizeServiceDrawer } from "./AuthorizeServiceDrawer";
 
@@ -35,7 +36,7 @@ export function AuthorizationsSubSection() {
   const providers = (staffQuery.data ?? []).filter((m) => m.isClinical);
 
   const branchesQuery = useQuery({
-    queryKey: ["financial", "authorizations", "branches", orgId ?? ""],
+    queryKey: financialQueryKeys.branches(orgId ?? ""),
     queryFn: () => listBranches(orgId!),
     enabled: !!orgId,
     staleTime: 5 * 60 * 1000,
