@@ -1,20 +1,16 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Dialog } from "radix-ui";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTranslations } from "next-intl";
-import { AlertDialog } from "radix-ui";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileContext";
 import { usePermission } from "@/kernel";
 import { ApiError } from "@/infrastructure/http/api";
 import { useRemoveStaffFromBranch } from "../hooks/useManageStaff";
 import { useStaff, useStaffMember } from "../hooks/useStaff";
 import { useStaffDirectory } from "../hooks/useStaffDirectory";
-import { getStaffFullName } from "../lib/staff.utils";
 import type { StaffFilter, StaffMember } from "../types/staff.types";
 import dynamic from "next/dynamic";
 
@@ -34,11 +30,12 @@ import { StaffStatCards } from "./StaffStatCards";
 import { StaffTable } from "./StaffTable";
 import { InactiveStaffPanel } from "./InactiveStaffPanel";
 import { StaffToolbar } from "./StaffToolbar";
+import {
+  MobileStaffOverviewDialog,
+  RemoveStaffDialog,
+} from "./staff-page-dialogs";
 
 const PAGE_SIZE = 11;
-
-/** Height of the fixed mobile bottom tab bar; mobile sheets stop above it. */
-const BOTTOM_NAV_HEIGHT = 64;
 
 function StaffTableSkeleton() {
   return (
@@ -293,45 +290,24 @@ export function StaffPage() {
 
       </div>
 
-      <Dialog.Root
+      <MobileStaffOverviewDialog
         open={isMobileOverviewOpen}
         onOpenChange={(open) => {
           if (!open) setMobileOverviewOpen(false);
         }}
       >
-        <Dialog.Portal>
-          <Dialog.Overlay
-            style={{ top: "4rem", bottom: BOTTOM_NAV_HEIGHT }}
-            className="fixed inset-x-0 z-50 bg-black/40 lg:hidden"
-          />
-          <Dialog.Content
-            aria-describedby={undefined}
-            style={{ top: "4rem", bottom: BOTTOM_NAV_HEIGHT }}
-            className="fixed inset-x-0 z-50 flex flex-col bg-white outline-none lg:hidden"
-          >
-            <Dialog.Title className="sr-only">{overviewT("title")}</Dialog.Title>
-            <Dialog.Close
-              aria-label={overviewT("cancel")}
-              className="absolute end-3 top-3 z-10 inline-flex size-8 items-center justify-center rounded-full bg-white/90 text-gray-500 shadow-sm transition-colors hover:bg-gray-100 hover:text-brand-black"
-            >
-              <X className="size-4" aria-hidden="true" />
-            </Dialog.Close>
-            <div className="flex-1 overflow-y-auto">
-              <StaffOverview
-                canManage={canManage}
-                isOwner={isOwner}
-                currentBranchId={branchId}
-                currentUserStaffId={currentUserStaffId}
-                member={selectedMember}
-                onEdit={setEditingMember}
-                onRemoveFromBranch={setRemovingMember}
-                onResetPassword={canManage ? setResettingMember : undefined}
-                className="rounded-none border-0 shadow-none"
-              />
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+        <StaffOverview
+          canManage={canManage}
+          isOwner={isOwner}
+          currentBranchId={branchId}
+          currentUserStaffId={currentUserStaffId}
+          member={selectedMember}
+          onEdit={setEditingMember}
+          onRemoveFromBranch={setRemovingMember}
+          onResetPassword={canManage ? setResettingMember : undefined}
+          className="rounded-none border-0 shadow-none"
+        />
+      </MobileStaffOverviewDialog>
 
       <StaffCreateDrawer
         branchId={branchId}
@@ -368,7 +344,12 @@ export function StaffPage() {
         }}
       />
 
-      <AlertDialog.Root
+      <RemoveStaffDialog
+        member={removingMember}
+        branchName={branchName}
+        isLastBranch={isLastBranch}
+        confirmText={deleteConfirmText}
+        onConfirmTextChange={setDeleteConfirmText}
         open={!!removingMember}
         onOpenChange={(open) => {
           if (!open) {
@@ -376,72 +357,9 @@ export function StaffPage() {
             setDeleteConfirmText("");
           }
         }}
-      >
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 z-60 bg-black/35" />
-          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-61 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl outline-none">
-            <AlertDialog.Title className="text-lg font-medium text-brand-black">
-              {overviewT(isLastBranch ? "removeLastTitle" : "removeTitle")}
-            </AlertDialog.Title>
-            <AlertDialog.Description className="mt-2 text-sm text-gray-500">
-              {overviewT(
-                isLastBranch ? "removeLastDescription" : "removeDescription",
-                {
-                  name: removingMember
-                    ? getStaffFullName(removingMember)
-                    : overviewT("thisStaffMember"),
-                  branch: branchName ?? "",
-                },
-              )}
-            </AlertDialog.Description>
-            {isLastBranch && removingMember && (
-              <div className="mt-3 space-y-2">
-                <p className="text-xs text-gray-500">
-                  {overviewT("typedConfirmHint", {
-                    name: getStaffFullName(removingMember),
-                  })}
-                </p>
-                <input
-                  type="text"
-                  autoFocus
-                  value={deleteConfirmText}
-                  onChange={(e) => setDeleteConfirmText(e.target.value)}
-                  placeholder={getStaffFullName(removingMember)}
-                  className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200"
-                />
-              </div>
-            )}
-            <div className="mt-5 flex justify-end gap-2">
-              <AlertDialog.Cancel asChild>
-                <Button type="button" variant="outline">
-                  {overviewT("cancel")}
-                </Button>
-              </AlertDialog.Cancel>
-              <AlertDialog.Action asChild>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    void handleRemoveFromBranch();
-                  }}
-                  disabled={
-                    removeStaff.isPending ||
-                    !removingMember ||
-                    (isLastBranch &&
-                      deleteConfirmText.trim() !==
-                        getStaffFullName(removingMember).trim())
-                  }
-                >
-                  {removeStaff.isPending
-                    ? overviewT("removing")
-                    : overviewT("remove")}
-                </Button>
-              </AlertDialog.Action>
-            </div>
-          </AlertDialog.Content>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
+        onConfirm={() => void handleRemoveFromBranch()}
+        isPending={removeStaff.isPending}
+      />
     </>
   );
 }
