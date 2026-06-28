@@ -4,7 +4,7 @@ import {
   AUTH_REFRESH_TOKEN_COOKIE,
   AUTH_SELECTION_TOKEN_COOKIE,
   AUTH_TOKEN_COOKIE,
-} from "@/features/auth/lib/auth.constants";
+} from "@/common/constants/auth-cookies";
 import {
   backendFetch,
   clearSignupTokenCookie,
