@@ -5,7 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "radix-ui";
 import { useForm, useWatch, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { X, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
@@ -24,45 +23,13 @@ import { InvoiceEditForm } from "./InvoiceEditForm";
 import { InvoicePrintModal } from "./InvoicePrintModal";
 import { RecordPaymentDrawer } from "./RecordPaymentDrawer";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
+import { invoiceFormSchema, type InvoiceFormValues } from "./invoice-form.schema";
 import { personName } from "../lib/format";
 
-// ── Schema ────────────────────────────────────────────────────────────────────
-
-export const invoiceFormSchema = z.object({
-  patient_id: z.string().min(1, "Patient is required"),
-  /** Display name of the selected patient — for the preview, not sent. */
-  patient_name: z.string().optional(),
-  visit_id: z.string().optional(),
-  /**
-   * Assigned provider. Sent as `assigned_doctor_id` on create/update (the
-   * backend accepts it) and used for line-item price resolution. Required on
-   * standalone create — enforced in `runCreate`, not the schema, because the
-   * visit-backed path pins the doctor server-side.
-   */
-  doctor_id: z.string().optional(),
-  /** Display name of the selected doctor — for the preview, not sent. */
-  doctor_name: z.string().optional(),
-  /** Invoice currency (create only; UpdateInvoiceDto has no currency). */
-  currency: z.string(),
-  invoice_type: z.enum(["STANDARD", "FOLLOWUP", "PROFORMA", "INSURANCE", "REFUND"]),
-  due_date: z.string().optional(),
-  notes: z.string().optional(),
-  /** Invoice-level discount. "NONE" submits no discount. */
-  discount_type: z.enum(["NONE", "PERCENTAGE", "FIXED"]),
-  discount_value: z.number().nonnegative(),
-  items: z.array(
-    z.object({
-      service_id: z.string().optional(),
-      description: z.string().min(1, "Description is required"),
-      quantity: z.number().int().positive(),
-      unit_price: z.number().nonnegative(),
-      discount_amount: z.number().nonnegative().optional(),
-      pricing_source: z.enum(["PROVIDER_OVERRIDE", "BRANCH_OVERRIDE", "ORG_PRICE_LIST", "CUSTOM"]).optional(),
-    }),
-  ),
-});
-
-export type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
+// The form schema/type moved to ./invoice-form.schema; re-export them so the
+// historical `./InvoiceDrawer` import site keeps resolving.
+export { invoiceFormSchema };
+export type { InvoiceFormValues };
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 

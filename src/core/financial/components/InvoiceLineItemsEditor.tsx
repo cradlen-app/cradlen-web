@@ -17,7 +17,7 @@ import { formatMoney } from "../lib/format";
 import { useResolvePrice } from "../hooks/useResolvePrice";
 import { useProviderServices } from "../hooks/useAuthorizations";
 import { InvoicePricingSourceBadge } from "./InvoicePricingSourceBadge";
-import type { InvoiceFormValues } from "./InvoiceDrawer";
+import type { InvoiceFormValues } from "./invoice-form.schema";
 
 type ServiceOption = { id: string; name: string; code: string };
 

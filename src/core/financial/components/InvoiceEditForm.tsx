@@ -16,7 +16,7 @@ import { InvoiceLineItemsEditor } from "./InvoiceLineItemsEditor";
 import { InvoicePreview } from "./InvoicePreview";
 import { InvoicePatientSelect } from "./InvoicePatientSelect";
 import { InvoiceDoctorSelect } from "./InvoiceDoctorSelect";
-import type { InvoiceFormValues } from "./InvoiceDrawer";
+import type { InvoiceFormValues } from "./invoice-form.schema";
 import type { Invoice } from "../types/financial.types";
 
 /** Currencies offered in the create-mode currency selector. */
