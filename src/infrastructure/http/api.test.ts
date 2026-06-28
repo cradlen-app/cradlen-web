@@ -1,30 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { clearSession, clearContext, clearUser, queryClientClear } = vi.hoisted(
-  () => ({
-    clearSession: vi.fn(),
-    clearContext: vi.fn(),
-    clearUser: vi.fn(),
-    queryClientClear: vi.fn(),
-  }),
-);
+const { clearSession, queryClientClear } = vi.hoisted(() => ({
+  clearSession: vi.fn(),
+  queryClientClear: vi.fn(),
+}));
 
-vi.mock("@/features/auth/store/authStore", () => ({
-  useAuthStore: { getState: () => ({ clearSession }) },
-}));
-vi.mock("@/features/auth/store/authContextStore", () => ({
-  useAuthContextStore: {
-    getState: () => ({
-      organizationId: null,
-      branchId: null,
-      profileId: null,
-      clearContext,
-    }),
-  },
-}));
-vi.mock("@/features/auth/store/userStore", () => ({
-  useUserStore: { getState: () => ({ clearUser }) },
-}));
 vi.mock("@/infrastructure/query/queryClient", () => ({
   queryClient: { clear: queryClientClear },
 }));
@@ -60,12 +40,19 @@ describe("apiAuthFetch 401 handling (verify-before-logout)", () => {
   beforeEach(async () => {
     assign.mockClear();
     clearSession.mockClear();
-    clearContext.mockClear();
-    clearUser.mockClear();
     queryClientClear.mockClear();
     setLocation("/en/org-1/branch-1/dashboard/patients");
     vi.resetModules();
     ({ apiAuthFetch } = await import("./api"));
+    // The auth feature registers a real bridge at boot; resetModules() clears it,
+    // so register a test bridge with a spy teardown for each run.
+    const { registerSessionBridge } = await import(
+      "../auth-transport/session-bridge"
+    );
+    registerSessionBridge({
+      readContext: () => ({ organizationId: null, branchId: null, profileId: null }),
+      clearSession,
+    });
   });
 
   afterEach(() => {

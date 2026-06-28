@@ -1,7 +1,8 @@
 import { ApiError } from "@/common/errors/api-error";
-import { useAuthStore } from "@/features/auth/store/authStore";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { useUserStore } from "@/features/auth/store/userStore";
+import {
+  clearClientSession,
+  readClientAuthContext,
+} from "@/infrastructure/auth-transport/session-bridge";
 import { routing } from "@/i18n/routing";
 import { queryClient } from "@/infrastructure/query/queryClient";
 
@@ -126,7 +127,7 @@ export async function apiFetch<T>(
 }
 
 export function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const { organizationId, branchId, profileId } = useAuthContextStore.getState();
+  const { organizationId, branchId, profileId } = readClientAuthContext();
   // Forward the active UI locale so the backend can localize responses
   // (e.g. form-template labels). The proxy copies request headers through.
   const acceptLanguage =
@@ -265,9 +266,7 @@ function clearSessionAndRedirect() {
       : null;
   if (pathWithoutLocale !== null && isPublicAuthPath(pathWithoutLocale)) return;
 
-  useAuthStore.getState().clearSession();
-  useAuthContextStore.getState().clearContext();
-  useUserStore.getState().clearUser();
+  clearClientSession();
   queryClient.clear();
 
   if (pathWithoutLocale !== null) {
