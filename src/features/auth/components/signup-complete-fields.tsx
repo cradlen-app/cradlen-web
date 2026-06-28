@@ -1,0 +1,288 @@
+"use client";
+
+import { useEffect, useMemo } from "react";
+import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import { cn } from "@/common/utils/utils";
+import { SpecialtiesSelect } from "@/components/common/SpecialtiesSelect";
+import { SubspecialtiesSelect } from "@/components/common/SubspecialtiesSelect";
+import { useSpecialtiesLookup } from "@/features/settings/hooks/useSettingsLookups";
+import { EXECUTIVE_TITLE, JOB_ROLE } from "../lib/auth.constants";
+import type { Step3Data } from "../types/sign-up.types";
+
+const inputClass = cn(
+  "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-black",
+  "placeholder:text-gray-400 outline-none transition-colors",
+  "focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20",
+);
+
+const errorInputClass = (hasError: boolean) =>
+  hasError ? "border-red-400 focus:border-red-400 focus:ring-red-400/20" : "";
+
+const fieldError = (msg?: string) =>
+  msg ? <p className="mt-1 text-xs text-red-500">{msg}</p> : null;
+
+type FieldsProps = { form: UseFormReturn<Step3Data> };
+
+/** Organization name, specialties, and executive title. */
+export function OrganizationFields({ form }: FieldsProps) {
+  const t = useTranslations("auth.signUp");
+  return (
+    <>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="organizationName" className="text-sm text-brand-black">
+          {t("organizationNameLabel")}
+        </label>
+        <input
+          id="organizationName"
+          type="text"
+          placeholder={t("organizationNamePlaceholder")}
+          {...form.register("organizationName")}
+          className={cn(
+            inputClass,
+            errorInputClass(!!form.formState.errors.organizationName),
+          )}
+        />
+        {fieldError(form.formState.errors.organizationName?.message)}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm text-brand-black">
+          {t("organizationSpecialtiesLabel")}
+        </label>
+        <Controller
+          control={form.control}
+          name="specialties"
+          render={({ field }) => (
+            <SpecialtiesSelect
+              value={field.value}
+              onChange={field.onChange}
+              placeholder={t("organizationSpecialtiesPlaceholder")}
+              hasError={!!form.formState.errors.specialties}
+            />
+          )}
+        />
+        <p className="text-xs text-gray-400">
+          {t("organizationSpecialtiesHint")}
+        </p>
+        {fieldError(form.formState.errors.specialties?.message as string | undefined)}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="executiveTitle" className="text-sm text-brand-black">
+          {t("executiveTitleLabel")}
+        </label>
+        <select
+          id="executiveTitle"
+          {...form.register("executiveTitle")}
+          className={cn(inputClass)}
+        >
+          {Object.values(EXECUTIVE_TITLE).map((title) => (
+            <option key={title} value={title}>
+              {t(`executiveTitles.${title}`)}
+            </option>
+          ))}
+        </select>
+      </div>
+    </>
+  );
+}
+
+/** Job-function picker; Doctor reveals specialty / subspecialty / title. */
+export function JobRoleFields({ form }: FieldsProps) {
+  const t = useTranslations("auth.signUp");
+  const jobRole = useWatch({ control: form.control, name: "jobRole" });
+  const isDoctor = jobRole === JOB_ROLE.DOCTOR;
+  const specialtyLookup = useSpecialtiesLookup();
+  const specialtyOptions = useMemo(
+    () => specialtyLookup.data?.data ?? [],
+    [specialtyLookup.data],
+  );
+
+  const selectedSpecialty = useWatch({
+    control: form.control,
+    name: "doctorSpecialty",
+  });
+  const subspecialtyOptions = useMemo(
+    () =>
+      specialtyOptions.find((s) => s.code === selectedSpecialty)
+        ?.subspecialties ?? [],
+    [specialtyOptions, selectedSpecialty],
+  );
+  // Clear any subspecialties when the parent specialty changes — stale codes
+  // would fail the server's parent-consistency check.
+  useEffect(() => {
+    form.setValue("doctorSubspecialties", []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSpecialty]);
+
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border border-gray-100 p-4">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="jobRole" className="text-sm text-brand-black">
+          {t("jobRoleLabel")}
+        </label>
+        <select
+          id="jobRole"
+          {...form.register("jobRole")}
+          className={cn(inputClass)}
+        >
+          {Object.values(JOB_ROLE).map((role) => (
+            <option key={role} value={role}>
+              {t(`jobRoles.${role}`)}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {isDoctor && (
+        <div className="flex flex-col gap-4 ps-1">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="doctorSpecialty" className="text-sm text-brand-black">
+              {t("doctorSpecialtyLabel")}
+            </label>
+            <select
+              id="doctorSpecialty"
+              {...form.register("doctorSpecialty")}
+              className={cn(
+                inputClass,
+                errorInputClass(!!form.formState.errors.doctorSpecialty),
+              )}
+            >
+              <option value="">{t("doctorSpecialtyPlaceholder")}</option>
+              {specialtyOptions.map(({ code, name }) => (
+                <option key={code} value={code}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            {fieldError(form.formState.errors.doctorSpecialty?.message)}
+          </div>
+
+          {subspecialtyOptions.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-brand-black">
+                {t("doctorSubspecialtyLabel")}
+              </label>
+              <Controller
+                control={form.control}
+                name="doctorSubspecialties"
+                render={({ field }) => (
+                  <SubspecialtiesSelect
+                    options={subspecialtyOptions}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={!selectedSpecialty}
+                    placeholder={t("doctorSubspecialtyPlaceholder")}
+                  />
+                )}
+              />
+            </div>
+          )}
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="professionalTitle" className="text-sm text-brand-black">
+              {t("professionalTitleLabel")}
+            </label>
+            <input
+              id="professionalTitle"
+              type="text"
+              placeholder={t("professionalTitlePlaceholder")}
+              {...form.register("professionalTitle")}
+              className={cn(
+                inputClass,
+                errorInputClass(!!form.formState.errors.professionalTitle),
+              )}
+            />
+            <p className="text-xs text-gray-400">{t("professionalTitleHint")}</p>
+            {fieldError(form.formState.errors.professionalTitle?.message)}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Main branch address fields. */
+export function BranchFields({ form }: FieldsProps) {
+  const t = useTranslations("auth.signUp");
+  const { errors } = form.formState;
+  return (
+    <div className="flex flex-col gap-4">
+      <h3 className="border-b border-gray-100 pb-2 text-sm font-medium text-brand-black">
+        {t("mainBranchHeading")}
+      </h3>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="branchName" className="text-sm text-brand-black">
+          {t("branchNameLabel")}
+        </label>
+        <input
+          id="branchName"
+          type="text"
+          placeholder={t("branchNamePlaceholder")}
+          {...form.register("branchName")}
+          className={cn(inputClass, errorInputClass(!!errors.branchName))}
+        />
+        {fieldError(errors.branchName?.message)}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="country" className="text-sm text-brand-black">
+          {t("countryLabel")}
+        </label>
+        <input
+          id="country"
+          type="text"
+          placeholder={t("countryPlaceholder")}
+          {...form.register("country")}
+          className={cn(inputClass, errorInputClass(!!errors.country))}
+        />
+        {fieldError(errors.country?.message)}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="city" className="text-sm text-brand-black">
+            {t("cityLabel")}
+          </label>
+          <input
+            id="city"
+            type="text"
+            placeholder={t("cityPlaceholder")}
+            {...form.register("city")}
+            className={cn(inputClass, errorInputClass(!!errors.city))}
+          />
+          {fieldError(errors.city?.message)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="governorate" className="text-sm text-brand-black">
+            {t("governorateLabel")}
+          </label>
+          <input
+            id="governorate"
+            type="text"
+            placeholder={t("governoratePlaceholder")}
+            {...form.register("governorate")}
+            className={cn(inputClass, errorInputClass(!!errors.governorate))}
+          />
+          {fieldError(errors.governorate?.message)}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="address" className="text-sm text-brand-black">
+          {t("addressLabel")}
+        </label>
+        <input
+          id="address"
+          type="text"
+          placeholder={t("addressPlaceholder")}
+          {...form.register("address")}
+          className={cn(inputClass, errorInputClass(!!errors.address))}
+        />
+        {fieldError(errors.address?.message)}
+      </div>
+    </div>
+  );
+}
