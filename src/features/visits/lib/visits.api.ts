@@ -1,6 +1,7 @@
 import { apiAuthFetch } from "@/infrastructure/http/api";
 import { mapApiVisitToScheduleEvent } from "./visits.utils";
 import type {
+  ApiPatient,
   ApiPatientSearchResponse,
   ApiScheduleResponse,
   ApiVisit,
@@ -133,11 +134,23 @@ export function fetchTodaysSchedule({
 
 export function searchPatients(search: string) {
   // GLOBAL (cross-org) lookup so the book-visit autocomplete can find a patient
-  // first registered at another clinic. The org roster uses other endpoints, so
-  // it stays scoped to enrolled patients.
+  // first registered at another clinic. Returns disambiguation-only rows
+  // (name + last-3 phone); full identity is fetched on selection via
+  // `fetchPatientIdentity`. The org roster uses other endpoints.
   const params = new URLSearchParams({ search, limit: "20" });
   return apiAuthFetch<ApiPatientSearchResponse>(
     `/patients/search?${params.toString()}`,
+  );
+}
+
+/**
+ * Reveals the full identity of a patient chosen from the global search, to
+ * prefill the booking form — including patients first registered at another
+ * clinic. Backed by `GET /patients/:id/identity` (throttled + audited).
+ */
+export function fetchPatientIdentity(id: string) {
+  return apiAuthFetch<{ data: ApiPatient }>(`/patients/${id}/identity`).then(
+    (res) => res.data,
   );
 }
 

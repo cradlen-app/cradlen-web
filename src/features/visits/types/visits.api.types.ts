@@ -223,8 +223,21 @@ export type ApiScheduleEvent = {
 
 export type ApiScheduleResponse = { data: ApiScheduleEvent[] };
 
+/**
+ * Disambiguation-only row from `GET /patients/search` (the cross-org global
+ * lookup). Full PII (national id, DOB, address, full phone) is intentionally NOT
+ * returned here — it is revealed per-record on selection via
+ * `GET /patients/:id/identity` (see `fetchPatientIdentity`). `phone_last3` = last
+ * 3 phone digits, to disambiguate same-name patients.
+ */
+export type ApiPatientSearchResult = {
+  id: string;
+  full_name: string;
+  phone_last3: string | null;
+};
+
 export type ApiPatientSearchResponse = {
-  data: ApiPatient[];
+  data: ApiPatientSearchResult[];
   meta: ApiPaginationMeta;
 };
 

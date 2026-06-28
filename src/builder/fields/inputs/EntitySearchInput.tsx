@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { cn } from "@/common/utils/utils";
 import { fieldClass, FieldShell } from "../field-shell";
@@ -31,7 +31,13 @@ export function EntitySearchInput({
   const [open, setOpen] = useState(false);
   const [debounced, setDebounced] = useState(entry.transientValue);
   const [loading, setLoading] = useState(false);
+  // Highlighted suggestion for keyboard navigation (-1 = none).
+  const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const baseId = useId();
+  const listboxId = `${baseId}-listbox`;
+  const optionId = (i: number) => `${baseId}-opt-${i}`;
 
   // Debounce 300ms (matches usePatientSearch pattern).
   useEffect(() => {
@@ -81,8 +87,48 @@ export function EntitySearchInput({
 
   const showDropdown = open && !entry.resolvedEntityId && entry.transientValue.length >= 2;
   const hasResults = entry.suggestions.length > 0;
+  // Clamp during render so a shrunk suggestion set never points the highlight at
+  // a missing row (no setState-in-effect needed).
+  const activeOption =
+    activeIndex >= 0 && activeIndex < entry.suggestions.length ? activeIndex : -1;
+
+  // Keep the highlighted option scrolled into view as the user arrows through.
+  useEffect(() => {
+    if (!showDropdown || activeOption < 0 || !listRef.current) return;
+    listRef.current
+      .querySelector<HTMLElement>(`[data-idx="${activeOption}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [showDropdown, activeOption]);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (disabled) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!showDropdown) {
+        setOpen(true);
+        return;
+      }
+      if (hasResults) {
+        setActiveIndex((i) => Math.min(entry.suggestions.length - 1, i + 1));
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (showDropdown && hasResults) setActiveIndex((i) => Math.max(0, i - 1));
+    } else if (e.key === "Enter") {
+      if (showDropdown && activeOption >= 0) {
+        e.preventDefault();
+        handleSelect(entry.suggestions[activeOption]);
+      }
+    } else if (e.key === "Escape") {
+      if (showDropdown) {
+        e.preventDefault();
+        setOpen(false);
+      }
+    }
+  }
 
   function handleSelect(result: EntityResult) {
+    setActiveIndex(-1);
     patchSearch(field.code, {
       resolvedEntityId: { id: result.id, label: result.label },
       transientValue: result.label,
@@ -101,37 +147,56 @@ export function EntitySearchInput({
       // search query left behind by the allowCreate `onChange` path.
       setFieldValue(field.code, result.label);
     }
-    if ((fillFields || fillEntitySearches) && result.raw && typeof result.raw === "object") {
-      const raw = result.raw as Record<string, unknown>;
-      if (fillFields) {
-        for (const [localCode, sourceProp] of Object.entries(fillFields)) {
-          const v = raw[sourceProp];
-          if (v !== undefined) setFieldValue(localCode, v);
-        }
+    setOpen(false);
+    // Fill sibling fields from the picked row. When the entity exposes a lazy
+    // `resolve` (e.g. the global patient lookup defers full identity to an
+    // on-select, throttled+audited fetch), pull the full payload first.
+    if (fillFields || fillEntitySearches) void applyFill(result);
+  }
+
+  async function applyFill(result: EntityResult) {
+    let source: Record<string, unknown> | null =
+      result.raw && typeof result.raw === "object"
+        ? (result.raw as Record<string, unknown>)
+        : null;
+    if (result.resolve) {
+      try {
+        const resolved = await result.resolve();
+        if (resolved) source = resolved;
+      } catch {
+        // Identity reveal failed (throttled/offline): fall back to the minimal
+        // search row so selection still works, just without the deferred fields.
       }
-      if (fillEntitySearches) {
-        for (const [targetCode, spec] of Object.entries(fillEntitySearches)) {
-          const nestedId = raw[spec.idSource];
-          const nestedLabel = raw[spec.labelSource];
-          if (typeof nestedId === "string" && nestedId.length > 0) {
-            const label = typeof nestedLabel === "string" ? nestedLabel : "";
-            patchSearch(targetCode, {
-              resolvedEntityId: { id: nestedId, label },
-              transientValue: label,
-              suggestions: [],
-            });
-            setFieldValue(targetCode, label);
-            if (spec.fillFields) {
-              for (const [localCode, sourceProp] of Object.entries(spec.fillFields)) {
-                const v = raw[sourceProp];
-                if (v !== undefined) setFieldValue(localCode, v);
-              }
+    }
+    if (!source) return;
+    const raw = source;
+    if (fillFields) {
+      for (const [localCode, sourceProp] of Object.entries(fillFields)) {
+        const v = raw[sourceProp];
+        if (v !== undefined) setFieldValue(localCode, v);
+      }
+    }
+    if (fillEntitySearches) {
+      for (const [targetCode, spec] of Object.entries(fillEntitySearches)) {
+        const nestedId = raw[spec.idSource];
+        const nestedLabel = raw[spec.labelSource];
+        if (typeof nestedId === "string" && nestedId.length > 0) {
+          const label = typeof nestedLabel === "string" ? nestedLabel : "";
+          patchSearch(targetCode, {
+            resolvedEntityId: { id: nestedId, label },
+            transientValue: label,
+            suggestions: [],
+          });
+          setFieldValue(targetCode, label);
+          if (spec.fillFields) {
+            for (const [localCode, sourceProp] of Object.entries(spec.fillFields)) {
+              const v = raw[sourceProp];
+              if (v !== undefined) setFieldValue(localCode, v);
             }
           }
         }
       }
     }
-    setOpen(false);
   }
 
   function handleClear() {
@@ -164,6 +229,7 @@ export function EntitySearchInput({
         }
       }
     }
+    setActiveIndex(-1);
     setOpen(true);
   }
 
@@ -177,11 +243,21 @@ export function EntitySearchInput({
       <div ref={containerRef} className="relative">
         <input
           type="text"
+          role="combobox"
+          aria-expanded={showDropdown}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={
+            activeOption >= 0 ? optionId(activeOption) : undefined
+          }
           value={inputValue}
           placeholder={placeholder}
           disabled={disabled}
+          onKeyDown={handleKeyDown}
           onChange={(e) => {
             const next = e.target.value;
+            // New query — drop the highlight so it never points at a stale row.
+            setActiveIndex(-1);
             if (entry.resolvedEntityId) {
               patchSearch(field.code, {
                 resolvedEntityId: null,
@@ -231,17 +307,30 @@ export function EntitySearchInput({
         ) : null}
 
         {showDropdown ? (
-          <div className="absolute z-30 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+          <div
+            ref={listRef}
+            id={listboxId}
+            role="listbox"
+            className="absolute z-30 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+          >
             {hasResults ? (
-              entry.suggestions.map((s) => (
+              entry.suggestions.map((s, idx) => (
                 <button
                   key={s.id}
+                  id={optionId(idx)}
                   type="button"
+                  role="option"
+                  aria-selected={idx === activeOption}
+                  data-idx={idx}
+                  onMouseEnter={() => setActiveIndex(idx)}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     handleSelect(s);
                   }}
-                  className="flex w-full flex-col items-start gap-0.5 border-b border-gray-100 px-3 py-2 text-start text-xs last:border-b-0 hover:bg-gray-50"
+                  className={cn(
+                    "flex w-full flex-col items-start gap-0.5 border-b border-gray-100 px-3 py-2 text-start text-xs last:border-b-0 hover:bg-gray-50",
+                    idx === activeOption && "bg-gray-50",
+                  )}
                 >
                   <span className="font-medium text-brand-black">{s.label}</span>
                   {s.subtitle ? (

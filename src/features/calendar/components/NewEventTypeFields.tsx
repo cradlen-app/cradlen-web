@@ -170,8 +170,7 @@ function PatientSearchField({
   function handleSelect(p: {
     id: string;
     fullName: string;
-    nationalId?: string;
-    phoneNumber?: string;
+    phoneLast3?: string | null;
   }) {
     setValue("patient_id", p.id, { shouldValidate: true });
     setSelectedName(p.fullName);
@@ -234,10 +233,9 @@ function PatientSearchField({
                     className="w-full px-3 py-2 text-start hover:bg-gray-50"
                   >
                     <p className="text-xs font-medium text-brand-black">{p.fullName}</p>
-                    <p className="text-[11px] text-gray-400">
-                      {p.nationalId}
-                      {p.phoneNumber ? ` · ${p.phoneNumber}` : ""}
-                    </p>
+                    {p.phoneLast3 && (
+                      <p className="text-[11px] text-gray-400">••• {p.phoneLast3}</p>
+                    )}
                   </button>
                 </li>
               ))}
