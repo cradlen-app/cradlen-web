@@ -182,6 +182,10 @@ const PUBLIC_AUTH_PATH_PREFIXES = [
   "/sign-up",
   "/forgot-password",
   "/invitations/accept",
+  "/terms-of-service",
+  "/privacy-policy",
+  "/help-center",
+  "/guide",
 ];
 
 function isPublicAuthPath(pathWithoutLocale: string) {
