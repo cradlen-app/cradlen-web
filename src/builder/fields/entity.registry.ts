@@ -5,8 +5,10 @@
  */
 
 import { apiAuthFetch } from "@/infrastructure/http/api";
-import { searchPatients } from "@/features/visits/lib/visits.api";
-import { mapApiPatientToPatient } from "@/features/visits/lib/visits.utils";
+import {
+  fetchPatientIdentity,
+  searchPatients,
+} from "@/features/visits/lib/visits.api";
 
 export interface EntityResult {
   id: string;
@@ -14,6 +16,14 @@ export interface EntityResult {
   subtitle?: string;
   /** Original payload row, used by `ui.searchEntity.fillFields` to copy props onto sibling fields. */
   raw?: unknown;
+  /**
+   * Optional lazy loader for the full fill payload, fetched on selection. Used
+   * when the search response is intentionally minimal (e.g. the global patient
+   * lookup returns only name + last-3 phone; full identity is revealed here).
+   * When present, `EntitySearchInput` awaits it and fills from the result
+   * instead of `raw`.
+   */
+  resolve?: () => Promise<Record<string, unknown> | null>;
 }
 
 export type EntitySearchFn = (query: string) => Promise<EntityResult[]>;
@@ -40,15 +50,16 @@ async function searchMedicalReps(query: string): Promise<EntityResult[]> {
 
 async function searchPatientsByQuery(query: string): Promise<EntityResult[]> {
   const res = await searchPatients(query);
-  return res.data.map((row) => {
-    const mapped = mapApiPatientToPatient(row);
-    return {
-      id: mapped.id,
-      label: mapped.fullName,
-      subtitle: [mapped.nationalId, mapped.phoneNumber].filter(Boolean).join(" · "),
-      raw: row,
-    };
-  });
+  return res.data.map((row) => ({
+    id: row.id,
+    label: row.full_name,
+    // Disambiguation-only: name + last-3 phone. No national id / full phone here.
+    subtitle: row.phone_last3 ? `••• ${row.phone_last3}` : undefined,
+    raw: row,
+    // Full identity (national id, DOB, address, …) is revealed on selection,
+    // throttled + audited, to prefill the booking form.
+    resolve: () => fetchPatientIdentity(row.id),
+  }));
 }
 
 interface MedicationListItem {

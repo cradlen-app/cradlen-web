@@ -15,6 +15,10 @@ vi.mock("@/hooks/useDashboardPath", () => ({
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
+// PlanCards renders PlanLimitDrawer, which reaches into next/navigation params
+// and the staff/query stack. It only mounts on an over-limit error, so stub it
+// out — these tests cover PlanCards' own plan-picking behavior.
+vi.mock("./PlanLimitDrawer", () => ({ PlanLimitDrawer: () => null }));
 
 const mockUsePlans = vi.mocked(usePlans);
 

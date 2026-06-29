@@ -1,0 +1,516 @@
+"use client";
+
+import {
+  BriefcaseBusiness,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Stethoscope,
+  UserRoundCog,
+  type LucideIcon,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import type {
+  FieldErrors,
+  UseFormRegister,
+  UseFormSetValue,
+} from "react-hook-form";
+import {
+  ENGAGEMENT_TYPE,
+  EXECUTIVE_TITLE,
+  JOB_ROLE,
+  STAFF_API_ROLE,
+  type EngagementTypeCode,
+  type ExecutiveTitleCode,
+  type JobRoleCode,
+  type StaffApiRole,
+} from "@/features/auth/lib/auth.constants";
+import { cn } from "@/common/utils/utils";
+import { SubspecialtiesSelect } from "@/components/common/SubspecialtiesSelect";
+import type {
+  StaffCreateDirectFormValues,
+  StaffInviteFormValues,
+} from "../lib/staff-invite.schemas";
+import type { ApiStaffSpecialty } from "../types/staff.api.types";
+import type { StaffMember, StaffRoleOption } from "../types/staff.types";
+import type { OrganizationBranch } from "@/features/settings/lib/settings.api";
+
+type AnyFormValues = StaffInviteFormValues | StaffCreateDirectFormValues;
+
+/** Shared RHF wiring threaded into every section. */
+type FieldWiring = {
+  register: UseFormRegister<AnyFormValues>;
+  setValue: UseFormSetValue<AnyFormValues>;
+  errors: FieldErrors<AnyFormValues>;
+};
+
+const fieldClass =
+  "h-9 w-full border-0 border-b border-gray-200 bg-transparent px-0 text-xs text-brand-black outline-none transition-colors placeholder:text-gray-300 focus:border-brand-primary focus:ring-0";
+
+const roleIcons: Record<string, LucideIcon> = {
+  [STAFF_API_ROLE.OWNER]: UserRoundCog,
+  [STAFF_API_ROLE.BRANCH_MANAGER]: ShieldCheck,
+  [STAFF_API_ROLE.STAFF]: Stethoscope,
+};
+
+const ENGAGEMENT_VALUES = Object.values(ENGAGEMENT_TYPE);
+const EXECUTIVE_VALUES = Object.values(EXECUTIVE_TITLE);
+
+function SectionTitle({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-4">
+      <p className="shrink-0 text-xs font-medium text-gray-400">{title}</p>
+      <span className="h-px flex-1 bg-gray-300" />
+    </div>
+  );
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="pt-1 text-[11px] text-red-500">{message}</p>;
+}
+
+function ChipToggle({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={cn(
+        "rounded-full border px-3 py-1 text-xs transition-all",
+        selected
+          ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
+          : "border-gray-200 bg-white text-gray-500 hover:border-brand-primary/30 hover:text-brand-black",
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ── Account (email / phone / password) ───────────────────────────────────────
+
+export function AccountSection({
+  register,
+  errors,
+  isEditMode,
+  isDirectMode,
+  member,
+  showPassword,
+  onTogglePassword,
+}: Pick<FieldWiring, "register" | "errors"> & {
+  isEditMode: boolean;
+  isDirectMode: boolean;
+  member?: StaffMember | null;
+  showPassword: boolean;
+  onTogglePassword: () => void;
+}) {
+  const t = useTranslations("staff.create");
+  const directErrors = errors as FieldErrors<StaffCreateDirectFormValues>;
+  const inviteErrors = errors as FieldErrors<StaffInviteFormValues>;
+
+  if (isEditMode) {
+    if (!member?.email) return null;
+    return (
+      <section className="space-y-3">
+        <SectionTitle title={t("account")} />
+        <label className="block">
+          <span className="text-xs font-medium text-brand-black">{t("email")}</span>
+          <input
+            className={cn(fieldClass, "text-gray-500")}
+            readOnly
+            value={member.email}
+          />
+        </label>
+      </section>
+    );
+  }
+
+  return (
+    <section className="space-y-3">
+      <SectionTitle title={t("account")} />
+      <div className="grid grid-cols-1 gap-x-8 gap-y-2">
+        {isDirectMode ? (
+          <>
+            <label className="block">
+              <span className="text-xs font-medium text-brand-black">{t("phone")}</span>
+              <input
+                {...register("phone")}
+                className={fieldClass}
+                type="tel"
+                placeholder="+201001234567"
+              />
+              <FieldError message={errors.phone?.message} />
+            </label>
+            <label className="block">
+              <span className="text-xs font-medium text-brand-black">{t("password")}</span>
+              <div className="relative">
+                <input
+                  {...register("password" as never)}
+                  className={cn(fieldClass, "pe-8")}
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={onTogglePassword}
+                  className="absolute inset-y-0 inset-e-0 flex items-center text-gray-400 hover:text-brand-black"
+                  aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-3.5" aria-hidden="true" />
+                  ) : (
+                    <Eye className="size-3.5" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+              <p className="pt-1 text-[11px] text-gray-400">{t("passwordHint")}</p>
+              <FieldError message={directErrors.password?.message} />
+            </label>
+          </>
+        ) : (
+          <label className="block">
+            <span className="text-xs font-medium text-brand-black">{t("email")}</span>
+            <input {...register("email" as never)} className={fieldClass} type="email" />
+            <FieldError message={inviteErrors.email?.message} />
+          </label>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ── Personal info (name / phone / role picker) ───────────────────────────────
+
+export function PersonalSection({
+  register,
+  setValue,
+  errors,
+  isDirectMode,
+  hideRolePicker,
+  roles,
+  assignableRoles,
+  selectedRoleId,
+}: FieldWiring & {
+  isDirectMode: boolean;
+  hideRolePicker?: boolean;
+  roles: StaffRoleOption[];
+  assignableRoles: Set<StaffApiRole>;
+  selectedRoleId: string;
+}) {
+  const t = useTranslations("staff.create");
+  const visibleRoles = roles.filter(
+    (r) => r.role !== "UNKNOWN" && assignableRoles.has(r.role as StaffApiRole),
+  );
+
+  return (
+    <section className="space-y-3">
+      <SectionTitle title={t("personalInformation")} />
+      <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+        <label className="block">
+          <span className="text-xs font-medium text-brand-black">{t("name")}</span>
+          <input {...register("name")} className={fieldClass} />
+          <FieldError message={errors.name?.message} />
+        </label>
+
+        {!isDirectMode && (
+          <label className="block">
+            <span className="text-xs font-medium text-brand-black">{t("phone")}</span>
+            <input {...register("phone")} className={fieldClass} type="tel" />
+            <FieldError message={errors.phone?.message} />
+          </label>
+        )}
+
+        {!hideRolePicker && (
+          <div className="sm:col-span-2">
+            <span className="text-xs font-medium text-brand-black">{t("role")}</span>
+            <input {...register("roleId")} type="hidden" />
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {visibleRoles.map((roleOpt) => {
+                const Icon = roleIcons[roleOpt.role] ?? BriefcaseBusiness;
+                const isSelected = selectedRoleId === roleOpt.id;
+                return (
+                  <button
+                    key={roleOpt.id}
+                    type="button"
+                    onClick={() =>
+                      setValue("roleId", roleOpt.id, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                    aria-pressed={isSelected}
+                    className={cn(
+                      "flex h-14 items-center gap-2 rounded-lg border px-3 text-start transition-all",
+                      isSelected
+                        ? "border-brand-primary bg-brand-primary/8 text-brand-primary shadow-sm"
+                        : "border-gray-100 bg-gray-50/70 text-gray-500 hover:border-brand-primary/30 hover:bg-white hover:text-brand-black",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "inline-flex size-8 shrink-0 items-center justify-center rounded-full",
+                        isSelected ? "bg-brand-primary text-white" : "bg-white text-gray-400",
+                      )}
+                    >
+                      <Icon className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0 text-xs font-semibold">
+                      {t(`apiRoles.${roleOpt.role}`)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <FieldError message={errors.roleId?.message} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ── Branches ─────────────────────────────────────────────────────────────────
+
+export function BranchesSection({
+  register,
+  setValue,
+  errors,
+  branchOptions,
+  assignableBranchIds,
+  selectedBranchIds,
+}: FieldWiring & {
+  branchOptions: OrganizationBranch[];
+  assignableBranchIds: Set<string>;
+  selectedBranchIds: string[];
+}) {
+  const t = useTranslations("staff.create");
+
+  function toggle(code: string) {
+    const next = selectedBranchIds.includes(code)
+      ? selectedBranchIds.filter((c) => c !== code)
+      : [...selectedBranchIds, code];
+    setValue("branchIds", next, { shouldDirty: true, shouldValidate: true });
+  }
+
+  return (
+    <section className="space-y-3">
+      <SectionTitle title={t("branches")} />
+      <input {...register("branchIds" as never)} type="hidden" />
+      <div className="flex flex-wrap gap-2">
+        {branchOptions.length === 0 ? (
+          <p className="text-[11px] text-gray-400">{t("noBranches")}</p>
+        ) : (
+          branchOptions.map((branch) => {
+            const inScope =
+              assignableBranchIds.size === 0 || assignableBranchIds.has(branch.id);
+            const isSelected = selectedBranchIds.includes(branch.id);
+            const disabled = !inScope && !isSelected;
+            return (
+              <ChipToggle
+                key={branch.id}
+                label={branch.city ? `${branch.name} (${branch.city})` : branch.name}
+                selected={isSelected}
+                onClick={() => !disabled && toggle(branch.id)}
+              />
+            );
+          })
+        )}
+      </div>
+      {errors.branchIds?.message && (
+        <FieldError message={errors.branchIds.message as string} />
+      )}
+    </section>
+  );
+}
+
+// ── Engagement + executive title ─────────────────────────────────────────────
+
+export function EngagementSection({
+  register,
+  setValue,
+  selectedEngagementType,
+  selectedExecutiveTitle,
+}: Pick<FieldWiring, "register" | "setValue"> & {
+  selectedEngagementType: EngagementTypeCode;
+  selectedExecutiveTitle: ExecutiveTitleCode | null | undefined;
+}) {
+  const t = useTranslations("staff.create");
+  return (
+    <section className="space-y-3">
+      <SectionTitle title={t("engagement")} />
+      <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+        <div>
+          <span className="text-xs font-medium text-brand-black">{t("engagementType")}</span>
+          <input {...register("engagementType")} type="hidden" />
+          <div className="mt-2 flex flex-wrap gap-2">
+            {ENGAGEMENT_VALUES.map((value) => (
+              <ChipToggle
+                key={value}
+                label={t(`engagementTypes.${value}`)}
+                selected={selectedEngagementType === value}
+                onClick={() =>
+                  setValue("engagementType", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <span className="text-xs font-medium text-brand-black">{t("executiveTitle")}</span>
+          <input {...register("executiveTitle")} type="hidden" />
+          <div className="mt-2 flex flex-wrap gap-2">
+            <ChipToggle
+              label={t("executiveTitles.NONE")}
+              selected={!selectedExecutiveTitle}
+              onClick={() =>
+                setValue("executiveTitle", null, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            />
+            {EXECUTIVE_VALUES.map((value) => (
+              <ChipToggle
+                key={value}
+                label={t(`executiveTitles.${value}`)}
+                selected={selectedExecutiveTitle === value}
+                onClick={() =>
+                  setValue("executiveTitle", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Job function (Doctor drives a single specialty + title) ──────────────────
+
+export function JobFunctionSection({
+  register,
+  setValue,
+  errors,
+  selectedJobRole,
+  specialtyOptions,
+  selectedDoctorSpecialty,
+  selectedDoctorSubspecialties,
+}: FieldWiring & {
+  selectedJobRole: JobRoleCode;
+  specialtyOptions: ApiStaffSpecialty[];
+  selectedDoctorSpecialty: string;
+  selectedDoctorSubspecialties: string[];
+}) {
+  const t = useTranslations("staff.create");
+  const isDoctor = selectedJobRole === JOB_ROLE.DOCTOR;
+  const subspecialtyOptions =
+    specialtyOptions.find((s) => s.code === selectedDoctorSpecialty)
+      ?.subspecialties ?? [];
+
+  function selectJobRole(role: JobRoleCode) {
+    setValue("jobRole", role, { shouldDirty: true, shouldValidate: true });
+    if (role !== JOB_ROLE.DOCTOR) {
+      // Doctor-only fields carry no meaning for the other roles — clear them so
+      // a stale specialty/title can't leak into the payload.
+      setValue("doctorSpecialty", "", { shouldDirty: true, shouldValidate: true });
+      setValue("doctorSubspecialties", [], { shouldDirty: true });
+      setValue("professionalTitle", "", { shouldDirty: true });
+    }
+  }
+
+  return (
+    <section className="space-y-3">
+      <SectionTitle title={t("jobRoleLabel")} />
+      <input {...register("jobRole" as never)} type="hidden" />
+      <div className="flex flex-wrap gap-2">
+        {Object.values(JOB_ROLE).map((role) => (
+          <ChipToggle
+            key={role}
+            label={t(`jobRoles.${role}`)}
+            selected={selectedJobRole === role}
+            onClick={() => selectJobRole(role)}
+          />
+        ))}
+      </div>
+
+      {isDoctor && (
+        <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-xs font-medium text-brand-black">
+              {t("doctorSpecialty")}
+            </span>
+            <select
+              {...register("doctorSpecialty", {
+                // Clearing the parent specialty invalidates any chosen
+                // subspecialties — drop them so a stale code can't leak.
+                onChange: () =>
+                  setValue("doctorSubspecialties", [], { shouldDirty: true }),
+              })}
+              className={fieldClass}
+            >
+              <option value="">{t("doctorSpecialtyPlaceholder")}</option>
+              {specialtyOptions.map((sp) => (
+                <option key={sp.code} value={sp.code}>
+                  {sp.name}
+                </option>
+              ))}
+            </select>
+            <FieldError message={errors.doctorSpecialty?.message} />
+          </label>
+
+          {subspecialtyOptions.length > 0 && (
+            <label className="block">
+              <span className="text-xs font-medium text-brand-black">
+                {t("doctorSubspecialty")}
+              </span>
+              <div className="pt-1">
+                <SubspecialtiesSelect
+                  options={subspecialtyOptions}
+                  value={selectedDoctorSubspecialties}
+                  onChange={(v) =>
+                    setValue("doctorSubspecialties", v, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                  disabled={!selectedDoctorSpecialty}
+                  placeholder={t("doctorSubspecialtyPlaceholder")}
+                />
+              </div>
+            </label>
+          )}
+
+          <label className="block">
+            <span className="text-xs font-medium text-brand-black">
+              {t("professionalTitle")}
+            </span>
+            <input
+              {...register("professionalTitle")}
+              className={fieldClass}
+              placeholder={t("professionalTitlePlaceholder")}
+            />
+            <p className="pt-1 text-[11px] text-gray-400">{t("professionalTitleHint")}</p>
+            <FieldError message={errors.professionalTitle?.message} />
+          </label>
+        </div>
+      )}
+    </section>
+  );
+}

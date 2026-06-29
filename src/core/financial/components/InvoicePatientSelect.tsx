@@ -96,9 +96,9 @@ export function InvoicePatientSelect({ displayName, onChange, error }: Props) {
                       className="flex w-full items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-gray-50"
                     >
                       <span className="truncate text-gray-900">{p.fullName}</span>
-                      {p.phoneNumber && (
+                      {p.phoneLast3 && (
                         <span className="shrink-0 text-[11px] tabular-nums text-gray-400">
-                          {p.phoneNumber}
+                          ••• {p.phoneLast3}
                         </span>
                       )}
                     </button>

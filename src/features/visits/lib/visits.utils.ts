@@ -3,6 +3,7 @@ import type {
   ApiMedicalRep,
   ApiPatient,
   ApiPatientListItem,
+  ApiPatientSearchResult,
   ApiScheduleEvent,
   ApiScheduleEventKind,
   ApiVisit,
@@ -155,6 +156,21 @@ export function mapApiPatientToPatient(api: ApiPatient): Patient {
     nextVisitDate: api.next_visit_date?.slice(0, 10),
     activeJourneyName: api.active_journey_name,
     journeyStatus: api.journey_status,
+  };
+}
+
+/**
+ * Maps the disambiguation-only global-search row to a `Patient`. Only `id`,
+ * `fullName`, and `phoneLast3` are populated — full PII is fetched on selection
+ * via `fetchPatientIdentity`. Used by the patient-search comboboxes.
+ */
+export function mapApiPatientSearchResultToPatient(
+  api: ApiPatientSearchResult,
+): Patient {
+  return {
+    id: api.id,
+    fullName: api.full_name,
+    phoneLast3: api.phone_last3,
   };
 }
 

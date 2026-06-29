@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ApiError } from "@/infrastructure/http/api";
+import { ApiError } from "@/common/errors/api-error";
 import {
   getSubscriptionLimit,
   isSubscriptionExpired,

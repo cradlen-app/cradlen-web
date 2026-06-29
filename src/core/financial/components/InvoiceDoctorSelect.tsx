@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronsUpDown, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
-import { useStaff } from "@/core/staff/hooks/useStaff";
+import { useStaff } from "@/core/staff/api";
 
 const inputClass = cn(
   "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900",

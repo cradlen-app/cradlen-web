@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
@@ -84,7 +84,7 @@ export function PatientsPage() {
     mine: personalScope,
   });
 
-  const patients = data?.patients ?? [];
+  const patients = useMemo(() => data?.patients ?? [], [data?.patients]);
   const total = data?.total ?? 0;
 
   const { selectedId, setSelectedId } = usePatientsDirectory(patients);
@@ -94,17 +94,23 @@ export function PatientsPage() {
   const [page, setPage] = useState(1);
   const pageCount = Math.max(1, Math.ceil(patients.length / PAGE_SIZE));
 
-  useEffect(() => {
+  // Reset to the first page whenever the result set's identity changes
+  // (filter / search / scope). Adjusting state during render instead of in an
+  // effect avoids the cascading re-render that setState-in-effect triggers.
+  const resetKey = `${filter}|${deferredSearch}|${scope}`;
+  const [lastResetKey, setLastResetKey] = useState(resetKey);
+  if (resetKey !== lastResetKey) {
+    setLastResetKey(resetKey);
     setPage(1);
-  }, [filter, deferredSearch, scope]);
+  }
 
-  useEffect(() => {
-    if (page > pageCount) setPage(pageCount);
-  }, [page, pageCount]);
+  // Clamp during render so a shrinking dataset never strands us past the last
+  // page, without an effect that writes back into state.
+  const currentPage = Math.min(page, pageCount);
 
   const pagedPatients = useMemo(
-    () => patients.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [patients, page],
+    () => patients.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [patients, currentPage],
   );
 
   return (
@@ -166,8 +172,8 @@ export function PatientsPage() {
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
+                onClick={() => setPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
                 aria-label={t("pagination.prev")}
                 className={cn(
                   "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
@@ -178,12 +184,12 @@ export function PatientsPage() {
                 <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
               </button>
               <span className="px-1.5 text-xs tabular-nums text-gray-500">
-                {t("pagination.pageOf", { page, total: pageCount })}
+                {t("pagination.pageOf", { page: currentPage, total: pageCount })}
               </span>
               <button
                 type="button"
-                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                disabled={page >= pageCount}
+                onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
+                disabled={currentPage >= pageCount}
                 aria-label={t("pagination.next")}
                 className={cn(
                   "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",

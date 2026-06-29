@@ -1,8 +1,15 @@
-import { useAuthStore } from "@/features/auth/store/authStore";
-import { useAuthContextStore } from "@/features/auth/store/authContextStore";
-import { useUserStore } from "@/features/auth/store/userStore";
+import { ApiError } from "@/common/errors/api-error";
+import {
+  clearClientSession,
+  readClientAuthContext,
+} from "@/infrastructure/auth-transport/session-bridge";
 import { routing } from "@/i18n/routing";
 import { queryClient } from "@/infrastructure/query/queryClient";
+
+// Re-exported for the many existing `@/infrastructure/http/api` importers; the
+// class itself now lives in `common/` so pure helpers can narrow on it without
+// `common/` depending on `infrastructure/`.
+export { ApiError };
 
 const DEFAULT_API_BASE_URL = "https://api.cradlen.com/v1";
 
@@ -24,21 +31,6 @@ const SESSION_ENDPOINTS: Record<string, string> = {
   "/staff/invite/decline": "/api/staff/invite/decline",
   "/auth/switch-branch": "/api/auth/switch-branch",
 };
-
-export class ApiError extends Error {
-  messages: string[];
-
-  constructor(
-    public status: number,
-    message: string | string[],
-    public body?: unknown,
-  ) {
-    const messages = Array.isArray(message) ? message : [message];
-
-    super(messages.join("\n"));
-    this.messages = messages;
-  }
-}
 
 function getPublicApiBaseUrl() {
   return process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_BASE_URL;
@@ -74,17 +66,26 @@ async function parseResponseBody(res: Response) {
   }
 }
 
-function extractApiErrorMessage(body: unknown, fallback: string) {
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function extractApiErrorMessage(body: unknown, fallback: string): string | string[] {
   if (!body || typeof body !== "object") return fallback;
 
   const b = body as Record<string, unknown>;
 
-  // Single string message
+  // Single string message, or NestJS ValidationPipe's `message: string[]` — keep
+  // every entry so field-level validation errors reach the user instead of a
+  // generic status text.
   if (typeof b.message === "string") return b.message;
+  if (isStringArray(b.message)) return b.message;
 
-  // Nested { error: { message } }
-  if (b.error && typeof (b.error as Record<string, unknown>).message === "string") {
-    return (b.error as Record<string, unknown>).message as string;
+  // Nested { error: { message } }, string or string[]
+  const nestedError = b.error as Record<string, unknown> | undefined;
+  if (nestedError) {
+    if (typeof nestedError.message === "string") return nestedError.message;
+    if (isStringArray(nestedError.message)) return nestedError.message;
   }
 
   // Array of validation errors: { errors: [{ message }] }
@@ -126,7 +127,7 @@ export async function apiFetch<T>(
 }
 
 export function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const { organizationId, branchId, profileId } = useAuthContextStore.getState();
+  const { organizationId, branchId, profileId } = readClientAuthContext();
   // Forward the active UI locale so the backend can localize responses
   // (e.g. form-template labels). The proxy copies request headers through.
   const acceptLanguage =
@@ -265,9 +266,7 @@ function clearSessionAndRedirect() {
       : null;
   if (pathWithoutLocale !== null && isPublicAuthPath(pathWithoutLocale)) return;
 
-  useAuthStore.getState().clearSession();
-  useAuthContextStore.getState().clearContext();
-  useUserStore.getState().clearUser();
+  clearClientSession();
   queryClient.clear();
 
   if (pathWithoutLocale !== null) {
