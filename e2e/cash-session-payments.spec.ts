@@ -121,7 +121,9 @@ const ME = {
       profile_id: "p1",
       organization_id: ORG,
       organization: { id: ORG, name: "E2E Clinic", specialties: [] },
-      roles: [{ id: "r1", name: "OWNER" }],
+      // /auth/me carries a single api `role` (read via profile.role); a plural
+      // `roles` array is ignored, downgrading the owner out of owner-only surfaces.
+      role: { id: "r1", name: "OWNER" },
       branches: [
         { branch_id: BRANCH, id: BRANCH, name: "Main", is_main: true },
       ],

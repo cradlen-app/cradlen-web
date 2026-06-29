@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
 import createBundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
@@ -35,7 +36,20 @@ const wsOrigin = apiOrigin
   ? apiOrigin.replace(/^http/, "ws")
   : null;
 
-const connectSrc = ["'self'", apiOrigin, wsOrigin]
+// Sentry's browser SDK posts events directly to its ingest host. Allow that
+// origin so the (currently report-only) CSP won't block error reporting once
+// it's promoted to enforcing. Derived from the DSN; null when Sentry is off.
+const sentryOrigin = (() => {
+  const raw = process.env.NEXT_PUBLIC_SENTRY_DSN;
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+})();
+
+const connectSrc = ["'self'", apiOrigin, wsOrigin, sentryOrigin]
   .filter(Boolean)
   .join(" ");
 
@@ -85,4 +99,17 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(withBundleAnalyzer(withMDX(nextConfig)));
+const sentryBuildOptions = {
+  org: "cradlen",
+  project: "cradlen-web",
+  // Quiet locally; verbose in CI so source-map upload issues are visible.
+  silent: !process.env.CI,
+  // Source-map upload only runs when SENTRY_AUTH_TOKEN is present (CI / Vercel).
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: true,
+};
+
+export default withSentryConfig(
+  withNextIntl(withBundleAnalyzer(withMDX(nextConfig))),
+  sentryBuildOptions,
+);
