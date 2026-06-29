@@ -9,6 +9,7 @@ vi.mock("@/infrastructure/auth-transport/backend", () => ({
   setSelectionTokenCookie: vi.fn(),
   extractTokens: vi.fn(),
   sessionResponse: vi.fn(),
+  sanitizeBackendError: vi.fn((body: unknown) => body ?? { message: "error" }),
 }));
 
 const cookieGet = vi.fn();

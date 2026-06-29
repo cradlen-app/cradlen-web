@@ -10,6 +10,7 @@ import {
   clearSignupTokenCookie,
   extractTokens,
   readBackendJson,
+  sanitizeBackendError,
   sessionResponse,
   setSelectionTokenCookie,
 } from "./backend";
@@ -65,7 +66,10 @@ export async function profileSelectionResponse(
   const body = await readBackendJson(response);
 
   if (!response.ok) {
-    return NextResponse.json(body ?? { message: response.statusText }, {
+    if (response.status >= 500) {
+      console.error("[multi-tenant-auth] backend error", response.status, body);
+    }
+    return NextResponse.json(sanitizeBackendError(body, response.status), {
       status: response.status,
     });
   }
@@ -107,7 +111,14 @@ export async function signupCompleteResponse(request: Request) {
   const responseBody = await readBackendJson(response);
 
   if (!response.ok) {
-    return NextResponse.json(responseBody ?? { message: response.statusText }, {
+    if (response.status >= 500) {
+      console.error(
+        "[multi-tenant-auth] backend error",
+        response.status,
+        responseBody,
+      );
+    }
+    return NextResponse.json(sanitizeBackendError(responseBody, response.status), {
       status: response.status,
     });
   }
@@ -144,7 +155,14 @@ export async function switchBranchSession(request: Request) {
   const responseBody = await readBackendJson(response);
 
   if (!response.ok) {
-    return NextResponse.json(responseBody ?? { message: response.statusText }, {
+    if (response.status >= 500) {
+      console.error(
+        "[multi-tenant-auth] backend error",
+        response.status,
+        responseBody,
+      );
+    }
+    return NextResponse.json(sanitizeBackendError(responseBody, response.status), {
       status: response.status,
     });
   }
@@ -186,7 +204,14 @@ export async function selectProfileSession(request: Request) {
   const responseBody = await readBackendJson(response);
 
   if (!response.ok) {
-    return NextResponse.json(responseBody ?? { message: response.statusText }, {
+    if (response.status >= 500) {
+      console.error(
+        "[multi-tenant-auth] backend error",
+        response.status,
+        responseBody,
+      );
+    }
+    return NextResponse.json(sanitizeBackendError(responseBody, response.status), {
       status: response.status,
     });
   }
