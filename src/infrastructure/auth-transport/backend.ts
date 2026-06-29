@@ -12,11 +12,11 @@ import {
   RESET_TOKEN_MAX_AGE,
   SIGNUP_TOKEN_COOKIE,
   SIGNUP_TOKEN_MAX_AGE,
-} from "@/features/auth/lib/auth.constants";
+} from "@/common/constants/auth-cookies";
 import type {
   AuthTokens,
   AuthTokensResponse,
-} from "@/features/auth/types/sign-in.types";
+} from "@/common/types/auth-tokens.types";
 
 export const API_BASE_URL =
   process.env.API_BASE_URL ??

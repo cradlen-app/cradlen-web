@@ -25,7 +25,12 @@ vi.mock("@/features/auth/hooks/useCurrentUser", () => ({
   CURRENT_USER_QUERY_KEY: ["currentUser"],
 }));
 
-vi.mock("@/infrastructure/http/api", () => {
+// ApiError now lives in @/common/errors/api-error and is re-exported from
+// @/infrastructure/http/api. Helpers like getSubscriptionLimit do
+// `error instanceof ApiError` against the canonical class, so the mock must
+// expose the SAME class on both module paths — otherwise the instanceof check
+// fails and the subscription-limit toast never fires.
+const { MockApiError } = vi.hoisted(() => {
   class MockApiError extends Error {
     public messages: string[];
     constructor(
@@ -38,12 +43,16 @@ vi.mock("@/infrastructure/http/api", () => {
       this.messages = messages;
     }
   }
-  return {
-    apiAuthFetch: vi.fn(),
-    apiFetch: vi.fn(),
-    ApiError: MockApiError,
-  };
+  return { MockApiError };
 });
+
+vi.mock("@/common/errors/api-error", () => ({ ApiError: MockApiError }));
+
+vi.mock("@/infrastructure/http/api", () => ({
+  apiAuthFetch: vi.fn(),
+  apiFetch: vi.fn(),
+  ApiError: MockApiError,
+}));
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),

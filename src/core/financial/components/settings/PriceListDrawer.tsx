@@ -14,6 +14,7 @@ import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { listBranches } from "@/features/settings/lib/settings.api";
 import { useCreatePriceList } from "../../hooks/useCreatePriceList";
 import { useUpdatePriceList } from "../../hooks/useUpdatePriceList";
+import { financialQueryKeys } from "../../queryKeys";
 import type { PriceList } from "../../types/financial.types";
 
 // ── Schema ────────────────────────────────────────────────────────────────────
@@ -63,7 +64,7 @@ export function PriceListDrawer({ open, onOpenChange, mode, priceList }: Props) 
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const orgId = useAuthContextStore((s) => s.organizationId);
   const branchesQuery = useQuery({
-    queryKey: ["financial", "price-lists", "branches", orgId ?? ""],
+    queryKey: financialQueryKeys.branches(orgId ?? ""),
     queryFn: () => listBranches(orgId!),
     enabled: !!orgId && open,
     staleTime: 5 * 60 * 1000,

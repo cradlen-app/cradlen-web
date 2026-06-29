@@ -37,94 +37,6 @@ export type ApiPatient = {
   journey_status?: string;
 };
 
-// ── Prescription printout ───────────────────────────────────────────────────
-// The printed prescription ("paper") is data-driven: the print endpoint returns
-// `{ template, document }`. `template.layout.blocks` is an ordered list the
-// frontend renders through a block registry, so a future custom template just
-// supplies different blocks — no new rendering code per template.
-
-export type PrescriptionBlockType =
-  | "header"
-  | "doctor"
-  | "patient"
-  | "diagnosis"
-  | "medications"
-  | "notes"
-  | "signature"
-  | "footer";
-
-export type PrescriptionBlock = {
-  type: PrescriptionBlockType;
-  /** Defaults to true; an explicit `false` hides the block. */
-  visible?: boolean;
-  options?: Record<string, unknown>;
-};
-
-export type PrescriptionTemplateLayout = {
-  blocks: PrescriptionBlock[];
-};
-
-export type PrescriptionTemplate = {
-  id: string;
-  name: string;
-  layout: PrescriptionTemplateLayout;
-};
-
-export type PrescriptionDocumentItem = {
-  name: string;
-  generic_name?: string | null;
-  strength?: string | null;
-  form?: string | null;
-  dose: string;
-  route?: string | null;
-  frequency: string;
-  duration?: string | null;
-  instructions?: string | null;
-};
-
-export type PrescriptionDocument = {
-  prescribed_at: string;
-  notes?: string | null;
-  organization: {
-    id: string;
-    name: string;
-    logo_object_key?: string | null;
-    /** Presigned GET URL for the logo; render directly. */
-    logo_image_url?: string | null;
-  };
-  branch: {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-    governorate: string;
-    country?: string | null;
-  };
-  doctor: {
-    id: string;
-    name: string;
-    specialty?: string | null;
-    license_number?: string | null;
-    signature_object_key?: string | null;
-  };
-  patient: {
-    id: string;
-    full_name: string;
-    phone_number?: string | null;
-    date_of_birth?: string | null;
-  };
-  diagnosis: {
-    chief_complaint?: string | null;
-    provisional_diagnosis?: string | null;
-  };
-  items: PrescriptionDocumentItem[];
-};
-
-export type PrescriptionPrint = {
-  template: PrescriptionTemplate;
-  document: PrescriptionDocument;
-};
-
 export type VitalsInput = {
   systolic_bp?: number;
   diastolic_bp?: number;
@@ -223,8 +135,21 @@ export type ApiScheduleEvent = {
 
 export type ApiScheduleResponse = { data: ApiScheduleEvent[] };
 
+/**
+ * Disambiguation-only row from `GET /patients/search` (the cross-org global
+ * lookup). Full PII (national id, DOB, address, full phone) is intentionally NOT
+ * returned here — it is revealed per-record on selection via
+ * `GET /patients/:id/identity` (see `fetchPatientIdentity`). `phone_last3` = last
+ * 3 phone digits, to disambiguate same-name patients.
+ */
+export type ApiPatientSearchResult = {
+  id: string;
+  full_name: string;
+  phone_last3: string | null;
+};
+
 export type ApiPatientSearchResponse = {
-  data: ApiPatient[];
+  data: ApiPatientSearchResult[];
   meta: ApiPaginationMeta;
 };
 
@@ -376,168 +301,9 @@ export type UpdateVisitStatusRequest = {
   status: ApiVisitStatus;
 };
 
-// ── Medical-rep visit booking ─────────────────────────────────────────────────
 
-export type ApiMedicalRep = {
-  id: string;
-  organization_id: string;
-  full_name: string;
-  national_id: string | null;
-  phone_number: string | null;
-  email: string | null;
-  company_name: string;
-  notes: string | null;
-  created_at: string;
-};
-
-export type ApiMedicalRepVisitStatus =
-  | "SCHEDULED"
-  | "CHECKED_IN"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CANCELLED"
-  | "NO_SHOW";
-
-export type ApiMedicalRepVisit = {
-  id: string;
-  medical_rep_id: string;
-  organization_id: string;
-  branch_id: string;
-  assigned_doctor_id: string;
-  scheduled_at: string;
-  status: ApiMedicalRepVisitStatus;
-  priority: ApiVisitPriority;
-  notes: string | null;
-  queue_number?: number | null;
-  checked_in_at?: string | null;
-  started_at?: string | null;
-  completed_at?: string | null;
-  created_at?: string;
-  medical_rep?: ApiMedicalRep | null;
-  assigned_doctor?: {
-    id: string;
-    user: { id: string; first_name: string; last_name: string };
-  };
-  medications?: { medication_id: string }[];
-};
-
-export type ApiMedicalRepVisitListResponse = {
-  data: ApiMedicalRepVisit[];
-  meta: ApiPaginationMeta;
-};
-
-export type ApiMedicalRepVisitResponse = { data: ApiMedicalRepVisit };
-
-export type ApiMedicalRepVisitArrayResponse = { data: ApiMedicalRepVisit[] };
-
-export type UpdateMedicalRepVisitRequest = {
-  assigned_doctor_id?: string;
-  branch_id?: string;
-  scheduled_at?: string;
-  priority?: ApiVisitPriority;
-  notes?: string;
-  medication_ids?: string[];
-  full_name?: string;
-  national_id?: string;
-  phone_number?: string;
-  email?: string;
-  company_name?: string;
-};
-
-export type UpdateMedicalRepVisitStatusRequest = {
-  status: ApiMedicalRepVisitStatus;
-  reason?: string;
-};
-
-// Existing rep — supply medical_rep_id only.
-export type BookMedicalRepVisitExistingRequest = {
-  medical_rep_id: string;
-  assigned_doctor_id: string;
-  scheduled_at: string;
-  branch_id?: string;
-  priority?: ApiVisitPriority;
-  medication_ids?: string[];
-  notes?: string;
-};
-
-// New rep — supply identity fields (full_name + company_name required).
-export type BookMedicalRepVisitNewRequest = {
-  full_name: string;
-  company_name: string;
-  national_id?: string;
-  phone_number?: string;
-  email?: string;
-  assigned_doctor_id: string;
-  scheduled_at: string;
-  branch_id?: string;
-  priority?: ApiVisitPriority;
-  medication_ids?: string[];
-  notes?: string;
-};
-
-export type BookMedicalRepVisitRequest =
-  | BookMedicalRepVisitExistingRequest
-  | BookMedicalRepVisitNewRequest;
-
-export type BookMedicalRepVisitResponse = {
-  data: {
-    rep: ApiMedicalRep;
-    visit: ApiMedicalRepVisit;
-  };
-};
-
-export type ApiVisitHistoryMedication = {
-  name: string;
-  dose: string;
-};
-
-export type ApiVisitHistoryEntry = {
-  id: string;
-  appointment_type: "VISIT" | "FOLLOW_UP";
-  completed_at: string;
-  diagnosis: string | null;
-  medications: ApiVisitHistoryMedication[];
-  investigations: string[];
-};
-
-export type ApiVisitHistoryResponse = {
-  data: ApiVisitHistoryEntry[];
-  meta: ApiPaginationMeta;
-};
-
-// ── Journey timeline (Journey → Episode → Visit tree) ──────────────────────────
-
-export type ApiJourneyTimelineEpisode = {
-  id: string;
-  name: string;
-  order: number;
-  status: string;
-  started_at: string | null;
-  ended_at: string | null;
-  visits: ApiVisitHistoryEntry[];
-};
-
-export type ApiJourneyTimelineEntry = {
-  id: string;
-  /** Journey display name (from the journey template, e.g. "Pregnancy"). */
-  name: string;
-  type: string;
-  status: ApiJourneyStatus;
-  started_at: string;
-  ended_at: string | null;
-  episodes: ApiJourneyTimelineEpisode[];
-};
-
-export type ApiJourneyTimelineResponse = {
-  data: ApiJourneyTimelineEntry[];
-  meta: ApiPaginationMeta;
-};
-
-export type ApiVitalsTrendPoint = {
-  visit_id: string;
-  completed_at: string;
-  systolic_bp: number | null;
-  diastolic_bp: number | null;
-  weight_kg: number | null;
-  bmi: number | null;
-};
+// Concern-scoped type modules, re-exported so the existing
+// `visits.api.types` import site (~39 files) is unaffected.
+export type * from "./visits-prescription.types";
+export type * from "./visits-medical-rep.types";
+export type * from "./visits-journey.types";

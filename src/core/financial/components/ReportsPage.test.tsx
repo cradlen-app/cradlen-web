@@ -92,8 +92,12 @@ describe("ReportsPage — Overview", () => {
 
   it("sorts top doctors by revenue and caps at five", () => {
     // Top doctors is an org-only section (rendered only when !ownScope), so the
-    // viewer must be an owner/branch-manager for it to appear.
-    mockProfile({ isOwner: true });
+    // viewer must be a full-report viewer. ReportsPage reads that from the
+    // profile's api role via financialCan.viewReports, so set it on the profile.
+    mockProfile({
+      isOwner: true,
+      activeProfile: { role: { id: "OWNER", name: "OWNER" } },
+    });
     mockReports({
       revenue: REVENUE,
       "revenue-by-doctor": {
@@ -162,6 +166,10 @@ describe("ReportsPage — Overview", () => {
       isOwner: true,
       branchId: "br-1",
       activeProfile: {
+        // ReportsPage now derives the full-report layout from
+        // financialCan.viewReports(profile), which checks the OWNER api role —
+        // so the mock profile must carry it, not just the isOwner context flag.
+        role: { id: "OWNER", name: "OWNER" },
         branches: [
           { id: "br-1", name: "Main Clinic" },
           { id: "br-2", name: "Downtown" },

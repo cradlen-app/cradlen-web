@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { SIGNUP_TOKEN_COOKIE } from "@/features/auth/lib/auth.constants";
+import { SIGNUP_TOKEN_COOKIE } from "@/common/constants/auth-cookies";
 import {
   clearSignupTokenCookie,
   setSignupTokenCookie,

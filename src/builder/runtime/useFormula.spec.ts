@@ -55,3 +55,58 @@ describe("evaluateFormula", () => {
     expect(evaluateFormula("unknown", {})).toBeNull();
   });
 });
+
+describe("evaluateFormula — edge cases", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const BMI = "weight_kg / ((height_cm / 100) ^ 2)";
+
+  it("guards BMI against a zero or negative height (no divide-by-zero)", () => {
+    expect(evaluateFormula(BMI, { weight_kg: 60, height_cm: 0 })).toBeNull();
+    expect(evaluateFormula(BMI, { weight_kg: 60, height_cm: -160 })).toBeNull();
+  });
+
+  it("returns null for BMI when an input is missing or non-numeric", () => {
+    expect(evaluateFormula(BMI, { weight_kg: "", height_cm: 160 })).toBeNull();
+    expect(evaluateFormula(BMI, { weight_kg: 60, height_cm: "tall" })).toBeNull();
+  });
+
+  it("accepts numeric strings for BMI", () => {
+    expect(evaluateFormula(BMI, { weight_kg: "60", height_cm: "160" })).toBe(23.4);
+  });
+
+  it("clamps a future LMP to 0w 0d instead of going negative", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    // LMP a month AFTER 'today' would be negative GA — must clamp, not wrap.
+    expect(evaluateFormula("ga_from_lmp", { lmp: "2026-02-01" })).toBe("0w 0d");
+  });
+
+  it("returns null for an unparseable LMP date", () => {
+    expect(evaluateFormula("ga_from_lmp", { lmp: "not-a-date" })).toBeNull();
+    expect(evaluateFormula("edd_from_lmp", { lmp: "2026-13-99" })).toBeNull();
+  });
+
+  it("uses partial US dating (days only, weeks only) via the ?? 0 fallback", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-02-01T00:00:00.000Z")); // == scan date → 0 elapsed
+    expect(
+      evaluateFormula("ga_from_us", { us_dating_date: "2026-02-01", us_ga_days: 3 }),
+    ).toBe("0w 3d");
+    expect(
+      evaluateFormula("ga_from_us", { us_dating_date: "2026-02-01", us_ga_weeks: 8 }),
+    ).toBe("8w 0d");
+  });
+
+  it("returns null for US formulas when the scan date is unparseable", () => {
+    expect(
+      evaluateFormula("edd_from_us", {
+        us_dating_date: "garbage",
+        us_ga_weeks: 8,
+        us_ga_days: 0,
+      }),
+    ).toBeNull();
+  });
+});

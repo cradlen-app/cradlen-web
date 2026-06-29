@@ -5,11 +5,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "radix-ui";
 import { useForm, useWatch, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { X, Loader2, FileText, CreditCard, Ban, Send, Pencil, FilePlus2, Printer } from "lucide-react";
+import { X, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/common/utils/utils";
-import { Button } from "@/components/ui/button";
 import { financialQueryKeys } from "@/core/financial/queryKeys";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useVisitCharges } from "../hooks/useCharges";
@@ -20,57 +18,18 @@ import { useAppendChargesToInvoice } from "../hooks/useAppendChargesToInvoice";
 import { useUpdateInvoice } from "../hooks/useUpdateInvoice";
 import { useIssueInvoice } from "../hooks/useIssueInvoice";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
-import { InvoiceTotalsPanel } from "./InvoiceTotalsPanel";
-import { InvoiceLineItemsEditor } from "./InvoiceLineItemsEditor";
-import { InvoicePaymentsPanel } from "./InvoicePaymentsPanel";
+import { InvoiceViewMode } from "./InvoiceViewMode";
+import { InvoiceEditForm } from "./InvoiceEditForm";
 import { InvoicePrintModal } from "./InvoicePrintModal";
-import { InvoicePreview } from "./InvoicePreview";
-import { InvoicePatientSelect } from "./InvoicePatientSelect";
-import { InvoiceDoctorSelect } from "./InvoiceDoctorSelect";
 import { RecordPaymentDrawer } from "./RecordPaymentDrawer";
 import { VoidInvoiceDialog } from "./VoidInvoiceDialog";
-import { formatMoney, personName } from "../lib/format";
+import { invoiceFormSchema, type InvoiceFormValues } from "./invoice-form.schema";
+import { personName } from "../lib/format";
 
-/** Currencies offered in the create-mode currency selector. */
-const CURRENCY_OPTIONS = ["EGP", "USD", "EUR", "SAR", "AED"] as const;
-
-// ── Schema ────────────────────────────────────────────────────────────────────
-
-export const invoiceFormSchema = z.object({
-  patient_id: z.string().min(1, "Patient is required"),
-  /** Display name of the selected patient — for the preview, not sent. */
-  patient_name: z.string().optional(),
-  visit_id: z.string().optional(),
-  /**
-   * Assigned provider. Sent as `assigned_doctor_id` on create/update (the
-   * backend accepts it) and used for line-item price resolution. Required on
-   * standalone create — enforced in `runCreate`, not the schema, because the
-   * visit-backed path pins the doctor server-side.
-   */
-  doctor_id: z.string().optional(),
-  /** Display name of the selected doctor — for the preview, not sent. */
-  doctor_name: z.string().optional(),
-  /** Invoice currency (create only; UpdateInvoiceDto has no currency). */
-  currency: z.string(),
-  invoice_type: z.enum(["STANDARD", "FOLLOWUP", "PROFORMA", "INSURANCE", "REFUND"]),
-  due_date: z.string().optional(),
-  notes: z.string().optional(),
-  /** Invoice-level discount. "NONE" submits no discount. */
-  discount_type: z.enum(["NONE", "PERCENTAGE", "FIXED"]),
-  discount_value: z.number().nonnegative(),
-  items: z.array(
-    z.object({
-      service_id: z.string().optional(),
-      description: z.string().min(1, "Description is required"),
-      quantity: z.number().int().positive(),
-      unit_price: z.number().nonnegative(),
-      discount_amount: z.number().nonnegative().optional(),
-      pricing_source: z.enum(["PROVIDER_OVERRIDE", "BRANCH_OVERRIDE", "ORG_PRICE_LIST", "CUSTOM"]).optional(),
-    }),
-  ),
-});
-
-export type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
+// The form schema/type moved to ./invoice-form.schema; re-export them so the
+// historical `./InvoiceDrawer` import site keeps resolving.
+export { invoiceFormSchema };
+export type { InvoiceFormValues };
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -92,14 +51,6 @@ type InvoiceDrawerProps = {
     doctorName?: string;
   };
 };
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-const inputClass = cn(
-  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900",
-  "placeholder:text-gray-400 outline-none transition-colors",
-  "focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20",
-);
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -262,11 +213,16 @@ export function InvoiceDrawer({
 
   // `editMode` is seeded from `invoiceId` at mount, but this drawer is mounted
   // persistently (InvoicePanel) — invoiceId arrives via props after mount. Re-sync
-  // the mode each time the drawer opens so an existing invoice opens in view mode
-  // (create/draft default to edit) instead of falling through to a blank body.
-  useEffect(() => {
+  // the mode each time the drawer opens (or the invoice changes while open) so an
+  // existing invoice opens in view mode (create/draft default to edit) instead of
+  // falling through to a blank body. Done during render rather than in an effect to
+  // avoid the cascading re-render that setState-in-effect triggers.
+  const openSyncKey = `${open ? "1" : "0"}|${invoiceId ?? ""}`;
+  const [lastOpenSyncKey, setLastOpenSyncKey] = useState(openSyncKey);
+  if (openSyncKey !== lastOpenSyncKey) {
+    setLastOpenSyncKey(openSyncKey);
     if (open) setEditMode(!invoiceId);
-  }, [open, invoiceId]);
+  }
 
   // Single field array owned here so imports/auto-stage and the editor share
   // one instance (two useFieldArray on the same name don't re-render in sync).
@@ -320,27 +276,9 @@ export function InvoiceDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isCreate, pendingCharges]);
 
-  const watchedItems = useWatch({ control: form.control, name: "items" });
+  // Drives line-item price resolution; the rest of the live-preview watches now
+  // live inside InvoiceEditForm.
   const watchedDoctorId = useWatch({ control: form.control, name: "doctor_id" });
-  const watchedDiscountType = useWatch({
-    control: form.control,
-    name: "discount_type",
-  });
-  const watchedDiscountValue = useWatch({
-    control: form.control,
-    name: "discount_value",
-  });
-  const watchedCurrency = useWatch({ control: form.control, name: "currency" });
-  const watchedPatientName = useWatch({
-    control: form.control,
-    name: "patient_name",
-  });
-  const watchedDoctorName = useWatch({
-    control: form.control,
-    name: "doctor_name",
-  });
-  const watchedDueDate = useWatch({ control: form.control, name: "due_date" });
-  const watchedNotes = useWatch({ control: form.control, name: "notes" });
   // Prefer the visit's assigned doctor; fall back to current user for price
   // resolution when no doctor is associated with the draft yet.
   const priceResolutionProfileId =
@@ -523,498 +461,54 @@ export function InvoiceDrawer({
 
             {/* View / Action mode (non-draft, non-edit) */}
             {!isLoading && invoice && !editMode && (
-              <div className="flex flex-1 flex-col overflow-y-auto">
-                <div className="flex-1 px-6 py-5">
-                  {/* Info rows */}
-                  <dl className="grid grid-cols-2 gap-4 text-sm">
-                    {invoice.patient_id && (
-                      <>
-                        <dt className="text-gray-500">{t("fields.patient")}</dt>
-                        <dd className="font-medium text-gray-900">
-                          {prefill?.patientName ??
-                            personName(invoice.patient, invoice.patient_id)}
-                        </dd>
-                      </>
-                    )}
-                    {(prefill?.doctorName || invoice.assigned_doctor_id) && (
-                      <>
-                        <dt className="text-gray-500">{t("fields.doctor")}</dt>
-                        <dd className="font-medium text-gray-900">
-                          {prefill?.doctorName ??
-                            personName(
-                              invoice.doctor,
-                              invoice.assigned_doctor_id ?? "",
-                            )}
-                        </dd>
-                      </>
-                    )}
-                    {invoice.visit_id && (
-                      <>
-                        <dt className="text-gray-500">{t("fields.visitId")}</dt>
-                        <dd className="font-medium text-gray-900">{invoice.visit_id}</dd>
-                      </>
-                    )}
-                    <dt className="text-gray-500">{t("fields.type")}</dt>
-                    <dd className="font-medium text-gray-900">
-                      {t(`types.${invoice.invoice_type}`)}
-                    </dd>
-                    {invoice.due_date && (
-                      <>
-                        <dt className="text-gray-500">{t("fields.dueDate")}</dt>
-                        <dd className="font-medium text-gray-900">
-                          {new Date(invoice.due_date).toLocaleDateString("en-US")}
-                        </dd>
-                      </>
-                    )}
-                    {invoice.notes && (
-                      <>
-                        <dt className="text-gray-500">{t("fields.notes")}</dt>
-                        <dd className="font-medium text-gray-900">{invoice.notes}</dd>
-                      </>
-                    )}
-                  </dl>
-
-                  {/* Line items */}
-                  <div className="mt-6">
-                    <h3 className="mb-3 text-sm font-semibold text-gray-700">{t("view.lineItems")}</h3>
-                    <div className="overflow-x-auto rounded-xl border border-gray-100">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-500">
-                            <th className="px-4 py-2 text-left font-medium">{t("lineItems.service")}</th>
-                            <th className="px-4 py-2 text-center font-medium">{t("lineItems.qty")}</th>
-                            <th className="px-4 py-2 text-right font-medium">{t("lineItems.unitPrice")}</th>
-                            <th className="px-4 py-2 text-right font-medium">{t("lineItems.discount")}</th>
-                            <th className="px-4 py-2 text-right font-medium">{t("lineItems.total")}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {invoice.items.map((item) => (
-                            <tr
-                              key={item.id}
-                              className="border-b border-gray-50 last:border-0"
-                            >
-                              <td className="px-4 py-3 text-gray-900">{item.description}</td>
-                              <td className="px-4 py-3 text-center text-gray-600">
-                                {item.quantity}
-                              </td>
-                              <td className="px-4 py-3 text-right text-gray-600">
-                                {formatMoney(item.unit_price, invoice.currency)}
-                              </td>
-                              <td className="px-4 py-3 text-right text-gray-600">
-                                {item.discount_amount
-                                  ? formatMoney(item.discount_amount, invoice.currency)
-                                  : "—"}
-                              </td>
-                              <td className="px-4 py-3 text-right font-medium text-gray-900">
-                                {formatMoney(item.total_amount, invoice.currency)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Totals */}
-                  <div className="mt-4 flex justify-end">
-                    <InvoiceTotalsPanel
-                      items={invoice.items}
-                      currency={invoice.currency}
-                      discountType={invoice.discount_type ?? "NONE"}
-                      discountValue={invoice.discount_value ?? 0}
-                      invoice={invoice}
-                      className="w-72"
-                    />
-                  </div>
-
-                  {/* Payments */}
-                  {invoice.status !== "DRAFT" && (
-                    <div className="mt-6">
-                      <InvoicePaymentsPanel
-                        invoiceId={invoice.id}
-                        currency={invoice.currency}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Action footer */}
-                <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-6 py-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPrintOpen(true)}
-                  >
-                    <Printer className="size-3.5" aria-hidden="true" />
-                    {t("actions.printInvoice")}
-                  </Button>
-                  {canVoid && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setVoidDialogOpen(true)}
-                    >
-                      <Ban className="size-3.5" aria-hidden="true" />
-                      {t("actions.voidShort")}
-                    </Button>
-                  )}
-                  {canEdit && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setEditMode(true)}
-                    >
-                      <Pencil className="size-3.5" aria-hidden="true" />
-                      {t("actions.edit")}
-                    </Button>
-                  )}
-                  {canIssue && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() =>
-                        issueMutation.mutate(invoiceId!, {
-                          onSuccess: () => setEditMode(false),
-                        })
-                      }
-                      disabled={issueMutation.isPending}
-                    >
-                      {issueMutation.isPending ? (
-                        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                      ) : (
-                        <Send className="size-3.5" aria-hidden="true" />
-                      )}
-                      {t("actions.issue")}
-                    </Button>
-                  )}
-                  {canAppendCharges && pendingCharges.length > 0 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleAppendCharges}
-                      disabled={appendMutation.isPending}
-                    >
-                      {appendMutation.isPending ? (
-                        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-                      ) : (
-                        <FilePlus2 className="size-3.5" aria-hidden="true" />
-                      )}
-                      {t("actions.addChargesToInvoice", {
-                        count: pendingCharges.length,
-                      })}
-                    </Button>
-                  )}
-                  {canRecordPayment && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => setRecordPaymentOpen(true)}
-                    >
-                      <CreditCard className="size-3.5" aria-hidden="true" />
-                      {t("actions.recordPayment")}
-                    </Button>
-                  )}
-                </div>
-              </div>
+              <InvoiceViewMode
+                invoice={invoice}
+                patientName={prefill?.patientName}
+                doctorName={prefill?.doctorName}
+                canVoid={canVoid}
+                canEdit={canEdit}
+                canIssue={canIssue}
+                canAppendCharges={canAppendCharges}
+                canRecordPayment={canRecordPayment}
+                pendingChargeCount={pendingCharges.length}
+                issuing={issueMutation.isPending}
+                appending={appendMutation.isPending}
+                onPrint={() => setPrintOpen(true)}
+                onVoid={() => setVoidDialogOpen(true)}
+                onEdit={() => setEditMode(true)}
+                onIssue={() =>
+                  issueMutation.mutate(invoiceId!, {
+                    onSuccess: () => setEditMode(false),
+                  })
+                }
+                onAppendCharges={handleAppendCharges}
+                onRecordPayment={() => setRecordPaymentOpen(true)}
+              />
             )}
 
             {/* Create / Edit mode */}
             {!isLoading && (isCreate || (invoice && editMode && isDraft)) && (
-              <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
-                <div className="grid flex-1 grid-cols-1 gap-0 overflow-hidden lg:grid-cols-[minmax(360px,420px)_1fr]">
-                  {/* Left column — form */}
-                  <div className="flex flex-col gap-5 overflow-y-auto px-6 py-5">
-                    {/* Patient */}
-                    {prefill?.patientName ? (
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.patient")}
-                        </label>
-                        <div className={cn(inputClass, "bg-gray-50 text-gray-700")}>
-                          {prefill.patientName}
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.patient")} <span className="text-red-500">*</span>
-                        </label>
-                        <InvoicePatientSelect
-                          displayName={watchedPatientName}
-                          error={!!form.formState.errors.patient_id}
-                          onChange={(id, name) => {
-                            form.setValue("patient_id", id, {
-                              shouldValidate: true,
-                            });
-                            form.setValue("patient_name", name);
-                          }}
-                        />
-                        {form.formState.errors.patient_id && (
-                          <p className="mt-1 text-xs text-red-500">
-                            {form.formState.errors.patient_id.message}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Doctor */}
-                    {prefill?.doctorName ? (
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.doctor")}
-                        </label>
-                        <div className={cn(inputClass, "bg-gray-50 text-gray-700")}>
-                          {prefill.doctorName}
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.doctor")} <span className="text-red-500">*</span>
-                        </label>
-                        <InvoiceDoctorSelect
-                          organizationId={organizationId}
-                          branchId={branchId}
-                          displayName={watchedDoctorName}
-                          error={!!form.formState.errors.doctor_id}
-                          onChange={(id, name) => {
-                            form.setValue("doctor_id", id);
-                            form.setValue("doctor_name", name);
-                            form.clearErrors("doctor_id");
-                          }}
-                        />
-                        {form.formState.errors.doctor_id && (
-                          <p className="mt-1 text-xs text-red-500">
-                            {form.formState.errors.doctor_id.message}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Visit ID — read-only, shown only when pinned by a visit */}
-                    {prefill?.visitId && (
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.visitId")}
-                        </label>
-                        <input
-                          {...form.register("visit_id")}
-                          type="text"
-                          readOnly
-                          className={cn(inputClass, "bg-gray-50 text-gray-500")}
-                        />
-                      </div>
-                    )}
-
-                    {/* Invoice type + Currency */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.invoiceType")}
-                        </label>
-                        <select
-                          {...form.register("invoice_type")}
-                          className={inputClass}
-                        >
-                          <option value="STANDARD">{t("types.STANDARD")}</option>
-                          <option value="FOLLOWUP">{t("types.FOLLOWUP")}</option>
-                          <option value="PROFORMA">{t("types.PROFORMA")}</option>
-                          <option value="INSURANCE">{t("types.INSURANCE")}</option>
-                          <option value="REFUND">{t("types.REFUND")}</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                          {t("fields.currency")}
-                        </label>
-                        {isCreate ? (
-                          <select
-                            {...form.register("currency")}
-                            className={inputClass}
-                          >
-                            {CURRENCY_OPTIONS.map((c) => (
-                              <option key={c} value={c}>
-                                {c}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <div
-                            className={cn(inputClass, "bg-gray-50 text-gray-500")}
-                          >
-                            {invoice?.currency ?? watchedCurrency}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Due date */}
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        {t("fields.dueDate")} <span className="text-gray-400">{tCommon("optional")}</span>
-                      </label>
-                      <input
-                        {...form.register("due_date")}
-                        type="date"
-                        className={inputClass}
-                      />
-                    </div>
-
-                    {/* Notes */}
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        {t("fields.notes")} <span className="text-gray-400">{tCommon("optional")}</span>
-                      </label>
-                      <textarea
-                        {...form.register("notes")}
-                        rows={3}
-                        placeholder={t("fields.notesPlaceholder")}
-                        className={cn(inputClass, "resize-none")}
-                      />
-                    </div>
-
-                    {/* Line items */}
-                    <div>
-                      <div className="mb-3 flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-gray-700">
-                          {t("view.lineItems")}
-                        </h3>
-                        {isCreate && pendingCharges.length > 0 && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={importVisitCharges}
-                          >
-                            <FilePlus2 className="size-3.5" aria-hidden="true" />
-                            {t("actions.importCharges", {
-                              count: pendingCharges.length,
-                            })}
-                          </Button>
-                        )}
-                      </div>
-                      <InvoiceLineItemsEditor
-                        control={form.control}
-                        setValue={form.setValue}
-                        fields={fields}
-                        append={append}
-                        remove={remove}
-                        branchId={branchId}
-                        profileId={priceResolutionProfileId}
-                        currency={watchedCurrency ?? invoice?.currency}
-                      />
-                    </div>
-
-                    {/* Invoice-level discount */}
-                    <div className="rounded-xl border border-gray-200 bg-white p-3">
-                      <label className="mb-1.5 block text-xs font-medium text-gray-700">
-                        {t("discount.label")}
-                      </label>
-                      <div className="flex gap-2">
-                        <select
-                          {...form.register("discount_type")}
-                          className={cn(inputClass, "flex-1")}
-                        >
-                          <option value="NONE">{t("discount.none")}</option>
-                          <option value="PERCENTAGE">{t("discount.percentage")}</option>
-                          <option value="FIXED">{t("discount.fixed")}</option>
-                        </select>
-                        {watchedDiscountType !== "NONE" && (
-                          <input
-                            {...form.register("discount_value", {
-                              valueAsNumber: true,
-                            })}
-                            type="number"
-                            min={0}
-                            step="0.01"
-                            placeholder={t("discount.valuePlaceholder")}
-                            className={cn(inputClass, "w-28")}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right column — live preview */}
-                  <div className="hidden flex-col overflow-y-auto border-s border-gray-100 bg-gray-100/60 p-6 lg:flex">
-                    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-                      <InvoicePreview
-                        invoiceNumber={invoice?.invoice_number ?? null}
-                        status={invoice?.status}
-                        patientName={watchedPatientName ?? ""}
-                        doctorName={watchedDoctorName || undefined}
-                        issueDate={
-                          invoice?.issued_at ??
-                          invoice?.created_at ??
-                          new Date().toISOString()
-                        }
-                        dueDate={watchedDueDate || null}
-                        currency={watchedCurrency ?? "EGP"}
-                        items={watchedItems ?? []}
-                        discountType={watchedDiscountType}
-                        discountValue={watchedDiscountValue}
-                        taxAmount={invoice?.tax_amount ?? 0}
-                        notes={watchedNotes || null}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-2 border-t border-gray-100 px-6 py-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleClose}
-                    disabled={isSaving}
-                  >
-                    {tCommon("cancel")}
-                  </Button>
-                  {isCreate ? (
-                    <>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => void runCreate(false)}
-                        disabled={isSaving}
-                      >
-                        {isSaving ? (
-                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                        ) : null}
-                        {t("actions.saveAsDraft")}
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => void runCreate(true)}
-                        disabled={isSaving}
-                      >
-                        {isSaving ? (
-                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                        ) : (
-                          <Send className="size-3.5" aria-hidden="true" />
-                        )}
-                        {t("actions.createAndIssue")}
-                      </Button>
-                    </>
-                  ) : (
-                    <Button type="submit" disabled={isSaving}>
-                      {isSaving ? (
-                        <>
-                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                          {tCommon("saving")}
-                        </>
-                      ) : (
-                        tCommon("save")
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </form>
+              <InvoiceEditForm
+                form={form}
+                invoice={invoice}
+                patientName={prefill?.patientName}
+                doctorName={prefill?.doctorName}
+                visitId={prefill?.visitId}
+                organizationId={organizationId}
+                branchId={branchId}
+                isCreate={isCreate}
+                isSaving={isSaving}
+                fields={fields}
+                append={append}
+                remove={remove}
+                pendingChargeCount={pendingCharges.length}
+                priceResolutionProfileId={priceResolutionProfileId}
+                onSubmit={onSubmit}
+                onClose={handleClose}
+                onSaveDraft={() => void runCreate(false)}
+                onCreateAndIssue={() => void runCreate(true)}
+                onImportCharges={importVisitCharges}
+              />
             )}
           </Dialog.Content>
         </Dialog.Portal>

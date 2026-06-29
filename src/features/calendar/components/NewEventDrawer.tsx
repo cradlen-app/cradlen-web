@@ -2,17 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Loader2,
-  X,
-  Stethoscope,
-  Users,
-  User,
-  PalmtreeIcon,
-  Lock,
-  Building2,
-  Globe,
-} from "lucide-react";
+import { Loader2, X, Lock, Building2, Globe } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
@@ -23,155 +13,28 @@ import { cn } from "@/common/utils/utils";
 import { Button } from "@/components/ui/button";
 import { useCreateCalendarEvent } from "../hooks/useCreateCalendarEvent";
 import { useUpdateCalendarEvent } from "../hooks/useUpdateCalendarEvent";
-import {
-  dayOffEventSchema,
-  procedureEventSchema,
-  meetingEventSchema,
-  genericEventSchema,
-  type NewEventFormValues,
-} from "../lib/calendar.schemas";
+import { type NewEventFormValues } from "../lib/calendar.schemas";
 import type {
   CalendarEvent,
   CalendarEventType,
   CalendarVisibility,
 } from "../types/calendar.types";
-import type {
-  CreateCalendarEventRequest,
-  UpdateCalendarEventRequest,
-} from "../types/calendar.api.types";
 import { ProcedureFields } from "./NewEventTypeFields";
+import {
+  buildCreateRequest,
+  buildUpdateRequest,
+  computeAudience,
+  defaultValuesForType,
+  schemaForType,
+  valuesFromEvent,
+  type Audience,
+} from "./new-event.helpers";
+import { AudienceOption, TypePicker } from "./new-event-pickers";
 
 const labelClass = "block text-xs font-medium text-gray-600 mb-1";
 const inputClass =
   "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/10 transition-colors";
 const errorClass = "mt-1 text-xs text-red-500";
-
-type EventTypeCard = {
-  type: CalendarEventType;
-  icon: React.ReactNode;
-  color: string;
-  bgColor: string;
-};
-
-const EVENT_TYPE_CARDS: EventTypeCard[] = [
-  {
-    type: "DAY_OFF",
-    icon: <PalmtreeIcon className="size-5" aria-hidden />,
-    color: "text-amber-500",
-    bgColor:
-      "bg-amber-50 border-amber-200 data-[selected=true]:border-amber-500 data-[selected=true]:bg-amber-50",
-  },
-  {
-    type: "PROCEDURE",
-    icon: <Stethoscope className="size-5" aria-hidden />,
-    color: "text-red-500",
-    bgColor:
-      "bg-red-50 border-red-200 data-[selected=true]:border-red-500 data-[selected=true]:bg-red-50",
-  },
-  {
-    type: "MEETING",
-    icon: <Users className="size-5" aria-hidden />,
-    color: "text-brand-primary",
-    bgColor:
-      "bg-green-50 border-green-200 data-[selected=true]:border-brand-primary data-[selected=true]:bg-green-50",
-  },
-  {
-    type: "GENERIC",
-    icon: <User className="size-5" aria-hidden />,
-    color: "text-gray-500",
-    bgColor:
-      "bg-gray-50 border-gray-200 data-[selected=true]:border-gray-500 data-[selected=true]:bg-gray-100",
-  },
-];
-
-const DEFAULT_VISIBILITY: Record<CalendarEventType, CalendarVisibility> = {
-  DAY_OFF: "ORGANIZATION",
-  PROCEDURE: "ORGANIZATION",
-  MEETING: "PRIVATE",
-  GENERIC: "PRIVATE",
-};
-
-/**
- * The "Who can see this event?" selector collapses the two underlying fields
- * (`branch_id` + `visibility`) into one linear choice so they can never land in
- * a contradictory state (e.g. org-wide + private).
- */
-type Audience = "PRIVATE" | "THIS_BRANCH" | "ORG_WIDE";
-
-function computeAudience(
-  branchId: string | undefined,
-  visibility: CalendarVisibility | undefined,
-): Audience {
-  if (!branchId) return "ORG_WIDE";
-  return visibility === "PRIVATE" ? "PRIVATE" : "THIS_BRANCH";
-}
-
-function schemaForType(type: CalendarEventType) {
-  switch (type) {
-    case "DAY_OFF":
-      return dayOffEventSchema;
-    case "PROCEDURE":
-      return procedureEventSchema;
-    case "MEETING":
-      return meetingEventSchema;
-    case "GENERIC":
-      return genericEventSchema;
-  }
-}
-
-function toDatetimeLocal(iso: string): string {
-  // datetime-local needs `YYYY-MM-DDTHH:MM` in *local* time
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function defaultValuesForType(
-  type: CalendarEventType,
-  branchId?: string,
-): NewEventFormValues {
-  const base = {
-    title: "",
-    description: "",
-    start_at: "",
-    end_at: "",
-    all_day: false,
-    visibility: DEFAULT_VISIBILITY[type],
-    branch_id: branchId ?? "",
-  };
-  if (type === "PROCEDURE") {
-    return {
-      ...base,
-      event_type: "PROCEDURE" as const,
-      procedure_id: "",
-      patient_id: "",
-      assistant_profile_ids: [],
-    };
-  }
-  return { ...base, event_type: type } as NewEventFormValues;
-}
-
-function valuesFromEvent(event: CalendarEvent): NewEventFormValues {
-  const base = {
-    title: event.title,
-    description: event.description ?? "",
-    start_at: toDatetimeLocal(event.startsAt),
-    end_at: toDatetimeLocal(event.endsAt),
-    all_day: event.allDay,
-    visibility: event.visibility,
-    branch_id: event.branchId ?? "",
-  };
-  if (event.type === "PROCEDURE") {
-    return {
-      ...base,
-      event_type: "PROCEDURE" as const,
-      procedure_id: event.procedureId ?? "",
-      patient_id: event.patientId ?? "",
-      assistant_profile_ids: event.assistants.map((a) => a.profileId),
-    };
-  }
-  return { ...base, event_type: event.type } as NewEventFormValues;
-}
 
 type Props = {
   open: boolean;
@@ -520,144 +383,3 @@ export function NewEventDrawer({
 
 // ── Type picker ────────────────────────────────────────────────────────────
 
-function TypePicker({
-  t,
-  selected,
-  onSelect,
-}: {
-  t: ReturnType<typeof useTranslations<"calendar">>;
-  selected: CalendarEventType;
-  onSelect: (type: CalendarEventType) => void;
-}) {
-  return (
-    <div>
-      <p className="mb-4 text-sm font-medium text-brand-black">
-        {t("form.chooseType")}
-      </p>
-      <div className="grid grid-cols-2 gap-3">
-        {EVENT_TYPE_CARDS.map((card) => (
-          <button
-            key={card.type}
-            type="button"
-            data-selected={selected === card.type}
-            onClick={() => onSelect(card.type)}
-            className={cn(
-              "flex flex-col items-center gap-2 rounded-xl border-2 px-4 py-5 text-center transition-all hover:opacity-90",
-              card.bgColor,
-            )}
-          >
-            <span className={card.color}>{card.icon}</span>
-            <span className="text-sm font-medium text-brand-black">
-              {t(`types.${card.type}`)}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Audience option row ────────────────────────────────────────────────────
-
-function AudienceOption({
-  active,
-  icon,
-  label,
-  hint,
-  onClick,
-}: {
-  active: boolean;
-  icon: React.ReactNode;
-  label: string;
-  hint: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex w-full items-start gap-3 rounded-lg border-2 px-3 py-2.5 text-start transition-all",
-        active
-          ? "border-brand-primary bg-brand-primary/5"
-          : "border-gray-200 bg-white hover:border-gray-300",
-      )}
-      aria-pressed={active}
-    >
-      <span
-        className={cn(
-          "mt-0.5 shrink-0",
-          active ? "text-brand-primary" : "text-gray-400",
-        )}
-      >
-        {icon}
-      </span>
-      <span className="flex flex-col gap-0.5">
-        <span
-          className={cn(
-            "text-xs font-medium",
-            active ? "text-brand-primary" : "text-brand-black",
-          )}
-        >
-          {label}
-        </span>
-        <span className="text-[11px] text-gray-500">{hint}</span>
-      </span>
-    </button>
-  );
-}
-
-// ── Request builders ───────────────────────────────────────────────────────
-
-function buildCreateRequest(values: NewEventFormValues): CreateCalendarEventRequest {
-  const base: CreateCalendarEventRequest = {
-    event_type: values.event_type,
-    title: values.title,
-    description: values.description?.trim() || undefined,
-    start_at: new Date(values.start_at).toISOString(),
-    end_at: new Date(values.end_at).toISOString(),
-    all_day: values.all_day || undefined,
-    visibility: values.visibility,
-    branch_id: values.branch_id?.trim() || undefined,
-  };
-
-  if (values.event_type === "PROCEDURE") {
-    return {
-      ...base,
-      procedure_id: values.procedure_id,
-      patient_id: values.patient_id?.trim() || undefined,
-      assistant_profile_ids:
-        (values.assistant_profile_ids ?? []).filter(Boolean).length > 0
-          ? (values.assistant_profile_ids ?? []).filter(Boolean)
-          : undefined,
-    };
-  }
-  return base;
-}
-
-function buildUpdateRequest(
-  values: NewEventFormValues,
-  event: CalendarEvent,
-): UpdateCalendarEventRequest {
-  // For edit we send the full set every time; the backend treats it as a PATCH.
-  // Locked: event_type — backend type swaps would invalidate relations.
-  const base: UpdateCalendarEventRequest = {
-    title: values.title,
-    description: values.description?.trim() || "",
-    start_at: new Date(values.start_at).toISOString(),
-    end_at: new Date(values.end_at).toISOString(),
-    all_day: values.all_day,
-    visibility: values.visibility,
-    branch_id: values.branch_id?.trim() || undefined,
-  };
-
-  if (event.type === "PROCEDURE" && values.event_type === "PROCEDURE") {
-    return {
-      ...base,
-      procedure_id: values.procedure_id,
-      patient_id: values.patient_id?.trim() || undefined,
-      assistant_profile_ids: (values.assistant_profile_ids ?? []).filter(Boolean),
-    };
-  }
-  return base;
-}

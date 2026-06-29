@@ -12,7 +12,7 @@ vi.mock("../../hooks/useServices", () => ({
   useServices: () => useServicesMock(),
 }));
 vi.mock("../../hooks/useAuthorizations", () => ({
-  useAuthorizeService: () => ({ mutate: authorizeMutate, isPending: false }),
+  useAuthorizeServices: () => ({ mutate: authorizeMutate, isPending: false }),
 }));
 
 import { AuthorizeServiceDrawer } from "./AuthorizeServiceDrawer";
@@ -25,7 +25,7 @@ describe("AuthorizeServiceDrawer", () => {
     });
   });
 
-  it("disables submit until a service is chosen, then authorizes it", () => {
+  it("disables submit until a service is chosen, then authorizes the selected services", () => {
     renderWithIntl(
       <AuthorizeServiceDrawer
         open
@@ -38,16 +38,16 @@ describe("AuthorizeServiceDrawer", () => {
     const submit = screen.getByRole("button", { name: /authorize service/i });
     expect(submit).toBeDisabled();
 
-    // The first combobox is the service select.
-    const serviceSelect = screen.getAllByRole("combobox")[0];
-    fireEvent.change(serviceSelect, { target: { value: "s1" } });
+    // Services now use a checkbox-dropdown MultiSelect: open it, then tick one.
+    fireEvent.click(screen.getByText("Select services…"));
+    fireEvent.click(screen.getByText("Consultation"));
 
     expect(submit).toBeEnabled();
     fireEvent.click(submit);
 
     expect(authorizeMutate).toHaveBeenCalledWith(
-      { service_id: "s1", branch_id: undefined, duration_minutes: undefined },
-      expect.any(Object),
+      { service_ids: ["s1"], branch_id: undefined, duration_minutes: undefined },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
   });
 });

@@ -45,6 +45,8 @@ export type Patient = {
   nationalId?: string;
   dateOfBirth?: string;
   phoneNumber?: string;
+  /** Last 3 phone digits — disambiguation-only, from the global patient search. */
+  phoneLast3?: string | null;
   address?: string;
   maritalStatus?: string;
   activeEpisodes?: { id: string; name: string; order: number }[];
