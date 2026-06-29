@@ -97,10 +97,11 @@ const ME = {
       profile_id: "p1",
       organization_id: ORG,
       organization: { id: ORG, name: "E2E Clinic", specialties: [] },
-      roles: [{ id: "r1", name: "STAFF" }],
-      job_functions: [
-        { id: "jf1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
-      ],
+      // /auth/me carries a singular `role` and `job_function` (read via
+      // profile.role / profile.job_function); plural arrays are ignored, which
+      // hides the clinician surfaces this spec exercises.
+      role: { id: "r1", name: "STAFF" },
+      job_function: { id: "jf1", code: "OBGYN", name: "OB-GYN", is_clinical: true },
       branches: [{ branch_id: BRANCH, id: BRANCH, name: "Main", is_main: true }],
     },
   ],

@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createLogger } from "@/infrastructure/logging/logger";
 import Image from "next/image";
 import logoIcon from "@/public/Logo-icon.png";
 import "@/styles/globals.css";
@@ -14,7 +15,10 @@ export default function GlobalError({
   unstable_retry: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    createLogger("global-error").error("Unhandled application error", {
+      error,
+      digest: error.digest,
+    });
   }, [error]);
 
   return (

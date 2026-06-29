@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createLogger } from "@/infrastructure/logging/logger";
 import { useTranslations } from "next-intl";
 
 export default function DashboardError({
@@ -13,7 +14,10 @@ export default function DashboardError({
   const t = useTranslations("error");
 
   useEffect(() => {
-    console.error("[Dashboard error]", error);
+    createLogger("dashboard.staff.invitations.detail").error(
+      "Route boundary caught an error",
+      { error, digest: error.digest },
+    );
   }, [error]);
 
   return (
