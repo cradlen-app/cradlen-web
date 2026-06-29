@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createLogger } from "@/infrastructure/logging/logger";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Logo from "@/public/Logo.png";
@@ -16,7 +17,10 @@ export default function CreateOrganizationError({
   const t = useTranslations("error");
 
   useEffect(() => {
-    console.error("[CreateOrganization error]", error);
+    createLogger("create-organization").error("Route boundary caught an error", {
+      error,
+      digest: error.digest,
+    });
   }, [error]);
 
   return (
