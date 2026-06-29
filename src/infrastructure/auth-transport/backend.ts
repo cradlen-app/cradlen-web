@@ -18,10 +18,41 @@ import type {
   AuthTokensResponse,
 } from "@/common/types/auth-tokens.types";
 
-export const API_BASE_URL =
-  process.env.API_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "https://api.cradlen.com/v1";
+/**
+ * Resolves the backend base URL and, in production, refuses an untrusted target.
+ * Staff access/refresh tokens are attached to every backend call, so a tampered
+ * `API_BASE_URL` would exfiltrate them to an attacker origin. We fail closed at
+ * module load rather than silently leak. Non-production stays permissive
+ * (localhost / test backends over http are fine).
+ */
+function resolveApiBaseUrl(): string {
+  const raw = (
+    process.env.API_BASE_URL ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    "https://api.cradlen.com/v1"
+  ).replace(/\/+$/, "");
+
+  if (process.env.NODE_ENV === "production") {
+    let url: URL;
+    try {
+      url = new URL(raw);
+    } catch {
+      throw new Error(`Invalid API base URL: ${raw}`);
+    }
+    if (url.protocol !== "https:") {
+      throw new Error(`API base URL must use https in production (got ${raw})`);
+    }
+    if (url.hostname !== "cradlen.com" && !url.hostname.endsWith(".cradlen.com")) {
+      throw new Error(
+        `Refusing untrusted API base host in production: ${url.hostname}`,
+      );
+    }
+  }
+
+  return raw;
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
@@ -39,8 +70,28 @@ export class BackendError extends Error {
   }
 }
 
+/**
+ * Joins a backend-relative path to {@link API_BASE_URL}. Rejects paths that could
+ * escape the API origin or traverse out of the intended endpoint:
+ *  - protocol-relative (`//evil.com`) or scheme-smuggling (`/https://…`) targets
+ *  - `..` path segments
+ * The query string (after `?`) is left untouched. This is the gateway guard for
+ * the `/api/backend/[...path]` catch-all proxy, where dynamic segments flow in.
+ */
 export function backendUrl(path: string) {
-  return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  const [pathname] = normalized.split("?");
+
+  const unsafe =
+    pathname.startsWith("//") ||
+    /^\/[a-z][a-z0-9+.-]*:/i.test(pathname) ||
+    pathname.split("/").includes("..");
+
+  if (unsafe) {
+    throw new Error(`Unsafe backend path rejected: ${pathname}`);
+  }
+
+  return `${API_BASE_URL}${normalized}`;
 }
 
 // Re-exported (imported above) from the shared, dependency-free helper so existing
@@ -92,6 +143,58 @@ export async function readBackendJson(response: Response) {
   } catch {
     return text;
   }
+}
+
+/**
+ * Strips internal detail out of a backend error before it is forwarded to the
+ * browser. 5xx bodies are collapsed to a generic message (they can carry stack
+ * traces / internal paths); 4xx bodies surface only a user-facing `message` and
+ * an optional `{ field, message }[]` validation list that the forms rely on.
+ * Anything else (internal keys, raw text) is dropped. Always log the full body
+ * server-side before calling this.
+ */
+export function sanitizeBackendError(
+  body: unknown,
+  status: number,
+): Record<string, unknown> {
+  if (status >= 500) {
+    return { message: "Something went wrong. Please try again." };
+  }
+
+  const fallback = "Request failed.";
+  if (!body || typeof body !== "object") return { message: fallback };
+
+  const b = body as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+
+  if (typeof b.message === "string") {
+    out.message = b.message;
+  } else if (typeof b.detail === "string") {
+    out.message = b.detail;
+  } else if (
+    b.error &&
+    typeof (b.error as Record<string, unknown>).message === "string"
+  ) {
+    out.message = (b.error as Record<string, unknown>).message;
+  }
+
+  if (Array.isArray(b.errors)) {
+    out.errors = b.errors
+      .filter(
+        (e): e is Record<string, unknown> =>
+          Boolean(e) && typeof e === "object",
+      )
+      .map((e) => ({
+        ...(typeof e.field === "string" ? { field: e.field } : {}),
+        ...(typeof e.message === "string" ? { message: e.message } : {}),
+      }));
+  }
+
+  if (out.message === undefined && out.errors === undefined) {
+    out.message = fallback;
+  }
+
+  return out;
 }
 
 export function setAuthCookies(response: NextResponse, tokens: AuthTokens) {
@@ -204,7 +307,10 @@ export async function proxySessionEndpoint(
   const body = await readBackendJson(response);
 
   if (!response.ok) {
-    return NextResponse.json(body ?? { message: response.statusText }, {
+    if (response.status >= 500) {
+      console.error("[auth-transport] backend error", response.status, body);
+    }
+    return NextResponse.json(sanitizeBackendError(body, response.status), {
       status: response.status,
     });
   }
@@ -427,10 +533,19 @@ async function forwardBackendResponse(
   tokens: AuthTokens | null,
 ) {
   const status = backendResponse.status;
-  const response =
-    status === 204
-      ? new NextResponse(null, { status: 204 })
-      : NextResponse.json(await readBackendJson(backendResponse), { status });
+  let response: NextResponse;
+  if (status === 204) {
+    response = new NextResponse(null, { status: 204 });
+  } else {
+    const backendBody = await readBackendJson(backendResponse);
+    if (!backendResponse.ok && status >= 500) {
+      console.error("[auth-transport] backend error", status);
+    }
+    response = NextResponse.json(
+      backendResponse.ok ? backendBody : sanitizeBackendError(backendBody, status),
+      { status },
+    );
+  }
 
   if (tokens) {
     setAuthCookies(response, tokens);

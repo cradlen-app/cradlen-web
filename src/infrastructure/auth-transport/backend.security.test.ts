@@ -93,6 +93,40 @@ describe("proxy header hygiene (no credential smuggling)", () => {
   });
 });
 
+describe("proxy path safety (gateway guard)", () => {
+  beforeEach(() => {
+    cookieGet.mockReset();
+    vi.stubGlobal("fetch", vi.fn());
+    cookieGet.mockImplementation((name: string) => {
+      if (name === AUTH_TOKEN_COOKIE) return { value: makeJwt(3600) };
+      if (name === AUTH_REFRESH_TOKEN_COOKIE) return { value: "refresh-x" };
+      return undefined;
+    });
+  });
+
+  it("blocks a `..` traversal path before any backend call", async () => {
+    const request = new NextRequest("http://app.test/api/backend/x", {
+      method: "GET",
+    });
+    // The catch-all proxy joins client segments; a `..` segment must never reach
+    // the backend. backendUrl throws, the proxy catches it and fails closed (401).
+    const res = await proxyAuthenticatedRequest(request, "/patients/../admin");
+
+    expect(res.status).toBe(401);
+    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  });
+
+  it("blocks a protocol-relative path before any backend call", async () => {
+    const request = new NextRequest("http://app.test/api/backend/x", {
+      method: "GET",
+    });
+    const res = await proxyAuthenticatedRequest(request, "//evil.com/steal");
+
+    expect(res.status).toBe(401);
+    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  });
+});
+
 describe("auth cookie flags", () => {
   it("sets access + refresh tokens HttpOnly, SameSite=Lax, Path=/", () => {
     const response = NextResponse.json({ ok: true });
