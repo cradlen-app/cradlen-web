@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { queryClient } from "@/infrastructure/query/queryClient";
 import { SilentRefreshProvider } from "@/features/auth/components/SilentRefreshProvider";
 import { initAuthSessionBridge } from "@/features/auth/lib/auth-session-bridge";
+import { UpdateBanner } from "./common/UpdateBanner";
 import { KernelAuthBridge } from "./KernelAuthBridge";
 
 // Wire the auth stores into the infrastructure HTTP transport once, at module
@@ -19,6 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           expires so an active user stays signed in until explicit logout.
           Renders nothing and idles on anonymous (public) pages. */}
       <SilentRefreshProvider />
+      {/* Prompts signed-in staff to refresh when a newer deploy goes live.
+          Renders nothing and idles on anonymous (public) pages. */}
+      <UpdateBanner />
       <KernelAuthBridge>{children}</KernelAuthBridge>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
