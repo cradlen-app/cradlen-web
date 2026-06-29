@@ -12,19 +12,19 @@ export default function Footer() {
   const tg = useTranslations("userGuide");
   const tu = useTranslations("appUpdate");
 
-  // Compact build identity for support/debugging: "v1.0.0 · a1b2c3d".
-  // The commit suffix only appears on real deploys (empty in local dev).
-  const versionLabel = `v${BUILD_INFO.version}${shortCommit ? ` · ${shortCommit}` : ""}`;
+  // Show the version only; keep the commit in the hover tooltip for support so
+  // it's recoverable without surfacing it in plain view.
+  const versionLabel = `v${BUILD_INFO.version}`;
+  const versionTitle = shortCommit
+    ? `${tu("versionLabel")} ${versionLabel} · ${shortCommit}`
+    : `${tu("versionLabel")} ${versionLabel}`;
 
   return (
     <footer className="border-t border-gray-200 bg-inherit px-6 py-4 md:px-8">
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-gray-500">
           © {t("copyright")}
-          <span
-            className="ms-2 text-gray-400"
-            title={`${tu("versionLabel")} ${versionLabel}`}
-          >
+          <span className="ms-2 text-gray-400" title={versionTitle}>
             {versionLabel}
           </span>
         </p>
