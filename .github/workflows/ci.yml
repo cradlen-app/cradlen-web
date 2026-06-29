@@ -33,6 +33,14 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # next-env.d.ts declares static image imports (*.png etc. via
+      # next/image-types/global). Next generates it at build/dev time and it is
+      # git-ignored, so it is absent on a fresh checkout. The type-check doesn't
+      # build, so write the references it needs here (omitting the build-only
+      # typed-routes import, which would point at a non-existent .next/ file).
+      - name: Generate Next.js type references
+        run: printf '/// <reference types="next" />\n/// <reference types="next/image-types/global" />\n' > next-env.d.ts
+
       - name: Type-check
         run: npx tsc --noEmit --pretty false
 
