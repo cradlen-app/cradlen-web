@@ -5,6 +5,20 @@
     "refresh": "Refresh",
     "versionLabel": "Version"
   },
+  "feedback": {
+    "title": "Help us improve Cradlen",
+    "category": {
+      "FEATURE": "Feature idea",
+      "BUG": "Report a problem",
+      "OTHER": "Something else"
+    },
+    "placeholder": "Tell us what would make Cradlen better…",
+    "consent": "You can credit me if this ships.",
+    "send": "Send",
+    "sending": "Sending…",
+    "success": "Thanks! Your feedback was sent.",
+    "error": "Couldn't send your feedback. Please try again."
+  },
   "userGuide": {
     "title": "User Guide",
     "navLabel": "User Guide",
