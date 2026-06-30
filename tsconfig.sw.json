@@ -1,0 +1,11 @@
+{
+  "//": "Type-checks the service worker in isolation: it needs the WebWorker lib (ServiceWorkerGlobalScope, PushEvent, etc.), which clashes with the DOM lib used app-wide, so sw.ts is excluded from the main tsconfig and checked here instead.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["webworker", "esnext"],
+    "types": [],
+    "noEmit": true
+  },
+  "include": ["src/app/sw.ts"],
+  "exclude": ["node_modules"]
+}

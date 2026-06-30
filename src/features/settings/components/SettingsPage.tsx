@@ -36,6 +36,7 @@ import {
   OrganizationSection,
   ProfileSection,
 } from "./settings-sections";
+import { NotificationsSection } from "./settings-notifications-section";
 import { SubscriptionSection } from "@/features/subscriptions/components/SubscriptionSection";
 import {
   getVisibleSections,
@@ -216,6 +217,7 @@ export function SettingsPage() {
           {activeSection === "account" && (
             <AccountSection user={user} t={t} />
           )}
+          {activeSection === "notifications" && <NotificationsSection t={t} />}
           {activeSection === "organization" && isOwner && (
             <OrganizationSection {...sectionProps} />
           )}
