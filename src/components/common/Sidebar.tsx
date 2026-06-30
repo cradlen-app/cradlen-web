@@ -26,6 +26,7 @@ import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { cn } from "@/common/utils/utils";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import { canUseSettings } from "./sidebar-access";
+import { FeedbackPanel } from "./FeedbackPanel";
 import { SidebarNav } from "./SidebarNav";
 import { useStaffNavItems } from "./staff-nav";
 import { useSidebarBranchSwitch } from "./hooks/useSidebarBranchSwitch";
@@ -277,7 +278,7 @@ export function Sidebar() {
       />
 
       {/* Bottom nav */}
-      <div className="px-2 py-3 space-y-0.5 border-t border-gray-100">
+      <div className="px-2 py-3 space-y-1 border-t border-gray-100">
         {canUseSettings(profile) && (
           <Link
             href={
@@ -297,6 +298,8 @@ export function Sidebar() {
             {!effectiveCollapsed && <span>{t("settings")}</span>}
           </Link>
         )}
+
+        <FeedbackPanel collapsed={effectiveCollapsed} />
       </div>
     </aside>
   );

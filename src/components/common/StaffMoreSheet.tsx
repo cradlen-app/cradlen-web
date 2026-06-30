@@ -33,6 +33,7 @@ import {
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import LogoIcon from "@/public/Logo-icon.png";
 import { canUseSettings } from "./sidebar-access";
+import { FeedbackPanel } from "./FeedbackPanel";
 import { useStaffNavItems, STAFF_PRIMARY_TAB_PATHS } from "./staff-nav";
 import { useSidebarBranchSwitch } from "./hooks/useSidebarBranchSwitch";
 import { useLogout } from "./hooks/useLogout";
@@ -338,6 +339,11 @@ export function StaffMoreSheet({
             </Link>
           </div>
         )}
+
+        {/* Feedback */}
+        <div className="border-t border-gray-100 px-3 py-3">
+          <FeedbackPanel />
+        </div>
 
         {/* Legal / Help / Language */}
         <div className="border-t border-gray-100 px-3 py-3">
