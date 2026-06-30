@@ -7,6 +7,7 @@ import { SilentRefreshProvider } from "@/features/auth/components/SilentRefreshP
 import { initAuthSessionBridge } from "@/features/auth/lib/auth-session-bridge";
 import { UpdateBanner } from "./common/UpdateBanner";
 import { KernelAuthBridge } from "./KernelAuthBridge";
+import { PushNotificationProvider } from "@/features/notifications/components/PushNotificationProvider";
 
 // Wire the auth stores into the infrastructure HTTP transport once, at module
 // load, so apiAuthFetch can read the request context / tear down the session
@@ -23,6 +24,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       {/* Prompts signed-in staff to refresh when a newer deploy goes live.
           Renders nothing and idles on anonymous (public) pages. */}
       <UpdateBanner />
+      {/* Re-syncs an existing push grant after login and refreshes the in-app
+          feed when the service worker relays a push. Never prompts. */}
+      <PushNotificationProvider />
       <KernelAuthBridge>{children}</KernelAuthBridge>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>

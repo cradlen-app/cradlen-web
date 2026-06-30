@@ -1,4 +1,5 @@
 import {
+  Bell,
   Building2,
   CreditCard,
   KeyRound,
@@ -11,6 +12,7 @@ import type { UserProfile } from "@/common/types/user.types";
 export type SectionKey =
   | "profile"
   | "account"
+  | "notifications"
   | "organization"
   | "branches"
   | "subscription"
@@ -35,6 +37,7 @@ export const SETTINGS_SECTIONS: {
 }[] = [
   { key: "profile", icon: UserRound },
   { key: "account", icon: KeyRound },
+  { key: "notifications", icon: Bell },
   { key: "organization", icon: Building2, ownerOnly: true },
   { key: "branches", icon: MapPin, ownerOnly: true },
   { key: "subscription", icon: CreditCard, ownerOnly: true },

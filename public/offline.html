@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#11604C" />
+    <title>Offline — Cradlen</title>
+    <!--
+      Self-contained offline fallback served by the service worker (src/app/sw.ts)
+      when a document navigation fails with no network. Kept as a static file in
+      public/ — not a Next route — so Serwist always precaches it and it renders
+      with zero JS/CSS/HTML dependencies, even when the app shell is unavailable.
+    -->
+    <style>
+      :root {
+        --brand: #11604c;
+        --black: #1d1d1b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        background: #fff;
+        color: var(--black);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      .icon {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(17, 96, 76, 0.1);
+        color: var(--brand);
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      p {
+        margin: 0.5rem 0 0;
+        max-width: 24rem;
+        font-size: 0.95rem;
+        color: rgba(29, 29, 27, 0.6);
+      }
+      button {
+        border: 0;
+        cursor: pointer;
+        border-radius: 9999px;
+        padding: 0.65rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #fff;
+        background: var(--brand);
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="icon" aria-hidden="true">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="36"
+        height="36"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 20h.01" />
+        <path d="M8.5 16.429a5 5 0 0 1 7 0" />
+        <path d="M5 12.859a10 10 0 0 1 5.17-2.69" />
+        <path d="M19 12.859a10 10 0 0 0-2.007-1.523" />
+        <path d="M2 8.82a15 15 0 0 1 4.177-2.643" />
+        <path d="M22 8.82a15 15 0 0 0-11.288-3.764" />
+        <path d="m2 2 20 20" />
+      </svg>
+    </div>
+    <div>
+      <h1 id="title">You're offline</h1>
+      <p id="body">
+        Cradlen needs a connection to load this page. Check your network and try
+        again.
+      </p>
+    </div>
+    <button id="retry" type="button">Try again</button>
+    <script>
+      (function () {
+        var isArabic = (navigator.language || "").toLowerCase().indexOf("ar") === 0;
+        if (isArabic) {
+          document.documentElement.lang = "ar";
+          document.documentElement.dir = "rtl";
+          document.getElementById("title").textContent = "أنت غير متصل بالإنترنت";
+          document.getElementById("body").textContent =
+            "يحتاج كرادلِن إلى اتصال لتحميل هذه الصفحة. تحقق من اتصالك وحاول مرة أخرى.";
+          document.getElementById("retry").textContent = "حاول مرة أخرى";
+        }
+        document.getElementById("retry").addEventListener("click", function () {
+          location.reload();
+        });
+      })();
+    </script>
+  </body>
+</html>

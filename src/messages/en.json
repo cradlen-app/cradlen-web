@@ -1088,10 +1088,25 @@
     "tabs": {
       "profile": "Profile",
       "account": "Account",
+      "notifications": "Notifications",
       "organization": "Organization",
       "branches": "Branches",
       "subscription": "Subscription",
       "danger": "Danger Zone"
+    },
+    "notifications": {
+      "title": "Browser notifications",
+      "description": "Get alerted about appointments, charges, and results — even when Cradlen isn't open in a tab.",
+      "enable": "Enable notifications",
+      "enabling": "Enabling…",
+      "enabled": "Notifications are on",
+      "enabledHint": "This device will receive push notifications.",
+      "disable": "Turn off",
+      "disabling": "Turning off…",
+      "blocked": "Notifications are blocked",
+      "blockedHint": "Allow notifications for Cradlen in your browser settings, then turn them on here.",
+      "unsupported": "Notifications aren't available here",
+      "unsupportedHint": "Install Cradlen as an app or use a supported browser to receive notifications."
     },
     "fields": {
       "role": "Role",
