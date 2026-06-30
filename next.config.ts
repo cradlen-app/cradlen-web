@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import withSerwistInit from "@serwist/next";
 import createNextIntlPlugin from "next-intl/plugin";
 import createBundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
@@ -16,6 +17,22 @@ const withMDX = createMDX({
   options: {
     rehypePlugins: ["rehype-slug"],
   },
+});
+
+// PWA service worker (src/app/sw.ts -> public/sw.js), auto-registered on the
+// client. Disabled in dev: a precaching SW fights Turbopack HMR and serves stale
+// chunks. `reloadOnOnline: false` keeps the existing "never auto-reload, the user
+// chooses when to refresh" rule (see UpdateBanner) intact.
+//
+// NOTE: @serwist/next injects the worker via a webpack() hook, which Turbopack
+// ignores. The production build therefore runs `next build --webpack` (see the
+// "build" script in package.json) so the SW is actually emitted. Dev stays on
+// Turbopack, where Serwist is disabled anyway.
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+  reloadOnOnline: false,
 });
 
 const isProd = process.env.NODE_ENV === "production";
@@ -80,6 +97,8 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   `connect-src ${connectSrc}`,
+  // The PWA service worker is same-origin (/sw.js).
+  "worker-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -138,6 +157,6 @@ const sentryBuildOptions = {
 };
 
 export default withSentryConfig(
-  withNextIntl(withBundleAnalyzer(withMDX(nextConfig))),
+  withNextIntl(withBundleAnalyzer(withSerwist(withMDX(nextConfig)))),
   sentryBuildOptions,
 );
