@@ -104,6 +104,8 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const target =
     (event.notification.data?.navigate_to as string | null | undefined) || "/";
+  // Resolve against the worker scope so it can be compared to open tab URLs.
+  const targetUrl = new URL(target, self.registration.scope);
 
   event.waitUntil(
     (async () => {
@@ -111,17 +113,19 @@ self.addEventListener("notificationclick", (event) => {
         type: "window",
         includeUncontrolled: true,
       });
+
+      // If a tab is already on the deep link, just focus it — never navigate a
+      // tab the user may be mid-task in (e.g. an in-progress visit), which would
+      // discard unsaved work.
       for (const client of clients) {
-        // Focus an already-open tab and route it to the deep link.
-        await client.focus();
-        try {
-          await client.navigate(target);
-        } catch {
-          // navigate() can reject cross-origin / on detached clients — ignore.
+        if (new URL(client.url).pathname === targetUrl.pathname) {
+          await client.focus();
+          return;
         }
-        return;
       }
-      await self.clients.openWindow(target);
+
+      // Otherwise open the deep link in a new tab, leaving existing tabs intact.
+      await self.clients.openWindow(targetUrl.href);
     })(),
   );
 });

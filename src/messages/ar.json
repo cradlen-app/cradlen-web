@@ -5,6 +5,11 @@
     "refresh": "إعادة التحميل",
     "versionLabel": "الإصدار"
   },
+  "iosInstall": {
+    "title": "ثبّت Cradlen",
+    "description": "اضغط على أيقونة المشاركة ثم اختر “إضافة إلى الشاشة الرئيسية” لتثبيت Cradlen وتفعيل الإشعارات.",
+    "dismiss": "حسنًا"
+  },
   "feedback": {
     "title": "ساعدنا في تحسين Cradlen",
     "category": {

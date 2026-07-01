@@ -5,6 +5,11 @@
     "refresh": "Refresh",
     "versionLabel": "Version"
   },
+  "iosInstall": {
+    "title": "Install Cradlen",
+    "description": "Tap the Share icon, then choose “Add to Home Screen” to install Cradlen and enable notifications.",
+    "dismiss": "Got it"
+  },
   "feedback": {
     "title": "Help us improve Cradlen",
     "category": {
