@@ -144,9 +144,13 @@ export function canViewPatientAnalytics(profile?: UserProfile): boolean {
   return isOwner(profile) || isBranchManager(profile);
 }
 
-/** Who may open the read-only medical-rep overview page: owners, branch managers, and doctors. */
+/**
+ * Who may open the medical-rep visit workspace: doctors only. Owner / branch-manager
+ * authority alone does not grant it — they qualify only when they also hold a DOCTOR
+ * job function. Mirrors the `canOpenPatientWorkspace` rule for clinical surfaces.
+ */
 export function canOpenMedicalRepOverview(profile?: UserProfile): boolean {
-  return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);
+  return isDoctor(profile);
 }
 
 // Staff-area permissions moved to their owning module:
