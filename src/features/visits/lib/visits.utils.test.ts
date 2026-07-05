@@ -109,6 +109,7 @@ describe("mapApiMedRepVisitToVisit", () => {
         phone_number: "+201000000000",
         email: "omar@pharma.test",
         company_name: "PharmaCo",
+        specialty_focus: "OBGYN",
         notes: null,
         created_at: "2026-01-01T00:00:00Z",
       },
@@ -122,6 +123,7 @@ describe("mapApiMedRepVisitToVisit", () => {
     expect(visit.type).toBe("MEDICAL_REP");
     expect(visit.patient.fullName).toBe("Omar Said");
     expect(visit.patient.companyName).toBe("PharmaCo");
+    expect(visit.patient.specialtyFocus).toBe("OBGYN");
     expect(visit.assignedDoctorName).toBe("Hala Younis");
     expect(visit.chiefComplaint).toBeNull();
   });
@@ -159,6 +161,7 @@ describe("mapApiMedRepVisitToVisit", () => {
         phone_number: null,
         email: null,
         company_name: "",
+        specialty_focus: null,
         notes: null,
         created_at: "2026-01-01T00:00:00Z",
       },

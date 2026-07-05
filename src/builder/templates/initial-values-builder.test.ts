@@ -69,6 +69,7 @@ function makeVisit(overrides: Partial<Visit> = {}): Visit {
       maritalStatus: "MARRIED",
       email: "rep@acme.com",
       companyName: "Acme Pharma",
+      specialtyFocus: "OBGYN",
     },
     type: "VISIT",
     status: "CHECKED_IN",
@@ -172,6 +173,7 @@ describe("buildInitialValues — MEDICAL_REP bindings", () => {
       field("name2", "MEDICAL_REP", "full_name"),
       field("email", "MEDICAL_REP", "email"),
       field("company", "MEDICAL_REP", "company_name"),
+      field("specialty", "MEDICAL_REP", "specialty_focus"),
     ]);
     const snap = buildInitialValues(
       tpl,
@@ -181,6 +183,7 @@ describe("buildInitialValues — MEDICAL_REP bindings", () => {
     expect(snap.formValues.name2).toBe("Jane Doe");
     expect(snap.formValues.email).toBe("rep@acme.com");
     expect(snap.formValues.company).toBe("Acme Pharma");
+    expect(snap.formValues.specialty).toBe("OBGYN");
   });
 });
 
