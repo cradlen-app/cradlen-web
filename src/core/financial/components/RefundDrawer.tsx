@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import { Dialog } from "radix-ui";
-import { Loader2, X } from "lucide-react";
+import { Banknote, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/common/utils/utils";
+import { Link } from "@/i18n/navigation";
+import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { Button } from "@/components/ui/button";
 
 import { useCreateRefund } from "../hooks/useRefunds";
+import { useCurrentCashSession } from "../hooks/useCashSessions";
 import { formatMoney } from "../lib/format";
 import type { Payment } from "../types/financial.types";
 
@@ -29,6 +32,12 @@ export function RefundDrawer({ open, onOpenChange, invoiceId, payment }: Props) 
   const t = useTranslations("financial.refund");
   const tCommon = useTranslations("financial.common");
   const createRefund = useCreateRefund(invoiceId);
+  // Refunds pay cash back out, so the cashier must hold an open drawer at the
+  // branch — same precondition as recording a payment. Mirror that UX here.
+  const { session: cashSession, isLoading: sessionLoading } =
+    useCurrentCashSession();
+  const sessionOpen = cashSession?.status === "OPEN";
+  const cashSessionsHref = useDashboardPath()("/financial/cash-sessions");
 
   const max = payment?.amount ?? 0;
   const [amount, setAmount] = useState("");
@@ -43,6 +52,7 @@ export function RefundDrawer({ open, onOpenChange, invoiceId, payment }: Props) 
 
   function handleSubmit() {
     if (!payment) return;
+    if (!sessionOpen) return;
     if (reason.trim().length < 4) {
       setError(t("reasonTooShort"));
       return;
@@ -83,6 +93,32 @@ export function RefundDrawer({ open, onOpenChange, invoiceId, payment }: Props) 
               <X className="size-5" aria-hidden="true" />
             </Dialog.Close>
           </div>
+
+          {!sessionLoading && !sessionOpen && (
+            <div className="mt-4 flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <div className="flex items-start gap-2">
+                <Banknote
+                  className="mt-0.5 size-4 shrink-0 text-amber-600"
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">
+                    {t("noSession.title")}
+                  </p>
+                  <p className="mt-0.5 text-xs text-amber-700">
+                    {t("noSession.body")}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href={cashSessionsHref}
+                onClick={() => onOpenChange(false)}
+                className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700"
+              >
+                {t("noSession.action")}
+              </Link>
+            </div>
+          )}
 
           <label className="mt-4 mb-1.5 block text-xs font-medium text-gray-700">
             {t("amountLabel")}{" "}
@@ -125,7 +161,7 @@ export function RefundDrawer({ open, onOpenChange, invoiceId, payment }: Props) 
               type="button"
               variant="destructive"
               onClick={handleSubmit}
-              disabled={createRefund.isPending}
+              disabled={createRefund.isPending || !sessionOpen}
             >
               {createRefund.isPending ? (
                 <>

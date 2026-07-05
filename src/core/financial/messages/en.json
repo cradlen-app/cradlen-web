@@ -605,6 +605,11 @@
     "refundedBadge": "Refunded",
     "voidAction": "Void refund",
     "reasonTooShort": "Please enter at least 4 characters.",
+    "noSession": {
+      "title": "No cash session open",
+      "body": "Open a cash session before issuing refunds so the drawer reconciles.",
+      "action": "Open cash session"
+    },
     "empty": "No refunds.",
     "voidTitle": "Void Refund?",
     "voidDescription": "This reverses the refund.",
