@@ -35,4 +35,10 @@ describe("getDefaultRouteForRole", () => {
       `/${ORG}/${BR}/dashboard`,
     );
   });
+
+  it("lands a doctor on the dashboard home, not a doubled /dashboard/dashboard", () => {
+    expect(getDefaultRouteForRole("doctor", ORG, BR, profile({ role: "DOCTOR" }))).toBe(
+      `/${ORG}/${BR}/dashboard`,
+    );
+  });
 });
