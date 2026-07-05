@@ -270,6 +270,7 @@ export function InvoiceEditForm({
             <InvoiceLineItemsEditor
               control={form.control}
               setValue={form.setValue}
+              getValues={form.getValues}
               fields={fields}
               append={append}
               remove={remove}
