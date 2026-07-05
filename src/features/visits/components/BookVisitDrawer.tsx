@@ -56,7 +56,11 @@ export function BookVisitDrawer({
     isEdit && editingVisit?.kind !== "medical_rep"
       ? editingVisit?.patient.id
       : undefined;
-  const { data: patientResp, isLoading: patientLoading } = usePatient(patientId);
+  const {
+    data: patientResp,
+    isLoading: patientLoading,
+    isError: patientError,
+  } = usePatient(patientId);
   const fullPatient = patientResp?.data;
 
   // The booked service isn't stored on the visit row — it lives on the booking
@@ -113,7 +117,10 @@ export function BookVisitDrawer({
     bookingServiceId,
   ]);
 
-  const waitingForPrefill = isEdit && !initial;
+  // A failed patient fetch never populates `fullPatient`, so `initial` stays
+  // undefined forever — without this guard the drawer would spin indefinitely
+  // instead of falling through to the error state below.
+  const waitingForPrefill = isEdit && !initial && !patientError;
   const loading = isLoading || specialtiesLoading || (isEdit && patientLoading);
   const noSpecialties = !specialtiesLoading && (!orgSpecialties || orgSpecialties.length === 0);
 
@@ -154,7 +161,7 @@ export function BookVisitDrawer({
             <div className="flex flex-1 items-center justify-center text-xs text-red-500">
               {t("create.errorNoSpecialty")}
             </div>
-          ) : isError || !filteredTemplate ? (
+          ) : isError || patientError || !filteredTemplate ? (
             <div className="flex flex-1 items-center justify-center text-xs text-red-500">
               {t("create.errorGeneric")}
             </div>

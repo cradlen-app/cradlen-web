@@ -37,6 +37,8 @@ export type VisitPatient = {
   companyName?: string;
   /** Medical-rep visits only. */
   email?: string;
+  /** Medical-rep visits only. */
+  specialtyFocus?: string;
 };
 
 export type Patient = {

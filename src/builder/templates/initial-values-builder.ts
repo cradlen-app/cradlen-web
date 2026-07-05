@@ -150,6 +150,8 @@ function readMedRepPath(path: string, visit: Visit): unknown {
       return vp.email;
     case "company_name":
       return vp.companyName;
+    case "specialty_focus":
+      return vp.specialtyFocus;
     default:
       return undefined;
   }

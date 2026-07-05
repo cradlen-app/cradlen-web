@@ -61,6 +61,7 @@ export function mapApiMedRepVisitToVisit(api: ApiMedRepVisitForMapping): Visit {
       phone: rep?.phone_number ?? undefined,
       email: rep?.email ?? undefined,
       companyName: rep?.company_name ?? undefined,
+      specialtyFocus: rep?.specialty_focus ?? undefined,
     },
     type: "MEDICAL_REP",
     status: api.status as Visit["status"],
