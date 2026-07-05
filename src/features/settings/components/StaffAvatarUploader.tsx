@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Camera, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,6 +11,7 @@ import {
   useRemoveProfileImage,
   useUploadProfileImage,
 } from "../hooks/useProfileImage";
+import { ImageCropModal } from "./ImageCropModal";
 import type { SettingsT } from "./settings.utils";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -39,6 +40,7 @@ export function StaffAvatarUploader({
   t: SettingsT;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const profileId = profile.staff_id;
   const organizationId = profile.organization?.id;
   const imageUrl = profile.profile_image_url ?? null;
@@ -61,8 +63,15 @@ export function StaffAvatarUploader({
       return;
     }
 
+    setPendingFile(file);
+  };
+
+  const onCropped = (file: File) => {
     upload.mutate(file, {
-      onSuccess: () => toast.success(t("profile.imageUpdated")),
+      onSuccess: () => {
+        toast.success(t("profile.imageUpdated"));
+        setPendingFile(null);
+      },
       onError: (error) =>
         toast.error(
           error instanceof ApiError
@@ -137,6 +146,27 @@ export function StaffAvatarUploader({
         accept="image/png,image/jpeg,image/webp"
         className="hidden"
         onChange={onPick}
+      />
+
+      <ImageCropModal
+        open={pendingFile !== null}
+        onOpenChange={(open) => {
+          if (!open && !upload.isPending) setPendingFile(null);
+        }}
+        file={pendingFile}
+        shape="round"
+        fileName="avatar.webp"
+        busy={upload.isPending}
+        onCropped={onCropped}
+        labels={{
+          title: t("imageCrop.titlePhoto"),
+          description: t("imageCrop.description"),
+          zoom: t("imageCrop.zoom"),
+          rotate: t("imageCrop.rotate"),
+          cancel: t("imageCrop.cancel"),
+          save: t("imageCrop.save"),
+          error: t("imageCrop.error"),
+        }}
       />
     </div>
   );
