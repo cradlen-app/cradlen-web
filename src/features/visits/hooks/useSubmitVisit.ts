@@ -2,6 +2,7 @@
 
 import type { ExecutionSnapshot } from "@/builder/templates/submission-builder";
 import type { FormTemplateDto } from "@/builder/templates/template.types";
+import { ApiError } from "@/infrastructure/http/api";
 import {
   fetchPatientById,
   type UpdatePatientRequest,
@@ -141,10 +142,19 @@ export function useSubmitVisit() {
           const current = (await fetchPatientById(patientId)).data;
           const data = buildPatientPatch(current, snapshot.formValues);
           if (Object.keys(data).length > 0) patch = data;
-        } catch {
-          // Patient not readable by this caller (e.g. a cross-org record not
-          // yet enrolled here): skip the write-back and book by reference.
-          patch = null;
+        } catch (error) {
+          // A 404/403 means this caller can't read the patient (e.g. a
+          // cross-org record not yet enrolled here): skip the write-back and
+          // book by reference. Any other failure (network, 5xx) is real — let
+          // it throw so the user's demographic edits aren't silently dropped.
+          if (
+            error instanceof ApiError &&
+            (error.status === 404 || error.status === 403)
+          ) {
+            patch = null;
+          } else {
+            throw error;
+          }
         }
         if (patch) {
           await updatePatient.mutateAsync({ id: patientId, data: patch });
