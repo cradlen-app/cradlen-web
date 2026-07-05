@@ -46,6 +46,17 @@ describe("DateOfBirthPicker inside a modal Dialog", () => {
     });
   });
 
+  it("prefills the display when the value is a full ISO datetime", () => {
+    // Backend date fields arrive as "1999-09-01T00:00:00.000Z"; the trigger must
+    // still render the date (not the placeholder) despite the trailing time part.
+    renderInDialog("1999-09-01T00:00:00.000Z");
+
+    expect(screen.getByText("1 Sep 1999")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Select your date of birth"),
+    ).not.toBeInTheDocument();
+  });
+
   it("emits an ISO date string when a day is picked", () => {
     const { onChange } = renderInDialog("1990-05-20");
 

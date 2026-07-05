@@ -16,7 +16,9 @@ const DISPLAY_FORMAT = "d MMM yyyy";
 
 function parseIso(value: string): Date | undefined {
   if (!value) return undefined;
-  const parsed = parse(value, ISO_FORMAT, new Date());
+  // Backend date fields may arrive as full ISO datetimes ("1999-09-01T00:00:00.000Z");
+  // slice to the date portion so strict yyyy-MM-dd parsing succeeds (timezone-safe).
+  const parsed = parse(value.slice(0, 10), ISO_FORMAT, new Date());
   return isValid(parsed) ? parsed : undefined;
 }
 

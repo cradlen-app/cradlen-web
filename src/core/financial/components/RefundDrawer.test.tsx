@@ -3,13 +3,40 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { renderWithIntl } from "@/test/render";
 
-const { refundMutate, isPending } = vi.hoisted(() => ({
+const { refundMutate, isPending, useCurrentCashSession } = vi.hoisted(() => ({
   refundMutate: vi.fn(),
   isPending: { value: false },
+  useCurrentCashSession: vi.fn(),
 }));
 
 vi.mock("../hooks/useRefunds", () => ({
   useCreateRefund: () => ({ mutate: refundMutate, isPending: isPending.value }),
+}));
+
+vi.mock("../hooks/useCashSessions", () => ({
+  useCurrentCashSession: () => useCurrentCashSession(),
+}));
+
+vi.mock("@/hooks/useDashboardPath", () => ({
+  useDashboardPath:
+    () =>
+    (path = "") =>
+      `/org-1/branch-1/dashboard${path}`,
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+  } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 import { RefundDrawer } from "./RefundDrawer";
@@ -47,6 +74,10 @@ describe("RefundDrawer", () => {
   beforeEach(() => {
     refundMutate.mockReset();
     isPending.value = false;
+    useCurrentCashSession.mockReturnValue({
+      session: { status: "OPEN" },
+      isLoading: false,
+    });
   });
 
   it("shows the max refundable amount derived from the payment", () => {
@@ -103,6 +134,21 @@ describe("RefundDrawer", () => {
   it("no-ops the submit when there is no payment", () => {
     renderDrawer(null);
     fireEvent.click(screen.getByRole("button", { name: "Issue Refund" }));
+    expect(refundMutate).not.toHaveBeenCalled();
+  });
+
+  it("blocks the refund and shows a banner when no cash session is open", () => {
+    useCurrentCashSession.mockReturnValue({ session: null, isLoading: false });
+    renderDrawer();
+
+    expect(screen.getByText("No cash session open")).toBeInTheDocument();
+    const button = screen.getByRole("button", { name: "Issue Refund" });
+    expect(button).toBeDisabled();
+
+    fireEvent.change(screen.getByPlaceholderText(/Reason for the refund/i), {
+      target: { value: "Duplicate charge" },
+    });
+    fireEvent.click(button);
     expect(refundMutate).not.toHaveBeenCalled();
   });
 });

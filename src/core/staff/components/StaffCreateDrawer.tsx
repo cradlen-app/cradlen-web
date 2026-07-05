@@ -283,6 +283,9 @@ export function StaffCreateDrawer({
               ...buildStaffRoleFields(values),
               executive_title: values.executiveTitle ?? null,
               engagement_type: values.engagementType,
+              // Sent unconditionally: an empty array clears the schedule
+              // (unchecking all days), relying on API array replace-semantics.
+              schedule: enabledSchedule,
             },
           });
 
