@@ -46,6 +46,17 @@ describe("InvoiceStatCards", () => {
     expect(screen.getByText("from 3 invoices")).toBeInTheDocument();
   });
 
+  it("renders nothing when the report errors instead of a stuck skeleton", () => {
+    useFinancialReportMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error("Forbidden"),
+    });
+    const { container } = renderWithIntl(<InvoiceStatCards />);
+    expect(container).toBeEmptyDOMElement();
+    expect(container.querySelectorAll(".animate-pulse")).toHaveLength(0);
+  });
+
   it("scopes the report query to the active branch", () => {
     useFinancialReportMock.mockReturnValue({ data: STATS, isLoading: false });
     renderWithIntl(<InvoiceStatCards />);
