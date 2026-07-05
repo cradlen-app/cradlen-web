@@ -17,7 +17,11 @@ vi.mock("./useInvoices", () => ({
 import { useBillingQueue } from "./useBillingQueue";
 
 function visit(id: string) {
-  return { id } as never;
+  return { id, kind: "patient" } as never;
+}
+
+function repVisit(id: string) {
+  return { id, kind: "medical_rep" } as never;
 }
 
 beforeEach(() => {
@@ -53,6 +57,27 @@ describe("useBillingQueue", () => {
     expect(
       result.current.pending.find((p) => p.visit.id === "v-draft")?.invoice?.id,
     ).toBe("i-1");
+  });
+
+  it("excludes medical-rep visits from the queue entirely (reps are never billed)", () => {
+    mocks.useUnifiedWaitingList.mockReturnValue({
+      data: { rows: [visit("v-patient"), repVisit("v-rep")] },
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useBillingQueue("branch-1"));
+
+    // The rep never has an invoice, so without filtering it would land in
+    // `pending` with a "No invoice" label — assert it's absent from both lists.
+    const allIds = [...result.current.pending, ...result.current.invoiced].map(
+      (p) => p.visit.id,
+    );
+    expect(allIds).toEqual(["v-patient"]);
+    expect(allIds).not.toContain("v-rep");
+
+    // The rep id must not widen the invoice fetch either.
+    const [filter] = mocks.useInvoices.mock.calls[0];
+    expect(filter.visit_ids).toEqual(["v-patient"]);
   });
 
   it("bounds the invoice fetch to the on-screen visit ids and enables it only when there are visits", () => {

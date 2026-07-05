@@ -144,9 +144,23 @@ export function canViewPatientAnalytics(profile?: UserProfile): boolean {
   return isOwner(profile) || isBranchManager(profile);
 }
 
-/** Who may open the read-only medical-rep overview page: owners, branch managers, and doctors. */
-export function canOpenMedicalRepOverview(profile?: UserProfile): boolean {
+/**
+ * Who may see the medical-rep section — the sidebar nav item and the reps *list*
+ * table: owners, branch managers, and doctors. Opening an individual rep's
+ * workspace is a stricter, doctor-only gate (see `canOpenMedicalRepWorkspace`).
+ */
+export function canViewMedicalReps(profile?: UserProfile): boolean {
   return isOwner(profile) || isBranchManager(profile) || isDoctor(profile);
+}
+
+/**
+ * Who may open a medical-rep *workspace* — the read-only rep overview page and the
+ * live visit workspace where the visit form is filled and completed: doctors only.
+ * Owner / branch-manager authority alone does not grant it — they see the list but
+ * cannot open a rep. Mirrors the `canOpenPatientWorkspace` rule for clinical surfaces.
+ */
+export function canOpenMedicalRepWorkspace(profile?: UserProfile): boolean {
+  return isDoctor(profile);
 }
 
 // Staff-area permissions moved to their owning module:

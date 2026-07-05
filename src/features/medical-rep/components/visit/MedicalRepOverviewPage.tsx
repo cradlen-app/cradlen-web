@@ -6,6 +6,9 @@ import { Loader2 } from "lucide-react";
 import { ApiError } from "@/infrastructure/http/api";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { canOpenMedicalRepWorkspace } from "@/features/auth/lib/permissions";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import {
   fetchMedicalRep,
@@ -26,6 +29,8 @@ export function MedicalRepOverviewPage({ repId }: Props) {
   const t = useTranslations("medicalRep.visit");
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
+  const { data: currentUser, isLoading: isUserLoading } = useCurrentUser();
+  const canOpen = canOpenMedicalRepWorkspace(getActiveProfile(currentUser));
   const { data: specialties } = useOrgSpecialties(organizationId);
 
   const repQuery = useQuery({
@@ -47,6 +52,13 @@ export function MedicalRepOverviewPage({ repId }: Props) {
       ? `/${organizationId}/${branchId}/dashboard/medical-rep`
       : "/dashboard/medical-rep";
 
+  if (!isUserLoading && !canOpen) {
+    return (
+      <div className="flex h-full items-center justify-center p-6 text-sm text-gray-400">
+        {t("forbidden")}
+      </div>
+    );
+  }
   if (isNotFound(repQuery.error)) {
     return <div className="p-6 text-sm text-gray-500">{t("loadError")}</div>;
   }

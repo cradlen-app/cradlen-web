@@ -3,8 +3,10 @@ import type { UserProfile } from "@/common/types/user.types";
 import {
   canAccessClinicalWorkspace,
   canDriveClinicalVisit,
+  canOpenMedicalRepWorkspace,
   canOpenPatientWorkspace,
   canPracticeSpecialty,
+  canViewMedicalReps,
   specialtyMatchesOrg,
 } from "./permissions";
 
@@ -93,6 +95,38 @@ describe("canOpenPatientWorkspace (patient detail)", () => {
     expect(canOpenPatientWorkspace(owner)).toBe(false);
     expect(canOpenPatientWorkspace(branchManager)).toBe(false);
     expect(canOpenPatientWorkspace(receptionist)).toBe(false);
+  });
+});
+
+const accountant = profile({
+  roles: ["STAFF"],
+  jobFunctions: [{ code: "ACCOUNTANT", is_clinical: false }],
+});
+
+describe("canViewMedicalReps (nav + reps list)", () => {
+  it("includes owners, branch managers, and doctors", () => {
+    expect(canViewMedicalReps(owner)).toBe(true);
+    expect(canViewMedicalReps(branchManager)).toBe(true);
+    expect(canViewMedicalReps(doctor)).toBe(true);
+  });
+
+  it("excludes receptionists and accountants", () => {
+    expect(canViewMedicalReps(receptionist)).toBe(false);
+    expect(canViewMedicalReps(accountant)).toBe(false);
+  });
+});
+
+describe("canOpenMedicalRepWorkspace (rep overview + visit workspace)", () => {
+  it("includes any doctor, regardless of authority tier", () => {
+    expect(canOpenMedicalRepWorkspace(doctor)).toBe(true);
+    expect(canOpenMedicalRepWorkspace(doctorOwner)).toBe(true);
+    expect(canOpenMedicalRepWorkspace(doctorBranchManager)).toBe(true);
+  });
+
+  it("excludes non-doctor owners, branch managers, and receptionists (list only)", () => {
+    expect(canOpenMedicalRepWorkspace(owner)).toBe(false);
+    expect(canOpenMedicalRepWorkspace(branchManager)).toBe(false);
+    expect(canOpenMedicalRepWorkspace(receptionist)).toBe(false);
   });
 });
 
