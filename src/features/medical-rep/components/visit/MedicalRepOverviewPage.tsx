@@ -8,7 +8,7 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
-import { canOpenMedicalRepOverview } from "@/features/auth/lib/permissions";
+import { canOpenMedicalRepWorkspace } from "@/features/auth/lib/permissions";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import {
   fetchMedicalRep,
@@ -30,7 +30,7 @@ export function MedicalRepOverviewPage({ repId }: Props) {
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
   const { data: currentUser, isLoading: isUserLoading } = useCurrentUser();
-  const canOpen = canOpenMedicalRepOverview(getActiveProfile(currentUser));
+  const canOpen = canOpenMedicalRepWorkspace(getActiveProfile(currentUser));
   const { data: specialties } = useOrgSpecialties(organizationId);
 
   const repQuery = useQuery({

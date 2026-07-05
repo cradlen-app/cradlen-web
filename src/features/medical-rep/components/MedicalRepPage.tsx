@@ -7,7 +7,7 @@ import { cn } from "@/common/utils/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
-import { canOpenMedicalRepOverview } from "@/features/auth/lib/permissions";
+import { canOpenMedicalRepWorkspace } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { MedicalRepTable } from "./MedicalRepTable";
 import { useMedicalReps } from "../hooks/useMedicalReps";
@@ -21,7 +21,7 @@ export function MedicalRepPage() {
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
   const { data: currentUser } = useCurrentUser();
-  const canOpen = canOpenMedicalRepOverview(getActiveProfile(currentUser));
+  const canOpen = canOpenMedicalRepWorkspace(getActiveProfile(currentUser));
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);

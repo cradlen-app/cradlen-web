@@ -6,8 +6,8 @@ import { PERMISSIONS } from "@/common/kernel-contracts";
 import {
   canAccessClinicalWorkspace,
   canAccessOperations,
-  canOpenMedicalRepOverview,
   canOpenPatientWorkspace,
+  canViewMedicalReps,
   canPracticeSpecialty,
   canUseSettings,
   hasAnyStaffRole,
@@ -73,7 +73,7 @@ export const shellPermissions = {
   ),
   [PERMISSIONS.medicineRead]: fromCtx(_canAccessMedicine),
   [PERMISSIONS.medicalRepView]: fromCtx((p) =>
-    canOpenMedicalRepOverview(p ?? undefined),
+    canViewMedicalReps(p ?? undefined),
   ),
   // Route-only gates (no nav item): the settings page self-gates its sections,
   // while deeper org-settings drill-downs are owner-only.
