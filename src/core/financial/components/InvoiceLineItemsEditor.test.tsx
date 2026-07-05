@@ -41,6 +41,7 @@ function Harness({ initialItems = [] as Item[] }: { initialItems?: Item[] }) {
     <InvoiceLineItemsEditor
       control={form.control}
       setValue={form.setValue}
+      getValues={form.getValues}
       fields={fields}
       append={append}
       remove={remove}
@@ -119,5 +120,38 @@ describe("InvoiceLineItemsEditor", () => {
     fireEvent.mouseDown(option);
     // After selecting, the trigger reflects the chosen service name.
     expect(screen.getByText("Ultrasound")).toBeInTheDocument();
+  });
+
+  it("fills the row unit price from the resolved price after selecting a service", () => {
+    // Resolve a configured price once a service id is selected.
+    useResolvePriceMock.mockImplementation((serviceId?: string) =>
+      serviceId
+        ? {
+            resolvedPrice: { price: 100, currency: "EGP", source: "ORG_PRICE_LIST" },
+            isLoading: false,
+          }
+        : { resolvedPrice: undefined, isLoading: false },
+    );
+    renderWithIntl(
+      <Harness
+        initialItems={[
+          {
+            service_id: "",
+            description: "",
+            quantity: 1,
+            unit_price: 0,
+            discount_amount: undefined,
+            pricing_source: undefined,
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByText("Select service…"));
+    fireEvent.mouseDown(screen.getByRole("button", { name: /Ultrasound/ }));
+
+    // Regression: writing the resolved price must re-render the row Controller,
+    // so the unit-price input reflects it (not a stale 0) and the warning is gone.
+    expect(screen.getByLabelText("Unit Price")).toHaveValue(100);
+    expect(screen.queryByText("No price configured")).not.toBeInTheDocument();
   });
 });

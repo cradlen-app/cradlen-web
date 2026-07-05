@@ -5,6 +5,7 @@ import {
   Controller,
   type Control,
   type UseFormSetValue,
+  type UseFormGetValues,
   type FieldArrayWithId,
   type UseFieldArrayAppend,
   type UseFieldArrayRemove,
@@ -24,6 +25,7 @@ type ServiceOption = { id: string; name: string; code: string };
 type Props = {
   control: Control<InvoiceFormValues>;
   setValue: UseFormSetValue<InvoiceFormValues>;
+  getValues: UseFormGetValues<InvoiceFormValues>;
   /** Shared field array from the parent form — single source so imports re-render. */
   fields: FieldArrayWithId<InvoiceFormValues, "items", "id">[];
   append: UseFieldArrayAppend<InvoiceFormValues, "items">;
@@ -54,6 +56,7 @@ function LineItemRow({
   index,
   control,
   setValue,
+  getValues,
   branchId,
   profileId,
   currency,
@@ -63,6 +66,7 @@ function LineItemRow({
   index: number;
   control: Control<InvoiceFormValues>;
   setValue: UseFormSetValue<InvoiceFormValues>;
+  getValues: UseFormGetValues<InvoiceFormValues>;
   branchId: string;
   profileId?: string;
   currency?: string | null;
@@ -83,10 +87,17 @@ function LineItemRow({
 
   useEffect(() => {
     if (resolvedPrice && selectedServiceId) {
-      setValue(`items.${index}.unit_price`, resolvedPrice.price);
-      setValue(`items.${index}.pricing_source`, resolvedPrice.source);
+      // Write the whole `items.${index}` object (the registered Controller name).
+      // RHF ignores nested sub-path setValue on an object-registered field, so the
+      // row Controller would not re-render — leaving a stale unit_price of 0.
+      const current = getValues(`items.${index}`);
+      setValue(`items.${index}`, {
+        ...current,
+        unit_price: resolvedPrice.price,
+        pricing_source: resolvedPrice.source,
+      });
     }
-  }, [resolvedPrice, selectedServiceId, index, setValue]);
+  }, [resolvedPrice, selectedServiceId, index, setValue, getValues]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -253,6 +264,7 @@ function LineItemRow({
 export function InvoiceLineItemsEditor({
   control,
   setValue,
+  getValues,
   fields,
   append,
   remove,
@@ -283,6 +295,7 @@ export function InvoiceLineItemsEditor({
           index={index}
           control={control}
           setValue={setValue}
+          getValues={getValues}
           branchId={branchId}
           profileId={profileId}
           currency={currency}
