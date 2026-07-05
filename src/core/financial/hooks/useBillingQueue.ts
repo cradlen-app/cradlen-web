@@ -25,6 +25,16 @@ export function useBillingQueue(branchId: string | null | undefined) {
     limit: 100,
   });
 
+  // Medical-rep visits are never billed (reps don't pay to see a doctor), so
+  // they must not appear in the billing queue at all — otherwise, having no
+  // invoice, they'd land in `pending` with a "No invoice" label. The unified
+  // waiting list merges patient + rep rows, so filter reps out at the source
+  // before both the invoice fetch and the pending/invoiced split.
+  const billableRows = useMemo<Visit[]>(
+    () => (waitingList.data?.rows ?? []).filter((v) => v.kind !== "medical_rep"),
+    [waitingList.data],
+  );
+
   // Fetch invoices for exactly the visits on screen, NOT by date: billing is
   // per-visit, so a visit's invoice is created at booking but a `date_from:
   // today` filter could still drop it at the local-vs-UTC midnight boundary.
@@ -32,11 +42,11 @@ export function useBillingQueue(branchId: string | null | undefined) {
   // and timing-independent, and each visit maps 1:1 to its own invoice.
   const visitIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const v of waitingList.data?.rows ?? []) {
+    for (const v of billableRows) {
       if (v.id) ids.add(v.id);
     }
     return [...ids];
-  }, [waitingList.data]);
+  }, [billableRows]);
 
   // `limit` stays within the backend cap (Max 100). Poll so a charge the doctor
   // adds mid-visit (auto-appended to the invoice) surfaces without a manual
@@ -64,10 +74,9 @@ export function useBillingQueue(branchId: string | null | undefined) {
     pending: BillingQueueItem[];
     invoiced: BillingQueueItem[];
   }>(() => {
-    const rows: Visit[] = waitingList.data?.rows ?? [];
     const p: BillingQueueItem[] = [];
     const i: BillingQueueItem[] = [];
-    for (const visit of rows) {
+    for (const visit of billableRows) {
       const inv = invoiceByVisitId.get(visit.id);
       const item: BillingQueueItem = { visit, invoice: inv };
       if (!inv || inv.status === "DRAFT") {
@@ -77,7 +86,7 @@ export function useBillingQueue(branchId: string | null | undefined) {
       }
     }
     return { pending: p, invoiced: i };
-  }, [waitingList.data, invoiceByVisitId]);
+  }, [billableRows, invoiceByVisitId]);
 
   return {
     pending,

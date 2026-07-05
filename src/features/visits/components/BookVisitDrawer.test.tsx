@@ -161,18 +161,21 @@ describe("BookVisitDrawer", () => {
     expect(submit).not.toHaveBeenCalled();
   });
 
-  it("redirects to the rep workspace after creating a medical-rep visit", async () => {
+  it("does not navigate after booking a medical-rep visit (stays on the list)", async () => {
+    // The rep visit workspace is doctor-only; reception books and stays on the
+    // list, so the drawer must not auto-open the workspace after booking.
     mockExecState.mockReturnValue({
       formValues: {},
       searchState: {},
       systemValues: { visitor_type: "MEDICAL_REP" },
     });
     submit.mockResolvedValue({ newVisitId: "v-rep" });
-    renderWithIntl(<BookVisitDrawer {...baseProps()} />);
+    const props = baseProps();
+    renderWithIntl(<BookVisitDrawer {...props} />);
     fireEvent.click(screen.getByRole("button", { name: "Add to waiting list" }));
-    await waitFor(() => expect(push).toHaveBeenCalled());
-    expect(push).toHaveBeenCalledWith(
-      "/org-1/br-1/dashboard/visits/v-rep?kind=medical_rep",
-    );
+    await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+    expect(toastSuccess).toHaveBeenCalled();
+    expect(props.onOpenChange).toHaveBeenCalledWith(false);
+    expect(push).not.toHaveBeenCalled();
   });
 });
