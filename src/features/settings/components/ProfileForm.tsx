@@ -42,7 +42,7 @@ export function ProfileForm({
       first_name: user.first_name ?? "",
       last_name: user.last_name ?? "",
       phone_number: user.phone_number ?? user.phone ?? "",
-      date_of_birth: user.date_of_birth ?? "",
+      date_of_birth: user.date_of_birth?.slice(0, 10) ?? "",
       professional_title: profile?.professional_title ?? "",
     }),
     [user, profile],

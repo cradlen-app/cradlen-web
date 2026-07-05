@@ -85,15 +85,18 @@ describe("CalendarOverviewPanel", () => {
     expect(onEditEvent).toHaveBeenCalledWith(event);
   });
 
-  it("deletes after the confirm prompt is accepted", () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
+  it("deletes only after confirming in the modal", () => {
     const event = makeCalendarEvent({ id: "del-1", profileId: "p1" });
     renderWithIntl(
       <CalendarOverviewPanel events={[event]} selectedDate="2026-06-15" />,
     );
 
+    // Clicking the trash icon opens the confirm modal but does not delete yet.
     fireEvent.click(screen.getByLabelText("Delete event"));
+    expect(deleteMutateMock).not.toHaveBeenCalled();
 
+    // Confirming in the modal fires the delete.
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
     expect(deleteMutateMock).toHaveBeenCalledWith("del-1");
   });
 
