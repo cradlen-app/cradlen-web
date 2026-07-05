@@ -1162,6 +1162,16 @@
       "imageUpdated": "Profile photo updated.",
       "imageRemoved": "Profile photo removed."
     },
+    "imageCrop": {
+      "titlePhoto": "Adjust your photo",
+      "titleLogo": "Adjust your logo",
+      "description": "Zoom, drag, and rotate to frame the image.",
+      "zoom": "Zoom",
+      "rotate": "Rotate",
+      "cancel": "Cancel",
+      "save": "Save",
+      "error": "Could not process the image. Please try another."
+    },
     "account": {
       "title": "Account",
       "description": "Email and password tied to your sign-in.",

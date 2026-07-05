@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Building2, Camera, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,6 +11,7 @@ import {
   useRemoveOrganizationLogo,
   useUploadOrganizationLogo,
 } from "../hooks/useOrganizationLogo";
+import { ImageCropModal } from "./ImageCropModal";
 import type { SettingsT } from "./settings.utils";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -24,6 +25,7 @@ export function OrganizationLogoUploader({
   t: SettingsT;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const organizationId = organization?.id;
   const logoUrl = organization?.logo_image_url ?? null;
   const name = organization?.name ?? "";
@@ -46,8 +48,15 @@ export function OrganizationLogoUploader({
       return;
     }
 
+    setPendingFile(file);
+  };
+
+  const onCropped = (file: File) => {
     upload.mutate(file, {
-      onSuccess: () => toast.success(t("organization.logoUpdated")),
+      onSuccess: () => {
+        toast.success(t("organization.logoUpdated"));
+        setPendingFile(null);
+      },
       onError: (error) =>
         toast.error(
           error instanceof ApiError
@@ -122,6 +131,27 @@ export function OrganizationLogoUploader({
         accept="image/png,image/jpeg,image/webp"
         className="hidden"
         onChange={onPick}
+      />
+
+      <ImageCropModal
+        open={pendingFile !== null}
+        onOpenChange={(open) => {
+          if (!open && !upload.isPending) setPendingFile(null);
+        }}
+        file={pendingFile}
+        shape="square"
+        fileName="logo.webp"
+        busy={upload.isPending}
+        onCropped={onCropped}
+        labels={{
+          title: t("imageCrop.titleLogo"),
+          description: t("imageCrop.description"),
+          zoom: t("imageCrop.zoom"),
+          rotate: t("imageCrop.rotate"),
+          cancel: t("imageCrop.cancel"),
+          save: t("imageCrop.save"),
+          error: t("imageCrop.error"),
+        }}
       />
     </div>
   );
