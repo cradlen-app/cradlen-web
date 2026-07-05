@@ -62,11 +62,15 @@ export function InvoiceStatCardsSkeleton() {
 export function InvoiceStatCards() {
   const t = useTranslations("financial.invoices.stats");
   const branchId = useAuthContextStore((s) => s.branchId);
-  const { data, isLoading } = useFinancialReport<InvoiceStatsReport>(
+  const { data, isLoading, error } = useFinancialReport<InvoiceStatsReport>(
     "invoice-stats",
     branchId ? { branch_id: branchId } : undefined,
   );
 
+  // Fail closed rather than spinning forever: if the report errors (e.g. a
+  // permission mismatch on the endpoint), render nothing instead of a skeleton
+  // that never resolves.
+  if (error) return null;
   if (isLoading || !data) return <InvoiceStatCardsSkeleton />;
 
   return (

@@ -13,6 +13,7 @@ export type ApiMedicalRep = {
   phone_number: string | null;
   email: string | null;
   company_name: string;
+  specialty_focus: string | null;
   notes: string | null;
   created_at: string;
 };
@@ -69,6 +70,7 @@ export type UpdateMedicalRepVisitRequest = {
   phone_number?: string;
   email?: string;
   company_name?: string;
+  specialty_focus?: string | null;
 };
 
 export type UpdateMedicalRepVisitStatusRequest = {
