@@ -109,7 +109,7 @@ export function MedicalRepVisitPage({ visitId }: Props) {
     organizationId && branchId
       ? `/${organizationId}/${branchId}/dashboard`
       : "/dashboard";
-  const dashboardHref = base;
+  const visitsHref = `${base}/visits`;
   const repsHref = `${base}/medical-rep`;
 
   const isClosed = useMemo(
@@ -169,7 +169,7 @@ export function MedicalRepVisitPage({ visitId }: Props) {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <Link
-              href={dashboardHref}
+              href={visitsHref}
               aria-label={t("backToVisits")}
               className="inline-flex size-7 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-black"
             >
