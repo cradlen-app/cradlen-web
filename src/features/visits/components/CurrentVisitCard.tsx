@@ -38,13 +38,21 @@ function CurrentVisitRow({
   const profile = getActiveProfile(user);
   const activeProfileId = useAuthContextStore((s) => s.profileId);
 
-  // The patient is actively in consultation — offer Open (jump into the workspace).
-  const isInConsultation = visit.status === "IN_CONSULTATION";
+  const isMedRep = visit.kind === "medical_rep";
+  // Already-active rows open straight into the workspace with no status change.
+  // Patient: IN_CONSULTATION. Medical-rep: IN_PROGRESS is the active state — reps
+  // have no consultation sub-state and are moved to IN_PROGRESS in the waiting
+  // list, so by the time a rep visit reaches "current" it's already active.
+  const isActive = isMedRep
+    ? visit.status === "IN_PROGRESS"
+    : visit.status === "IN_CONSULTATION";
+  // Only patient visits transition IN_PROGRESS -> IN_CONSULTATION via startVisit.
   // Reception has queued the patient (IN_PROGRESS); the doctor's Start button
-  // begins the consultation (IN_CONSULTATION). Defense-in-depth: the my-current
-  // feed is already assigned-doctor scoped, but only offer Start to the doctor
-  // (or owner/manager) the backend will accept.
+  // begins the consultation. Defense-in-depth: the my-current feed is already
+  // assigned-doctor scoped, but only offer Start to the doctor (or owner/manager)
+  // the backend will accept.
   const canStart =
+    !isMedRep &&
     visit.status === "IN_PROGRESS" &&
     canDriveClinicalVisit(profile, visit.assignedDoctorId, activeProfileId);
 
@@ -78,7 +86,7 @@ function CurrentVisitRow({
       <VisitTypeBadge type={visit.type} />
       <VisitPriorityBadge priority={visit.priority} />
       <div className="flex items-center justify-end gap-2">
-        {isInConsultation ? (
+        {isActive ? (
           <Button
             type="button"
             size="sm"
