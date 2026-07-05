@@ -18,6 +18,7 @@ import { useUserProfileContext } from "@/features/auth/hooks/useUserProfileConte
 import { formatEventTime, localIsoDate } from "../lib/calendar.utils";
 import { TYPE_BAR_CLASS } from "./CalendarEventChip";
 import { useDeleteCalendarEvent } from "../hooks/useDeleteCalendarEvent";
+import { DeleteEventDialog } from "./DeleteEventDialog";
 import type { CalendarEvent } from "../types/calendar.types";
 
 type EntryProps = {
@@ -29,9 +30,13 @@ type EntryProps = {
 function OverviewEntry({ event, canManage, onEdit }: EntryProps) {
   const t = useTranslations("calendar");
   const [expanded, setExpanded] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const deleteMut = useDeleteCalendarEvent({
-    onSuccess: () => toast.success(t("delete.success")),
+    onSuccess: () => {
+      setConfirmOpen(false);
+      toast.success(t("delete.success"));
+    },
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : t("delete.error")),
   });
@@ -47,8 +52,7 @@ function OverviewEntry({ event, canManage, onEdit }: EntryProps) {
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!window.confirm(t("delete.confirm"))) return;
-    deleteMut.mutate(event.id);
+    setConfirmOpen(true);
   }
 
   function handleEdit(e: React.MouseEvent) {
@@ -171,6 +175,14 @@ function OverviewEntry({ event, canManage, onEdit }: EntryProps) {
           )}
         </div>
       )}
+
+      <DeleteEventDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        eventTitle={event.title}
+        isPending={deleteMut.isPending}
+        onConfirm={() => deleteMut.mutate(event.id)}
+      />
     </article>
   );
 }

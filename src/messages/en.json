@@ -1810,7 +1810,10 @@
     },
     "delete": {
       "action": "Delete event",
-      "confirm": "Delete this event?",
+      "title": "Delete event",
+      "description": "This will permanently remove \"{title}\". This can't be undone.",
+      "confirmButton": "Delete",
+      "cancel": "Cancel",
       "success": "Event deleted.",
       "error": "Failed to delete event."
     }
