@@ -21,6 +21,9 @@ import {
 import { VisitExaminationFormShell } from "@/features/examination/components/VisitExaminationFormShell";
 import { useUpdateMedRepVisitStatus } from "@/features/visits/hooks/useUpdateMedRepVisitStatus";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { getActiveProfile } from "@/features/auth/lib/current-user";
+import { canOpenMedicalRepOverview } from "@/features/auth/lib/permissions";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import {
   ProductsDiscussed,
@@ -73,6 +76,8 @@ export function MedicalRepVisitPage({ visitId }: Props) {
   const tExam = useTranslations("examination.workspace");
   const organizationId = useAuthContextStore((s) => s.organizationId);
   const branchId = useAuthContextStore((s) => s.branchId);
+  const { data: currentUser, isLoading: isUserLoading } = useCurrentUser();
+  const canOpen = canOpenMedicalRepOverview(getActiveProfile(currentUser));
   const endpointPath = `/medical-rep-visits/${visitId}/examination`;
 
   const templateQuery = useQuery({
@@ -114,6 +119,13 @@ export function MedicalRepVisitPage({ visitId }: Props) {
     [envelope],
   );
 
+  if (!isUserLoading && !canOpen) {
+    return (
+      <div className="flex h-full items-center justify-center p-6 text-sm text-gray-400">
+        {t("forbidden")}
+      </div>
+    );
+  }
   if (isNotFound(templateQuery.error) || isNotFound(dataQuery.error)) {
     return <div className="p-6 text-sm text-gray-500">{t("loadError")}</div>;
   }

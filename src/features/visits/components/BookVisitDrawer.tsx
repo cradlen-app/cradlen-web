@@ -6,7 +6,6 @@ import { Dialog } from "radix-ui";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/common/utils/utils";
-import { useRouter } from "@/i18n/navigation";
 import { useFormTemplate } from "@/builder/templates/useFormTemplate";
 import {
   TemplateExecutionContextProvider,
@@ -174,7 +173,6 @@ export function BookVisitDrawer({
               <DrawerBody
                 template={filteredTemplate}
                 branchId={branchId}
-                organizationId={organizationId}
                 branchName={branchName}
                 onClose={() => onOpenChange(false)}
                 editingVisit={editingVisit ?? null}
@@ -208,7 +206,6 @@ function stripDiscriminatorSections(
 interface BodyProps {
   template: FormTemplateDto;
   branchId: string | null | undefined;
-  organizationId: string | null | undefined;
   branchName?: string;
   onClose: () => void;
   editingVisit: Visit | null;
@@ -217,14 +214,12 @@ interface BodyProps {
 function DrawerBody({
   template,
   branchId,
-  organizationId,
   branchName,
   onClose,
   editingVisit,
 }: BodyProps) {
   const t = useTranslations("visits");
   const tValidation = useTranslations("builder.validation");
-  const router = useRouter();
   const { state } = useTemplateExecution();
   const { submit, isPending: submitPending } = useSubmitVisit();
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -252,7 +247,7 @@ function DrawerBody({
     }
 
     try {
-      const { newVisitId } = await submit({
+      await submit({
         template,
         snapshot,
         editingVisit,
@@ -262,14 +257,10 @@ function DrawerBody({
       toast.success(
         isEdit ? t("editVisit.savedToast") : t("create.successMessage"),
       );
+      // Medical-rep bookings intentionally do NOT auto-open the visit workspace:
+      // reception books, the visit stays SCHEDULED, and the doctor opens/conducts
+      // it later (the workspace is doctor-only). Just confirm and close the drawer.
       onClose();
-      // Land medical-rep bookings on the new rep visit's workspace — the unified
-      // visit route, with `?kind=medical_rep` so it renders the rep workspace.
-      if (!isEdit && isMedicalRep && newVisitId && organizationId && branchId) {
-        router.push(
-          `/${organizationId}/${branchId}/dashboard/visits/${newVisitId}?kind=medical_rep`,
-        );
-      }
     } catch (error) {
       const mapped = mapVisitApiError(error, template);
       if (mapped.kind === "fields") {
