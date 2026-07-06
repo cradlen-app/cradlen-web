@@ -70,6 +70,14 @@ export function resolveAuthRedirect(
     return step ? ONBOARDING_REDIRECTS[step] : "/sign-in";
   }
 
+  // A profile_selection response always routes to /select-profile — including an
+  // EMPTY one (user removed from all orgs). The empty state there offers "Create
+  // organization" (runs off the selection_token) or "wait for an invitation",
+  // rather than dead-ending the sign-in form.
+  if (source.type === "profile_selection") {
+    return "/select-profile";
+  }
+
   if (getProfilesFromAuthResponse(response).length > 0) {
     return "/select-profile";
   }

@@ -34,6 +34,14 @@ describe("resolveAuthRedirect", () => {
     ).toBe("/select-profile");
   });
 
+  it("routes an EMPTY profile_selection to /select-profile (removed-from-all-orgs empty state)", () => {
+    expect(
+      resolveAuthRedirect({
+        data: { type: "profile_selection", profiles: [] },
+      }),
+    ).toBe("/select-profile");
+  });
+
   it("falls back safely for invalid onboarding steps", () => {
     expect(
       resolveAuthRedirect({
