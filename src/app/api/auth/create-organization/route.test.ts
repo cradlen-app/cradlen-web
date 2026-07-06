@@ -155,22 +155,55 @@ describe("POST /api/auth/create-organization", () => {
     expect(sanitizeProfileSelectionMock).not.toHaveBeenCalled();
   });
 
-  it("uses the selection token as bearer and skips profiles refresh without an access token", async () => {
+  it("routes a selection-token-only user to the bootstrap endpoint and mints the returned selection cookie", async () => {
     cookiesMock.mockResolvedValue(
       mockCookieStore({ [AUTH_SELECTION_TOKEN_COOKIE]: "sel-bearer" }),
     );
     backendFetchMock.mockResolvedValueOnce({ ok: true, status: 201 } as Response);
-    readBackendJsonMock.mockResolvedValueOnce({ data: { id: "org-x" } });
+    readBackendJsonMock.mockResolvedValueOnce({
+      data: { type: "profile_selection", selection_token: "new-sel", profiles: ["raw"] },
+    });
+    extractSelectionTokenMock.mockReturnValue("new-sel");
+    sanitizeProfileSelectionMock.mockReturnValue({
+      data: { type: "profile_selection", profiles: ["clean"] },
+      meta: {},
+    });
 
     const res = await POST(makeRequest());
 
     expect(backendFetchMock).toHaveBeenCalledTimes(1);
     expect(backendFetchMock).toHaveBeenCalledWith(
-      "/organizations",
-      expect.objectContaining({ headers: { Authorization: "Bearer sel-bearer" } }),
+      "/organizations/bootstrap",
+      expect.objectContaining({
+        method: "POST",
+        headers: { Authorization: "Bearer sel-bearer" },
+      }),
     );
     expect(res.status).toBe(201);
-    const json = (await res.json()) as { data: { id: string } };
-    expect(json.data.id).toBe("org-x");
+    const json = (await res.json()) as { data: { profiles: string[] } };
+    expect(json.data.profiles).toEqual(["clean"]);
+    expect(setSelectionTokenCookieMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "new-sel",
+    );
+  });
+
+  it("forwards a bootstrap error (e.g. the user still has an active membership)", async () => {
+    cookiesMock.mockResolvedValue(
+      mockCookieStore({ [AUTH_SELECTION_TOKEN_COOKIE]: "sel-bearer" }),
+    );
+    backendFetchMock.mockResolvedValueOnce({ ok: false, status: 403 } as Response);
+    readBackendJsonMock.mockResolvedValueOnce({
+      error: { code: "FORBIDDEN", message: "no" },
+    });
+
+    const res = await POST(makeRequest());
+
+    expect(backendFetchMock).toHaveBeenCalledWith(
+      "/organizations/bootstrap",
+      expect.anything(),
+    );
+    expect(res.status).toBe(403);
+    expect(sanitizeProfileSelectionMock).not.toHaveBeenCalled();
   });
 });

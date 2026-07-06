@@ -235,7 +235,7 @@
   },
   "privacyPolicy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: 24 June 2026",
+    "lastUpdated": "Last updated: 6 July 2026",
     "intro": "This Privacy Policy explains what data Cradlen collects, how we use and protect it, and the choices you have. It applies to the Cradlen platform, websites, and applications (together, the \"Platform\"). Cradlen provides the Platform to clinics and hospitals (each an \"Organization\") and processes data on their behalf. If you are a patient, the Organization providing your care is the controller of your health records, and Cradlen acts as its processor.",
     "tocLabel": "On this page",
     "sections": {
@@ -270,13 +270,13 @@
         "heading": "4. Where data is stored",
         "body": [
           "The Platform runs on established cloud infrastructure. The web application is hosted on Vercel; the backend API is hosted on Railway; the primary database is a managed PostgreSQL database on Neon; and uploaded files and attachments are stored in Cloudflare object storage. Cloudflare also provides our domain, DNS, and content-delivery network.",
-          "Data is stored in the regions configured for these services [data-residency region to be confirmed]. Each provider maintains its own security and compliance certifications."
+          "Patient and clinical data is stored primarily in the European Union: the managed PostgreSQL database is hosted on Neon in Amazon Web Services' Europe (Frankfurt) region (eu-central-1). Uploaded files and attachments are held in Cloudflare's object storage located in Western Europe, and other supporting services (web and API hosting, transactional email) run in their providers' configured regions. Each provider maintains its own security and compliance certifications."
         ]
       },
       "international-transfers": {
         "heading": "5. International data transfers",
         "body": [
-          "Because we rely on the cloud providers named above, your data may be processed in countries other than your own. Where data is transferred across borders, we rely on the safeguards offered by those providers, such as standard contractual clauses and their regional data-processing commitments [specific regions and safeguards to be confirmed]."
+          "Because the Platform relies on the cloud providers named above, personal data may be processed in a country other than the one where it was collected. In particular, data concerning patients treated in Egypt is stored in the European Union. Where personal data is transferred across borders, we rely on the protections offered by the destination country's data-protection framework and on the contractual and technical safeguards provided by our sub-processors, including standard contractual clauses where applicable. Organizations remain responsible, as controllers, for the lawful basis of any transfer of their patients' data."
         ]
       },
       "data-sharing": {
@@ -301,15 +301,15 @@
       "data-retention": {
         "heading": "8. Data retention",
         "body": [
-          "We retain data for as long as the Organization's account is active and as needed to provide the Platform. Clinical and billing records may be retained for longer where medical-records, tax, or other laws require it.",
-          "When data is no longer required, we delete or anonymize it in line with our retention practices. On account termination, we make data available for export for a reasonable period before deletion, as described in our agreement with the Organization."
+          "We retain personal data for as long as the Organization's account is active and for as long as we need it to provide the Platform. Clinical and billing records are retained for the periods required by the medical-records, tax, and other laws that apply to the treating Organization, which may extend beyond the life of the account.",
+          "When personal data is no longer required and no legal retention obligation applies, we delete or irreversibly anonymize it. On account termination, we make data available for export for a reasonable period before deletion, as described in our agreement with the Organization. A patient may ask the treating Organization to have their record erased or anonymized; such requests are handled by the Organization in line with the retention laws that apply to it."
         ]
       },
       "your-rights": {
         "heading": "9. Your rights",
         "body": [
-          "Depending on where you live, you may have rights over your personal data, including to access it, correct it, delete it, restrict or object to its processing, receive it in a portable format, and withdraw consent. You may also have the right to complain to a data-protection authority.",
-          "Patients own their personal medical history and can request access to it or have it provided in a portable form so it can move with them across providers. To exercise any right, contact your Organization (the controller of your health records) or contact us using the details below and we will assist the relevant controller."
+          "Depending on where you live, you may have rights over your personal data, including to access it, correct it, delete or anonymize it, restrict or object to its processing, receive it in a portable format, and withdraw consent. You may also have the right to lodge a complaint with a data-protection authority, such as the Personal Data Protection Center in Egypt or a supervisory authority in the European Union.",
+          "For health records, the treating Organization is the controller. To exercise any right over your health data — including access, a portable copy, correction, or erasure — please contact the Organization providing your care. You may also contact Cradlen using the details below and, as the Organization's processor, we will pass your request to the relevant controller and assist them in responding."
         ]
       },
       "cookies": {
@@ -1539,6 +1539,8 @@
       "continue": "Continue",
       "loading": "Continuing...",
       "empty": "No profiles are available for this sign-in.",
+      "emptyTitle": "You're not part of any organization yet",
+      "emptyBody": "Create your own organization to get started, or wait for an invitation from an existing one.",
       "backToSignIn": "Back to sign in",
       "unknownAccount": "Clinic",
       "unknownRole": "Unknown role",
