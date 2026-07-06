@@ -217,15 +217,26 @@ export function SelectProfilePage() {
   if (!profiles.length) {
     return (
       <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
-        <p className="text-base font-semibold text-brand-black">{t("title")}</p>
-        <p className="mt-2 text-sm text-gray-400">{t("empty")}</p>
-        <Button
-          type="button"
-          onClick={() => router.replace("/sign-in")}
-          className="mt-6 h-10 rounded-full px-6 bg-brand-primary text-white text-sm font-medium hover:bg-brand-primary/90"
-        >
-          {t("backToSignIn")}
-        </Button>
+        <p className="text-base font-semibold text-brand-black">
+          {t("emptyTitle")}
+        </p>
+        <p className="mt-2 text-sm text-gray-400">{t("emptyBody")}</p>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Button
+            type="button"
+            onClick={() => router.push("/create-organization")}
+            className="h-10 rounded-full px-6 bg-brand-primary text-white text-sm font-medium hover:bg-brand-primary/90"
+          >
+            {t("createOrganization")}
+          </Button>
+          <button
+            type="button"
+            onClick={() => router.replace("/sign-in")}
+            className="text-sm text-gray-400 transition-colors hover:text-gray-600"
+          >
+            {t("backToSignIn")}
+          </button>
+        </div>
       </div>
     );
   }

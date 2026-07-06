@@ -5,7 +5,7 @@ import type { UserProfile } from "@/common/types/user.types";
 import { toast } from "sonner";
 import { SelectProfilePage } from "./SelectProfilePage";
 
-const mockRouter = vi.hoisted(() => ({ replace: vi.fn() }));
+const mockRouter = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
 const mockSelectProfile = vi.hoisted(() => ({
   mutateAsync: vi.fn(),
   isPending: false,
@@ -118,16 +118,26 @@ beforeEach(() => {
 });
 
 describe("SelectProfilePage", () => {
-  it("shows the empty state with a back-to-sign-in action when no profiles exist", async () => {
+  it("shows the empty state with create-organization and back-to-sign-in actions when no profiles exist", async () => {
     mockSession.pending = { profiles: [] };
 
     renderWithIntl(<SelectProfilePage />);
 
     await waitFor(() =>
       expect(
-        screen.getByText("No profiles are available for this sign-in."),
+        screen.getByText("You're not part of any organization yet"),
       ).toBeInTheDocument(),
     );
+    expect(
+      screen.getByText(
+        "Create your own organization to get started, or wait for an invitation from an existing one.",
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Create new organization" }),
+    );
+    expect(mockRouter.push).toHaveBeenCalledWith("/create-organization");
 
     fireEvent.click(screen.getByRole("button", { name: "Back to sign in" }));
     expect(mockRouter.replace).toHaveBeenCalledWith("/sign-in");
