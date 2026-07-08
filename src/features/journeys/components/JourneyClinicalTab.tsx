@@ -85,6 +85,10 @@ export function JourneyClinicalTab({
   const template = templateQuery.data;
   const envelope = dataQuery.data;
   const initial = toInitialFormState(envelope, template);
+  const currentPhaseOrder =
+    typeof envelope.current_phase_order === "number"
+      ? envelope.current_phase_order
+      : null;
 
   const body = (
     <TemplateExecutionContextProvider
@@ -100,6 +104,7 @@ export function JourneyClinicalTab({
       <JourneyClinicalFormShell
         template={template}
         readOnly={readOnly}
+        currentPhaseOrder={currentPhaseOrder}
         saving={patchMut.isPending}
         onSave={async (saveBody) => {
           try {
