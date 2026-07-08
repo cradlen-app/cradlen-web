@@ -183,18 +183,23 @@ function rowFromApi(
     if (v === undefined || v === null) continue;
     values[field.code] = v;
     const searchEntity = field.config?.ui?.searchEntity;
-    if (field.type === "ENTITY_SEARCH" && searchEntity?.idTarget) {
-      const idTarget = searchEntity.idTarget;
-      const idField = fields.find((f) => f.code === idTarget);
+    if (
+      field.type === "ENTITY_SEARCH" &&
+      searchEntity?.idTarget &&
+      typeof v === "string" &&
+      v.length > 0
+    ) {
+      const idField = fields.find((f) => f.code === searchEntity.idTarget);
       const idPathTail = pathTail(idField?.binding?.path);
       const idValue = idPathTail ? raw[idPathTail] : undefined;
-      if (typeof idValue === "string" && idValue.length > 0 && typeof v === "string") {
-        rowSearchState[field.code] = {
-          transientValue: v,
-          suggestions: [],
-          resolvedEntityId: { id: idValue, label: v },
-        };
-      }
+      rowSearchState[field.code] = {
+        transientValue: v,
+        suggestions: [],
+        resolvedEntityId:
+          typeof idValue === "string" && idValue.length > 0
+            ? { id: idValue, label: v }
+            : null,
+      };
     }
   }
   const id = typeof raw.id === "string" ? raw.id : undefined;
