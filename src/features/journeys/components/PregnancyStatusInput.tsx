@@ -61,6 +61,11 @@ export function PregnancyStatusInput({ field, value, required }: FieldInputProps
         notes: notes || undefined,
       });
       await qc.invalidateQueries({ queryKey: ["visit-journey", ctx.visitId] });
+      // Also refetch the clinical envelope so the tab reflects CLOSED without a
+      // manual refresh (prefix-matches ["journey-clinical", visitId, journeyId]).
+      await qc.invalidateQueries({
+        queryKey: ["journey-clinical", ctx.visitId],
+      });
       toast.success(t("closed"));
       setOpen(false);
     } catch (err) {
