@@ -40,6 +40,13 @@ interface Props {
    */
   collapsedSections?: ReadonlySet<string>;
   /**
+   * Codes of sections flagged `config.ui.collapsible` that should START
+   * collapsed (self-managed — the user can expand them). Sections carry their
+   * own chevron; this only seeds the initial state (e.g. non-current surgical
+   * phases begin collapsed).
+   */
+  defaultCollapsedSectionCodes?: ReadonlySet<string>;
+  /**
    * Section codes to omit entirely (not just collapse). e.g. care-path history
    * sections not relevant to the selected path. Empty groups are dropped.
    */
@@ -67,6 +74,7 @@ export function TemplateRenderer({
   renderSectionHeaderSlot,
   renderSectionBottomSlot,
   collapsedSections,
+  defaultCollapsedSectionCodes,
   hiddenSectionCodes,
   displayOnly: displayOnlyProp,
   readOnlySectionCodes,
@@ -135,6 +143,11 @@ export function TemplateRenderer({
                 const sectionReadOnly =
                   displayOnly ||
                   (readOnlySectionCodes?.has(section.code) ?? false);
+                // A section with a collapse chevron manages its own open state;
+                // it never renders read-only from a display-only viewer flag.
+                const collapsible =
+                  (section.config?.ui as { collapsible?: boolean } | undefined)
+                    ?.collapsible === true;
                 return (
                   <SectionContainer
                     key={section.id}
@@ -147,6 +160,10 @@ export function TemplateRenderer({
                         : undefined
                     }
                     collapsed={collapsedSections?.has(section.code)}
+                    collapsible={collapsible}
+                    defaultCollapsed={defaultCollapsedSectionCodes?.has(
+                      section.code,
+                    )}
                     layout={section.is_repeatable ? "stack" : "grid"}
                   >
                     {section.is_repeatable ? (

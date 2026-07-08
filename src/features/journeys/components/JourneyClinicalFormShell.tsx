@@ -15,6 +15,13 @@ interface Props {
   saving: boolean;
   /** Frozen snapshot (e.g. a past visit's drawer): whole template static, no Save. */
   readOnly?: boolean;
+  /**
+   * The phase the visit currently sits in (e.g. surgical Pre-op=1 / Operative=2
+   * / Post-op=3). Collapsible sections whose `config.ui.phaseOrder` differs
+   * start collapsed, so the current phase opens expanded. Null → the first
+   * collapsible phase (order 1) opens.
+   */
+  currentPhaseOrder?: number | null;
 }
 
 /**
@@ -27,6 +34,7 @@ export function JourneyClinicalFormShell({
   onSave,
   saving,
   readOnly = false,
+  currentPhaseOrder = null,
 }: Props) {
   const t = useTranslations("examination.workspace");
   const execution = useTemplateExecution();
@@ -50,6 +58,23 @@ export function JourneyClinicalFormShell({
       ),
     [template.sections],
   );
+
+  // Collapsible phase sections that should START collapsed: every one whose
+  // `config.ui.phaseOrder` is not the visit's current phase. With no current
+  // phase, keep the first phase (order 1) open and collapse the rest.
+  const defaultCollapsedSectionCodes = useMemo(() => {
+    const expandOrder = currentPhaseOrder ?? 1;
+    return new Set(
+      template.sections
+        .filter((s) => {
+          const ui = s.config?.ui as
+            | { collapsible?: boolean; phaseOrder?: number }
+            | undefined;
+          return ui?.collapsible === true && ui?.phaseOrder !== expandOrder;
+        })
+        .map((s) => s.code),
+    );
+  }, [template.sections, currentPhaseOrder]);
 
   async function handleSave() {
     setErrors(undefined);
@@ -91,6 +116,7 @@ export function JourneyClinicalFormShell({
           errors={errors}
           displayOnly={readOnly}
           readOnlySectionCodes={readOnlySectionCodes}
+          defaultCollapsedSectionCodes={defaultCollapsedSectionCodes}
         />
       </div>
       {!readOnly && (
