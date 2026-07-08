@@ -189,6 +189,42 @@ describe("toInitialFormState — repeatable sections", () => {
     });
   });
 
+  it("seeds an ENTITY_SEARCH row's display value even when the idTarget sibling is absent", () => {
+    // Free-typed (allowCreate) drug: drug name stored, no medication_id. The
+    // display value must still hydrate so it renders on follow-up visits.
+    const repTpl = template([
+      section(
+        "meds",
+        [
+          field({
+            code: "drug_search",
+            type: "ENTITY_SEARCH",
+            binding: { namespace: "PRESCRIPTION_ITEM", path: "meds.name" },
+            config: {
+              ui: { searchEntity: { kind: "medication", idTarget: "med_id" } },
+            },
+          }),
+          field({
+            code: "med_id",
+            binding: { namespace: "PRESCRIPTION_ITEM", path: "meds.medication_id" },
+          }),
+        ],
+        { is_repeatable: true },
+      ),
+    ]);
+    const result = toInitialFormState(
+      { meds: [{ name: "Mefenamic acid" }] },
+      repTpl,
+    );
+    const row = result.repeatableRows.meds[0];
+    expect(row.values).toEqual({ drug_search: "Mefenamic acid" });
+    expect(row.searchState?.drug_search).toEqual({
+      transientValue: "Mefenamic acid",
+      suggestions: [],
+      resolvedEntityId: null,
+    });
+  });
+
   it("leaves searchState undefined on a row with no resolvable entity", () => {
     const result = toInitialFormState(
       { allergies: [{ allergy_to: "Dust" }] },
