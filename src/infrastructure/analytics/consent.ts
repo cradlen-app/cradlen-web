@@ -22,9 +22,14 @@ export function setConsent(choice: ConsentChoice): void {
   applyConsent(choice);
 }
 
-/** Push the (persisted or given) choice into PostHog. Safe when unconfigured. */
+/**
+ * Push the (persisted or given) choice into PostHog. Safe when unconfigured.
+ * Does not gate on `posthog.__loaded`: posthog-js buffers opt-in/out calls made
+ * before the SDK loads, so a returning consented visitor is opted in even when
+ * this runs on mount before load completes.
+ */
 export function applyConsent(choice: ConsentChoice | null = getConsent()): void {
-  if (!analyticsConfigured || posthog.__loaded !== true || !choice) return;
+  if (!analyticsConfigured || !choice) return;
   if (choice === "granted") posthog.opt_in_capturing();
   else posthog.opt_out_capturing();
 }

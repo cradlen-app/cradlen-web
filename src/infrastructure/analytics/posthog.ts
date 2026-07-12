@@ -20,9 +20,15 @@ import { isPublicPath, maskText, sanitizeUrl } from "./masking";
 
 let initialized = false;
 
-/** True once init ran and the SDK finished loading in the browser. */
+/**
+ * True once analytics is configured and init has run. We deliberately do NOT
+ * gate on `posthog.__loaded`: posthog-js buffers calls made before the remote
+ * SDK finishes loading and replays them in order, so gating on `__loaded` would
+ * silently drop the first pageview (and, for a returning consented visitor, the
+ * opt-in) that fire on mount before load completes.
+ */
 function ready(): boolean {
-  return analyticsConfigured && initialized && posthog.__loaded === true;
+  return analyticsConfigured && initialized;
 }
 
 export function initAnalytics(): void {
