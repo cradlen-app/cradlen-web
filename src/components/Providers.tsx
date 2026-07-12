@@ -9,6 +9,8 @@ import { UpdateBanner } from "./common/UpdateBanner";
 import { IosInstallHint } from "./common/IosInstallHint";
 import { KernelAuthBridge } from "./KernelAuthBridge";
 import { PushNotificationProvider } from "@/features/notifications/components/PushNotificationProvider";
+import { PostHogProvider } from "@/infrastructure/analytics/PostHogProvider";
+import { ConsentBanner } from "@/infrastructure/analytics/ConsentBanner";
 
 // Wire the auth stores into the infrastructure HTTP transport once, at module
 // load, so apiAuthFetch can read the request context / tear down the session
@@ -31,7 +33,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       {/* Re-syncs an existing push grant after login and refreshes the in-app
           feed when the service worker relays a push. Never prompts. */}
       <PushNotificationProvider />
-      <KernelAuthBridge>{children}</KernelAuthBridge>
+      <PostHogProvider>
+        <KernelAuthBridge>{children}</KernelAuthBridge>
+      </PostHogProvider>
+      <ConsentBanner />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
