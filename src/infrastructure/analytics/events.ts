@@ -4,15 +4,17 @@
  * national_id, diagnoses, or free text. `capture()` is typed against this map,
  * so an off-taxonomy or PHI-carrying event fails to compile.
  */
+// booking_confirmed.visitId is optional: patient bookings don't surface the
+// created id through useSubmitVisit (only medical-rep does). Per-field booking
+// events (specialty/doctor) are deferred — that form is DSL/template-driven,
+// so instrumenting field changes needs builder-runtime hooks (future work).
 export type EventProps = {
   signup_started: void;
   signup_verify_submitted: void;
   signup_completed: void;
   booking_started: void;
-  booking_specialty_selected: { specialtyCode: string };
-  booking_doctor_selected: { doctorId: string };
-  booking_confirmed: { visitId: string };
-  visit_started: { visitId: string; kind: string };
+  booking_confirmed: { visitId?: string };
+  visit_started: { visitId: string; kind?: string };
 };
 
 export type AnalyticsEventName = keyof EventProps;
@@ -22,8 +24,6 @@ export const ANALYTICS_EVENT_NAMES: readonly AnalyticsEventName[] = [
   "signup_verify_submitted",
   "signup_completed",
   "booking_started",
-  "booking_specialty_selected",
-  "booking_doctor_selected",
   "booking_confirmed",
   "visit_started",
 ];
