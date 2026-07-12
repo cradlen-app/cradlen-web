@@ -3,6 +3,7 @@ import { Poppins, Cairo } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SITE_URL } from "@/common/constants/site";
 import "@/styles/globals.css";
 
 const poppins = Poppins({
@@ -19,6 +20,7 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Cradlen",
   description: "Cradlen",
   applicationName: "Cradlen",
