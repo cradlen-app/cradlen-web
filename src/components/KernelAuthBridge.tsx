@@ -6,6 +6,7 @@ import type { AuthContext, AuthProfile } from "@/common/kernel-contracts";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
+import { useAnalyticsIdentity } from "@/infrastructure/analytics/useAnalyticsIdentity";
 import { KernelProvider } from "@/kernel";
 
 /**
@@ -35,6 +36,8 @@ export function KernelAuthBridge({ children }: { children: ReactNode }) {
       branchId: branchId ?? null,
     };
   }, [currentUser, orgId, branchId]);
+
+  useAnalyticsIdentity(authContext);
 
   return <KernelProvider authContext={authContext}>{children}</KernelProvider>;
 }
