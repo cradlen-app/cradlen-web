@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ArrowRight, Rocket } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { buildMetadata } from "@/common/seo/metadata";
 import { Link } from "@/i18n/navigation";
 import { GUIDE_SECTIONS } from "@/content/guide/manifest";
 
@@ -12,7 +13,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("userGuide");
-  return { title: t("title"), description: t("subtitle") };
+
+  return buildMetadata({
+    locale,
+    path: "guide",
+    title: t("title"),
+    description: t("subtitle"),
+  });
 }
 
 export default async function GuideIndexPage({ params }: Props) {

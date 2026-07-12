@@ -74,6 +74,16 @@ describe("proxy — public routes pass through without a session", () => {
     "/en/guide",
     "/en/guide/getting-started", // nested under a public prefix
     "/en/invitations/accept",
+    // Commercial pages. These exist to be found in search — if the guard ever
+    // stops treating them as public, Googlebot gets a 307 to /sign-in and they
+    // silently drop out of the index while still rendering fine for logged-in
+    // devs. That is exactly the regression these cases are here to catch.
+    "/en/pricing",
+    "/ar/pricing",
+    "/en/about",
+    "/ar/about",
+    "/en/contact",
+    "/ar/contact",
   ];
 
   for (const path of publicPaths) {
@@ -82,6 +92,14 @@ describe("proxy — public routes pass through without a session", () => {
       expect(res.kind).toBe("intl-passthrough");
     });
   }
+
+  it("matches whole segments, so a public prefix does not leak to a sibling route", () => {
+    // "/about" must not make "/about-internal" public by accident.
+    const res = proxy(makeRequest("/en/about-internal")) as unknown as {
+      kind: string;
+    };
+    expect(res.kind).toBe("redirect");
+  });
 });
 
 describe("proxy — protected routes require a session", () => {

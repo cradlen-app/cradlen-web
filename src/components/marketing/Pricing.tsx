@@ -2,9 +2,13 @@ import { Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
-import { Link } from "@/i18n/navigation";
+import TrackedLink from "@/components/analytics/TrackedLink";
 
 type Tier = {
+  /** Stable, locale-independent tier id (trial | individual | center | network).
+   *  Lives on the tier itself rather than being derived from array position, so
+   *  reordering the tiers can't silently mislabel the analytics `plan`. */
+  id: string;
   name: string;
   price: string;
   period: string;
@@ -15,29 +19,45 @@ type Tier = {
 
 const FEATURED_INDEX = 2;
 
-export default async function Pricing() {
+type Props = {
+  /**
+   * The standalone /pricing page has its own `h1` + intro, so it renders the
+   * tiers alone — otherwise the page shows two stacked "Pricing" eyebrows and
+   * two competing headings. On the landing page the header block stays.
+   */
+  showHeading?: boolean;
+};
+
+export default async function Pricing({ showHeading = true }: Props = {}) {
   const t = await getTranslations("home.pricing");
   const tiers = t.raw("tiers") as Tier[];
 
   return (
     <section id="pricing" className="scroll-mt-24 bg-[#ECEBE1]">
       <div className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
-        <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-primary">
-            {t("eyebrow")}
-          </p>
-          <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-brand-black sm:text-4xl lg:text-5xl">
-            {t("heading")}
-          </h2>
-          <p className="mt-5 text-sm text-brand-black/60 sm:text-base">
-            {t("subheadingPre")}
-            <span className="font-semibold text-brand-black">
-              {t("subheadingBold")}
-            </span>
-          </p>
-        </div>
+        {showHeading ? (
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-primary">
+              {t("eyebrow")}
+            </p>
+            <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-brand-black sm:text-4xl lg:text-5xl">
+              {t("heading")}
+            </h2>
+            <p className="mt-5 text-sm text-brand-black/60 sm:text-base">
+              {t("subheadingPre")}
+              <span className="font-semibold text-brand-black">
+                {t("subheadingBold")}
+              </span>
+            </p>
+          </div>
+        ) : null}
 
-        <div className="mt-14 grid gap-5 lg:grid-cols-4 lg:items-start">
+        <div
+          className={cn(
+            "grid gap-5 lg:grid-cols-4 lg:items-start",
+            showHeading ? "mt-14" : "mt-4",
+          )}
+        >
           {tiers.map((tier, index) => {
             const featured = index === FEATURED_INDEX;
             return (
@@ -133,7 +153,13 @@ export default async function Pricing() {
                         : "bg-brand-secondary/25 text-brand-primary hover:bg-brand-secondary/40",
                   )}
                 >
-                  <Link href="/sign-up">{tier.cta}</Link>
+                  <TrackedLink
+                    href="/sign-up"
+                    event="cta_choose_plan"
+                    eventProps={{ location: "pricing", plan: tier.id }}
+                  >
+                    {tier.cta}
+                  </TrackedLink>
                 </Button>
               </div>
             );

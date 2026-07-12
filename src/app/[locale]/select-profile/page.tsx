@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { cookies } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -14,6 +15,9 @@ import LogoIcon from "@/public/Logo-icon.png";
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+// Authenticated-only step: never indexed, so it needs no canonical or SEO title.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function SelectProfileRoute({ params }: Props) {
   const { locale } = await params;

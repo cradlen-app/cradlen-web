@@ -8,7 +8,10 @@ export default async function WhyJourneys() {
   const newWay = t.raw("newWay") as string[];
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
+    <section
+      id="why-journeys"
+      className="mx-auto w-full max-w-7xl scroll-mt-24 px-5 py-20 sm:px-8 lg:py-28"
+    >
       <SectionLabel no={t("sectionNo")}>{t("eyebrow")}</SectionLabel>
 
       <h2 className="mt-7 max-w-4xl text-3xl font-semibold leading-[1.15] tracking-tight text-brand-black sm:text-4xl lg:text-5xl">

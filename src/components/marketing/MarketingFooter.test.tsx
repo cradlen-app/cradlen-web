@@ -35,14 +35,12 @@ describe("MarketingFooter", () => {
     expect(screen.getByText("copyright")).toBeInTheDocument();
   });
 
-  it("renders internal links via the locale-aware Link and external anchors", async () => {
+  it("routes every link through the locale-aware Link", async () => {
     render(await MarketingFooter());
 
-    // Internal documentation link.
     expect(
       screen.getByRole("link", { name: "product.documentation" }),
     ).toHaveAttribute("href", "/guide");
-    // Internal legal links.
     expect(screen.getByRole("link", { name: "legal.privacy" })).toHaveAttribute(
       "href",
       "/privacy-policy",
@@ -50,11 +48,43 @@ describe("MarketingFooter", () => {
     expect(
       screen.getByRole("link", { name: "company.helpCenter" }),
     ).toHaveAttribute("href", "/help-center");
-    // External anchor (no internal flag).
+
+    // The commercial pages the footer now links to.
+    expect(screen.getByRole("link", { name: "product.pricing" })).toHaveAttribute(
+      "href",
+      "/pricing",
+    );
+    expect(screen.getByRole("link", { name: "company.about" })).toHaveAttribute(
+      "href",
+      "/about",
+    );
+    expect(screen.getByRole("link", { name: "company.contact" })).toHaveAttribute(
+      "href",
+      "/contact",
+    );
+  });
+
+  it("roots section anchors at '/' so they work off the landing page", async () => {
+    render(await MarketingFooter());
+
+    // The footer renders on /pricing, /about and /contact too. A bare
+    // "#features" would resolve against the *current* page and go nowhere.
     expect(screen.getByRole("link", { name: "product.features" })).toHaveAttribute(
       "href",
-      "#features",
+      "/#features",
     );
+    expect(
+      screen.getByRole("link", { name: "product.howItWorks" }),
+    ).toHaveAttribute("href", "/#how-it-works");
+  });
+
+  it("has no dead links", async () => {
+    render(await MarketingFooter());
+
+    // "About" and "Why journeys" used to be href="#" placeholders.
+    for (const link of screen.getAllByRole("link")) {
+      expect(link.getAttribute("href")).not.toBe("#");
+    }
   });
 
   it("passes the active locale to LanguageSelect", async () => {

@@ -1,6 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
+import { isPublicRoute } from "./common/constants/public-routes";
 import {
   AUTH_REFRESH_TOKEN_COOKIE,
   AUTH_SELECTION_TOKEN_COOKIE,
@@ -10,18 +11,10 @@ import { isExpiredJwt } from "./infrastructure/auth-transport/jwt";
 
 const intlMiddleware = createMiddleware(routing);
 
-// All paths that are publicly accessible without authentication (locale-stripped).
-// Anything not matching these prefixes is treated as protected.
-const PUBLIC_ROUTE_PREFIXES = [
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
-  "/terms-of-service",
-  "/privacy-policy",
-  "/help-center",
-  "/guide",
-  "/invitations/accept",
-];
+// Next's generated OG card is served at an extension-less path, so it does not
+// hit the `matcher`'s dotted-path exclusion. It is not a *page*, so it lives here
+// rather than in the shared public-route list.
+const PUBLIC_ASSET_PREFIXES = ["/opengraph-image"];
 
 function getPathWithoutLocale(pathname: string) {
   const segments = pathname.split("/");
@@ -38,9 +31,9 @@ function getPathWithoutLocale(pathname: string) {
 function isProtectedPath(pathname: string) {
   const pathWithoutLocale = getPathWithoutLocale(pathname);
 
-  if (pathWithoutLocale === "/") return false;
+  if (isPublicRoute(pathWithoutLocale)) return false;
 
-  return !PUBLIC_ROUTE_PREFIXES.some(
+  return !PUBLIC_ASSET_PREFIXES.some(
     (prefix) =>
       pathWithoutLocale === prefix || pathWithoutLocale.startsWith(prefix + "/"),
   );
@@ -87,6 +80,12 @@ export default function proxy(request: NextRequest) {
   return intlMiddleware(request);
 }
 
+// `.*\..*` excludes any path containing a dot, which is what keeps /robots.txt,
+// /sitemap.xml and /icon.png out of this middleware. Next's *code-based* metadata
+// images are the exception: `opengraph-image.tsx` is served at `/opengraph-image`
+// with NO extension, so it does not match that exclusion. Left unlisted, it falls
+// through to the auth gate below and 307s Facebook/LinkedIn/Slack crawlers to
+// /sign-in — silently, with no build error. It must be excluded by name.
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|_vercel|opengraph-image|twitter-image|.*\\..*).*)"],
 };

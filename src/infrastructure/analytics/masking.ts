@@ -3,23 +3,19 @@
  *
  * Public marketing/auth/guide pages contain no PHI, so replay text is captured
  * verbatim there (heatmaps + full replay). Every other route — the
- * authenticated dashboard — is masked by default. The public prefixes mirror
- * `PUBLIC_ROUTE_PREFIXES` in `src/proxy.ts`; keep them in sync.
+ * authenticated dashboard — is masked by default.
+ *
+ * The public-route list is imported, not re-declared: this used to be a third
+ * hand-maintained copy (alongside `src/proxy.ts` and the 401 teardown in
+ * `infrastructure/http/api.ts`) with a "keep them in sync" comment. It drifts.
+ * Failing open here would mean capturing dashboard text verbatim into replay,
+ * so this one is worth never getting wrong.
  */
-const PUBLIC_ROUTE_PREFIXES = [
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
-  "/terms-of-service",
-  "/privacy-policy",
-  "/help-center",
-  "/guide",
-  "/invitations/accept",
-];
+import { isPublicRoute } from "@/common/constants/public-routes";
 
 const LOCALES = ["en", "ar"];
 
-/** Strip a leading `/en` or `/ar` so the path matches the prefixes above. */
+/** Strip a leading `/en` or `/ar` so the path matches the shared prefixes. */
 function stripLocale(pathname: string): string {
   const segments = pathname.split("/");
   if (LOCALES.includes(segments[1] ?? "")) {
@@ -30,11 +26,7 @@ function stripLocale(pathname: string): string {
 }
 
 export function isPublicPath(pathname: string): boolean {
-  const path = stripLocale(pathname);
-  if (path === "/") return true; // marketing landing
-  return PUBLIC_ROUTE_PREFIXES.some(
-    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
-  );
+  return isPublicRoute(stripLocale(pathname));
 }
 
 /** Fixed redaction — never reveals length or content of masked text. */
