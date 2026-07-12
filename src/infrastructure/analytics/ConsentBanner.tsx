@@ -17,6 +17,10 @@ export function ConsentBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Reading persisted consent (localStorage) is a mount-time external-store
+    // read; deferring it to an effect keeps the server render banner-free and
+    // avoids an SSR/client hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (analyticsConfigured && getConsent() === null) setVisible(true);
   }, []);
 

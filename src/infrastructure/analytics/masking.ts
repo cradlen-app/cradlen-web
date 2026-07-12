@@ -38,7 +38,8 @@ export function isPublicPath(pathname: string): boolean {
 }
 
 /** Fixed redaction — never reveals length or content of masked text. */
-export function maskText(_text: string): string {
+export function maskText(text: string): string {
+  void text; // intentionally ignored: mask to a constant regardless of input
   return "****";
 }
 
