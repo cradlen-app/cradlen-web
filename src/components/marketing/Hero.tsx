@@ -1,7 +1,7 @@
 import { ArrowRight, Building2, Languages, ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import TrackedLink from "@/components/analytics/TrackedLink";
 import HeroMedia from "./HeroMedia";
 
 export default async function Hero() {
@@ -55,10 +55,14 @@ export default async function Hero() {
               asChild
               className="h-12 rounded-full bg-brand-primary px-8 text-sm text-white hover:bg-brand-primary/90"
             >
-              <Link href="/sign-up">
+              <TrackedLink
+                href="/sign-up"
+                event="cta_start_free"
+                eventProps={{ location: "hero" }}
+              >
                 {t("ctaPrimary")}
                 <ArrowRight className="ms-1 size-4 rtl:rotate-180" />
-              </Link>
+              </TrackedLink>
             </Button>
             <Button
               asChild

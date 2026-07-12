@@ -1,4 +1,5 @@
 import { ApiError } from "@/common/errors/api-error";
+import { isPublicRoute } from "@/common/constants/public-routes";
 import {
   clearClientSession,
   readClientAuthContext,
@@ -174,30 +175,21 @@ function getPathWithoutLocale(pathname: string) {
   return pathname === "/" ? "/" : pathname.replace(/\/$/, "");
 }
 
-// Routes that don't need an authenticated user. A 401 from these pages
-// must NOT trigger a sign-in redirect, otherwise the redirectTo param
-// gets re-encoded each cycle and the URL grows unbounded.
-const PUBLIC_AUTH_PATH_PREFIXES = [
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
-  "/invitations/accept",
-  "/terms-of-service",
-  "/privacy-policy",
-  "/help-center",
-  "/guide",
-];
-
+// Routes that don't need an authenticated user. A 401 from these pages must NOT
+// trigger a sign-in redirect, otherwise the redirectTo param gets re-encoded each
+// cycle and the URL grows unbounded.
+//
+// This shares ONE list with the server-side route guard in `src/proxy.ts`. When
+// they were maintained separately, a public page could pass every server-side
+// check (200 to curl, 200 to a non-JS crawler) and still bounce every real
+// logged-out visitor to /sign-in from here, after the page had already rendered.
+//
+// The locale root ("/") is public: anonymous visitors get an expected 401 from
+// the global `/auth/me` probe there, so the landing page must stay put —
+// authenticated staff are sent to their dashboard by `RedirectIfAuthenticated`,
+// not by this teardown path.
 function isPublicAuthPath(pathWithoutLocale: string) {
-  // The marketing landing page lives at the locale root ("/"). Anonymous
-  // visitors get an expected 401 from the global `/auth/me` probe there, so it
-  // must stay put — authenticated staff are sent to their dashboard separately
-  // by `RedirectIfAuthenticated`, not by this teardown path.
-  if (pathWithoutLocale === "/") return true;
-
-  return PUBLIC_AUTH_PATH_PREFIXES.some(
-    (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(p + "/"),
-  );
+  return isPublicRoute(pathWithoutLocale);
 }
 
 // A burst of authenticated calls can all 401 at once (e.g. the dashboard's

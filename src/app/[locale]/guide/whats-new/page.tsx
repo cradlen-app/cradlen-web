@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { buildMetadata } from "@/common/seo/metadata";
 import type { Locale } from "@/i18n/routing";
 import { CHANGELOG_ENTRIES, loadChangelogEntry } from "@/content/guide/changelog";
 
@@ -11,7 +12,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("userGuide");
-  return { title: `${t("whatsNew.title")} — ${t("title")}`, description: t("whatsNew.subtitle") };
+
+  return buildMetadata({
+    locale,
+    path: "guide/whats-new",
+    title: `${t("whatsNew.title")} — ${t("title")}`,
+    description: t("whatsNew.subtitle"),
+  });
 }
 
 export default async function WhatsNewPage({ params }: Props) {

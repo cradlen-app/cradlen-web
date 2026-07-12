@@ -104,6 +104,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "coverage/**",
     "next-env.d.ts",
+    // Serwist compiles src/app/sw.ts into these. They are minified build output
+    // (already gitignored) — ESLint 9's flat config does NOT read .gitignore, so
+    // without this `npm run lint` passes on a clean checkout and then fails as
+    // soon as anyone runs `npm run build`. Lint the source at src/app/sw.ts.
+    "public/sw.js",
+    "public/sw.js.map",
+    "public/swe-worker-*.js",
   ]),
   {
     // Apply the boundary rules to all TS/TSX source files...

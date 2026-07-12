@@ -26,9 +26,11 @@ describe("FinalCta", () => {
       "href",
       "/sign-up",
     );
+    // "Talk to us" goes to the contact page, not sign-in — a prospect clicking
+    // it has not decided to create an account yet.
     expect(screen.getByRole("link", { name: "ctaSecondary" })).toHaveAttribute(
       "href",
-      "/sign-in",
+      "/contact",
     );
   });
 });

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
 import Footer from "@/components/common/Footer";
@@ -9,6 +10,9 @@ import Logo from "@/public/Logo.png";
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+// Token-bearing invite link: never indexed, so it needs no canonical or SEO title.
+export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 export default async function InvitationAcceptPage({ params }: Props) {
   const { locale } = await params;

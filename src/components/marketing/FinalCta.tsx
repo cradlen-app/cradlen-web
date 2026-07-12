@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import TrackedLink from "@/components/analytics/TrackedLink";
 
 export default async function FinalCta() {
   const t = await getTranslations("home.finalCta");
@@ -22,17 +22,27 @@ export default async function FinalCta() {
               asChild
               className="h-12 rounded-full bg-white px-8 text-sm font-medium text-brand-primary hover:bg-white/90"
             >
-              <Link href="/sign-up">
+              <TrackedLink
+                href="/sign-up"
+                event="cta_start_free"
+                eventProps={{ location: "final_cta" }}
+              >
                 {t("cta")}
                 <ArrowRight className="ms-1 size-4 rtl:rotate-180" />
-              </Link>
+              </TrackedLink>
             </Button>
             <Button
               asChild
               variant="outline"
               className="h-12 rounded-full border-white/30 bg-transparent px-8 text-sm text-white hover:bg-white/10 hover:text-white"
             >
-              <Link href="/sign-in">{t("ctaSecondary")}</Link>
+              <TrackedLink
+                href="/contact"
+                event="cta_contact"
+                eventProps={{ location: "final_cta" }}
+              >
+                {t("ctaSecondary")}
+              </TrackedLink>
             </Button>
           </div>
         </div>

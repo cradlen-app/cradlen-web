@@ -21,8 +21,19 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Cradlen",
-  description: "Cradlen",
+  // `default` only shows on routes that set no title of their own. Every public
+  // page sets one via `buildMetadata`, which feeds this template — pages whose
+  // title already ends in "| Cradlen" pass `{ absolute }` to opt out.
+  //
+  // Deliberately no `alternates` here: a layout-level canonical is inherited by
+  // every child page that doesn't override it, which would canonicalize e.g.
+  // /en/guide/visits to /en. Canonical is page-only (see common/seo/metadata).
+  title: {
+    default: "Clinic Management Software & EMR for OB-GYN Clinics | Cradlen",
+    template: "%s | Cradlen",
+  },
+  description:
+    "Cradlen is OB-GYN clinic management and EMR software — appointments, antenatal journeys, examinations, prescriptions and billing in one unified patient record.",
   applicationName: "Cradlen",
   // Tells iOS to launch the home-screen icon in standalone (no Safari chrome),
   // matching the manifest `display: "standalone"` used by Android/desktop.
@@ -31,6 +42,16 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Cradlen",
   },
+  // Fallback only. Prefer verifying Search Console with a DNS TXT record and a
+  // *Domain* property: the meta-tag method verifies a URL-prefix property, and
+  // `/` 307-redirects to `/en` (next-intl, localePrefix "always") — verifying
+  // through a redirect is exactly the case that fails intermittently. A Domain
+  // property also covers apex + www + both locales in one go.
+  ...(process.env.NEXT_PUBLIC_GSC_VERIFICATION
+    ? {
+        verification: { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION },
+      }
+    : {}),
 };
 
 // `themeColor` colors the browser/OS UI around the installed app; it must be a
