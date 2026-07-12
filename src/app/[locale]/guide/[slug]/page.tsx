@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { buildMetadata } from "@/common/seo/metadata";
+import {
+  breadcrumbListSchema,
+  graph,
+  organizationSchema,
+  techArticleSchema,
+  websiteSchema,
+} from "@/common/seo/schema";
+import JsonLd from "@/components/seo/JsonLd";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import ArticleToc from "@/components/marketing/guide/ArticleToc";
@@ -25,10 +34,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   if (!getSectionIdForSlug(slug)) return {};
   const t = await getTranslations("userGuide");
-  return {
+
+  return buildMetadata({
+    locale,
+    path: `guide/${slug}`,
     title: `${t(`articles.${slug}.title`)} — ${t("title")}`,
     description: t(`articles.${slug}.description`),
-  };
+    ogType: "article",
+  });
 }
 
 export default async function GuideArticlePage({ params }: Props) {
@@ -41,8 +54,32 @@ export default async function GuideArticlePage({ params }: Props) {
 
   const t = await getTranslations("userGuide");
 
+  // Organization + WebSite are included so the TechArticle's `publisher` /
+  // `isPartOf` @id references resolve inside this page's own graph — Google
+  // resolves cross-page @id refs unreliably.
+  const structuredData = graph(
+    organizationSchema(),
+    websiteSchema(locale),
+    // Mirrors the visual breadcrumb rendered below.
+    techArticleSchema({
+      locale,
+      path: `guide/${slug}`,
+      headline: t(`articles.${slug}.title`),
+      description: t(`articles.${slug}.description`),
+    }),
+    breadcrumbListSchema(
+      [
+        { name: "Cradlen", path: "" },
+        { name: t("title"), path: "guide" },
+        { name: t(`articles.${slug}.title`), path: `guide/${slug}` },
+      ],
+      locale,
+    ),
+  );
+
   return (
     <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_200px] xl:gap-10">
+      <JsonLd data={structuredData} />
       <article className="min-w-0">
         <nav
           aria-label="Breadcrumb"

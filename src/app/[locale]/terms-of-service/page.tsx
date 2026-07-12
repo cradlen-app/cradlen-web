@@ -1,9 +1,24 @@
-import { setRequestLocale } from "next-intl/server";
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { buildMetadata } from "@/common/seo/metadata";
 import LegalDocument from "@/components/marketing/LegalDocument";
 
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("seo");
+
+  return buildMetadata({
+    locale,
+    path: "terms-of-service",
+    title: t("legal.terms.title"),
+    description: t("legal.terms.description"),
+  });
+}
 
 // Section ids double as anchor targets and as message keys under
 // `termsOfService.sections.<id>`. Order here is the rendered + TOC order.

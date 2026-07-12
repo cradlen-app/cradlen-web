@@ -9,11 +9,11 @@
       "description": "Simple annual pricing for Cradlen clinic management and EMR software. Start with a free 14-day trial — from a single OB-GYN clinic to a multi-branch network."
     },
     "about": {
-      "title": "About Cradlen — Software Built for Women's Health",
+      "title": "About — Software Built for Women's Health",
       "description": "Why we built Cradlen: clinic management and EMR software that treats women's health care as one continuous patient journey, not a list of disconnected visits."
     },
     "contact": {
-      "title": "Contact Us — Talk to the Cradlen Team",
+      "title": "Contact Us — Talk to the Team",
       "description": "Get in touch with Cradlen for sales questions, product support, or to book a demo of our OB-GYN clinic management and EMR software."
     },
     "helpCenter": {
@@ -57,6 +57,78 @@
       }
     },
     "ogAlt": "Cradlen — clinic management software for OB-GYN clinics"
+  },
+  "pricingPage": {
+    "eyebrow": "Pricing",
+    "heading": "Pricing that grows with your clinic.",
+    "subheading": "One annual price per branch. Every plan includes the full product — journeys, examinations, prescriptions, billing and the patient portal. No per-seat fees, no feature gates.",
+    "faqHeading": "Pricing questions",
+    "faq": [
+      {
+        "q": "Is there really a free trial?",
+        "a": "Yes. Every new clinic gets 14 days free with the full product unlocked. No credit card is required to start, and nothing is charged automatically when the trial ends."
+      },
+      {
+        "q": "What counts as a branch?",
+        "a": "A branch is one physical location. Plans are priced per branch, so a single clinic needs one plan and a centre with three locations needs the Center or Network plan."
+      },
+      {
+        "q": "Do you charge per staff member?",
+        "a": "No. Invite as many doctors, receptionists and owners as your clinic needs — staff seats are not metered and do not change the price."
+      },
+      {
+        "q": "Can I change plan later?",
+        "a": "Yes. You can move between plans at any time as your clinic grows, and the change applies to your next billing period."
+      }
+    ]
+  },
+  "aboutPage": {
+    "eyebrow": "About",
+    "heading": "We built the record we wished clinics already had.",
+    "intro": "Cradlen is clinic management and EMR software for OB-GYN and women's health practices. We started it because women's health care is one of the few specialties where care is genuinely continuous — and almost no software treats it that way.",
+    "sections": [
+      {
+        "title": "The problem",
+        "body": "In most clinics a patient's history is scattered across a paper file, a booking sheet, a spreadsheet of payments and someone's memory. The visit that mattered — the scan, the change in medication, the thing the doctor promised to check next time — is the hardest thing to find. Care becomes a list of disconnected appointments."
+      },
+      {
+        "title": "What we believe",
+        "body": "Care is a journey, not a list of visits. A pregnancy is not twelve unrelated appointments; it is one continuous story with a beginning and an end. Software should model that story directly, so opening a patient means picking up exactly where you left off."
+      },
+      {
+        "title": "Who it's for",
+        "body": "Solo OB-GYN clinics, multi-doctor centres and multi-branch networks. Cradlen is bilingual (Arabic and English, fully RTL-ready) with role-based access for owners, doctors and reception — so the whole clinic works from the same record without seeing more than it should."
+      },
+      {
+        "title": "How we treat data",
+        "body": "The patient owns their history; the clinic owns its visit records. Cradlen is the processor, not the owner. Patients can sign in to their own portal and carry their record with them — including prescriptions, lab results and imaging."
+      }
+    ]
+  },
+  "contactPage": {
+    "eyebrow": "Contact",
+    "heading": "Talk to us.",
+    "subheading": "Questions about pricing, a demo for your clinic, or help with an existing account — we read everything and reply quickly.",
+    "cards": [
+      {
+        "id": "sales",
+        "title": "Sales & demos",
+        "body": "See Cradlen running against your clinic's real workflow before you commit. We'll walk you through journeys, scheduling and billing.",
+        "action": "Book a demo"
+      },
+      {
+        "id": "support",
+        "title": "Product support",
+        "body": "Already using Cradlen and something isn't working? Tell us what you were doing and what happened, and we'll get on it.",
+        "action": "Email support"
+      },
+      {
+        "id": "help",
+        "title": "Help Center",
+        "body": "Most questions about accounts, visits, billing, staff and the patient portal are answered already — start here for the fastest answer.",
+        "action": "Browse the Help Center"
+      }
+    ]
   },
   "appUpdate": {
     "title": "A new version is available",
@@ -701,6 +773,7 @@
       "features": "Features",
       "howItWorks": "How it works",
       "pricing": "Pricing",
+      "about": "About",
       "docs": "Docs",
       "signIn": "Sign in",
       "startFree": "Start free",
@@ -712,7 +785,7 @@
       "titlePre": "Care is a",
       "titleHighlight": "journey",
       "titlePost": ", not a list of visits.",
-      "description": "Cradlen turns women's health care into one continuous journey — every visit, examination and prescription on a single, unified medical record. From the first antenatal visit to delivery, open a patient and pick up exactly where you left off.",
+      "description": "Cradlen is clinic management and EMR software for women's health. It turns care into one continuous journey — every visit, examination and prescription on a single, unified medical record. From the first antenatal visit to delivery, open a patient and pick up exactly where you left off.",
       "ctaPrimary": "Start free",
       "ctaSecondary": "See how a journey works",
       "trust1": "Free for 14 days",
@@ -760,7 +833,7 @@
     "whatsInside": {
       "sectionNo": "03",
       "eyebrow": "What's inside",
-      "heading": "One unified record, connected to the journey.",
+      "heading": "Everything a women's health clinic runs on — in one unified record.",
       "journeys": {
         "title": "Patient journeys & care paths",
         "description": "A journey groups every visit, examination, prescription and payment into one connected episode of care — built on care-path templates with ordered episodes. Open a patient and follow their whole path, instead of starting from scratch each time.",
@@ -908,6 +981,7 @@
       "popular": "Most popular",
       "tiers": [
         {
+          "id": "trial",
           "name": "Free Trial",
           "price": "Free",
           "period": "",
@@ -920,6 +994,7 @@
           ]
         },
         {
+          "id": "individual",
           "name": "Individual Clinic",
           "price": "8,000 EGP",
           "period": "/year",
@@ -933,6 +1008,7 @@
           ]
         },
         {
+          "id": "center",
           "name": "Center",
           "price": "22,000 EGP",
           "period": "/year",
@@ -946,6 +1022,7 @@
           ]
         },
         {
+          "id": "network",
           "name": "Network of Centers",
           "price": "50,000 EGP",
           "period": "/year",
@@ -967,7 +1044,7 @@
       "ctaSecondary": "Talk to us"
     },
     "footer": {
-      "tagline": "One continuous journey for every patient — from the first visit to the last. The calm operating system for your clinic.",
+      "tagline": "Clinic management and EMR software for OB-GYN and women's health practices. One continuous journey for every patient — from the first visit to the last.",
       "productLabel": "Product",
       "companyLabel": "Company",
       "legalLabel": "Legal",
@@ -979,6 +1056,7 @@
       },
       "company": {
         "about": "About",
+        "contact": "Contact",
         "helpCenter": "Help Center",
         "whyJourneys": "Why journeys"
       },

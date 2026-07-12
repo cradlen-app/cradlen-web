@@ -9,29 +9,33 @@ export default async function MarketingFooter() {
   const t = await getTranslations("home.footer");
   const locale = (await getLocale()) as Locale;
 
+  // Every href is a real locale-aware destination. Section anchors are rooted at
+  // "/" because this footer renders on /pricing, /about and /contact too, where
+  // a bare "#features" would resolve against the current page and go nowhere.
   const columns = [
     {
       label: t("productLabel"),
       links: [
-        { text: t("product.features"), href: "#features" },
-        { text: t("product.pricing"), href: "#pricing" },
-        { text: t("product.howItWorks"), href: "#how-it-works" },
-        { text: t("product.documentation"), href: "/guide", internal: true },
+        { text: t("product.features"), href: "/#features" },
+        { text: t("product.pricing"), href: "/pricing" },
+        { text: t("product.howItWorks"), href: "/#how-it-works" },
+        { text: t("product.documentation"), href: "/guide" },
       ],
     },
     {
       label: t("companyLabel"),
       links: [
-        { text: t("company.about"), href: "#" },
-        { text: t("company.helpCenter"), href: "/help-center", internal: true },
-        { text: t("company.whyJourneys"), href: "#" },
+        { text: t("company.about"), href: "/about" },
+        { text: t("company.contact"), href: "/contact" },
+        { text: t("company.helpCenter"), href: "/help-center" },
+        { text: t("company.whyJourneys"), href: "/#why-journeys" },
       ],
     },
     {
       label: t("legalLabel"),
       links: [
-        { text: t("legal.privacy"), href: "/privacy-policy", internal: true },
-        { text: t("legal.terms"), href: "/terms-of-service", internal: true },
+        { text: t("legal.privacy"), href: "/privacy-policy" },
+        { text: t("legal.terms"), href: "/terms-of-service" },
       ],
     },
   ];
@@ -57,21 +61,12 @@ export default async function MarketingFooter() {
               <ul className="mt-4 space-y-3">
                 {column.links.map((link) => (
                   <li key={link.text}>
-                    {"internal" in link && link.internal ? (
-                      <Link
-                        href={link.href}
-                        className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
-                      >
-                        {link.text}
-                      </Link>
-                    ) : (
-                      <a
-                        href={link.href}
-                        className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
-                      >
-                        {link.text}
-                      </a>
-                    )}
+                    <Link
+                      href={link.href}
+                      className="text-sm text-brand-black/65 transition-colors hover:text-brand-primary"
+                    >
+                      {link.text}
+                    </Link>
                   </li>
                 ))}
               </ul>

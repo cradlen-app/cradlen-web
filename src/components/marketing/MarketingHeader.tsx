@@ -6,14 +6,19 @@ import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
+import TrackedLink from "@/components/analytics/TrackedLink";
 import { Link } from "@/i18n/navigation";
 import Logo from "@/public/Logo.png";
 
+// The header now renders on /pricing, /about and /contact too, so the section
+// anchors are rooted at "/" rather than bare "#features" — a bare hash resolves
+// against the *current* page and would go nowhere off the landing page.
 const NAV_LINKS = [
-  { key: "features", href: "#features" },
-  { key: "howItWorks", href: "#how-it-works" },
-  { key: "pricing", href: "#pricing" },
-  { key: "docs", href: "/guide", internal: true },
+  { key: "features", href: "/#features" },
+  { key: "howItWorks", href: "/#how-it-works" },
+  { key: "pricing", href: "/pricing" },
+  { key: "about", href: "/about" },
+  { key: "docs", href: "/guide" },
 ] as const;
 
 export default function MarketingHeader() {
@@ -32,25 +37,15 @@ export default function MarketingHeader() {
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {NAV_LINKS.map((link) =>
-            "internal" in link && link.internal ? (
-              <Link
-                key={link.key}
-                href={link.href}
-                className="text-sm font-medium text-brand-black/70 transition-colors hover:text-brand-primary"
-              >
-                {t(link.key)}
-              </Link>
-            ) : (
-              <a
-                key={link.key}
-                href={link.href}
-                className="text-sm font-medium text-brand-black/70 transition-colors hover:text-brand-primary"
-              >
-                {t(link.key)}
-              </a>
-            ),
-          )}
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.key}
+              href={link.href}
+              className="text-sm font-medium text-brand-black/70 transition-colors hover:text-brand-primary"
+            >
+              {t(link.key)}
+            </Link>
+          ))}
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
@@ -64,7 +59,13 @@ export default function MarketingHeader() {
             asChild
             className="h-10 rounded-full bg-brand-primary px-6 text-sm text-white hover:bg-brand-primary/90"
           >
-            <Link href="/sign-up">{t("startFree")}</Link>
+            <TrackedLink
+              href="/sign-up"
+              event="cta_start_free"
+              eventProps={{ location: "header" }}
+            >
+              {t("startFree")}
+            </TrackedLink>
           </Button>
         </div>
 
@@ -86,27 +87,16 @@ export default function MarketingHeader() {
         )}
       >
         <div className="flex flex-col gap-1 px-5 py-4 sm:px-8">
-          {NAV_LINKS.map((link) =>
-            "internal" in link && link.internal ? (
-              <Link
-                key={link.key}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-black/80 transition-colors hover:bg-black/5"
-              >
-                {t(link.key)}
-              </Link>
-            ) : (
-              <a
-                key={link.key}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-black/80 transition-colors hover:bg-black/5"
-              >
-                {t(link.key)}
-              </a>
-            ),
-          )}
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.key}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-black/80 transition-colors hover:bg-black/5"
+            >
+              {t(link.key)}
+            </Link>
+          ))}
           <div className="mt-2 flex items-center gap-3 border-t border-black/5 pt-4">
             <Button
               asChild
@@ -121,9 +111,14 @@ export default function MarketingHeader() {
               asChild
               className="h-10 flex-1 rounded-full bg-brand-primary px-6 text-sm text-white hover:bg-brand-primary/90"
             >
-              <Link href="/sign-up" onClick={() => setOpen(false)}>
+              <TrackedLink
+                href="/sign-up"
+                event="cta_start_free"
+                eventProps={{ location: "header_mobile" }}
+                onClick={() => setOpen(false)}
+              >
                 {t("startFree")}
-              </Link>
+              </TrackedLink>
             </Button>
           </div>
         </div>

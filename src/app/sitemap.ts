@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/common/constants/site";
+import { urlFor } from "@/common/seo/metadata";
 import { routing } from "@/i18n/routing";
 import { GUIDE_SLUGS } from "@/content/guide/manifest";
 
@@ -13,6 +13,9 @@ import { GUIDE_SLUGS } from "@/content/guide/manifest";
 // for hreflang.
 const CONTENT_PATHS: { path: string; priority: number }[] = [
   { path: "", priority: 1.0 },
+  { path: "pricing", priority: 0.9 },
+  { path: "about", priority: 0.6 },
+  { path: "contact", priority: 0.5 },
   { path: "help-center", priority: 0.5 },
   { path: "guide", priority: 0.7 },
   { path: "guide/whats-new", priority: 0.7 },
@@ -20,9 +23,6 @@ const CONTENT_PATHS: { path: string; priority: number }[] = [
   { path: "terms-of-service", priority: 0.3 },
   { path: "privacy-policy", priority: 0.3 },
 ];
-
-const urlFor = (locale: string, path: string) =>
-  `${SITE_URL}/${locale}${path ? `/${path}` : ""}`;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return CONTENT_PATHS.flatMap(({ path, priority }) =>

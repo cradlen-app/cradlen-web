@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { buildMetadata } from "@/common/seo/metadata";
 import Footer from "@/components/common/Footer";
 import { Link } from "@/i18n/navigation";
 import { RedirectIfAuthenticated } from "@/features/auth/components/RedirectIfAuthenticated";
@@ -10,6 +12,20 @@ import Logo from "@/public/Logo.png";
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("seo");
+
+  return buildMetadata({
+    locale,
+    path: "sign-up",
+    title: t("auth.signUp.title"),
+    description: t("auth.signUp.description"),
+    index: false,
+  });
+}
 
 export default async function SignUpPage({ params }: Props) {
   const { locale } = await params;
