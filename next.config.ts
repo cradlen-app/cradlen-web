@@ -82,7 +82,18 @@ const sentryOrigin = (() => {
   }
 })();
 
-const connectSrc = ["'self'", apiOrigin, wsOrigin, sentryOrigin]
+// PostHog ingest is reverse-proxied through /api/ingest (same-origin), but the
+// replay/toolbar assets and the ui_host load cross-origin, so allow the origin.
+const posthogOrigin = (() => {
+  const raw = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+})();
+
+const connectSrc = ["'self'", apiOrigin, wsOrigin, sentryOrigin, posthogOrigin]
   .filter(Boolean)
   .join(" ");
 
@@ -143,6 +154,15 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  async rewrites() {
+    const host = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+    // Region-agnostic: us.i.posthog.com -> us-assets.i.posthog.com (same for eu).
+    const assetHost = host.replace(".i.posthog.com", "-assets.i.posthog.com");
+    return [
+      { source: "/api/ingest/static/:path*", destination: `${assetHost}/static/:path*` },
+      { source: "/api/ingest/:path*", destination: `${host}/:path*` },
+    ];
   },
 };
 

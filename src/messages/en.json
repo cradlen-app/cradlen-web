@@ -1,4 +1,63 @@
 {
+  "seo": {
+    "home": {
+      "title": "Clinic Management Software & EMR for OB-GYN Clinics | Cradlen",
+      "description": "Cradlen is OB-GYN clinic management and EMR software — appointments, antenatal journeys, examinations, prescriptions and billing in one unified patient record."
+    },
+    "pricing": {
+      "title": "Pricing — Clinic Management Software Plans",
+      "description": "Simple annual pricing for Cradlen clinic management and EMR software. Start with a free 14-day trial — from a single OB-GYN clinic to a multi-branch network."
+    },
+    "about": {
+      "title": "About Cradlen — Software Built for Women's Health",
+      "description": "Why we built Cradlen: clinic management and EMR software that treats women's health care as one continuous patient journey, not a list of disconnected visits."
+    },
+    "contact": {
+      "title": "Contact Us — Talk to the Cradlen Team",
+      "description": "Get in touch with Cradlen for sales questions, product support, or to book a demo of our OB-GYN clinic management and EMR software."
+    },
+    "helpCenter": {
+      "title": "Help Center — Answers for Cradlen Clinics",
+      "description": "Answers to common questions about Cradlen clinic management software: accounts, visits, patients, billing, staff and the patient portal."
+    },
+    "legal": {
+      "terms": {
+        "title": "Terms of Service",
+        "description": "The terms that govern your use of Cradlen clinic management and EMR software."
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "How Cradlen collects, uses and protects clinic and patient data."
+      }
+    },
+    "auth": {
+      "signIn": {
+        "title": "Sign In",
+        "description": "Sign in to your Cradlen clinic workspace."
+      },
+      "signUp": {
+        "title": "Start Your Free Trial",
+        "description": "Create your Cradlen account and set up your clinic in an afternoon. Free for 14 days, no credit card required."
+      },
+      "forgotPassword": {
+        "title": "Reset Password",
+        "description": "Reset the password for your Cradlen account."
+      },
+      "invitation": {
+        "title": "Accept Your Invitation",
+        "description": "Join your clinic's team on Cradlen."
+      },
+      "selectProfile": {
+        "title": "Select Profile",
+        "description": "Choose a clinic workspace to continue."
+      },
+      "createOrganization": {
+        "title": "Create Your Clinic",
+        "description": "Set up your clinic on Cradlen."
+      }
+    },
+    "ogAlt": "Cradlen — clinic management software for OB-GYN clinics"
+  },
   "appUpdate": {
     "title": "A new version is available",
     "description": "Refresh to get the latest update.",
@@ -2643,5 +2702,11 @@
         "NO_SHOW": "No show"
       }
     }
+  },
+  "consent": {
+    "message": "We use privacy-first analytics to improve Cradlen. Patient data is never recorded.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "learnMore": "Privacy policy"
   }
 }

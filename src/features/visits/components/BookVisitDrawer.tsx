@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useTranslations } from "next-intl";
@@ -18,6 +18,7 @@ import type { FormTemplateDto } from "@/builder/templates/template.types";
 import { useVisitCharges } from "@/core/financial/api";
 import { useOrgSpecialties } from "@/features/settings/hooks/useOrgSpecialties";
 import { usePatient } from "@/features/patients/hooks/usePatient";
+import { capture } from "@/infrastructure/analytics/posthog";
 import { useSubmitVisit } from "../hooks/useSubmitVisit";
 import { mapVisitApiError } from "../lib/mapVisitApiError";
 import type { Visit } from "../types/visits.types";
@@ -52,6 +53,12 @@ export function BookVisitDrawer({
   } = useFormTemplate(TEMPLATE_CODE, open && !!templateExtension, templateExtension);
 
   const isEdit = !!editingVisit;
+
+  // Funnel entry: a new booking (not an edit) started when the drawer opens.
+  useEffect(() => {
+    if (open && !editingVisit) capture("booking_started");
+  }, [open, editingVisit]);
+
   const patientId =
     isEdit && editingVisit?.kind !== "medical_rep"
       ? editingVisit?.patient.id
@@ -254,13 +261,19 @@ function DrawerBody({
     }
 
     try {
-      await submit({
+      const result = await submit({
         template,
         snapshot,
         editingVisit,
         isMedicalRep,
         branchId,
       });
+      if (!isEdit) {
+        capture(
+          "booking_confirmed",
+          result.newVisitId ? { visitId: result.newVisitId } : {},
+        );
+      }
       toast.success(
         isEdit ? t("editVisit.savedToast") : t("create.successMessage"),
       );

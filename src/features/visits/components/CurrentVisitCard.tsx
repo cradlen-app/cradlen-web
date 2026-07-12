@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/infrastructure/http/api";
+import { capture } from "@/infrastructure/analytics/posthog";
 import { cn } from "@/common/utils/utils";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
@@ -62,6 +63,7 @@ function CurrentVisitRow({
         branchId: visit.branchId || branchId,
         visitId: visit.id,
       });
+      capture("visit_started", { visitId: visit.id, kind: visit.kind });
       toast.success(t("startedToast"));
       handleOpen();
     } catch (error) {

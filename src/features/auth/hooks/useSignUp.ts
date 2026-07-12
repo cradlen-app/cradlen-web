@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiFetch, ApiError } from "@/infrastructure/http/api";
+import { capture } from "@/infrastructure/analytics/posthog";
 import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import type {
@@ -19,6 +20,7 @@ export function useRegisterPersonal() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onSuccess: () => capture("signup_started"),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -36,6 +38,7 @@ export function useVerifyEmail() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onSuccess: () => capture("signup_verify_submitted"),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -53,6 +56,7 @@ export function useRegisterOrganization() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onSuccess: () => capture("signup_completed"),
     onError: (error) => {
       const message =
         error instanceof ApiError
