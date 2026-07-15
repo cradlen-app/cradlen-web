@@ -122,6 +122,7 @@ export function SubscriptionSection() {
           <AddOnsPanel
             organizationId={organizationId}
             currentPlanCode={sub.plan.plan}
+            subscriptionEndsAt={sub.ends_at}
             isActive={sub.status === "ACTIVE"}
           />
         </>

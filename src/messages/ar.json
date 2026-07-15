@@ -651,7 +651,7 @@
       "buy": "إضافة",
       "owned": "إضافاتك",
       "ownedQuantity": "×{count}",
-      "prorated": "يُحتسب بالتناسب مع المدة المتبقية من اشتراكك.",
+      "prorated": "يُحتسب بالتناسب بحد أقصى سنة واحدة من المدة المتبقية.",
       "requiresActive": "فعّل خطة مدفوعة لشراء الإضافات.",
       "perYearFull": "{amount} / سنة",
       "kinds": {
@@ -667,7 +667,7 @@
     "createDialog": {
       "title": "الاشتراك في {plan}",
       "addOnTitle": "إضافة {addOn}",
-      "addOnDescription": "{amount} سنويًا، تُحتسب بالتناسب مع المدة المتبقية.",
+      "addOnDescription": "الإجمالي الآن: {amount} — يُحتسب بالتناسب مع السنة القادمة من اشتراكك.",
       "description": "سيتم تحصيل {amount} لمدة سنة واحدة.",
       "descriptionNoPrice": "اختر طريقة الدفع.",
       "provider": "طريقة الدفع",
