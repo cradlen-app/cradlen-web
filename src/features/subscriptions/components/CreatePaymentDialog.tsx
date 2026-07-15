@@ -16,6 +16,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
 import { useCreatePayment } from "../hooks/useSubscription";
 import { formatMoney } from "../lib/format";
+import { prorateAddOnTotal } from "../lib/prorate";
 import { saveInstructions } from "../lib/instructions-store";
 import type {
   AvailableAddOn,
@@ -30,12 +31,15 @@ type PlanMode = {
   plan: Plan | null;
   addOn?: never;
   currentPlanCode?: never;
+  subscriptionEndsAt?: never;
 };
 
 type AddOnMode = {
   mode: "addon";
   addOn: AvailableAddOn | null;
   currentPlanCode: string;
+  /** Current term end — used to show the same prorated total the API charges. */
+  subscriptionEndsAt?: string | null;
   plan?: never;
 };
 
@@ -86,9 +90,11 @@ export function CreatePaymentDialog(props: CreatePaymentDialogProps) {
       });
 
   const addOnTotal =
-    addOn && Number.isFinite(Number(addOn.price))
+    (addOn &&
+      prorateAddOnTotal(addOn.price, quantity, props.subscriptionEndsAt)) ??
+    (addOn && Number.isFinite(Number(addOn.price))
       ? String(Number(addOn.price) * quantity)
-      : (addOn?.price ?? "");
+      : (addOn?.price ?? ""));
 
   const description = isAddOn
     ? addOn

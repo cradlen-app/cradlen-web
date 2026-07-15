@@ -12,10 +12,12 @@ import type { AvailableAddOn } from "../lib/subscriptions.types";
 export function AddOnsPanel({
   organizationId,
   currentPlanCode,
+  subscriptionEndsAt,
   isActive,
 }: {
   organizationId: string | undefined;
   currentPlanCode: string;
+  subscriptionEndsAt: string | null;
   isActive: boolean;
 }) {
   const t = useTranslations("subscriptions");
@@ -88,6 +90,7 @@ export function AddOnsPanel({
         organizationId={organizationId}
         addOn={selected}
         currentPlanCode={currentPlanCode}
+        subscriptionEndsAt={subscriptionEndsAt}
         open={selected !== null}
         onOpenChange={(open) => {
           if (!open) setSelected(null);
