@@ -64,7 +64,7 @@ export function CreatePaymentDialog(props: CreatePaymentDialogProps) {
   const isAddOn = props.mode === "addon";
   const addOn = isAddOn ? props.addOn : null;
   const plan = !isAddOn ? props.plan : null;
-  const allowQuantity = addOn?.kind === "EXTRA_USER";
+  const allowQuantity = addOn != null;
 
   // Reset the stepper when the dialog opens onto a new target, without an
   // effect (React's "adjust state during render" pattern).
@@ -85,10 +85,15 @@ export function CreatePaymentDialog(props: CreatePaymentDialogProps) {
         plan: plan ? t(`planNames.${plan.plan}`) : "",
       });
 
+  const addOnTotal =
+    addOn && Number.isFinite(Number(addOn.price))
+      ? String(Number(addOn.price) * quantity)
+      : (addOn?.price ?? "");
+
   const description = isAddOn
     ? addOn
       ? t("createDialog.addOnDescription", {
-          amount: formatMoney(addOn.price, addOn.currency, locale),
+          amount: formatMoney(addOnTotal, addOn.currency, locale),
         })
       : ""
     : yearly
