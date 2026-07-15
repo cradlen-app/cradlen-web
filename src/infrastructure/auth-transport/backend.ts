@@ -148,10 +148,13 @@ export async function readBackendJson(response: Response) {
 /**
  * Strips internal detail out of a backend error before it is forwarded to the
  * browser. 5xx bodies are collapsed to a generic message (they can carry stack
- * traces / internal paths); 4xx bodies surface only a user-facing `message` and
- * an optional `{ field, message }[]` validation list that the forms rely on.
- * Anything else (internal keys, raw text) is dropped. Always log the full body
- * server-side before calling this.
+ * traces / internal paths); 4xx bodies surface only a user-facing `message`,
+ * an optional `{ field, message }[]` validation list that the forms rely on,
+ * and the machine-readable `code` + `details` that the API deliberately puts in
+ * its error contract (e.g. SUBSCRIPTION_LIMIT_REACHED with the over-limit
+ * breakdown that drives the plan-limit drawer). Anything else (internal keys,
+ * raw text) is dropped. Always log the full body server-side before calling
+ * this.
  */
 export function sanitizeBackendError(
   body: unknown,
@@ -165,17 +168,33 @@ export function sanitizeBackendError(
   if (!body || typeof body !== "object") return { message: fallback };
 
   const b = body as Record<string, unknown>;
+  const nested = (
+    b.error && typeof b.error === "object" && !Array.isArray(b.error)
+      ? b.error
+      : {}
+  ) as Record<string, unknown>;
   const out: Record<string, unknown> = {};
 
   if (typeof b.message === "string") {
     out.message = b.message;
   } else if (typeof b.detail === "string") {
     out.message = b.detail;
-  } else if (
-    b.error &&
-    typeof (b.error as Record<string, unknown>).message === "string"
-  ) {
-    out.message = (b.error as Record<string, unknown>).message;
+  } else if (typeof nested.message === "string") {
+    out.message = nested.message;
+  }
+
+  // The API's error contract (GlobalExceptionFilter) nests `code` + `details`
+  // under `error`. Both are deliberate, client-facing fields — e.g. the
+  // subscription-limit parsers need `code: SUBSCRIPTION_LIMIT_REACHED` and
+  // `details.reason/over/suggested_add_ons` to open the plan-limit drawer.
+  const code = typeof b.code === "string" ? b.code : nested.code;
+  if (typeof code === "string") {
+    out.code = code;
+  }
+  const details =
+    b.details && typeof b.details === "object" ? b.details : nested.details;
+  if (details && typeof details === "object" && !Array.isArray(details)) {
+    out.details = details;
   }
 
   if (Array.isArray(b.errors)) {
