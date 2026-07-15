@@ -107,6 +107,54 @@ describe("sanitizeBackendError", () => {
     });
   });
 
+  it("passes through the API error contract's code and details on 4xx", () => {
+    expect(
+      sanitizeBackendError(
+        {
+          error: {
+            code: "SUBSCRIPTION_LIMIT_REACHED",
+            message: "This plan does not fit your current usage",
+            statusCode: 403,
+            details: {
+              reason: "PLAN_CHANGE_OVER_LIMIT",
+              over: [
+                { resource: "branches", limit: 1, current: 2, excess: 1 },
+              ],
+              suggested_add_ons: [
+                {
+                  code: "center_extra_branch",
+                  quantity: 1,
+                  resource: "branches",
+                },
+              ],
+            },
+            requestId: "internal-trace-id",
+          },
+        },
+        403,
+      ),
+    ).toEqual({
+      message: "This plan does not fit your current usage",
+      code: "SUBSCRIPTION_LIMIT_REACHED",
+      details: {
+        reason: "PLAN_CHANGE_OVER_LIMIT",
+        over: [{ resource: "branches", limit: 1, current: 2, excess: 1 }],
+        suggested_add_ons: [
+          { code: "center_extra_branch", quantity: 1, resource: "branches" },
+        ],
+      },
+    });
+  });
+
+  it("drops non-string code and non-object details", () => {
+    expect(
+      sanitizeBackendError(
+        { message: "Bad", code: 42, details: ["not", "an", "object"] },
+        400,
+      ),
+    ).toEqual({ message: "Bad" });
+  });
+
   it("falls back to detail, then a generic message, for 4xx", () => {
     expect(sanitizeBackendError({ detail: "Nope" }, 400)).toEqual({
       message: "Nope",
