@@ -52,7 +52,12 @@ describe("AddOnsPanel", () => {
 
   it("lists available add-ons and opens the buy dialog", () => {
     renderWithIntl(
-      <AddOnsPanel organizationId="org-1" currentPlanCode="center" isActive />,
+      <AddOnsPanel
+        organizationId="org-1"
+        currentPlanCode="center"
+        subscriptionEndsAt={null}
+        isActive
+      />,
     );
     expect(screen.getByText("Extra branch")).toBeInTheDocument();
     expect(screen.getByText("Extra user")).toBeInTheDocument();
@@ -67,6 +72,7 @@ describe("AddOnsPanel", () => {
       <AddOnsPanel
         organizationId="org-1"
         currentPlanCode="center"
+        subscriptionEndsAt={null}
         isActive={false}
       />,
     );

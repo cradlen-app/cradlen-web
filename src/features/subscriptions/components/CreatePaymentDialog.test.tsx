@@ -63,4 +63,48 @@ describe("CreatePaymentDialog (add-on mode)", () => {
       expect.any(Object),
     );
   });
+
+  it("caps the displayed total at the yearly price on a multi-year term", () => {
+    const threeYearsOut = new Date(
+      Date.now() + 3 * 365 * 86_400_000,
+    ).toISOString();
+    renderWithIntl(
+      <CreatePaymentDialog
+        mode="addon"
+        organizationId="org-1"
+        addOn={userAddOn}
+        currentPlanCode="center"
+        subscriptionEndsAt={threeYearsOut}
+        open
+        onOpenChange={() => {}}
+      />,
+    );
+
+    // 2,000/year with ~3 years remaining still shows one year's price.
+    expect(screen.getByText(/2,000(\.00)?\s*EGP/)).toBeInTheDocument();
+
+    // Quantity multiplies the capped total.
+    fireEvent.click(screen.getByLabelText("increase"));
+    expect(screen.getByText(/4,000(\.00)?\s*EGP/)).toBeInTheDocument();
+  });
+
+  it("prorates the displayed total for a part-year term", () => {
+    // ~half a year remaining (183 days): 2000 × 183/365 ≈ 1,002.74
+    const halfYearOut = new Date(
+      Date.now() + 183 * 86_400_000,
+    ).toISOString();
+    renderWithIntl(
+      <CreatePaymentDialog
+        mode="addon"
+        organizationId="org-1"
+        addOn={userAddOn}
+        currentPlanCode="center"
+        subscriptionEndsAt={halfYearOut}
+        open
+        onOpenChange={() => {}}
+      />,
+    );
+
+    expect(screen.getByText(/1,002\.74\s*EGP/)).toBeInTheDocument();
+  });
 });

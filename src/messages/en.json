@@ -651,7 +651,7 @@
       "buy": "Add",
       "owned": "Your add-ons",
       "ownedQuantity": "×{count}",
-      "prorated": "Charged pro-rata to your remaining term.",
+      "prorated": "Charged pro-rata for up to one year of your remaining term.",
       "requiresActive": "Activate a paid plan to purchase add-ons.",
       "perYearFull": "{amount} / year",
       "kinds": {
@@ -667,7 +667,7 @@
     "createDialog": {
       "title": "Subscribe to {plan}",
       "addOnTitle": "Add {addOn}",
-      "addOnDescription": "{amount} per year, charged pro-rata to your remaining term.",
+      "addOnDescription": "Total now: {amount} — pro-rata for the next year of your term.",
       "description": "You'll be charged {amount} for one year.",
       "descriptionNoPrice": "Choose how you'd like to pay.",
       "provider": "Payment method",
