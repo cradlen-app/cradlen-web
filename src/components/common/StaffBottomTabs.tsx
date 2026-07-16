@@ -32,7 +32,10 @@ export function StaffBottomTabs() {
 
   return (
     <>
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t border-gray-100 bg-white px-1 lg:hidden">
+      {/* Static flex item (not a fixed overlay) so the layout column reserves
+          real space for it — page content can never render underneath. Keeps
+          z-50 to paint above the fixed StaffMoreSheet overlay (z-40). */}
+      <nav className="relative z-50 flex h-[calc(4rem+env(safe-area-inset-bottom))] shrink-0 items-center justify-around border-t border-gray-100 bg-white px-1 pb-[env(safe-area-inset-bottom)] lg:hidden">
         {primaryItems.map((item) => {
           const href = dashboardPath(item.path);
           const active =

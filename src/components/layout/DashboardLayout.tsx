@@ -46,7 +46,7 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
   }, [isLoading, orgId, branchId, pathname, profile, router, user]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-dvh bg-gray-50">
       <Navbar />
       <SubscriptionBanner />
       <div className="flex flex-1 overflow-hidden lg:pb-3">
@@ -54,7 +54,7 @@ function DashboardLayoutInner({ children, initialUser }: Props) {
         <div className="hidden shrink-0 lg:relative lg:block">
           <Sidebar />
         </div>
-        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-0">{children}</main>
+        <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
       </div>
       <StaffBottomTabs />
       <div className="hidden lg:block">

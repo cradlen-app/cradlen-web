@@ -141,7 +141,7 @@ export function MedicationsPage() {
   const to = Math.min(page * PAGE_LIMIT, total);
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4 pb-24 lg:p-6 lg:pb-6">
+    <div className="flex flex-col gap-4 p-4 lg:h-full lg:p-6">
       {/* Page header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -209,7 +209,7 @@ export function MedicationsPage() {
         </div>
 
         {/* Table */}
-        <div className="min-h-0 flex-1 overflow-auto pb-20 lg:pb-0">
+        <div className="min-h-0 flex-1 overflow-auto">
           <MedicationsTable
             medications={data?.data ?? []}
             isLoading={isLoading}
