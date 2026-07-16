@@ -114,7 +114,7 @@ export function PatientsPage() {
   );
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4 lg:p-6">
+    <div className="flex flex-col gap-4 p-4 lg:h-full lg:p-6">
       <PatientsHeader />
 
       {canViewAnalytics && !noBranch && (
@@ -135,7 +135,7 @@ export function PatientsPage() {
           onScopeChange={owner ? setScope : undefined}
         />
 
-        <div className="min-h-0 flex-1 overflow-auto pb-20 lg:pb-0">
+        <div className="min-h-0 flex-1 overflow-auto">
           {isLoading ? (
             <PatientsTableSkeleton />
           ) : noBranch ? (
