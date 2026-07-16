@@ -183,7 +183,7 @@ export function StaffPage() {
 
   return (
     <>
-      <div className="flex h-full flex-col gap-4 p-4 pb-24 lg:flex-row lg:p-6 lg:pb-6">
+      <div className="flex flex-col gap-4 p-4 lg:h-full lg:flex-row lg:p-6">
         <section className="flex min-w-0 flex-1 flex-col gap-4">
           <StaffHeader
             canManage={canManage}
@@ -203,7 +203,7 @@ export function StaffPage() {
               onSearchChange={setSearch}
             />
 
-            <div className="min-h-0 flex-1 overflow-auto pb-20 lg:pb-0">
+            <div className="min-h-0 flex-1 overflow-auto">
               {isLoading ? (
                 <StaffTableSkeleton />
               ) : isError ? (
