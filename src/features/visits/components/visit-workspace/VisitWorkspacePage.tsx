@@ -9,6 +9,7 @@ import { getActiveProfile } from "@/features/auth/lib/current-user";
 import {
   canAccessBilling,
   canDriveClinicalVisit,
+  isClinical,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { useUpdateVisitStatus } from "../../hooks/useUpdateVisitStatus";
@@ -18,8 +19,7 @@ import { financialCan, useVisitInvoice } from "@/core/financial/api";
 import { CompleteVisitDialog } from "../CompleteVisitDialog";
 import { PrescriptionPrintModal } from "../PrescriptionPrintModal";
 import { VisitWorkspaceHeader } from "./VisitWorkspaceHeader";
-// Context rail hidden until the Red Flags / Alerts / Comments features are built.
-// import { VisitContextRail } from "./overview/VisitContextRail";
+import { VisitNotesRail } from "./notes/VisitNotesRail";
 import { ExaminationTab } from "./tabs/ExaminationTab";
 import { HistoryTab } from "./tabs/HistoryTab";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -53,17 +53,6 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const [addChargeOpen, setAddChargeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("overview");
 
-  // Used only by the (currently hidden) VisitContextRail. Restore alongside it.
-  // const handleNavigateToHistory = useCallback((sectionCode: string) => {
-  //   setActiveTab("history");
-  //   requestAnimationFrame(() => {
-  //     document.getElementById(sectionCode)?.scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "start",
-  //     });
-  //   });
-  // }, [setActiveTab]);
-
   // Only the assigned doctor (or an owner/manager) may complete, and only once
   // the consultation has started (IN_CONSULTATION → COMPLETED) — mirrors the
   // backend guard so we never show an action the API will reject with 403.
@@ -76,6 +65,13 @@ export function VisitWorkspacePage({ visitId }: Props) {
   const chargeProviderId = visit?.assignedDoctorId ?? activeProfileId ?? "";
   const showAddServiceBtn =
     financialCan.captureCharge(profile) && !!chargeProviderId;
+  // Notes are a personal scratchpad, not an act of driving the visit — any
+  // clinician may keep their own, including one covering for the assigned
+  // doctor. `isClinical` mirrors the server's own gate, so the UI never offers
+  // a write the API would reject.
+  const canWriteNotes = isClinical(profile);
+  const isVisitClosed =
+    visit?.status === "COMPLETED" || visit?.status === "CANCELLED";
 
   // At most one dynamic tab — the active journey's clinical surface, when its
   // care path declares one. Absent → only the three base tabs render.
@@ -124,7 +120,7 @@ export function VisitWorkspacePage({ visitId }: Props) {
         onAddService={() => setAddChargeOpen(true)}
       />
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6">{/* xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] — restore when the context rail returns */}
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
         <Tabs
           value={activeTab}
           defaultValue="overview"
@@ -177,11 +173,11 @@ export function VisitWorkspacePage({ visitId }: Props) {
           )}
         </Tabs>
 
-        {/* Context rail hidden until built:
-        <VisitContextRail
-          patientId={visit.patient.id}
-          onNavigateToHistory={handleNavigateToHistory}
-        /> */}
+        <VisitNotesRail
+          visitId={visit.id}
+          canWrite={canWriteNotes}
+          isVisitClosed={isVisitClosed}
+        />
       </div>
 
       <CompleteVisitDialog

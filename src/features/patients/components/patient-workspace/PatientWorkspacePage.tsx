@@ -18,8 +18,7 @@ import {
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { usePatient } from "@/features/patients/hooks/usePatient";
 import { PatientOverview } from "@/features/visits/components/visit-workspace/overview/PatientOverview";
-// Context rail hidden until the Red Flags / Alerts / Comments features are built.
-// import { VisitContextRail } from "@/features/visits/components/visit-workspace/overview/VisitContextRail";
+import { PatientNotesRail } from "@/features/visits/components/visit-workspace/notes/PatientNotesRail";
 import { HistoryTab } from "@/features/visits/components/visit-workspace/tabs/HistoryTab";
 import { PatientProfileDrawer } from "./PatientProfileDrawer";
 
@@ -105,7 +104,7 @@ export function PatientWorkspacePage({ patientId }: Props) {
         )}
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6">{/* xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] — restore when the context rail returns */}
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
         <Tabs
           value={activeTab}
           defaultValue="overview"
@@ -136,11 +135,7 @@ export function PatientWorkspacePage({ patientId }: Props) {
           </TabsContent>
         </Tabs>
 
-        {/* Context rail hidden until built:
-        <VisitContextRail
-          patientId={patientId}
-          onNavigateToHistory={() => setActiveTab("history")}
-        /> */}
+        <PatientNotesRail patientId={patientId} />
       </div>
 
       {patient && (
