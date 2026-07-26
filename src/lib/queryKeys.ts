@@ -138,6 +138,8 @@ export const queryKeys = {
   subscription: {
     current: (organizationId: string) =>
       ["subscription", organizationId, "current"] as const,
+    usage: (organizationId: string) =>
+      ["subscription", organizationId, "usage"] as const,
     plans: () => ["subscription", "plans"] as const,
     addOns: (organizationId: string) =>
       ["subscription", organizationId, "add-ons"] as const,

@@ -1,20 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
 import { Dialog } from "radix-ui";
-import { Building2, Loader2, UserMinus, UserX, X } from "lucide-react";
+import { Building2, Gauge, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/infrastructure/http/api";
 import { useRouter } from "@/i18n/navigation";
 import { useDashboardPath } from "@/hooks/useDashboardPath";
-import {
-  useDeactivateStaff,
-  useRemoveStaffFromBranch,
-  useStaff,
-} from "@/core/staff";
 import type { PlanChangeOverLimit } from "@/common/errors/subscription-errors";
 import { useCreatePayment } from "../hooks/useSubscription";
 import { saveInstructions } from "../lib/instructions-store";
@@ -32,11 +25,12 @@ type PlanLimitDrawerProps = {
 
 /**
  * Opens when a plan purchase is blocked because the org is over the target
- * plan's limits (403 PLAN_CHANGE_OVER_LIMIT). Lets the owner resolve it inline:
- * keep everything by buying the missing branch bundles + seats together with the
- * plan (one combined payment), free up staff until they fit, or pick a larger
- * plan. Branches can't be freed inline (destructive) — they're covered by the
- * branch-bundle add-ons in the "keep everything" purchase.
+ * plan's limits (403 PLAN_CHANGE_OVER_LIMIT) on branches and/or already-consumed
+ * journey units. Neither can be reduced inline — branches are destructive, and
+ * journey units already spent this period are historical. So the only two
+ * resolutions are: keep everything by buying the suggested add-ons (branch
+ * bundles + journey packs) together with the plan in one combined payment, or
+ * pick a larger plan.
  */
 export function PlanLimitDrawer({
   organizationId,
@@ -47,34 +41,16 @@ export function PlanLimitDrawer({
   info,
 }: PlanLimitDrawerProps) {
   const t = useTranslations("subscriptions");
-  const { branchId } = useParams<{ branchId: string }>();
   const router = useRouter();
   const dashboardPath = useDashboardPath();
 
-  const { data: staff = [], isLoading } = useStaff(organizationId, branchId);
-  const deactivate = useDeactivateStaff();
-  const removeStaff = useRemoveStaffFromBranch();
   const create = useCreatePayment(organizationId);
 
-  const staffOver = info?.over.find((o) => o.resource === "staff");
   const branchOver = info?.over.find((o) => o.resource === "branches");
+  const unitsOver = info?.over.find((o) => o.resource === "units");
   const suggested = info?.suggested_add_ons ?? [];
   const branchSuggestion = suggested.find((s) => s.resource === "branches");
-  const seatSuggestion = suggested.find((s) => s.resource === "staff");
-
-  // Track seats freed this session against the server-authoritative excess, so
-  // the fit check is correct even for multi-branch orgs (the inline list is
-  // branch-scoped, but each freed seat lowers the org-wide count by one).
-  const [freed, setFreed] = useState(0);
-  // Reset the counter when the drawer is shown for a new overage.
-  const [lastInfo, setLastInfo] = useState<PlanChangeOverLimit | null>(null);
-  if (open && info !== lastInfo) {
-    setLastInfo(info);
-    setFreed(0);
-  }
-
-  const staffRemaining = Math.max(0, (staffOver?.excess ?? 0) - freed);
-  const fits = !branchOver && staffRemaining === 0;
+  const unitsSuggestion = suggested.find((s) => s.resource === "units");
 
   const addParts: string[] = [];
   if (branchSuggestion) {
@@ -82,15 +58,12 @@ export function PlanLimitDrawer({
       t("planLimit.addBranches", { count: branchSuggestion.quantity }),
     );
   }
-  if (seatSuggestion) {
-    addParts.push(t("planLimit.addSeats", { count: seatSuggestion.quantity }));
+  if (unitsSuggestion) {
+    addParts.push(t("planLimit.addUnits", { count: unitsSuggestion.quantity }));
   }
   const keepLabel = addParts.length
     ? `${t("planLimit.keepEverything")} (${addParts.join(", ")})`
     : t("planLimit.keepEverything");
-
-  const busy =
-    create.isPending || deactivate.isPending || removeStaff.isPending;
 
   function onSuccess(res: Awaited<ReturnType<typeof create.mutateAsync>>) {
     if (res.data.instructions) {
@@ -112,12 +85,7 @@ export function PlanLimitDrawer({
     );
   }
 
-  function continueToPayment() {
-    if (!plan) return;
-    create.mutate({ plan: plan.plan, provider }, { onSuccess, onError });
-  }
-
-  /** Buy the whole suggested add-on set (branches + seats) alongside the plan. */
+  /** Buy the whole suggested add-on set (branch bundles + journey packs). */
   function keepEverything() {
     if (!plan || suggested.length === 0) return;
     create.mutate(
@@ -128,14 +96,6 @@ export function PlanLimitDrawer({
       },
       { onSuccess, onError },
     );
-  }
-
-  function freeSeat(staffId: string, action: "deactivate" | "remove") {
-    if (!organizationId || !branchId) return;
-    const vars = { organizationId, branchId, staffId };
-    const opts = { onSuccess: () => setFreed((n) => n + 1) };
-    if (action === "deactivate") deactivate.mutate(vars, opts);
-    else removeStaff.mutate(vars, opts);
   }
 
   return (
@@ -182,56 +142,11 @@ export function PlanLimitDrawer({
               </p>
             )}
 
-            {staffOver && (
-              <div className="mt-4">
-                <p className="text-xs font-medium uppercase text-gray-400">
-                  {t("planLimit.freeUp", { count: staffRemaining })}
-                </p>
-                <ul className="mt-2 space-y-2">
-                  {isLoading ? (
-                    <li className="flex items-center justify-center py-8 text-gray-400">
-                      <Loader2 className="size-5 animate-spin" />
-                    </li>
-                  ) : (
-                    staff.map((member) => (
-                      <li
-                        key={member.id}
-                        className="flex items-center gap-3 rounded-xl border border-gray-100 px-3 py-2"
-                      >
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-primary text-xs font-semibold text-white">
-                          {initials(member.firstName, member.lastName)}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-brand-black">
-                            {member.firstName} {member.lastName}
-                          </p>
-                          <p className="truncate text-xs text-gray-400">
-                            {member.roleName}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => freeSeat(member.id, "deactivate")}
-                          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-500 transition hover:bg-gray-50 disabled:opacity-40"
-                        >
-                          <UserMinus className="size-3.5" />
-                          {t("planLimit.deactivate")}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => freeSeat(member.id, "remove")}
-                          className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-40"
-                        >
-                          <UserX className="size-3.5" />
-                          {t("planLimit.remove")}
-                        </button>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </div>
+            {unitsOver && (
+              <p className="mt-3 flex items-start gap-2 rounded-xl border border-gray-100 px-3 py-2 text-xs text-gray-500">
+                <Gauge className="mt-0.5 size-4 shrink-0" />
+                {t("planLimit.unitsNote")}
+              </p>
             )}
           </div>
 
@@ -240,22 +155,13 @@ export function PlanLimitDrawer({
               <Button
                 type="button"
                 className="w-full bg-brand-primary text-white hover:bg-brand-primary/90"
-                disabled={busy}
+                disabled={create.isPending}
                 onClick={keepEverything}
               >
                 {create.isPending && <Loader2 className="size-4 animate-spin" />}
                 {keepLabel}
               </Button>
             )}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              disabled={!fits || busy}
-              onClick={continueToPayment}
-            >
-              {t("planLimit.continueToPayment")}
-            </Button>
             <Dialog.Close asChild>
               <Button type="button" variant="ghost" className="w-full">
                 {t("planLimit.pickLargerPlan")}
@@ -266,8 +172,4 @@ export function PlanLimitDrawer({
       </Dialog.Portal>
     </Dialog.Root>
   );
-}
-
-function initials(first: string, last: string): string {
-  return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
 }

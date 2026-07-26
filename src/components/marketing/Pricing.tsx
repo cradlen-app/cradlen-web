@@ -5,7 +5,7 @@ import { cn } from "@/common/utils/utils";
 import TrackedLink from "@/components/analytics/TrackedLink";
 
 type Tier = {
-  /** Stable, locale-independent tier id (trial | individual | center | network).
+  /** Stable, locale-independent tier id (trial | clinic | center | hospital).
    *  Lives on the tier itself rather than being derived from array position, so
    *  reordering the tiers can't silently mislabel the analytics `plan`. */
   id: string;
@@ -154,7 +154,7 @@ export default async function Pricing({ showHeading = true }: Props = {}) {
                   )}
                 >
                   <TrackedLink
-                    href="/sign-up"
+                    href={tier.id === "hospital" ? "/contact" : "/sign-up"}
                     event="cta_choose_plan"
                     eventProps={{ location: "pricing", plan: tier.id }}
                   >

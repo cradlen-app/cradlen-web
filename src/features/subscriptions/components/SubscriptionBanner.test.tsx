@@ -44,10 +44,10 @@ function sub(status: CurrentSubscription["status"]): { data: { data: CurrentSubs
           plan: "center",
           max_organizations: 1,
           max_branches: 1,
-          max_staff: 10,
         },
-        effective_limits: { max_branches: 1, max_staff: 10 },
+        effective_limits: { max_branches: 1, journey_units: 1000 },
         add_ons: [],
+        journey_usage: { allowance: 1000, consumed: 0, percent: 0 },
       },
     },
   };

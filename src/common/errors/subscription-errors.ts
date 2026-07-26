@@ -28,7 +28,7 @@ export function getSubscriptionLimit(error: unknown): SubscriptionLimitInfo | nu
 }
 
 export type PlanLimitOverage = {
-  resource: "staff" | "branches";
+  resource: "branches" | "units";
   limit: number;
   current: number;
   excess: number;
@@ -37,7 +37,7 @@ export type PlanLimitOverage = {
 export type SuggestedAddOn = {
   code: string;
   quantity: number;
-  resource: "branches" | "staff";
+  resource: "branches" | "units";
 };
 
 export type PlanChangeOverLimit = {

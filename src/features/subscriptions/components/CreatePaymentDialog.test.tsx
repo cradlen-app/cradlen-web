@@ -17,13 +17,14 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-const userAddOn: AvailableAddOn = {
-  id: "a-user",
-  code: "center_extra_user",
-  name: "Center — extra user",
-  kind: "EXTRA_USER",
+const packAddOn: AvailableAddOn = {
+  id: "a-pack",
+  code: "journey_pack_s",
+  name: "Journey pack S",
+  kind: "JOURNEY_PACK",
   delta_branches: 0,
-  delta_users: 1,
+  delta_users: 0,
+  delta_journey_units: 100,
   price: "2000",
   currency: "EGP",
 };
@@ -42,7 +43,7 @@ describe("CreatePaymentDialog (add-on mode)", () => {
       <CreatePaymentDialog
         mode="addon"
         organizationId="org-1"
-        addOn={userAddOn}
+        addOn={packAddOn}
         currentPlanCode="center"
         open
         onOpenChange={() => {}}
@@ -57,7 +58,7 @@ describe("CreatePaymentDialog (add-on mode)", () => {
       {
         plan: "center",
         provider: "INSTAPAY",
-        add_on_code: "center_extra_user",
+        add_on_code: "journey_pack_s",
         quantity: 2,
       },
       expect.any(Object),
@@ -72,7 +73,7 @@ describe("CreatePaymentDialog (add-on mode)", () => {
       <CreatePaymentDialog
         mode="addon"
         organizationId="org-1"
-        addOn={userAddOn}
+        addOn={packAddOn}
         currentPlanCode="center"
         subscriptionEndsAt={threeYearsOut}
         open
@@ -97,7 +98,7 @@ describe("CreatePaymentDialog (add-on mode)", () => {
       <CreatePaymentDialog
         mode="addon"
         organizationId="org-1"
-        addOn={userAddOn}
+        addOn={packAddOn}
         currentPlanCode="center"
         subscriptionEndsAt={halfYearOut}
         open
