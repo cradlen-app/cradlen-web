@@ -30,6 +30,7 @@ vi.mock("@/features/auth/lib/current-user", () => ({
 vi.mock("@/features/auth/lib/permissions", () => ({
   canAccessBilling: () => canBilling(),
   canDriveClinicalVisit: () => canDrive(),
+  isClinical: () => true,
 }));
 vi.mock("@/features/auth/store/authContextStore", () => ({
   useAuthContextStore: (selector: (s: Record<string, string>) => unknown) =>
@@ -61,6 +62,9 @@ vi.mock("../PrescriptionPrintModal", () => ({
 }));
 vi.mock("./VisitWorkspaceHeader", () => ({
   VisitWorkspaceHeader: () => <div data-testid="header" />,
+}));
+vi.mock("./notes/VisitNotesRail", () => ({
+  VisitNotesRail: () => <div data-testid="notes-rail" />,
 }));
 vi.mock("./tabs/OverviewTab", () => ({
   OverviewTab: () => <div data-testid="overview-tab" />,

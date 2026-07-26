@@ -14,6 +14,32 @@ describe("queryKeys — auth", () => {
   });
 });
 
+describe("queryKeys — visit notes", () => {
+  it("is a top-level family, not nested under visits", () => {
+    expect(queryKeys.visitNotes.all()).toEqual(["visit-notes"]);
+    // Nesting under `visits` would mean every note write invalidated the
+    // schedule, day stats and waiting lists too.
+    expect(queryKeys.visitNotes.all()).not.toEqual(queryKeys.visits.all());
+  });
+
+  it("scoped keys extend the broad key so prefix-match invalidation works", () => {
+    expect(queryKeys.visitNotes.forVisit("v1")).toEqual([
+      "visit-notes",
+      "visit",
+      "v1",
+    ]);
+    expect(queryKeys.visitNotes.forVisit("v1").slice(0, 1)).toEqual(
+      queryKeys.visitNotes.all(),
+    );
+    expect(
+      queryKeys.visitNotes.forPatient("p1", { page: 1, limit: 50 }),
+    ).toEqual(["visit-notes", "patient", "p1", { page: 1, limit: 50 }]);
+    expect(
+      queryKeys.visitNotes.forPatient("p1", { page: 1, limit: 50 }).slice(0, 1),
+    ).toEqual(queryKeys.visitNotes.all());
+  });
+});
+
 describe("queryKeys — visits", () => {
   it("broad/branch keys are hierarchical prefixes", () => {
     expect(queryKeys.visits.all()).toEqual(["visits"]);
