@@ -22,7 +22,10 @@ export type Plan = {
   plan: string;
   max_organizations: number;
   max_branches: number;
-  max_staff: number;
+  /** Weighted journey units included per billing year (0 for contact-sales). */
+  included_journey_units: number;
+  /** Negotiated off-platform (hospital) — excluded from self-serve checkout. */
+  is_contact_sales: boolean;
   prices: PlanPrice[];
 };
 
@@ -31,14 +34,14 @@ export type CurrentSubscriptionPlan = {
   plan: string;
   max_organizations: number;
   max_branches: number;
-  max_staff: number;
 };
 
-export type AddOnKind = "BRANCH_BUNDLE" | "EXTRA_USER";
+export type AddOnKind = "BRANCH_BUNDLE" | "EXTRA_USER" | "JOURNEY_PACK";
 
 export type EffectiveLimits = {
   max_branches: number;
-  max_staff: number;
+  /** Journey units allowed this period. `null` = unlimited (contact-sales). */
+  journey_units: number | null;
 };
 
 /** An add-on the org owns against its current subscription. */
@@ -59,8 +62,18 @@ export type AvailableAddOn = {
   kind: AddOnKind;
   delta_branches: number;
   delta_users: number;
+  delta_journey_units: number;
   price: string;
   currency: string;
+};
+
+/** Compact journey-metering summary folded into the current-subscription read. */
+export type JourneyUsageSummary = {
+  /** Units allowed this period. `null` = unlimited (contact-sales). */
+  allowance: number | null;
+  consumed: number;
+  /** 0–100 percent of allowance consumed (0 when unlimited). */
+  percent: number;
 };
 
 export type CurrentSubscription = {
@@ -72,6 +85,22 @@ export type CurrentSubscription = {
   plan: CurrentSubscriptionPlan;
   effective_limits: EffectiveLimits;
   add_ons: OwnedAddOn[];
+  journey_usage: JourneyUsageSummary;
+};
+
+/** Full journey-metering breakdown from `GET .../subscription/usage`. */
+export type JourneyUsage = {
+  /** Units allowed this period. `null` = unlimited (contact-sales). */
+  allowance: number | null;
+  consumed: number;
+  /** Units left before new billable journeys are blocked. `null` = unlimited. */
+  remaining: number | null;
+  /** 0–100 percent of allowance consumed (0 when unlimited). */
+  percent: number;
+  /** Whether the org is currently blocked from opening new billable journeys. */
+  blocked: boolean;
+  /** Units consumed this period, keyed by care-path code. */
+  breakdown: Record<string, number>;
 };
 
 export type PaymentProof = {

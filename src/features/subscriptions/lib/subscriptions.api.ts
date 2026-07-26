@@ -5,6 +5,7 @@ import type {
   CreatePaymentRequest,
   CreatePaymentResponse,
   CurrentSubscription,
+  JourneyUsage,
   Plan,
   SubscriptionPayment,
 } from "./subscriptions.types";
@@ -23,6 +24,13 @@ export function listAddOns(organizationId: string) {
 export function getCurrentSubscription(organizationId: string) {
   return apiAuthFetch<ApiResponse<CurrentSubscription>>(
     `/organizations/${organizationId}/subscription`,
+  );
+}
+
+/** Live journey-metering usage for the current billing period. */
+export function getSubscriptionUsage(organizationId: string) {
+  return apiAuthFetch<ApiResponse<JourneyUsage>>(
+    `/organizations/${organizationId}/subscription/usage`,
   );
 }
 

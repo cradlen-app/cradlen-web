@@ -5,6 +5,7 @@ import { Check, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/common/utils/utils";
+import { Link } from "@/i18n/navigation";
 import { usePlans } from "../hooks/useSubscription";
 import { formatMoney } from "../lib/format";
 import { CreatePaymentDialog } from "./CreatePaymentDialog";
@@ -37,8 +38,11 @@ export function PlanCards({
     );
   }
 
-  // Free trial isn't purchasable — hide it from the picker.
-  const plans = (data?.data ?? []).filter((p) => p.plan !== "free_trial");
+  // Free trial isn't purchasable — hide it from the picker. Contact-sales plans
+  // (hospital) sort to the end regardless of their journey-unit ordering.
+  const plans = (data?.data ?? [])
+    .filter((p) => p.plan !== "free_trial")
+    .sort((a, b) => Number(a.is_contact_sales) - Number(b.is_contact_sales));
 
   return (
     <>
@@ -70,39 +74,53 @@ export function PlanCards({
                 )}
               </div>
 
-              <p className="mt-3 text-2xl font-semibold text-brand-black">
-                {yearly
-                  ? formatMoney(yearly.price, yearly.currency, locale)
-                  : "-"}
-                <span className="text-sm font-normal text-gray-400">
-                  {" "}
-                  / {t("plans.perYear")}
-                </span>
-              </p>
+              {plan.is_contact_sales ? (
+                <p className="mt-3 text-2xl font-semibold text-brand-black">
+                  {t("plans.contactPrice")}
+                </p>
+              ) : (
+                <p className="mt-3 text-2xl font-semibold text-brand-black">
+                  {yearly
+                    ? formatMoney(yearly.price, yearly.currency, locale)
+                    : "-"}
+                  <span className="text-sm font-normal text-gray-400">
+                    {" "}
+                    / {t("plans.perYear")}
+                  </span>
+                </p>
+              )}
 
               <ul className="mt-4 flex-1 space-y-2 text-sm text-gray-500">
                 <li>{t("plans.limits.branches", { count: plan.max_branches })}</li>
-                <li>{t("plans.limits.staff", { count: plan.max_staff })}</li>
                 <li>
-                  {t("plans.limits.organizations", {
-                    count: plan.max_organizations,
-                  })}
+                  {plan.is_contact_sales
+                    ? t("plans.limits.customUnits")
+                    : t("plans.limits.journeyUnits", {
+                        count: plan.included_journey_units,
+                      })}
                 </li>
+                <li>{t("plans.limits.unlimitedStaff")}</li>
               </ul>
 
-              <Button
-                type="button"
-                className={cn(
-                  "mt-5 w-full",
-                  isCurrent
-                    ? ""
-                    : "bg-brand-primary text-white hover:bg-brand-primary/90",
-                )}
-                variant={isCurrent ? "outline" : "default"}
-                onClick={() => setSelectedPlan(plan)}
-              >
-                {isCurrent ? t("plans.renew") : t("plans.upgrade")}
-              </Button>
+              {plan.is_contact_sales ? (
+                <Button asChild variant="outline" className="mt-5 w-full">
+                  <Link href="/contact">{t("plans.contactSales")}</Link>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className={cn(
+                    "mt-5 w-full",
+                    isCurrent
+                      ? ""
+                      : "bg-brand-primary text-white hover:bg-brand-primary/90",
+                  )}
+                  variant={isCurrent ? "outline" : "default"}
+                  onClick={() => setSelectedPlan(plan)}
+                >
+                  {isCurrent ? t("plans.renew") : t("plans.upgrade")}
+                </Button>
+              )}
             </div>
           );
         })}
