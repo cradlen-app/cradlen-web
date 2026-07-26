@@ -44,6 +44,10 @@ vi.mock(
 vi.mock("@/features/visits/components/visit-workspace/tabs/HistoryTab", () => ({
   HistoryTab: () => <div data-testid="history" />,
 }));
+vi.mock(
+  "@/features/visits/components/visit-workspace/notes/PatientNotesRail",
+  () => ({ PatientNotesRail: () => <div data-testid="notes-rail" /> }),
+);
 vi.mock("./PatientProfileDrawer", () => ({
   PatientProfileDrawer: ({ open }: { open: boolean }) => (
     <div data-testid="profile-drawer">{open ? "open" : "closed"}</div>

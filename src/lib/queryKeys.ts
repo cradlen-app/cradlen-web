@@ -47,6 +47,20 @@ export const queryKeys = {
       ["visits", "vitals-trend", patientId, excludeVisitId] as const,
   },
 
+  // ── Visit notes ───────────────────────────────────────────────────────────
+  // Deliberately a top-level family rather than a member of `visits`: the only
+  // broad key there is ["visits"], so invalidating after every note write would
+  // also refetch the schedule, day stats, waiting lists and monthly analytics.
+  visitNotes: {
+    /** Broad key — matches every visit-notes query. */
+    all: () => ["visit-notes"] as const,
+    /** The caller's own notes for one visit. */
+    forVisit: (visitId: string) => ["visit-notes", "visit", visitId] as const,
+    /** The caller's own notes across all of a patient's visits. */
+    forPatient: (patientId: string, opts: { page: number; limit: number }) =>
+      ["visit-notes", "patient", patientId, opts] as const,
+  },
+
   // ── Medical-rep visits ────────────────────────────────────────────────────
   medicalRepVisits: {
     /** Broad key — matches all medical-rep visit queries. */

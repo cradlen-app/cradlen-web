@@ -2153,23 +2153,35 @@
         "triplets": "expecting triplets",
         "multiples": "expecting multiples"
       },
-      "rail": {
-        "redFlags": {
-          "title": "Red Flags",
-          "empty": "No red flags yet for this patient.",
-          "error": "Failed to load red flags."
-        },
-        "alerts": {
-          "title": "Alerts",
-          "empty": "No active alerts."
-        },
-        "compliments": {
-          "title": "Repeated Compliments",
-          "empty": "No repeated findings recorded yet."
-        },
-        "comments": {
-          "title": "Comments",
-          "empty": "No comments on this visit yet."
+      "notes": {
+        "title": "Visit Notes",
+        "patientTitle": "My Notes",
+        "empty": "No notes yet.",
+        "patientEmpty": "You haven't written any notes for this patient.",
+        "loadError": "Failed to load notes.",
+        "retry": "Retry",
+        "placeholder": "Add a note…",
+        "add": "Add note",
+        "adding": "Adding…",
+        "save": "Save",
+        "saving": "Saving…",
+        "cancel": "Cancel",
+        "edit": "Edit note",
+        "delete": "Delete note",
+        "counter": "{count}/{max}",
+        "addedAfterClose": "Added after close",
+        "closedHint": "This visit is closed. Existing notes are read-only, but you can still add new ones.",
+        "visitOn": "Visit on {date}",
+        "visitCancelled": "Cancelled",
+        "loadMore": "Load more",
+        "addError": "Could not add the note.",
+        "updateError": "Could not save the note.",
+        "deleteError": "Could not delete the note.",
+        "lockedError": "This visit was closed. Existing notes can no longer be edited or deleted.",
+        "deleteConfirm": {
+          "title": "Delete this note?",
+          "description": "This note will be removed from the visit. This can't be undone.",
+          "confirm": "Delete"
         }
       },
       "charts": {
