@@ -117,7 +117,7 @@ export function PaymentDetailPage({ paymentId }: { paymentId: string }) {
                     <span className="text-brand-black">
                       {item.kind === "PLAN"
                         ? t("detail.itemPlan")
-                        : t("detail.itemSeats", { count: item.quantity })}
+                        : t("detail.itemAddOn", { count: item.quantity })}
                     </span>
                     <span className="font-medium tabular-nums text-brand-black">
                       {formatMoney(item.amount, payment.currency, locale)}

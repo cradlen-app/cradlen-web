@@ -15,6 +15,7 @@ import {
 import { useCurrentSubscription } from "../hooks/useSubscription";
 import { formatDate } from "../lib/format";
 import { AddOnsPanel } from "./AddOnsPanel";
+import { JourneyUsageMeter } from "./JourneyUsageMeter";
 import { PlanCards } from "./PlanCards";
 import { SubscriptionStatusBadge } from "./status-badges";
 
@@ -83,10 +84,15 @@ export function SubscriptionSection() {
               value={t("plans.limitsInline", {
                 branches:
                   sub.effective_limits?.max_branches ?? sub.plan.max_branches,
-                staff: sub.effective_limits?.max_staff ?? sub.plan.max_staff,
+                units:
+                  sub.effective_limits?.journey_units == null
+                    ? t("plans.unlimited")
+                    : sub.effective_limits.journey_units,
               })}
             />
           </dl>
+
+          <JourneyUsageMeter organizationId={organizationId} />
 
           {sub.add_ons && sub.add_ons.length > 0 && (
             <div className="mt-4">

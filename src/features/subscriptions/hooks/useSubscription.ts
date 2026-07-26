@@ -7,6 +7,7 @@ import {
   createPayment,
   getCurrentSubscription,
   getPayment,
+  getSubscriptionUsage,
   listAddOns,
   listPayments,
   listPlans,
@@ -28,6 +29,14 @@ export function useCurrentSubscription(organizationId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.subscription.current(organizationId ?? ""),
     queryFn: () => getCurrentSubscription(organizationId!),
+    enabled: !!organizationId,
+  });
+}
+
+export function useSubscriptionUsage(organizationId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.subscription.usage(organizationId ?? ""),
+    queryFn: () => getSubscriptionUsage(organizationId!),
     enabled: !!organizationId,
   });
 }

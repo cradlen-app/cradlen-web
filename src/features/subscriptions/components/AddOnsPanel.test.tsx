@@ -25,18 +25,20 @@ const addOns: AvailableAddOn[] = [
     name: "Center — extra branch",
     kind: "BRANCH_BUNDLE",
     delta_branches: 1,
-    delta_users: 5,
-    price: "8000",
+    delta_users: 0,
+    delta_journey_units: 0,
+    price: "21000",
     currency: "EGP",
   },
   {
-    id: "a-user",
-    code: "center_extra_user",
-    name: "Center — extra user",
-    kind: "EXTRA_USER",
+    id: "a-pack",
+    code: "journey_pack_s",
+    name: "Journey pack S",
+    kind: "JOURNEY_PACK",
     delta_branches: 0,
-    delta_users: 1,
-    price: "2000",
+    delta_users: 0,
+    delta_journey_units: 100,
+    price: "6000",
     currency: "EGP",
   },
 ];
@@ -60,7 +62,10 @@ describe("AddOnsPanel", () => {
       />,
     );
     expect(screen.getByText("Extra branch")).toBeInTheDocument();
-    expect(screen.getByText("Extra user")).toBeInTheDocument();
+    expect(screen.getByText("Journey pack")).toBeInTheDocument();
+    // grants dispatch on kind: branch bundle vs journey pack
+    expect(screen.getByText(/\+1 branch/i)).toBeInTheDocument();
+    expect(screen.getByText(/\+100 journey units/i)).toBeInTheDocument();
 
     const buyButtons = screen.getAllByRole("button", { name: /add/i });
     fireEvent.click(buyButtons[0]); // the branch bundle

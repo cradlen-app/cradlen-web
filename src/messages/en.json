@@ -61,7 +61,7 @@
   "pricingPage": {
     "eyebrow": "Pricing",
     "heading": "Pricing that grows with your clinic.",
-    "subheading": "One annual price per branch. Every plan includes the full product — journeys, examinations, prescriptions, billing and the patient portal. No per-seat fees, no feature gates.",
+    "subheading": "One annual plan, priced by patient-journey volume. Every plan includes the full product — journeys, examinations, prescriptions, billing and the patient portal. Unlimited staff and users, no feature gates.",
     "faqHeading": "Pricing questions",
     "faq": [
       {
@@ -69,12 +69,16 @@
         "a": "Yes. Every new clinic gets 14 days free with the full product unlocked. No credit card is required to start, and nothing is charged automatically when the trial ends."
       },
       {
+        "q": "What is a journey unit?",
+        "a": "A journey is a patient's care pathway, weighted by complexity: a general gynecology visit is free, a pregnancy is one unit, a surgery two, and infertility four. Your plan includes a yearly pool of units shared across all your branches, and you can top it up any time with a journey pack."
+      },
+      {
         "q": "What counts as a branch?",
-        "a": "A branch is one physical location. Plans are priced per branch, so a single clinic needs one plan and a centre with three locations needs the Center or Network plan."
+        "a": "A branch is one physical location. Every plan includes one branch and you can add more as add-ons — all branches draw from the same shared pool of journey units."
       },
       {
         "q": "Do you charge per staff member?",
-        "a": "No. Invite as many doctors, receptionists and owners as your clinic needs — staff seats are not metered and do not change the price."
+        "a": "No. Invite as many doctors, receptionists and owners as your clinic needs — staff and users are unlimited on every plan."
       },
       {
         "q": "Can I change plan later?",
@@ -627,9 +631,9 @@
     },
     "planNames": {
       "free_trial": "Free Trial",
-      "individual": "Individual Clinic",
+      "clinic": "Clinic",
       "center": "Center",
-      "network": "Network of Centers"
+      "hospital": "Hospital"
     },
     "plans": {
       "title": "Choose a plan",
@@ -637,16 +641,34 @@
       "current": "Current",
       "upgrade": "Upgrade",
       "renew": "Renew",
-      "limitsInline": "{branches} branches · {staff} staff",
+      "unlimited": "Unlimited",
+      "contactPrice": "Let's talk",
+      "contactSales": "Contact sales",
+      "limitsInline": "{branches} branches · {units} journey units",
       "limits": {
         "branches": "Up to {count} branches",
-        "staff": "Up to {count} staff",
-        "organizations": "Up to {count} organizations"
+        "journeyUnits": "{count} journey units / year",
+        "customUnits": "Custom journey volume",
+        "unlimitedStaff": "Unlimited staff & users"
+      }
+    },
+    "usage": {
+      "title": "Journey usage",
+      "used": "{consumed} of {allowance} units",
+      "remaining": "{count} units remaining this year",
+      "unlimited": "Unlimited",
+      "blocked": "You've reached your journey limit. New billable journeys are paused until you add a journey pack or upgrade.",
+      "breakdownTitle": "By care path",
+      "carePaths": {
+        "OBGYN_GENERAL": "General gynecology",
+        "OBGYN_PREGNANCY": "Pregnancy",
+        "OBGYN_SURGICAL": "Surgical",
+        "OBGYN_INFERTILITY": "Infertility"
       }
     },
     "addOns": {
       "title": "Add-ons",
-      "description": "Extra branches and user seats on top of your plan.",
+      "description": "Extra branches and journey packs on top of your plan.",
       "empty": "No add-ons available for your plan.",
       "buy": "Add",
       "owned": "Your add-ons",
@@ -656,11 +678,12 @@
       "perYearFull": "{amount} / year",
       "kinds": {
         "BRANCH_BUNDLE": "Extra branch",
+        "JOURNEY_PACK": "Journey pack",
         "EXTRA_USER": "Extra user"
       },
       "grants": {
-        "branchesAndUsers": "+{branches} branch · +{users} users",
-        "usersOnly": "+{users} user"
+        "branchesOnly": "+{branches} branch",
+        "journeyUnits": "+{units} journey units"
       },
       "quantity": "Quantity"
     },
@@ -681,19 +704,16 @@
     },
     "planLimit": {
       "title": "{plan} doesn't fit your usage yet",
-      "overview": "Cover the gap with add-ons, free up staff, or choose a larger plan.",
+      "overview": "Cover the gap with add-ons or choose a larger plan.",
       "resource": {
-        "staff": "Staff",
-        "branches": "Branches"
+        "branches": "Branches",
+        "units": "Journey units"
       },
       "branchesNote": "Branches can't be removed here. Keep them by adding branch bundles, or pick a larger plan.",
-      "freeUp": "Free up {count} more {count, plural, one {seat} other {seats}}",
-      "deactivate": "Deactivate",
-      "remove": "Remove",
+      "unitsNote": "Journey units already used this period can't be reduced. Cover them with a journey pack, or pick a larger plan.",
       "keepEverything": "Keep everything",
       "addBranches": "+{count} {count, plural, one {branch} other {branches}}",
-      "addSeats": "+{count} {count, plural, one {seat} other {seats}}",
-      "continueToPayment": "Continue without add-ons",
+      "addUnits": "+{count} journey {count, plural, one {pack} other {packs}}",
       "pickLargerPlan": "Pick a larger plan"
     },
     "payments": {
@@ -712,7 +732,7 @@
       "instructionsFallback": "Complete your transfer, then upload the receipt below. Reference: {reference}",
       "lineItems": "What you're paying for",
       "itemPlan": "Plan (1 year)",
-      "itemSeats": "{count} extra {count, plural, one {seat} other {seats}}",
+      "itemAddOn": "Add-on ×{count}",
       "payTo": "Pay to",
       "amount": "Amount",
       "reference": "Reference",
@@ -988,21 +1008,22 @@
           "note": "14 days, no card",
           "cta": "Start free",
           "features": [
-            "1 clinic, 1 branch",
-            "Up to 5 staff",
-            "Full patient journeys"
+            "1 branch",
+            "Unlimited staff & users",
+            "25 journey units"
           ]
         },
         {
-          "id": "individual",
-          "name": "Individual Clinic",
-          "price": "8,000 EGP",
+          "id": "clinic",
+          "name": "Clinic",
+          "price": "15,000 EGP",
           "period": "/year",
-          "note": "For solo doctors",
-          "cta": "Choose plan",
+          "note": "For single clinics",
+          "cta": "Choose Clinic",
           "features": [
-            "1 branch",
-            "Up to 2 staff",
+            "1 branch, extra branches as add-ons",
+            "Unlimited staff & users",
+            "300 journey units per year",
             "All clinical features",
             "Cash sessions & invoices"
           ]
@@ -1010,27 +1031,29 @@
         {
           "id": "center",
           "name": "Center",
-          "price": "22,000 EGP",
+          "price": "35,000 EGP",
           "period": "/year",
           "note": "For growing centers",
           "cta": "Choose Center",
           "features": [
             "1 branch, extra branches as add-ons",
-            "Up to 10 staff",
+            "Unlimited staff & users",
+            "1,000 journey units per year",
             "Analytics dashboards",
             "Medical Rep CRM"
           ]
         },
         {
-          "id": "network",
-          "name": "Network of Centers",
-          "price": "50,000 EGP",
-          "period": "/year",
-          "note": "For multi-site groups",
-          "cta": "Choose plan",
+          "id": "hospital",
+          "name": "Hospital",
+          "price": "Let's talk",
+          "period": "",
+          "note": "For hospitals & groups",
+          "cta": "Contact sales",
           "features": [
-            "Up to 3 branches",
-            "Up to 25 staff",
+            "Unlimited branches",
+            "Unlimited staff & users",
+            "Custom journey volume",
             "Priority support & SLA",
             "Consolidated reporting"
           ]

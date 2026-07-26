@@ -64,12 +64,13 @@ export function AddOnsPanel({
                 </span>
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                {addOn.kind === "BRANCH_BUNDLE"
-                  ? t("addOns.grants.branchesAndUsers", {
-                      branches: addOn.delta_branches,
-                      users: addOn.delta_users,
+                {addOn.kind === "JOURNEY_PACK"
+                  ? t("addOns.grants.journeyUnits", {
+                      units: addOn.delta_journey_units,
                     })
-                  : t("addOns.grants.usersOnly", { users: addOn.delta_users })}
+                  : t("addOns.grants.branchesOnly", {
+                      branches: addOn.delta_branches,
+                    })}
               </p>
               <Button
                 type="button"
