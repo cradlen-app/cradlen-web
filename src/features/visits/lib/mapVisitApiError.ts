@@ -10,7 +10,9 @@ type ApiErrorBody = {
   error?: {
     code?: string;
     message?: string | string[];
-    details?: { fields?: Record<string, string[]> };
+    // Not every error's `details` is a field map — PATIENT_HAS_OPEN_VISIT
+    // carries `{ visitId }` and JOURNEY_ALLOWANCE_EXCEEDED carries counters.
+    details?: Record<string, unknown> & { fields?: Record<string, string[]> };
   };
 };
 
@@ -20,11 +22,25 @@ type ApiErrorBody = {
  *  - `fields`     → set inline field errors.
  *  - `toastKey`   → toast a known translated message (`create.<key>`).
  *  - `toastMessage` → toast a server-provided message verbatim.
+ *  - `allowanceExceeded` → the org is out of billable journey units; the
+ *    caller decides whether to offer a subscription CTA (owners only).
  */
 export type VisitSubmitError =
   | { kind: "fields"; fieldErrors: Record<string, string> }
-  | { kind: "toastKey"; key: "errorPatientHasOpenVisit" | "errorGeneric" }
-  | { kind: "toastMessage"; message: string };
+  | {
+      kind: "toastKey";
+      key: "errorPatientHasOpenVisit" | "errorGeneric";
+      /** The blocking visit, when the API told us which one it is. */
+      visitId?: string;
+    }
+  | { kind: "toastMessage"; message: string }
+  | {
+      kind: "allowanceExceeded";
+      remaining: number;
+      needed: number;
+      allowance: number;
+      consumed: number;
+    };
 
 /**
  * Translates a visit book/update failure into a presentation-ready outcome,
@@ -35,7 +51,7 @@ export type VisitSubmitError =
  */
 export function mapVisitApiError(
   error: unknown,
-  template: FormTemplateDto,
+  template?: FormTemplateDto,
 ): VisitSubmitError {
   if (!(error instanceof ApiError)) {
     return { kind: "toastKey", key: "errorGeneric" };
@@ -44,11 +60,40 @@ export function mapVisitApiError(
   const apiError = (error.body as ApiErrorBody | undefined)?.error;
 
   if (apiError?.code === "PATIENT_HAS_OPEN_VISIT") {
-    return { kind: "toastKey", key: "errorPatientHasOpenVisit" };
+    // The API tells us which visit is blocking; pass it up so the caller can
+    // offer to open it instead of leaving the user at a dead end.
+    const visitId = apiError.details?.visitId;
+    return {
+      kind: "toastKey",
+      key: "errorPatientHasOpenVisit",
+      ...(typeof visitId === "string" ? { visitId } : {}),
+    };
+  }
+
+  // Checked before the `details.fields` branch below: this error's `details` is
+  // a counter bag, not a field map, and would otherwise fall into the mapper.
+  if (apiError?.code === "JOURNEY_ALLOWANCE_EXCEEDED") {
+    const d = apiError.details ?? {};
+    const num = (v: unknown) => (typeof v === "number" ? v : 0);
+    return {
+      kind: "allowanceExceeded",
+      remaining: num(d.remaining),
+      needed: num(d.needed),
+      allowance: num(d.allowance),
+      consumed: num(d.consumed),
+    };
   }
 
   const details = apiError?.details?.fields;
   if (details) {
+    // Without a template there is nothing to map field paths onto — degrade to
+    // a readable toast rather than dropping the server's explanation.
+    if (!template) {
+      return {
+        kind: "toastMessage",
+        message: Object.values(details).flat().join(", "),
+      };
+    }
     return { kind: "fields", fieldErrors: mapServerFieldErrors(template, details) };
   }
 
@@ -57,9 +102,11 @@ export function mapVisitApiError(
   // fall back to a joined toast when none resolve to a known field.
   const message = apiError?.message;
   if (Array.isArray(message)) {
-    const mapped = mapServerMessageErrors(template, message);
-    if (Object.keys(mapped).length > 0) {
-      return { kind: "fields", fieldErrors: mapped };
+    if (template) {
+      const mapped = mapServerMessageErrors(template, message);
+      if (Object.keys(mapped).length > 0) {
+        return { kind: "fields", fieldErrors: mapped };
+      }
     }
     return { kind: "toastMessage", message: message.join(", ") };
   }

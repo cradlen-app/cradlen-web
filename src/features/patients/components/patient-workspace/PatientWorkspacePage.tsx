@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,11 @@ import {
 import {
   canManagePatient,
   canOpenPatientWorkspace,
+  canSelfStartVisit,
 } from "@/features/auth/lib/permissions";
 import { useAuthContextStore } from "@/features/auth/store/authContextStore";
 import { usePatient } from "@/features/patients/hooks/usePatient";
+import { QuickStartVisitDialog } from "@/features/visits/components/QuickStartVisitDialog";
 import { PatientOverview } from "@/features/visits/components/visit-workspace/overview/PatientOverview";
 import { PatientNotesRail } from "@/features/visits/components/visit-workspace/notes/PatientNotesRail";
 import { HistoryTab } from "@/features/visits/components/visit-workspace/tabs/HistoryTab";
@@ -40,7 +42,9 @@ export function PatientWorkspacePage({ patientId }: Props) {
 
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [editingProfile, setEditingProfile] = useState(false);
+  const [startingVisit, setStartingVisit] = useState(false);
   const canManage = canManagePatient(profile);
+  const canSelfStart = canSelfStartVisit(profile);
 
   if (userLoading) {
     return (
@@ -91,17 +95,29 @@ export function PatientWorkspacePage({ patientId }: Props) {
             { label: fullName || (isLoading ? "…" : t("title")) },
           ]}
         />
-        {canManage && patient && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setEditingProfile(true)}
-          >
-            <Pencil className="size-3.5" aria-hidden="true" />
-            {t("edit")}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {canSelfStart && patient && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setStartingVisit(true)}
+            >
+              <Play className="size-3.5" aria-hidden="true" />
+              {t("startVisit")}
+            </Button>
+          )}
+          {canManage && patient && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setEditingProfile(true)}
+            >
+              <Pencil className="size-3.5" aria-hidden="true" />
+              {t("edit")}
+            </Button>
+          )}
+        </div>
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
@@ -143,6 +159,15 @@ export function PatientWorkspacePage({ patientId }: Props) {
           patient={patient}
           open={editingProfile}
           onOpenChange={setEditingProfile}
+        />
+      )}
+
+      {patient && (
+        <QuickStartVisitDialog
+          open={startingVisit}
+          onOpenChange={setStartingVisit}
+          patientId={patientId}
+          patientName={fullName}
         />
       )}
     </main>

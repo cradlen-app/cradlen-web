@@ -238,6 +238,7 @@ export type BookVisitExistingPatientRequest = VisitIntake & {
   priority: ApiVisitPriority;
   scheduled_at: string;
   branch_id?: string;
+  start_now?: boolean;
 };
 
 // New patient booking
@@ -252,11 +253,39 @@ export type BookVisitNewPatientRequest = VisitIntake & {
   priority: ApiVisitPriority;
   scheduled_at: string;
   branch_id?: string;
+  start_now?: boolean;
+};
+
+/**
+ * Doctor self-start booking from the patient workspace — the walk-in flow for a
+ * clinician with no reception on duty.
+ *
+ * Typed strictly against the API's `BookVisitDto`, unlike the two reception
+ * variants above: those predate `service_id`/`specialty_code`/`visitor_type` and
+ * work only because the reception path builds its payload from a dynamic form
+ * template. Here the payload is hand-built, so it is spelled out in full and a
+ * DTO change surfaces as a compile error.
+ *
+ * `start_now` makes the API create the visit already IN_CONSULTATION.
+ */
+export type QuickStartVisitRequest = {
+  visitor_type: "PATIENT";
+  patient_id: string;
+  specialty_code: string;
+  service_id: string;
+  assigned_doctor_id: string;
+  appointment_type: ApiVisitType;
+  priority: ApiVisitPriority;
+  scheduled_at: string;
+  branch_id?: string;
+  chief_complaint?: string;
+  start_now: true;
 };
 
 export type BookVisitRequest =
   | BookVisitExistingPatientRequest
-  | BookVisitNewPatientRequest;
+  | BookVisitNewPatientRequest
+  | QuickStartVisitRequest;
 
 // Visit PATCH — every field optional (partial correction of an existing visit).
 // Canonical home for the shape; visits.api.ts and the update hook re-export it.

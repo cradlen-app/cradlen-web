@@ -15,6 +15,7 @@ const {
   toastSuccess,
   toastError,
   mockValidate,
+  mockMapVisitApiError,
 } = vi.hoisted(() => ({
   mockOrgSpecialties: vi.fn(),
   mockFormTemplate: vi.fn(),
@@ -26,6 +27,7 @@ const {
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
   mockValidate: vi.fn(),
+  mockMapVisitApiError: vi.fn(),
 }));
 
 vi.mock("@/features/settings/hooks/useOrgSpecialties", () => ({
@@ -67,7 +69,7 @@ vi.mock("sonner", () => ({
   toast: { success: toastSuccess, error: toastError },
 }));
 vi.mock("../lib/mapVisitApiError", () => ({
-  mapVisitApiError: () => ({ kind: "message", message: "boom" }),
+  mapVisitApiError: (...args: unknown[]) => mockMapVisitApiError(...args),
 }));
 
 import { BookVisitDrawer } from "./BookVisitDrawer";
@@ -100,6 +102,10 @@ describe("BookVisitDrawer", () => {
     });
     mockPatient.mockReturnValue({ data: undefined, isLoading: false });
     mockVisitCharges.mockReturnValue({ charges: [], isLoading: false });
+    mockMapVisitApiError.mockReturnValue({
+      kind: "toastMessage",
+      message: "boom",
+    });
     mockExecState.mockReturnValue({
       formValues: {},
       searchState: {},
@@ -177,5 +183,25 @@ describe("BookVisitDrawer", () => {
     expect(toastSuccess).toHaveBeenCalled();
     expect(props.onOpenChange).toHaveBeenCalledWith(false);
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("surfaces an exhausted journey allowance instead of a generic toast", async () => {
+    // Reception hits the same org-wide limit a self-starting doctor would.
+    submit.mockRejectedValue(new Error("403"));
+    mockMapVisitApiError.mockReturnValue({
+      kind: "allowanceExceeded",
+      remaining: 0,
+      needed: 1,
+      allowance: 50,
+      consumed: 50,
+    });
+    const props = baseProps();
+    renderWithIntl(<BookVisitDrawer {...props} />);
+    fireEvent.click(screen.getByRole("button", { name: "Add to waiting list" }));
+
+    await waitFor(() => expect(toastError).toHaveBeenCalled());
+    expect(toastError.mock.calls[0][0]).toMatch(/journey allowance is used up/i);
+    // Not dismissed — the drawer keeps the reception user's typed input.
+    expect(props.onOpenChange).not.toHaveBeenCalledWith(false);
   });
 });
