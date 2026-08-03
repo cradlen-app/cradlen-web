@@ -66,6 +66,7 @@ import { useBranchInProgress } from "./useBranchInProgress";
 import { useCancelVisit } from "./useCancelVisit";
 import { useStartVisit } from "./useStartVisit";
 import { useBookVisit } from "./useBookVisit";
+import { useQuickStartVisit } from "./useQuickStartVisit";
 import { useBookMedicalRepVisit } from "./useBookMedicalRepVisit";
 import { useUpdateVisit } from "./useUpdateVisit";
 import { useUpdateVisitStatus } from "./useUpdateVisitStatus";
@@ -438,6 +439,19 @@ describe("mutation hooks", () => {
     vi.mocked(visitsApi.bookMedicalRepVisit).mockResolvedValue({ id: "mv-1" } as never);
     await runSuccess(() => useBookMedicalRepVisit(), { repName: "Rep" });
     expect(visitsApi.bookMedicalRepVisit).toHaveBeenCalled();
+  });
+
+  it("useQuickStartVisit posts the self-start booking through bookVisit", async () => {
+    vi.mocked(visitsApi.bookVisit).mockResolvedValue({
+      data: { visit: { id: "v-now" } },
+    } as never);
+    const body = {
+      visitor_type: "PATIENT",
+      patient_id: "p-1",
+      start_now: true,
+    };
+    await runSuccess(() => useQuickStartVisit(), body as never);
+    expect(visitsApi.bookVisit).toHaveBeenCalledWith(body);
   });
 
   it("useUpdateVisit / useUpdateVisitStatus", async () => {

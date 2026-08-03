@@ -6,6 +6,7 @@ import {
   canOpenMedicalRepWorkspace,
   canOpenPatientWorkspace,
   canPracticeSpecialty,
+  canSelfStartVisit,
   canViewMedicalReps,
   specialtyMatchesOrg,
 } from "./permissions";
@@ -212,5 +213,26 @@ describe("canPracticeSpecialty", () => {
         }),
       ),
     ).toBe(false);
+  });
+});
+
+describe("canSelfStartVisit", () => {
+  it("is true for every doctor persona", () => {
+    expect(canSelfStartVisit(doctor)).toBe(true);
+    expect(canSelfStartVisit(doctorOwner)).toBe(true);
+    expect(canSelfStartVisit(doctorBranchManager)).toBe(true);
+  });
+
+  it("is false for non-clinical staff, including authority without a clinical role", () => {
+    // A non-clinical owner holds no ProviderService rows, so they could never
+    // be the assigned doctor the backend's self-booking guard requires.
+    expect(canSelfStartVisit(owner)).toBe(false);
+    expect(canSelfStartVisit(branchManager)).toBe(false);
+    expect(canSelfStartVisit(receptionist)).toBe(false);
+    expect(canSelfStartVisit(accountant)).toBe(false);
+  });
+
+  it("is false for an undefined profile", () => {
+    expect(canSelfStartVisit(undefined)).toBe(false);
   });
 });

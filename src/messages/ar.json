@@ -1139,6 +1139,28 @@
       "tabs": {
         "overview": "نظرة عامة",
         "history": "السجل"
+      },
+      "startVisit": "بدء زيارة",
+      "startVisitDialog": {
+        "title": "بدء زيارة",
+        "description": "إنشاء زيارة لـ {name} وفتح الكشف الآن.",
+        "service": "الخدمة",
+        "servicePlaceholder": "اختر الخدمة",
+        "noServices": "غير مصرّح لك بأي خدمة قابلة للفوترة في هذا الفرع. اطلب من مالك العيادة إضافتها.",
+        "appointmentType": "نوع الزيارة",
+        "typeVisit": "زيارة",
+        "typeFollowUp": "متابعة",
+        "complaint": "الشكوى الرئيسية (اختياري)",
+        "complaintPlaceholder": "ما سبب زيارة المريض اليوم؟",
+        "cancel": "إلغاء",
+        "submit": "بدء الزيارة",
+        "submitting": "جارٍ البدء…",
+        "successToast": "تم بدء الزيارة.",
+        "errorGeneric": "تعذّر بدء الزيارة. حاول مرة أخرى.",
+        "errorNoBranch": "اختر الفرع أولاً.",
+        "errorNoSpecialty": "لا يوجد تخصص محدد في ملفك.",
+        "errorPatientHasOpenVisit": "لدى هذا المريض زيارة مفتوحة اليوم بالفعل.",
+        "openExistingVisit": "افتحها"
       }
     },
     "profile": {
@@ -2356,6 +2378,9 @@
       "errorDuplicatePatient": "المريض مسجل بالفعل بهذا الرقم القومي.",
       "errorPatientHasOpenVisit": "هذا المريض لديه بالفعل زيارة مفتوحة في قائمة انتظار اليوم. يرجى تسجيل دخوله أو إلغاء الزيارة الحالية أولاً.",
       "errorGeneric": "فشل حجز الزيارة.",
+      "errorJourneyAllowance": "استُهلكت حصة الرحلات السنوية للعيادة. لا يمكن فتح رحلات جديدة للمرضى حتى تتم إضافة باقة رحلات.",
+      "errorJourneyAllowanceAskOwner": "اطلب من مالك العيادة إضافة باقة رحلات أو ترقية الخطة.",
+      "errorJourneyAllowanceCta": "إدارة الاشتراك",
       "errorNoSpecialty": "لا توجد تخصصات مُعدَّة لهذه المؤسسة. يرجى التواصل مع المسؤول.",
       "cancelButton": "إلغاء",
       "submitButton": "إضافة إلى قائمة الانتظار",

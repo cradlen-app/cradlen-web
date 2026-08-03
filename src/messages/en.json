@@ -1139,6 +1139,28 @@
       "tabs": {
         "overview": "Overview",
         "history": "History"
+      },
+      "startVisit": "Start visit",
+      "startVisitDialog": {
+        "title": "Start a visit",
+        "description": "Create a visit for {name} and open the consultation now.",
+        "service": "Service",
+        "servicePlaceholder": "Select a service",
+        "noServices": "You're not authorized for any billable service at this branch. Ask your clinic owner to add one.",
+        "appointmentType": "Visit type",
+        "typeVisit": "Visit",
+        "typeFollowUp": "Follow-up",
+        "complaint": "Main complaint (optional)",
+        "complaintPlaceholder": "What brought the patient in today?",
+        "cancel": "Cancel",
+        "submit": "Start visit",
+        "submitting": "Starting…",
+        "successToast": "Visit started.",
+        "errorGeneric": "Could not start the visit. Please try again.",
+        "errorNoBranch": "Select a branch first.",
+        "errorNoSpecialty": "Your profile has no specialty set.",
+        "errorPatientHasOpenVisit": "This patient already has an open visit today.",
+        "openExistingVisit": "Open it"
       }
     },
     "profile": {
@@ -2356,6 +2378,9 @@
       "errorDuplicatePatient": "Patient already registered with this national ID.",
       "errorPatientHasOpenVisit": "This patient already has an open visit in today's waiting list. Check them in or cancel the existing visit first.",
       "errorGeneric": "Failed to book the visit.",
+      "errorJourneyAllowance": "Your clinic's yearly journey allowance is used up. New patient journeys can't be opened until a journey pack is added.",
+      "errorJourneyAllowanceAskOwner": "Ask your clinic owner to add a journey pack or upgrade the plan.",
+      "errorJourneyAllowanceCta": "Manage subscription",
       "errorNoSpecialty": "This organization has no specialty configured. Please contact your administrator.",
       "cancelButton": "Cancel",
       "submitButton": "Add to waiting list",

@@ -193,6 +193,19 @@ export function canCreateVisit(profile?: UserProfile): boolean {
 }
 
 /**
+ * Who may start a visit for a patient straight from the patient workspace,
+ * without a receptionist to book and check them in: any doctor. Mirrors the
+ * backend's `assertCanBookVisit` self-booking allowance — the caller may only
+ * ever book *themselves* as the assigned doctor, never another clinician.
+ *
+ * Deliberately `isDoctor` (job function) rather than authority: a non-clinical
+ * owner holds no ProviderService rows and so can never be the assigned doctor.
+ */
+export function canSelfStartVisit(profile?: UserProfile): boolean {
+  return isDoctor(profile);
+}
+
+/**
  * Who may drive a clinical visit step (start / complete): the doctor the visit
  * was booked for, or an owner / branch manager as an administrative override.
  * Mirrors the backend's assigned-doctor guard so the UI never offers an action
