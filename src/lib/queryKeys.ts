@@ -72,6 +72,8 @@ export const queryKeys = {
 
   // ── Patients ──────────────────────────────────────────────────────────────
   patients: {
+    /** Broad key — matches all patient queries (list, stats, search, detail). */
+    all: () => ["patients"] as const,
     list: (
       branchId: string,
       opts: { search?: string; journeyStatus?: string; mine?: boolean },

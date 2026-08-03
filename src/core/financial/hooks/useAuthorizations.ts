@@ -18,7 +18,12 @@ import type {
   AuthorizeServicesPayload,
 } from "../types/financial.types";
 
-/** List a provider's service authorizations. */
+/**
+ * List a provider's service authorizations — the services this clinician is
+ * allowed to deliver and bill for. Mirrors the API's
+ * `assertDoctorAuthorizedForService` check, so a picker built on this can only
+ * ever offer services the server will accept.
+ */
 export function useProviderServices(profileId: string | null | undefined) {
   const orgId = useAuthContextStore((s) => s.organizationId);
 
