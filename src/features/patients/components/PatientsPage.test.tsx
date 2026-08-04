@@ -20,6 +20,7 @@ const {
   perm: {
     canOpenPatientWorkspace: true,
     canViewPatientAnalytics: true,
+    canRegisterPatient: false,
     isOwner: false,
     isBranchManager: false,
     isClinical: false,
@@ -42,6 +43,7 @@ vi.mock("@/features/auth/lib/current-user", () => ({
 vi.mock("@/features/auth/lib/permissions", () => ({
   canOpenPatientWorkspace: () => perm.canOpenPatientWorkspace,
   canViewPatientAnalytics: () => perm.canViewPatientAnalytics,
+  canRegisterPatient: () => perm.canRegisterPatient,
   isOwner: () => perm.isOwner,
   isBranchManager: () => perm.isBranchManager,
   isClinical: () => perm.isClinical,
@@ -58,7 +60,27 @@ vi.mock("../hooks/usePatientsDirectory", () => ({
   usePatientsDirectory: (...a: unknown[]) => usePatientsDirectoryMock(...a),
 }));
 
-vi.mock("./PatientsHeader", () => ({ PatientsHeader: () => <div data-testid="header" /> }));
+vi.mock("./PatientsHeader", () => ({
+  PatientsHeader: ({
+    canRegister,
+    onRegister,
+  }: {
+    canRegister?: boolean;
+    onRegister?: () => void;
+  }) => (
+    <div data-testid="header">
+      {canRegister && (
+        <button type="button" onClick={onRegister}>
+          add-patient
+        </button>
+      )}
+    </div>
+  ),
+}));
+vi.mock("./RegisterPatientDrawer", () => ({
+  RegisterPatientDrawer: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="register-drawer" /> : null,
+}));
 vi.mock("./PatientStatCards", () => ({
   PatientStatCards: () => <div data-testid="stat-cards" />,
 }));
@@ -130,6 +152,7 @@ describe("PatientsPage", () => {
     vi.clearAllMocks();
     perm.canOpenPatientWorkspace = true;
     perm.canViewPatientAnalytics = true;
+    perm.canRegisterPatient = false;
     perm.isOwner = false;
     perm.isBranchManager = false;
     perm.isClinical = false;
@@ -211,5 +234,27 @@ describe("PatientsPage", () => {
     fireEvent.click(next);
     // page 2 still has 11 rows; page indicator advances
     expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
+  });
+
+  describe("patient registration", () => {
+    it("hides the register action when the caller may not register", () => {
+      perm.canRegisterPatient = false;
+      renderWithIntl(<PatientsPage />);
+      expect(
+        screen.queryByRole("button", { name: "add-patient" }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("register-drawer")).not.toBeInTheDocument();
+    });
+
+    it("opens the drawer from the header action", () => {
+      perm.canRegisterPatient = true;
+      renderWithIntl(<PatientsPage />);
+
+      // Closed until asked for — the drawer must not mount on page load.
+      expect(screen.queryByTestId("register-drawer")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: "add-patient" }));
+      expect(screen.getByTestId("register-drawer")).toBeInTheDocument();
+    });
   });
 });

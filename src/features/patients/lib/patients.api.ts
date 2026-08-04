@@ -33,6 +33,37 @@ export function updatePatient(id: string, data: UpdatePatientRequest) {
   });
 }
 
+/**
+ * Registers a patient into the caller's organization. Two shapes, discriminated
+ * by `patient_id`: link an existing patient picked from the cross-org search,
+ * or create a new one from demographics.
+ *
+ * Creates no visit and no charge — see `RegisterPatientDrawer` for the
+ * "Save & start visit" flow, which chains a booking afterwards.
+ */
+export type RegisterPatientRequest =
+  | { patient_id: string; marital_status?: ApiPatient["marital_status"] }
+  | {
+      full_name: string;
+      national_id: string;
+      date_of_birth: string;
+      phone_number: string;
+      address: string;
+      marital_status?: ApiPatient["marital_status"];
+    };
+
+export type RegisterPatientResponse = {
+  data: { patient: ApiPatient; journey: { id: string } };
+};
+
+/** POST /patients — register a patient without booking a visit. */
+export function registerPatient(body: RegisterPatientRequest) {
+  return apiAuthFetch<RegisterPatientResponse>(`/patients`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 type FetchBranchPatientsParams = {
   search?: string;
   journey_status?: ApiJourneyStatus;

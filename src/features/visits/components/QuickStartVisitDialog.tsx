@@ -181,6 +181,13 @@ function DialogBody({ onOpenChange, patientId, patientName }: Props) {
       return;
     }
 
+    if (mapped.kind === "duplicatePatient") {
+      // Unreachable from this dialog (it always books an existing patient by
+      // id), but the union is shared — handled so the switch stays exhaustive.
+      toast.error(tCreate("errorDuplicatePatient"));
+      return;
+    }
+
     toast.error(mapped.message);
   }
 

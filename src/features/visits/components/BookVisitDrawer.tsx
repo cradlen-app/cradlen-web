@@ -302,6 +302,13 @@ function DrawerBody({
         });
         return;
       }
+      if (mapped.kind === "duplicatePatient") {
+        // Previously fell through to the raw, untranslated server string.
+        toast.error(t("create.errorDuplicatePatient"), {
+          description: t("create.errors.useExistingPatient"),
+        });
+        return;
+      }
       toast.error(mapped.message);
     }
   }
