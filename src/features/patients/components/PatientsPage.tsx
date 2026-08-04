@@ -9,6 +9,7 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import {
   canOpenPatientWorkspace,
+  canRegisterPatient,
   canViewPatientAnalytics,
   isBranchManager,
   isClinical,
@@ -20,6 +21,7 @@ import type { PatientFilter } from "../types/patients.types";
 import { usePatients } from "../hooks/usePatients";
 import { usePatientsDirectory } from "../hooks/usePatientsDirectory";
 import { PatientsHeader } from "./PatientsHeader";
+import { RegisterPatientDrawer } from "./RegisterPatientDrawer";
 import { PatientStatCards } from "./PatientStatCards";
 import { PatientsTable } from "./PatientsTable";
 import { PatientsToolbar } from "./PatientsToolbar";
@@ -63,6 +65,8 @@ export function PatientsPage() {
   const activeProfile = getActiveProfile(currentUser);
   const canOpen = canOpenPatientWorkspace(activeProfile);
   const canViewAnalytics = canViewPatientAnalytics(activeProfile);
+  const canRegister = canRegisterPatient(activeProfile);
+  const [registering, setRegistering] = useState(false);
   const owner = isOwner(activeProfile);
   // A doctor (clinical, non-managerial) sees only their own patients; reception,
   // owners and branch managers keep the full branch directory.
@@ -115,7 +119,10 @@ export function PatientsPage() {
 
   return (
     <div className="flex flex-col gap-4 p-4 lg:h-full lg:p-6">
-      <PatientsHeader />
+      <PatientsHeader
+        canRegister={canRegister}
+        onRegister={() => setRegistering(true)}
+      />
 
       {canViewAnalytics && !noBranch && (
         <PatientStatCards
@@ -203,6 +210,13 @@ export function PatientsPage() {
           )}
         </div>
       </div>
+
+      {canRegister && (
+        <RegisterPatientDrawer
+          open={registering}
+          onOpenChange={setRegistering}
+        />
+      )}
     </div>
   );
 }

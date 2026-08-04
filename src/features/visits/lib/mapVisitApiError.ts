@@ -33,6 +33,15 @@ export type VisitSubmitError =
       /** The blocking visit, when the API told us which one it is. */
       visitId?: string;
     }
+  | {
+      kind: "duplicatePatient";
+      /**
+       * The patient already holding this national id. `Patient` is a global
+       * cross-org index, so this may be a patient of another clinic that the
+       * caller cannot open — the UI must degrade gracefully when absent.
+       */
+      patientId?: string;
+    }
   | { kind: "toastMessage"; message: string }
   | {
       kind: "allowanceExceeded";
@@ -67,6 +76,17 @@ export function mapVisitApiError(
       kind: "toastKey",
       key: "errorPatientHasOpenVisit",
       ...(typeof visitId === "string" ? { visitId } : {}),
+    };
+  }
+
+  if (apiError?.code === "PATIENT_ALREADY_EXISTS") {
+    // Booking and registration both hit this when a national id is already
+    // taken. The API names the colliding patient so the caller can offer to
+    // open them instead of dead-ending on a typed-out form.
+    const patientId = apiError.details?.patientId;
+    return {
+      kind: "duplicatePatient",
+      ...(typeof patientId === "string" ? { patientId } : {}),
     };
   }
 
