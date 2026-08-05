@@ -90,7 +90,12 @@ export const queryKeys = {
     all: () => ["patients"] as const,
     list: (
       branchId: string,
-      opts: { search?: string; journeyStatus?: string; mine?: boolean },
+      opts: {
+        search?: string;
+        journeyStatus?: string;
+        mine?: boolean;
+        page?: number;
+      },
     ) =>
       [
         "patients",
@@ -98,6 +103,7 @@ export const queryKeys = {
         opts.search,
         opts.journeyStatus,
         opts.mine ?? false,
+        opts.page ?? 1,
       ] as const,
     /**
      * Analytics cards. `scope` = "org" (owner) or the branch id; `mine`

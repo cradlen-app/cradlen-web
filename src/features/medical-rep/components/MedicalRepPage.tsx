@@ -2,8 +2,8 @@
 
 import { useState, useDeferredValue } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { cn } from "@/common/utils/utils";
+import { Search } from "lucide-react";
+import { DataTablePagination } from "@/components/common/DataTablePagination";
 import { useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
@@ -92,38 +92,17 @@ export function MedicalRepPage() {
               total > 0 &&
               t("showResults", { count: to - from + 1, total })}
           </p>
-          {!isLoading && totalPages > 1 && (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                aria-label={t("pagination.prev")}
-                className={cn(
-                  "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
-                  "hover:border-brand-primary/40 hover:text-brand-primary",
-                  "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
-                )}
-              >
-                <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
-              </button>
-              <span className="px-1.5 text-xs tabular-nums text-gray-500">
-                {t("pagination.pageOf", { page, total: totalPages })}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                aria-label={t("pagination.next")}
-                className={cn(
-                  "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
-                  "hover:border-brand-primary/40 hover:text-brand-primary",
-                  "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
-                )}
-              >
-                <ChevronRight className="size-3.5 rtl:rotate-180" aria-hidden="true" />
-              </button>
-            </div>
+          {!isLoading && (
+            <DataTablePagination
+              page={page}
+              pageCount={totalPages}
+              onPageChange={setPage}
+              labels={{
+                prev: t("pagination.prev"),
+                next: t("pagination.next"),
+                pageOf: t("pagination.pageOf", { page, total: totalPages }),
+              }}
+            />
           )}
         </div>
       </div>

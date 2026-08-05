@@ -132,16 +132,18 @@ function makePatient(id: string): Patient {
 function setPatients({
   patients = [makePatient("1"), makePatient("2")],
   total = 2,
+  totalPages = 1,
   isLoading = false,
   isError = false,
 }: {
   patients?: Patient[];
   total?: number;
+  totalPages?: number;
   isLoading?: boolean;
   isError?: boolean;
 } = {}) {
   usePatientsMock.mockReturnValue({
-    data: { patients, total },
+    data: { patients, total, totalPages },
     isLoading,
     isError,
   });
@@ -221,19 +223,54 @@ describe("PatientsPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("paginates a large directory and clamps the page on shrink", () => {
-    // 25 patients, PAGE_SIZE 11 → 3 pages.
-    setPatients({
-      patients: Array.from({ length: 25 }, (_, i) => makePatient(String(i))),
-      total: 25,
-    });
+  it("pages through the directory server-side", () => {
+    // Fake server: 25 patients at 11 per page → 3 pages. The hook is keyed on
+    // the requested page, so the component must render whatever comes back
+    // rather than slicing a full set client-side.
+    const PAGE_SIZE = 11;
+    const all = Array.from({ length: 25 }, (_, i) => makePatient(String(i)));
+    usePatientsMock.mockImplementation(
+      (_branchId: unknown, params: { page?: number } = {}) => {
+        const page = params.page ?? 1;
+        return {
+          data: {
+            patients: all.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+            total: all.length,
+            totalPages: 3,
+          },
+          isLoading: false,
+          isError: false,
+        };
+      },
+    );
+
     renderWithIntl(<PatientsPage />);
     expect(screen.getByTestId("patients-table")).toHaveTextContent("11 rows");
-    const next = screen.getByRole("button", { name: "Next page" });
+    expect(screen.getByText("Page 1 of 3")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
+
+    const next = screen.getByRole("button", { name: "Next page" });
     fireEvent.click(next);
-    // page 2 still has 11 rows; page indicator advances
     expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
+    // The page travelled to the server rather than being sliced locally.
+    expect(usePatientsMock).toHaveBeenLastCalledWith(
+      "branch-1",
+      expect.objectContaining({ page: 2 }),
+    );
+
+    // Last page is short — 25 = 11 + 11 + 3.
+    fireEvent.click(next);
+    expect(screen.getByText("Page 3 of 3")).toBeInTheDocument();
+    expect(screen.getByTestId("patients-table")).toHaveTextContent("3 rows");
+    expect(next).toBeDisabled();
+  });
+
+  it("hides the pagination control when everything fits on one page", () => {
+    setPatients({ total: 2, totalPages: 1 });
+    renderWithIntl(<PatientsPage />);
+    expect(
+      screen.queryByRole("button", { name: "Next page" }),
+    ).not.toBeInTheDocument();
   });
 
   describe("patient registration", () => {

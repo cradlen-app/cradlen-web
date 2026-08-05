@@ -1,7 +1,6 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -23,7 +22,7 @@ const StaffResetPasswordDialog = dynamic(
     import("./StaffResetPasswordDialog").then((m) => m.StaffResetPasswordDialog),
   { loading: () => null },
 );
-import { cn } from "@/common/utils/utils";
+import { DataTablePagination } from "@/components/common/DataTablePagination";
 import { StaffHeader } from "./StaffHeader";
 import { StaffOverview } from "./StaffOverview";
 import { StaffStatCards } from "./StaffStatCards";
@@ -231,38 +230,20 @@ export function StaffPage() {
                 {!isLoading &&
                   t("showResults", { count: pagedStaff.length, total: totalStaff })}
               </p>
-              {!isLoading && pageCount > 1 && (
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    aria-label={t("pagination.prev")}
-                    className={cn(
-                      "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
-                      "hover:border-brand-primary/40 hover:text-brand-primary",
-                      "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
-                    )}
-                  >
-                    <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
-                  </button>
-                  <span className="px-1.5 text-xs tabular-nums text-gray-500">
-                    {t("pagination.pageOf", { page: currentPage, total: pageCount })}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
-                    disabled={currentPage >= pageCount}
-                    aria-label={t("pagination.next")}
-                    className={cn(
-                      "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
-                      "hover:border-brand-primary/40 hover:text-brand-primary",
-                      "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
-                    )}
-                  >
-                    <ChevronRight className="size-3.5 rtl:rotate-180" aria-hidden="true" />
-                  </button>
-                </div>
+              {!isLoading && (
+                <DataTablePagination
+                  page={currentPage}
+                  pageCount={pageCount}
+                  onPageChange={setPage}
+                  labels={{
+                    prev: t("pagination.prev"),
+                    next: t("pagination.next"),
+                    pageOf: t("pagination.pageOf", {
+                      page: currentPage,
+                      total: pageCount,
+                    }),
+                  }}
+                />
               )}
             </div>
           </div>

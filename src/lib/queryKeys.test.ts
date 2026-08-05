@@ -141,10 +141,21 @@ describe("queryKeys — medicalRepVisits", () => {
 });
 
 describe("queryKeys — patients / notifications / calendar", () => {
-  it("patients.list normalizes mine to false when omitted", () => {
+  it("patients.list normalizes mine to false and page to 1 when omitted", () => {
     expect(
       queryKeys.patients.list("b1", { search: "ann", journeyStatus: "ACTIVE" }),
-    ).toEqual(["patients", "b1", "ann", "ACTIVE", false]);
+    ).toEqual(["patients", "b1", "ann", "ACTIVE", false, 1]);
+  });
+
+  it("patients.list separates pages so each is cached independently", () => {
+    expect(queryKeys.patients.list("b1", { page: 2 })).toEqual([
+      "patients",
+      "b1",
+      undefined,
+      undefined,
+      false,
+      2,
+    ]);
   });
 
   it("patients.stats defaults mine to false", () => {
