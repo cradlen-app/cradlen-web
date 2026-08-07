@@ -295,6 +295,20 @@ function DrawerBody({
         );
         return;
       }
+      if (mapped.kind === "allowanceExceeded") {
+        // Reception hits the same org-wide journey limit a doctor would.
+        toast.error(t("create.errorJourneyAllowance"), {
+          description: t("create.errorJourneyAllowanceAskOwner"),
+        });
+        return;
+      }
+      if (mapped.kind === "duplicatePatient") {
+        // Previously fell through to the raw, untranslated server string.
+        toast.error(t("create.errorDuplicatePatient"), {
+          description: t("create.errors.useExistingPatient"),
+        });
+        return;
+      }
       toast.error(mapped.message);
     }
   }

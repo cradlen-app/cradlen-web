@@ -24,6 +24,7 @@ export { useInvoice } from "./hooks/useInvoice";
 export { usePayments } from "./hooks/usePayments";
 export { useVisitCharges } from "./hooks/useCharges";
 export { useServices } from "./hooks/useServices";
+export { useProviderServices } from "./hooks/useAuthorizations";
 export { usePriceLists } from "./hooks/usePriceLists";
 export { useResolvePrice } from "./hooks/useResolvePrice";
 export { useFinancialReport } from "./hooks/useReports";

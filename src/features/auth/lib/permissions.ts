@@ -193,6 +193,36 @@ export function canCreateVisit(profile?: UserProfile): boolean {
 }
 
 /**
+ * Who may start a visit for a patient straight from the patient workspace,
+ * without a receptionist to book and check them in: any doctor. Mirrors the
+ * backend's `assertCanBookVisit` self-booking allowance — the caller may only
+ * ever book *themselves* as the assigned doctor, never another clinician.
+ *
+ * Deliberately `isDoctor` (job function) rather than authority: a non-clinical
+ * owner holds no ProviderService rows and so can never be the assigned doctor.
+ */
+export function canSelfStartVisit(profile?: UserProfile): boolean {
+  return isDoctor(profile);
+}
+
+/**
+ * Who may register a new patient from the patients list — creating the record,
+ * its org enrollment and its opening journey, without booking a visit.
+ *
+ * Doctors only, matching {@link canSelfStartVisit}: this is the reception-less
+ * intake flow, and the drawer's second action starts a visit the caller must be
+ * able to be assigned. The backend guard (`assertCanRegisterPatient`) is
+ * deliberately wider — reception may register too — so widening this predicate
+ * later needs no API change.
+ *
+ * Distinct from {@link canManagePatient} (owner / branch manager), which is
+ * about editing an existing patient's demographics.
+ */
+export function canRegisterPatient(profile?: UserProfile): boolean {
+  return isDoctor(profile);
+}
+
+/**
  * Who may drive a clinical visit step (start / complete): the doctor the visit
  * was booked for, or an owner / branch manager as an administrative override.
  * Mirrors the backend's assigned-doctor guard so the UI never offers an action

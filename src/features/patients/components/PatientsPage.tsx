@@ -1,14 +1,14 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { cn } from "@/common/utils/utils";
+import { DataTablePagination } from "@/components/common/DataTablePagination";
 import { useRouter } from "@/i18n/navigation";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { getActiveProfile } from "@/features/auth/lib/current-user";
 import {
   canOpenPatientWorkspace,
+  canRegisterPatient,
   canViewPatientAnalytics,
   isBranchManager,
   isClinical,
@@ -20,11 +20,10 @@ import type { PatientFilter } from "../types/patients.types";
 import { usePatients } from "../hooks/usePatients";
 import { usePatientsDirectory } from "../hooks/usePatientsDirectory";
 import { PatientsHeader } from "./PatientsHeader";
+import { RegisterPatientDrawer } from "./RegisterPatientDrawer";
 import { PatientStatCards } from "./PatientStatCards";
 import { PatientsTable } from "./PatientsTable";
 import { PatientsToolbar } from "./PatientsToolbar";
-
-const PAGE_SIZE = 11;
 
 function PatientsTableSkeleton() {
   return (
@@ -63,6 +62,8 @@ export function PatientsPage() {
   const activeProfile = getActiveProfile(currentUser);
   const canOpen = canOpenPatientWorkspace(activeProfile);
   const canViewAnalytics = canViewPatientAnalytics(activeProfile);
+  const canRegister = canRegisterPatient(activeProfile);
+  const [registering, setRegistering] = useState(false);
   const owner = isOwner(activeProfile);
   // A doctor (clinical, non-managerial) sees only their own patients; reception,
   // owners and branch managers keep the full branch directory.
@@ -77,22 +78,7 @@ export function PatientsPage() {
   const [scope, setScope] = useState<"branch" | "org">("branch");
   const orgWide = owner && scope === "org";
 
-  const { data, isLoading, isError } = usePatients(branchId ?? undefined, {
-    search: deferredSearch || undefined,
-    journeyStatus: toJourneyStatusParam(filter),
-    orgWide,
-    mine: personalScope,
-  });
-
-  const patients = useMemo(() => data?.patients ?? [], [data?.patients]);
-  const total = data?.total ?? 0;
-
-  const { selectedId, setSelectedId } = usePatientsDirectory(patients);
-
-  const noBranch = !branchId && !orgWide;
-
   const [page, setPage] = useState(1);
-  const pageCount = Math.max(1, Math.ceil(patients.length / PAGE_SIZE));
 
   // Reset to the first page whenever the result set's identity changes
   // (filter / search / scope). Adjusting state during render instead of in an
@@ -104,18 +90,38 @@ export function PatientsPage() {
     setPage(1);
   }
 
-  // Clamp during render so a shrinking dataset never strands us past the last
-  // page, without an effect that writes back into state.
-  const currentPage = Math.min(page, pageCount);
+  // Paging is server-side: the request carries `page`, so `patients` is already
+  // exactly the rows for the current page.
+  const { data, isLoading, isError } = usePatients(branchId ?? undefined, {
+    search: deferredSearch || undefined,
+    journeyStatus: toJourneyStatusParam(filter),
+    orgWide,
+    mine: personalScope,
+    page,
+  });
 
-  const pagedPatients = useMemo(
-    () => patients.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
-    [patients, currentPage],
-  );
+  const patients = useMemo(() => data?.patients ?? [], [data?.patients]);
+  const total = data?.total ?? 0;
+  const pageCount = Math.max(1, data?.totalPages ?? 1);
+
+  const { selectedId, setSelectedId } = usePatientsDirectory(patients);
+
+  const noBranch = !branchId && !orgWide;
+
+  // Clamp during render so a shrinking dataset (e.g. the last row on the final
+  // page is removed) never strands us past the last page, without an effect
+  // that writes back into state.
+  if (page > pageCount) {
+    setPage(pageCount);
+  }
+  const currentPage = Math.min(page, pageCount);
 
   return (
     <div className="flex flex-col gap-4 p-4 lg:h-full lg:p-6">
-      <PatientsHeader />
+      <PatientsHeader
+        canRegister={canRegister}
+        onRegister={() => setRegistering(true)}
+      />
 
       {canViewAnalytics && !noBranch && (
         <PatientStatCards
@@ -148,7 +154,7 @@ export function PatientsPage() {
             </div>
           ) : (
             <PatientsTable
-              patients={pagedPatients}
+              patients={patients}
               selectedId={selectedId}
               onSelect={(p) => setSelectedId(p.id)}
               onOpen={
@@ -166,43 +172,32 @@ export function PatientsPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 px-4 py-3">
           <p className="text-xs text-gray-400">
             {!isLoading && !noBranch &&
-              t("showResults", { count: pagedPatients.length, total })}
+              t("showResults", { count: patients.length, total })}
           </p>
-          {!isLoading && !noBranch && pageCount > 1 && (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                aria-label={t("pagination.prev")}
-                className={cn(
-                  "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
-                  "hover:border-brand-primary/40 hover:text-brand-primary",
-                  "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
-                )}
-              >
-                <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
-              </button>
-              <span className="px-1.5 text-xs tabular-nums text-gray-500">
-                {t("pagination.pageOf", { page: currentPage, total: pageCount })}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
-                disabled={currentPage >= pageCount}
-                aria-label={t("pagination.next")}
-                className={cn(
-                  "inline-flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors",
-                  "hover:border-brand-primary/40 hover:text-brand-primary",
-                  "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500",
-                )}
-              >
-                <ChevronRight className="size-3.5 rtl:rotate-180" aria-hidden="true" />
-              </button>
-            </div>
+          {!isLoading && !noBranch && (
+            <DataTablePagination
+              page={currentPage}
+              pageCount={pageCount}
+              onPageChange={setPage}
+              labels={{
+                prev: t("pagination.prev"),
+                next: t("pagination.next"),
+                pageOf: t("pagination.pageOf", {
+                  page: currentPage,
+                  total: pageCount,
+                }),
+              }}
+            />
           )}
         </div>
       </div>
+
+      {canRegister && (
+        <RegisterPatientDrawer
+          open={registering}
+          onOpenChange={setRegistering}
+        />
+      )}
     </div>
   );
 }

@@ -21,6 +21,12 @@ export type EventProps = {
   booking_started: void;
   booking_confirmed: { visitId?: string };
   visit_started: { visitId: string; kind?: string };
+  /**
+   * A doctor created *and* started a visit themselves from the patient
+   * workspace, bypassing the reception booking flow. Deliberately carries no
+   * patient identifier — every event here stays visit-scoped.
+   */
+  visit_self_started: { visitId: string };
 };
 
 export type AnalyticsEventName = keyof EventProps;
@@ -35,6 +41,7 @@ export const ANALYTICS_EVENT_NAMES: readonly AnalyticsEventName[] = [
   "booking_started",
   "booking_confirmed",
   "visit_started",
+  "visit_self_started",
 ];
 
 export function isAnalyticsEventName(value: string): value is AnalyticsEventName {

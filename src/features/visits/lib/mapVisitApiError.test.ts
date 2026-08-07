@@ -91,4 +91,165 @@ describe("mapVisitApiError", () => {
       key: "errorGeneric",
     });
   });
+
+  it("passes the blocking visitId through on PATIENT_HAS_OPEN_VISIT", () => {
+    const result = mapVisitApiError(
+      apiErr({
+        error: {
+          code: "PATIENT_HAS_OPEN_VISIT",
+          details: { visitId: "visit-9" },
+        },
+      }),
+      template,
+    );
+    expect(result).toEqual({
+      kind: "toastKey",
+      key: "errorPatientHasOpenVisit",
+      visitId: "visit-9",
+    });
+  });
+
+  describe("JOURNEY_ALLOWANCE_EXCEEDED", () => {
+    it("parses the allowance counters", () => {
+      const result = mapVisitApiError(
+        apiErr(
+          {
+            error: {
+              code: "JOURNEY_ALLOWANCE_EXCEEDED",
+              details: { remaining: 0, needed: 1, allowance: 50, consumed: 50 },
+            },
+          },
+          403,
+        ),
+        template,
+      );
+      expect(result).toEqual({
+        kind: "allowanceExceeded",
+        remaining: 0,
+        needed: 1,
+        allowance: 50,
+        consumed: 50,
+      });
+    });
+
+    it("defaults missing counters to zero rather than throwing", () => {
+      const result = mapVisitApiError(
+        apiErr({ error: { code: "JOURNEY_ALLOWANCE_EXCEEDED" } }, 403),
+        template,
+      );
+      expect(result).toEqual({
+        kind: "allowanceExceeded",
+        remaining: 0,
+        needed: 0,
+        allowance: 0,
+        consumed: 0,
+      });
+    });
+
+    it("is not swallowed by the details.fields branch", () => {
+      // Its `details` is a counter bag, not a field map — the code check has to
+      // run first or this lands in the field mapper as garbage.
+      const result = mapVisitApiError(
+        apiErr(
+          {
+            error: {
+              code: "JOURNEY_ALLOWANCE_EXCEEDED",
+              details: { remaining: 2, needed: 3, allowance: 10, consumed: 8 },
+            },
+          },
+          403,
+        ),
+      );
+      expect(result.kind).toBe("allowanceExceeded");
+    });
+  });
+
+  describe("without a template (the quick-start dialog)", () => {
+    it("degrades details.fields to a joined toast", () => {
+      const result = mapVisitApiError(
+        apiErr({
+          error: {
+            details: {
+              fields: {
+                service_id: ["is required"],
+                scheduled_at: ["must be a date"],
+              },
+            },
+          },
+        }),
+      );
+      expect(result).toEqual({
+        kind: "toastMessage",
+        message: "is required, must be a date",
+      });
+    });
+
+    it("degrades a message array to a joined toast", () => {
+      const result = mapVisitApiError(
+        apiErr({ error: { message: ["national_id has an invalid format"] } }),
+      );
+      expect(result).toEqual({
+        kind: "toastMessage",
+        message: "national_id has an invalid format",
+      });
+    });
+
+    it("still resolves known codes", () => {
+      expect(
+        mapVisitApiError(apiErr({ error: { code: "PATIENT_HAS_OPEN_VISIT" } })),
+      ).toEqual({ kind: "toastKey", key: "errorPatientHasOpenVisit" });
+    });
+  });
+
+  describe("PATIENT_ALREADY_EXISTS", () => {
+    it("passes the colliding patient id through", () => {
+      expect(
+        mapVisitApiError(
+          apiErr({
+            error: {
+              code: "PATIENT_ALREADY_EXISTS",
+              details: { patientId: "patient-9" },
+            },
+          }),
+        ),
+      ).toEqual({ kind: "duplicatePatient", patientId: "patient-9" });
+    });
+
+    it("omits patientId when the API did not supply one", () => {
+      expect(
+        mapVisitApiError(apiErr({ error: { code: "PATIENT_ALREADY_EXISTS" } })),
+      ).toEqual({ kind: "duplicatePatient" });
+    });
+
+    it("ignores a non-string patientId rather than passing it on", () => {
+      expect(
+        mapVisitApiError(
+          apiErr({
+            error: {
+              code: "PATIENT_ALREADY_EXISTS",
+              details: { patientId: 42 },
+            },
+          }),
+        ),
+      ).toEqual({ kind: "duplicatePatient" });
+    });
+
+    it("is resolved before the details.fields branch", () => {
+      // `details` here is not a field map; without the ordering it would fall
+      // into the field mapper and surface as a nonsense inline error.
+      expect(
+        mapVisitApiError(
+          apiErr({
+            error: {
+              code: "PATIENT_ALREADY_EXISTS",
+              details: {
+                patientId: "patient-9",
+                fields: { national_id: ["taken"] },
+              },
+            },
+          }),
+        ),
+      ).toEqual({ kind: "duplicatePatient", patientId: "patient-9" });
+    });
+  });
 });

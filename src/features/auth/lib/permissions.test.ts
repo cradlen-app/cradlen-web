@@ -6,6 +6,8 @@ import {
   canOpenMedicalRepWorkspace,
   canOpenPatientWorkspace,
   canPracticeSpecialty,
+  canRegisterPatient,
+  canSelfStartVisit,
   canViewMedicalReps,
   specialtyMatchesOrg,
 } from "./permissions";
@@ -212,5 +214,51 @@ describe("canPracticeSpecialty", () => {
         }),
       ),
     ).toBe(false);
+  });
+});
+
+describe("canSelfStartVisit", () => {
+  it("is true for every doctor persona", () => {
+    expect(canSelfStartVisit(doctor)).toBe(true);
+    expect(canSelfStartVisit(doctorOwner)).toBe(true);
+    expect(canSelfStartVisit(doctorBranchManager)).toBe(true);
+  });
+
+  it("is false for non-clinical staff, including authority without a clinical role", () => {
+    // A non-clinical owner holds no ProviderService rows, so they could never
+    // be the assigned doctor the backend's self-booking guard requires.
+    expect(canSelfStartVisit(owner)).toBe(false);
+    expect(canSelfStartVisit(branchManager)).toBe(false);
+    expect(canSelfStartVisit(receptionist)).toBe(false);
+    expect(canSelfStartVisit(accountant)).toBe(false);
+  });
+
+  it("is false for an undefined profile", () => {
+    expect(canSelfStartVisit(undefined)).toBe(false);
+  });
+});
+
+describe("canRegisterPatient", () => {
+  it("is true for every doctor persona", () => {
+    expect(canRegisterPatient(doctor)).toBe(true);
+    expect(canRegisterPatient(doctorOwner)).toBe(true);
+    expect(canRegisterPatient(doctorBranchManager)).toBe(true);
+  });
+
+  it("is false for everyone else, including reception and authority", () => {
+    expect(canRegisterPatient(owner)).toBe(false);
+    expect(canRegisterPatient(branchManager)).toBe(false);
+    expect(canRegisterPatient(receptionist)).toBe(false);
+    expect(canRegisterPatient(accountant)).toBe(false);
+    expect(canRegisterPatient(undefined)).toBe(false);
+  });
+
+  it("tracks canSelfStartVisit — the drawer's second action starts a visit", () => {
+    // "Save & start visit" books the caller as the assigned doctor, so anyone
+    // who can register must also be able to self-start. If these ever diverge,
+    // that action needs its own gate.
+    for (const p of [owner, branchManager, receptionist, accountant, doctor]) {
+      expect(canRegisterPatient(p)).toBe(canSelfStartVisit(p));
+    }
   });
 });

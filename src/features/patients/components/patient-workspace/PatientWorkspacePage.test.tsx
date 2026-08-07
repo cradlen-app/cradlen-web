@@ -5,7 +5,11 @@ import { renderWithIntl } from "@/test/render";
 const { useCurrentUserMock, usePatientMock, perm, authState } = vi.hoisted(() => ({
   useCurrentUserMock: vi.fn(),
   usePatientMock: vi.fn(),
-  perm: { canOpenPatientWorkspace: true, canManagePatient: true },
+  perm: {
+    canOpenPatientWorkspace: true,
+    canManagePatient: true,
+    canSelfStartVisit: true,
+  },
   authState: { organizationId: "org-1", branchId: "branch-1" } as {
     organizationId: string | null;
     branchId: string | null;
@@ -27,6 +31,7 @@ vi.mock("@/features/auth/lib/current-user", () => ({
 vi.mock("@/features/auth/lib/permissions", () => ({
   canManagePatient: () => perm.canManagePatient,
   canOpenPatientWorkspace: () => perm.canOpenPatientWorkspace,
+  canSelfStartVisit: () => perm.canSelfStartVisit,
 }));
 vi.mock("@/features/auth/store/authContextStore", () => ({
   useAuthContextStore: (
@@ -53,6 +58,11 @@ vi.mock("./PatientProfileDrawer", () => ({
     <div data-testid="profile-drawer">{open ? "open" : "closed"}</div>
   ),
 }));
+vi.mock("@/features/visits/components/QuickStartVisitDialog", () => ({
+  QuickStartVisitDialog: ({ open }: { open: boolean }) => (
+    <div data-testid="quick-start-dialog">{open ? "open" : "closed"}</div>
+  ),
+}));
 
 import { PatientWorkspacePage } from "./PatientWorkspacePage";
 
@@ -75,6 +85,7 @@ describe("PatientWorkspacePage", () => {
     vi.clearAllMocks();
     perm.canOpenPatientWorkspace = true;
     perm.canManagePatient = true;
+    perm.canSelfStartVisit = true;
     authState.organizationId = "org-1";
     authState.branchId = "branch-1";
     useCurrentUserMock.mockReturnValue({ data: { id: "u1" }, isLoading: false });
@@ -126,5 +137,40 @@ describe("PatientWorkspacePage", () => {
     expect(
       screen.queryByRole("button", { name: /Edit profile/i }),
     ).not.toBeInTheDocument();
+  });
+
+  describe("start-visit action", () => {
+    it("opens the quick-start dialog for a doctor", () => {
+      renderWithIntl(<PatientWorkspacePage patientId="p1" />);
+      expect(screen.getByTestId("quick-start-dialog")).toHaveTextContent(
+        "closed",
+      );
+      fireEvent.click(screen.getByRole("button", { name: /Start visit/i }));
+      expect(screen.getByTestId("quick-start-dialog")).toHaveTextContent("open");
+    });
+
+    it("hides the start-visit button for a non-doctor, leaving edit untouched", () => {
+      perm.canSelfStartVisit = false;
+      renderWithIntl(<PatientWorkspacePage patientId="p1" />);
+      expect(
+        screen.queryByRole("button", { name: /Start visit/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Edit profile/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("hides the start-visit button while the patient is still loading", () => {
+      setPatient({ isLoading: true });
+      usePatientMock.mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        isError: false,
+      });
+      renderWithIntl(<PatientWorkspacePage patientId="p1" />);
+      expect(
+        screen.queryByRole("button", { name: /Start visit/i }),
+      ).not.toBeInTheDocument();
+    });
   });
 });
